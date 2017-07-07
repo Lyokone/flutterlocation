@@ -1,0 +1,14 @@
+name: location
+description: A Flutter plugin for location with Callbacks.
+version: 1.0.0
+author: lyokone
+homepage:
+
+flutter:
+  plugin:
+    androidPackage: com.lyokone.location
+    pluginClass: LocationPlugin
+
+dependencies:
+  flutter:
+    sdk: flutter
