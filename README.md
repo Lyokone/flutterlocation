@@ -22,12 +22,14 @@ import 'package:location/location.dart';
 
 Look into the example for utilisation, but a basic implementation can be done like this for one time call :
 ```dart
-Map<String,double> location;
+Map<String,double> _currentLocation;
+
+Location _location = new Location();
 // Platform messages may fail, so we use a try/catch PlatformException.
 try {
-  location = await _location.getLocation;
+  _currentLocation = await _location.getLocation;
 } on PlatformException {
-  location = null;
+  _currentLocation = null;
 }
 ```
 
@@ -38,9 +40,7 @@ Location _location = new Location();
 
 _locationSubscription =
     _location.onLocationChanged.listen((Map<String,double> result) {
-      setState(() {
-        _currentLocation = result;
-      });
+      _currentLocation = result;
     });
 ```
 
