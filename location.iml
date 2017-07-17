@@ -24,6 +24,9 @@
       <excludeFolder url="file://$MODULE_DIR$/example/android/.gradle/3.3/tasks/_app_compileDebugJavaWithJavac/localClassSetAnalysis/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/android/.gradle/3.3/tasks/_app_compileDebugJavaWithJavac/localJarClasspathSnapshot/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/android/.gradle/3.3/tasks/_app_compileDebugJavaWithJavac/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/example/android/.gradle/3.3/tasks/_app_compileReleaseJavaWithJavac/localClassSetAnalysis/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/example/android/.gradle/3.3/tasks/_app_compileReleaseJavaWithJavac/localJarClasspathSnapshot/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/example/android/.gradle/3.3/tasks/_app_compileReleaseJavaWithJavac/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/android/.gradle/3.3/tasks/_location_compileDebugJavaWithJavac/localClassSetAnalysis/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/android/.gradle/3.3/tasks/_location_compileDebugJavaWithJavac/localJarClasspathSnapshot/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/android/.gradle/3.3/tasks/_location_compileDebugJavaWithJavac/packages" />

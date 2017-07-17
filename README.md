@@ -33,7 +33,7 @@ try {
 }
 ```
 
-You can also get continuous callbacks when you position is changing :
+You can also get continuous callbacks when your position is changing :
 ```dart
 StreamSubscription<Map<String,double>> _locationSubscription;
 Location _location = new Location();
@@ -42,6 +42,12 @@ _locationSubscription =
     _location.onLocationChanged.listen((Map<String,double> result) {
       _currentLocation = result;
     });
+```
+
+You can then use the position :
+```dart
+print(_currentLocation["latitude"]);
+print(_currentLocation["longitude"]);
 ```
 
 ## Feedback
