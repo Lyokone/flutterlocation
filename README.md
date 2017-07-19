@@ -1,6 +1,7 @@
 # Flutter Location Plugin
 
-This plugin handle getting location on Android and iOS. It also provides callbacks when location is changed.
+This plugin for [Flutter](https://flutter.io)
+handles getting location on Android and iOS. It also provides callbacks when location is changed.
 
 ## Getting Started
 
@@ -22,33 +23,29 @@ import 'package:location/location.dart';
 
 Look into the example for utilisation, but a basic implementation can be done like this for one time call :
 ```dart
-Map<String,double> _currentLocation;
+var currentLocation = <String, double>{};
 
-Location _location = new Location();
+var location = new Location();
+
 // Platform messages may fail, so we use a try/catch PlatformException.
 try {
-  _currentLocation = await _location.getLocation;
+  currentLocation = await location.getLocation;
 } on PlatformException {
-  _currentLocation = null;
+  currentLocation = null;
 }
 ```
 
 You can also get continuous callbacks when your position is changing :
 ```dart
-StreamSubscription<Map<String,double>> _locationSubscription;
-Location _location = new Location();
+var location = new Location();
 
-_locationSubscription =
-    _location.onLocationChanged.listen((Map<String,double> result) {
-      _currentLocation = result;
-    });
-```
-
-You can then use the position :
-```dart
-print(_currentLocation["latitude"]);
-print(_currentLocation["longitude"]);
+location.onLocationChanged.listen((Map<String,double> currentLocation) {
+  print(currentLocation["latitude"]);
+  print(currentLocation["longitude"]);
+});
 ```
 
 ## Feedback
-Please feel free to give me any feedback helping support this plugin !
+
+Please feel free to [give me any feedback](https://github.com/Lyokone/flutterlocation/issues)
+helping support this plugin !
