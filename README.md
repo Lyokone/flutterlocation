@@ -4,7 +4,7 @@ This plugin for [Flutter](https://flutter.io)
 handles getting location on Android and iOS. It also provides callbacks when location is changed.
 
 <p align="center">
-  <img src="./src/demo_readme.gif" alt="Demo App" style="margin:auto" width="372" height="686">
+  <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/src/demo_readme.gif" alt="Demo App" style="margin:auto" width="372" height="686">
 </p>
 
 ## Getting Started
