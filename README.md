@@ -3,8 +3,6 @@
 This plugin for [Flutter](https://flutter.io)
 handles getting location on Android and iOS. It also provides callbacks when location is changed.
 
-![Demo App](./src/demo.gif "Demo App")
-
 
 ## Getting Started
 
