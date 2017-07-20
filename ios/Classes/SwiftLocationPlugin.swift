@@ -47,8 +47,8 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, CLLocationManagerDele
     
     func buildDict(lat: Double, long: Double) {
         var coordinates: Dictionary<String, Double> = Dictionary();
-        coordinates["lat"]  = lat;
-        coordinates["long"] = long;
+        coordinates["latitude"]  = lat;
+        coordinates["longitude"] = long;
         self.coordinates = coordinates as NSDictionary;
     }
     

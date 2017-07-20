@@ -3,12 +3,17 @@
 This plugin for [Flutter](https://flutter.io)
 handles getting location on Android and iOS. It also provides callbacks when location is changed.
 
+![Demo App](./src/demo.gif "Demo App")
+
+
 ## Getting Started
 
 In order to use this plugin in Android, you have to add this permission in AndroidManifest.xml :
 ```xml
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
+Permission check for Android 6+ was added. Still no callback when permissions granted
+so aiming SDK 21 is safer.
 
 And to use it in iOS, you have to add this permission in Info.plist :
 ```xml

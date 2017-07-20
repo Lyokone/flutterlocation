@@ -17,6 +17,12 @@ class _MyAppState extends State<MyApp> {
   StreamSubscription<Map<String,double>> _locationSubscription;
   Location _location = new Location();
 
+  bool currentWidget = true;
+
+  Image image1;
+  Image image2;
+
+
   @override
   initState() {
     super.initState();
@@ -54,15 +60,30 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    if(currentWidget){
+      image1 = new Image.network("https://maps.googleapis.com/maps/api/staticmap?center=${_currentLocation["latitude"]},${_currentLocation["longitude"]}&zoom=18&size=640x400&key=YOUR_API_KEY");
+      currentWidget = !currentWidget;
+    }else{
+      image2 = new Image.network("https://maps.googleapis.com/maps/api/staticmap?center=${_currentLocation["latitude"]},${_currentLocation["longitude"]}&zoom=18&size=640x400&key=YOUR_API_KEY");
+      currentWidget = !currentWidget;
+    }
+
     return new MaterialApp(
       home: new Scaffold(
         appBar: new AppBar(
           title: new Text('Plugin example app'),
         ),
-        body: new Center(
-          child: new Text('Location : $_currentLocation\n'),
-        ),
-      ),
+        body:
+           new Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              new Stack(
+                children: <Widget>[image1, image2]),
+              new Center(child:new Text('$_currentLocation\n')),
+            ],
+          )
+        )
     );
   }
 }
