@@ -41,7 +41,9 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, CLLocationManagerDele
         let userLocation: CLLocation = locations[0];
         let long                     = userLocation.coordinate.longitude;
         let lat                      = userLocation.coordinate.latitude;
-        buildDict(lat: lat, long: long);
+        let alt                      = userLocation.altitude;
+        let acc                      = userLocation.horizontalAccuracy;
+        buildDict(lat: lat, long: long, alt: alt, acc: acc);
         returnResult();
     }
     
@@ -49,6 +51,8 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, CLLocationManagerDele
         var coordinates: Dictionary<String, Double> = Dictionary();
         coordinates["latitude"]  = lat;
         coordinates["longitude"] = long;
+        coordinates["accuracy"] = acc;
+        coordinates["altitude"] = alt;
         self.coordinates = coordinates as NSDictionary;
     }
     
