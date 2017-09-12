@@ -48,6 +48,8 @@ var location = new Location();
 location.onLocationChanged.listen((Map<String,double> currentLocation) {
   print(currentLocation["latitude"]);
   print(currentLocation["longitude"]);
+  print(currentLocation["accuracy"]);
+  print(currentLocation["altitude"]);
 });
 ```
 
