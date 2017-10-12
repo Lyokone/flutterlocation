@@ -23,20 +23,26 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, CLLocationManagerDele
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         if (call.method == "getLocation") {
             self.result = result;
-            
+
             if CLLocationManager.locationServicesEnabled() {
                 manager = CLLocationManager();
-                manager.requestAlwaysAuthorization();
-                manager.requestWhenInUseAuthorization();
                 manager.delegate = self;
+                if (Bundle.main.object(forInfoDictionaryKey: "NSLocationWhenInUseUsageDescription") != nil) {
+                    manager.requestWhenInUseAuthorization()
+                } else if (Bundle.main.object(forInfoDictionaryKey: "NSLocationAlwaysUsageDescription") != nil) {
+                    manager.requestAlwaysAuthorization()
+                } else {
+                    fatalError("To use location in iOS8 you need to define either NSLocationWhenInUseUsageDescription or NSLocationAlwaysUsageDescription in the app bundle's Info.plist file")
+                }
+
                 manager.desiredAccuracy = kCLLocationAccuracyBest;
                 manager.startUpdatingLocation();
             }
-            
         } else {
             result(FlutterMethodNotImplemented);
         }
     }
+    
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let userLocation: CLLocation = locations[0];
         let long                     = userLocation.coordinate.longitude;
@@ -65,7 +71,6 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, CLLocationManagerDele
         }
 
     }
-    
     
     public func onListen(withArguments arguments: Any?,
                          eventSink: @escaping FlutterEventSink) -> FlutterError? {
