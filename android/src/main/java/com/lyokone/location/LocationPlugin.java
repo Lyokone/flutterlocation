@@ -187,7 +187,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                         result.error("ERROR", "Failed to get location.", null);
                         return;
                     }
-                    events.error("ERROR", "Failed to get location.", null);
+                    // Do not send error on events
                 }
             }
         });
