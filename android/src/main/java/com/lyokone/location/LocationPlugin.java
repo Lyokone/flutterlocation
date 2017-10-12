@@ -86,7 +86,6 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                Log.i(METHOD_CHANNEL_NAME, "Get a location result");
                 super.onLocationResult(locationResult);
                 Location location = locationResult.getLastLocation();
                 HashMap loc = new HashMap();
@@ -164,7 +163,6 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     }
 
     private void getLastLocation(final Result result) {
-        Log.i(METHOD_CHANNEL_NAME, "Last location");
         mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
             @Override
             public void onComplete(@NonNull Task<Location> task) {
@@ -181,13 +179,12 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                     }
                     events.success(loc);
                 } else {
-                    Log.w(METHOD_CHANNEL_NAME, "Failed to get location.");
                     HashMap hash = new HashMap();
                     if (result != null) {
                         result.error("ERROR", "Failed to get location.", null);
                         return;
                     }
-                    // Do not send error on events
+                    // Do not send error on events otherwise it will produce an error
                 }
             }
         });
@@ -222,9 +219,6 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                 .addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        Log.i(METHOD_CHANNEL_NAME, "All location settings are satisfied.");
-
-                        //noinspection MissingPermission
                         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
                                 Looper.myLooper());
                     }
@@ -234,8 +228,6 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                         int statusCode = ((ApiException) e).getStatusCode();
                         switch (statusCode) {
                         case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                            Log.i(METHOD_CHANNEL_NAME, "Location settings are not satisfied. Attempting to upgrade "
-                                    + "location settings ");
                             try {
                                 // Show the dialog by calling startResolutionForResult(), and check the
                                 // result in onActivityResult().
