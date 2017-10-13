@@ -53,6 +53,13 @@ location.onLocationChanged.listen((Map<String,double> currentLocation) {
 });
 ```
 
+If you want a one shot updated location :
+```dart
+var location = new Location();
+
+Map<String,double> currentlocation = location.onLocationChanged.firstWhere((d) => d != null);
+```
+
 ## Feedback
 
 Please feel free to [give me any feedback](https://github.com/Lyokone/flutterlocation/issues)

@@ -1,32 +1,38 @@
 package com.lyokone.location;
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.location.Location;
-import android.support.annotation.MainThread;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.BroadcastReceiver;
+import android.content.IntentSender;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.HashMap;
 
@@ -43,141 +49,41 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
  * LocationPlugin
  */
 public class LocationPlugin implements MethodCallHandler, StreamHandler {
+    private static final String STREAM_CHANNEL_NAME = "lyokone/locationstream";
+    private static final String METHOD_CHANNEL_NAME = "lyokone/location";
+
+    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
+    private static final int REQUEST_CHECK_SETTINGS = 0x1;
+    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+    private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2;
 
     private FusedLocationProviderClient mFusedLocationClient;
+    private SettingsClient mSettingsClient;
+    private LocationRequest mLocationRequest;
+    private LocationSettingsRequest mLocationSettingsRequest;
+    private LocationCallback mLocationCallback;
+
     private EventSink events;
-    private BroadcastReceiver chargingStateChangeReceiver;
     private final Activity activity;
-    private boolean hasPermission = false;
-    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 895;
 
     LocationPlugin(Activity activity) {
         this.activity = activity;
-    }
-
-    private void getGPSPermission() {
-        String requestedPermission = "";
-        PackageManager pm = activity.getPackageManager();
-
-        try {
-            PackageInfo packageInfo = pm.getPackageInfo(activity.getPackageName(), PackageManager.GET_PERMISSIONS);
-            if (packageInfo != null) {
-                for (String permission : packageInfo.requestedPermissions) {
-                    if (permission.equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                        requestedPermission = Manifest.permission.ACCESS_COARSE_LOCATION;
-                        break;
-                    } else if (permission.equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                        requestedPermission = Manifest.permission.ACCESS_FINE_LOCATION;
-                        break;
-                    }
-                }
-            }
-
-            if (!requestedPermission.isEmpty()) {
-                int permissionCheck = ContextCompat.checkSelfPermission(activity, requestedPermission);
-
-                if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(activity, new String[] { requestedPermission },
-                            MY_PERMISSIONS_REQUEST_LOCATION);
-                } else {
-                    hasPermission = true;
-                }
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void checkPermission() {
-
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
+        mSettingsClient = LocationServices.getSettingsClient(activity);
+        createLocationCallback();
+        createLocationRequest();
+        buildLocationSettingsRequest();
     }
 
     /**
-     * Plugin registration.
+     * Creates a callback for receiving location events.
      */
-    public static void registerWith(Registrar registrar) {
-
-        final LocationPlugin instance = new LocationPlugin(registrar.activity());
-
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "lyokone/location");
-        channel.setMethodCallHandler(instance);
-
-        final EventChannel eventChannel = new EventChannel(registrar.messenger(), "lyokone/locationstream");
-        eventChannel.setStreamHandler(instance);
-    }
-
-    @Override
-    public void onMethodCall(MethodCall call, final Result result) {
-        if (call.method.equals("getLocation")) {
-
-            int targetSdkVersion = activity.getApplicationInfo().targetSdkVersion;
-            if (targetSdkVersion >= Build.VERSION_CODES.M) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    getGPSPermission();
-                } else {
-                    hasPermission = true;
-                }
-            } else {
-                hasPermission = true;
-            }
-
-            if (hasPermission) {
-                if (mFusedLocationClient == null) {
-                    mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this.activity);
-                }
-                mFusedLocationClient.getLastLocation().addOnSuccessListener(this.activity,
-                        new OnSuccessListener<Location>() {
-                            @Override
-                            public void onSuccess(Location location) {
-                                // Got last known location. In some rare situations this can be null.
-                                if (location != null) {
-                                    HashMap loc = new HashMap();
-                                    loc.put("latitude", location.getLatitude());
-                                    loc.put("longitude", location.getLongitude());
-                                    loc.put("accuracy", location.getAccuracy());
-                                    loc.put("altitude", location.getAltitude());
-                                    result.success(loc);
-                                }
-                            }
-                        });
-            }
-
-        } else {
-            result.notImplemented();
-        }
-    }
-
-    @Override
-    public void onListen(Object arguments, final EventSink eventsSink) {
-        events = eventsSink;
-        int targetSdkVersion = activity.getApplicationInfo().targetSdkVersion;
-
-        if (targetSdkVersion >= Build.VERSION_CODES.M) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                getGPSPermission();
-            } else {
-                hasPermission = true;
-            }
-        } else {
-            hasPermission = true;
-        }
-
-        if (hasPermission) {
-            LocationRequest mLocationRequest = new LocationRequest();
-            mLocationRequest.setInterval(10000);
-            mLocationRequest.setFastestInterval(5000);
-            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            if (mFusedLocationClient == null) {
-                mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this.activity);
-            }
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-        }
-    }
-
-    private LocationCallback mLocationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            for (Location location : locationResult.getLocations()) {
+    private void createLocationCallback() {
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                Location location = locationResult.getLastLocation();
                 HashMap loc = new HashMap();
                 loc.put("latitude", location.getLatitude());
                 loc.put("longitude", location.getLongitude());
@@ -186,12 +92,159 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                 events.success(loc);
             }
         };
-    };
+    }
+
+    /**
+     * Sets up the location request. Android has two location request settings:
+     * {@code ACCESS_COARSE_LOCATION} and {@code ACCESS_FINE_LOCATION}. These settings control
+     * the accuracy of the current location. This sample uses ACCESS_FINE_LOCATION, as defined in
+     * the AndroidManifest.xml.
+     * <p/>
+     * When the ACCESS_FINE_LOCATION setting is specified, combined with a fast update
+     * interval (5 seconds), the Fused Location Provider API returns location updates that are
+     * accurate to within a few feet.
+     * <p/>
+     * These settings are appropriate for mapping applications that show real-time location
+     * updates.
+     */
+    private void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+
+        // Sets the desired interval for active location updates. This interval is
+        // inexact. You may not receive updates at all if no location sources are available, or
+        // you may receive them slower than requested. You may also receive updates faster than
+        // requested if other applications are requesting location at a faster interval.
+        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+
+        // Sets the fastest rate for active location updates. This interval is exact, and your
+        // application will never receive updates faster than this value.
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    /**
+     * Uses a {@link com.google.android.gms.location.LocationSettingsRequest.Builder} to build
+     * a {@link com.google.android.gms.location.LocationSettingsRequest} that is used for checking
+     * if a device has the needed location settings.
+     */
+    private void buildLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(mLocationRequest);
+        mLocationSettingsRequest = builder.build();
+    }
+
+    /**
+    * Return the current state of the permissions needed.
+    */
+    private boolean checkPermissions() {
+        int permissionState = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION);
+        return permissionState == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(activity, new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
+                REQUEST_PERMISSIONS_REQUEST_CODE);
+    }
+
+    /**
+     * Plugin registration.
+     */
+    public static void registerWith(Registrar registrar) {
+        final MethodChannel channel = new MethodChannel(registrar.messenger(), METHOD_CHANNEL_NAME);
+        channel.setMethodCallHandler(new LocationPlugin(registrar.activity()));
+
+        final EventChannel eventChannel = new EventChannel(registrar.messenger(), STREAM_CHANNEL_NAME);
+        eventChannel.setStreamHandler(new LocationPlugin(registrar.activity()));
+    }
+
+    private void getLastLocation(final Result result) {
+        mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+            @Override
+            public void onComplete(@NonNull Task<Location> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    Location location = task.getResult();
+                    HashMap loc = new HashMap();
+                    loc.put("latitude", location.getLatitude());
+                    loc.put("longitude", location.getLongitude());
+                    loc.put("accuracy", location.getAccuracy());
+                    loc.put("altitude", location.getAltitude());
+                    if (result != null) {
+                        result.success(loc);
+                        return;
+                    }
+                    events.success(loc);
+                } else {
+                    HashMap hash = new HashMap();
+                    if (result != null) {
+                        result.error("ERROR", "Failed to get location.", null);
+                        return;
+                    }
+                    // Do not send error on events otherwise it will produce an error
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onMethodCall(MethodCall call, final Result result) {
+        if (call.method.equals("getLocation")) {
+            if (!checkPermissions()) {
+                requestPermissions();
+                return;
+            }
+            getLastLocation(result);
+        } else {
+            result.notImplemented();
+        }
+    }
+
+    @Override
+    public void onListen(Object arguments, final EventSink eventsSink) {
+        events = eventsSink;
+        if (!checkPermissions()) {
+            requestPermissions();
+            return;
+        }
+        getLastLocation(null);
+        /**
+        * Requests location updates from the FusedLocationApi. Note: we don't call this unless location
+        * runtime permission has been granted.
+        */
+        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
+                .addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
+                    @Override
+                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
+                                Looper.myLooper());
+                    }
+                }).addOnFailureListener(activity, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        int statusCode = ((ApiException) e).getStatusCode();
+                        switch (statusCode) {
+                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                            try {
+                                // Show the dialog by calling startResolutionForResult(), and check the
+                                // result in onActivityResult().
+                                ResolvableApiException rae = (ResolvableApiException) e;
+                                rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
+                            } catch (IntentSender.SendIntentException sie) {
+                                Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
+                            }
+                            break;
+                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                            String errorMessage = "Location settings are inadequate, and cannot be "
+                                    + "fixed here. Fix in Settings.";
+                            Log.e(METHOD_CHANNEL_NAME, errorMessage);
+                        }
+                    }
+                });
+    }
 
     @Override
     public void onCancel(Object arguments) {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-        activity.unregisterReceiver(chargingStateChangeReceiver);
-        chargingStateChangeReceiver = null;
+        events = null;
     }
 }
