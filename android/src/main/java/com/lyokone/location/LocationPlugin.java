@@ -1,14 +1,9 @@
 package com.lyokone.location;
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.location.Location;
-import android.support.annotation.MainThread;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.BroadcastReceiver;
 import android.content.IntentSender;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -16,6 +11,7 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
