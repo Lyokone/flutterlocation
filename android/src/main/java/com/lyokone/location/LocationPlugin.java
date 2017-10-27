@@ -159,11 +159,10 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     }
 
     private void getLastLocation(final Result result) {
-        mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful() && task.getResult() != null) {
-                    Location location = task.getResult();
+            public void onSuccess(Location location) {
+                if (location != null) {
                     HashMap loc = new HashMap();
                     loc.put("latitude", location.getLatitude());
                     loc.put("longitude", location.getLongitude());
