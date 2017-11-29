@@ -84,10 +84,10 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
                 Location location = locationResult.getLastLocation();
-                HashMap loc = new HashMap();
+                HashMap<String, Double> loc = new HashMap<String, Double>();
                 loc.put("latitude", location.getLatitude());
                 loc.put("longitude", location.getLongitude());
-                loc.put("accuracy", location.getAccuracy());
+                loc.put("accuracy", (double) location.getAccuracy());
                 loc.put("altitude", location.getAltitude());
                 events.success(loc);
             }
@@ -159,15 +159,14 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     }
 
     private void getLastLocation(final Result result) {
-        mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful() && task.getResult() != null) {
-                    Location location = task.getResult();
-                    HashMap loc = new HashMap();
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    HashMap<String, Double> loc = new HashMap<String, Double>();
                     loc.put("latitude", location.getLatitude());
                     loc.put("longitude", location.getLongitude());
-                    loc.put("accuracy", location.getAccuracy());
+                    loc.put("accuracy", (double) location.getAccuracy());
                     loc.put("altitude", location.getAltitude());
                     if (result != null) {
                         result.success(loc);
@@ -175,7 +174,6 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                     }
                     events.success(loc);
                 } else {
-                    HashMap hash = new HashMap();
                     if (result != null) {
                         result.error("ERROR", "Failed to get location.", null);
                         return;
