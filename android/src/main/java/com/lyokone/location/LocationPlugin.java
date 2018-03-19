@@ -43,6 +43,7 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /**
@@ -62,8 +63,11 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     private LocationRequest mLocationRequest;
     private LocationSettingsRequest mLocationSettingsRequest;
     private LocationCallback mLocationCallback;
+    private PluginRegistry.RequestPermissionsResultListener mPermissionsResultListener;
 
     private EventSink events;
+    private Result result;
+
     private final Activity activity;
 
     LocationPlugin(Activity activity) {
@@ -72,7 +76,48 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
         mSettingsClient = LocationServices.getSettingsClient(activity);
         createLocationCallback();
         createLocationRequest();
+        createPermissionsResultListener();
         buildLocationSettingsRequest();
+    }
+
+    public PluginRegistry.RequestPermissionsResultListener getPermissionsResultListener() {
+        return mPermissionsResultListener;
+    }
+
+    private void createPermissionsResultListener() {
+        mPermissionsResultListener = new PluginRegistry.RequestPermissionsResultListener() {
+            @Override
+            public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+                if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE && permissions.length == 1 && permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        if (result != null) {
+                            getLastLocation(result);
+                        } else if (events != null) {
+                            getLastLocation(null);
+                        }
+                    } else {
+                        if (!shouldShowRequestPermissionRationale()) {
+                            if (result != null) {
+                                result.error("PERMISSION_DENIED_NEVER_ASK", "Location permission denied forever- please open app settings", null);
+                            } else if (events != null) {
+                                events.error("PERMISSION_DENIED_NEVER_ASK", "Location permission denied forever - please open app settings", null);
+                                events = null;
+                            }
+                        } else {
+                            if (result != null) {
+                                result.error("PERMISSION_DENIED", "Location permission denied", null);
+                            } else if (events != null) {
+                                events.error("PERMISSION_DENIED", "Location permission denied", null);
+                                events = null;
+                            }
+                        }
+                    }
+                    return true;
+                }
+
+                return false;
+            }
+        };
     }
 
     /**
@@ -135,16 +180,20 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     }
 
     /**
-    * Return the current state of the permissions needed.
-    */
+     * Return the current state of the permissions needed.
+     */
     private boolean checkPermissions() {
         int permissionState = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION);
         return permissionState == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestPermissions() {
-        ActivityCompat.requestPermissions(activity, new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
+        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 REQUEST_PERMISSIONS_REQUEST_CODE);
+    }
+
+    private boolean shouldShowRequestPermissionRationale() {
+        return ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
     /**
@@ -152,10 +201,14 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
      */
     public static void registerWith(Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), METHOD_CHANNEL_NAME);
-        channel.setMethodCallHandler(new LocationPlugin(registrar.activity()));
+        LocationPlugin locationWithMethodChannel = new LocationPlugin(registrar.activity());
+        channel.setMethodCallHandler(locationWithMethodChannel);
+        registrar.addRequestPermissionsResultListener(locationWithMethodChannel.getPermissionsResultListener());
 
         final EventChannel eventChannel = new EventChannel(registrar.messenger(), STREAM_CHANNEL_NAME);
-        eventChannel.setStreamHandler(new LocationPlugin(registrar.activity()));
+        LocationPlugin locationWithEventChannel = new LocationPlugin(registrar.activity());
+        eventChannel.setStreamHandler(locationWithEventChannel);
+        registrar.addRequestPermissionsResultListener(locationWithEventChannel.getPermissionsResultListener());
     }
 
     private void getLastLocation(final Result result) {
@@ -188,6 +241,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     public void onMethodCall(MethodCall call, final Result result) {
         if (call.method.equals("getLocation")) {
             if (!checkPermissions()) {
+                this.result = result;
                 requestPermissions();
                 return;
             }
@@ -206,9 +260,9 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
         }
         getLastLocation(null);
         /**
-        * Requests location updates from the FusedLocationApi. Note: we don't call this unless location
-        * runtime permission has been granted.
-        */
+         * Requests location updates from the FusedLocationApi. Note: we don't call this unless location
+         * runtime permission has been granted.
+         */
         mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
                 .addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
                     @Override
@@ -217,27 +271,27 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                                 Looper.myLooper());
                     }
                 }).addOnFailureListener(activity, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        int statusCode = ((ApiException) e).getStatusCode();
-                        switch (statusCode) {
-                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                            try {
-                                // Show the dialog by calling startResolutionForResult(), and check the
-                                // result in onActivityResult().
-                                ResolvableApiException rae = (ResolvableApiException) e;
-                                rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
-                            } catch (IntentSender.SendIntentException sie) {
-                                Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
-                            }
-                            break;
-                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                            String errorMessage = "Location settings are inadequate, and cannot be "
-                                    + "fixed here. Fix in Settings.";
-                            Log.e(METHOD_CHANNEL_NAME, errorMessage);
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                int statusCode = ((ApiException) e).getStatusCode();
+                switch (statusCode) {
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        try {
+                            // Show the dialog by calling startResolutionForResult(), and check the
+                            // result in onActivityResult().
+                            ResolvableApiException rae = (ResolvableApiException) e;
+                            rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException sie) {
+                            Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
                         }
-                    }
-                });
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        String errorMessage = "Location settings are inadequate, and cannot be "
+                                + "fixed here. Fix in Settings.";
+                        Log.e(METHOD_CHANNEL_NAME, errorMessage);
+                }
+            }
+        });
     }
 
     @Override
