@@ -8,8 +8,10 @@ class Location {
 
   Stream<Map<String,double>> _onLocationChanged;
 
-  Future<dynamic> get getLocation =>
-      _channel.invokeMethod('getLocation');
+  Future<Map<String, double>> get getLocation {
+      Future<Map<String, double>> result = _channel.invokeMethod('getLocation');
+      return result;
+  }
 
   Stream<Map<String,double>> get onLocationChanged {
     if (_onLocationChanged == null) {
