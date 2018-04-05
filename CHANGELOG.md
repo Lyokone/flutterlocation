@@ -1,5 +1,6 @@
-## [1.2] 5th April 2018
+## [1.2.0] 5th April 2018
 * Permissions denied on Android handled thanks to g123k 
+* Dart 2 update thanks to efortuna
 
 ## [1.1.6] - 19th Octobre 2017.
 
