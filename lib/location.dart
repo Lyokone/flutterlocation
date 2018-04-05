@@ -8,21 +8,16 @@ class Location {
 
   Stream<Map<String,double>> _onLocationChanged;
 
-  Future<Map<String,double>> get getLocation async {
-    var res = await _channel.invokeMethod('getLocation');
-    if (res is Map) {
-      return new Map<String, double>.from(res);
-    } else {
-      return null;
-    }
-  }
+  Future<Map<String, double>> get getLocation => _channel
+      .invokeMethod('getLocation')
+      .then((result) => result.cast<String, double>());
 
-  Stream<Map<String,double>> get onLocationChanged {
+  Stream<Map<String, double>> get onLocationChanged {
     if (_onLocationChanged == null) {
-      var receiveBroadcastStream = _stream.receiveBroadcastStream();
-      if (receiveBroadcastStream is Stream) {
-        _onLocationChanged = Stream.castFrom(receiveBroadcastStream);
-      }
+      _onLocationChanged = _stream
+          .receiveBroadcastStream()
+          .map<Map<String, double>>(
+              (element) => element.cast<String, double>());
     }
     return _onLocationChanged;
   }
