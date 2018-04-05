@@ -4,17 +4,17 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
-  - Flutter (from `/Users/geoff/devtools/flutter/bin/cache/artifacts/engine/ios-release`)
-  - location (from `/Users/geoff/projects/flutter_location/ios`)
+  - Flutter (from `/Users/guillaume/Developer/flutter/bin/cache/artifacts/engine/ios`)
+  - location (from `/Users/guillaume/Developer/IdeaProject/location/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
-    :path: /Users/geoff/devtools/flutter/bin/cache/artifacts/engine/ios-release
+    :path: /Users/guillaume/Developer/flutter/bin/cache/artifacts/engine/ios
   location:
-    :path: /Users/geoff/projects/flutter_location/ios
+    :path: /Users/guillaume/Developer/IdeaProject/location/ios
 
 SPEC CHECKSUMS:
-  Flutter: d674e78c937094a75ac71dd77e921e840bea3dbf
+  Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
   location: 3a2eed4dd2fab25e7b7baf2a9efefe82b512d740
 
 PODFILE CHECKSUM: cc70c01bca487bebd110b87397f017f3b76a89f1
