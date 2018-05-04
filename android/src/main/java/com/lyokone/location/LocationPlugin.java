@@ -35,6 +35,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 
 import java.util.HashMap;
+import java.lang.RuntimeException;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.EventChannel.EventSink;
@@ -127,14 +128,18 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                Location location = locationResult.getLastLocation();
-                HashMap<String, Double> loc = new HashMap<String, Double>();
-                loc.put("latitude", location.getLatitude());
-                loc.put("longitude", location.getLongitude());
-                loc.put("accuracy", (double) location.getAccuracy());
-                loc.put("altitude", location.getAltitude());
-                events.success(loc);
+                if(events == null) {
+                    super.onLocationResult(locationResult);
+                    Location location = locationResult.getLastLocation();
+                    HashMap<String, Double> loc = new HashMap<String, Double>();
+                    loc.put("latitude", location.getLatitude());
+                    loc.put("longitude", location.getLongitude());
+                    loc.put("accuracy", (double) location.getAccuracy());
+                    loc.put("altitude", location.getAltitude());
+                    events.success(loc);
+                } else {
+                    throw new RuntimeException("Location permission denied");
+                }
             }
         };
     }
