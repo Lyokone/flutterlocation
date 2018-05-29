@@ -71,6 +71,8 @@
                                                           @"longitude": @(location.coordinate.longitude),
                                                           @"accuracy": @(location.horizontalAccuracy),
                                                           @"altitude": @(location.altitude),
+                                                          @"speed": @(location.speed),
+                                                          @"speed_accuracy": @(0.0),
                                                           };
     self.flutterResult(coordinatesDict);
     if (self.flutterListening) {

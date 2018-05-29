@@ -128,18 +128,16 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                if(events == null) {
-                    super.onLocationResult(locationResult);
-                    Location location = locationResult.getLastLocation();
-                    HashMap<String, Double> loc = new HashMap<String, Double>();
-                    loc.put("latitude", location.getLatitude());
-                    loc.put("longitude", location.getLongitude());
-                    loc.put("accuracy", (double) location.getAccuracy());
-                    loc.put("altitude", location.getAltitude());
-                    events.success(loc);
-                } else {
-                    throw new RuntimeException("Location permission denied");
-                }
+                super.onLocationResult(locationResult);
+                Location location = locationResult.getLastLocation();
+                HashMap<String, Double> loc = new HashMap<String, Double>();
+                loc.put("latitude", location.getLatitude());
+                loc.put("longitude", location.getLongitude());
+                loc.put("accuracy", (double) location.getAccuracy());
+                loc.put("altitude", location.getAltitude());
+                loc.put("speed", (double) location.getSpeed());
+                loc.put("speed_accuracy", (double) location.getSpeedAccuracyMetersPerSecond());
+                events.success(loc);
             }
         };
     }
@@ -226,6 +224,9 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                     loc.put("longitude", location.getLongitude());
                     loc.put("accuracy", (double) location.getAccuracy());
                     loc.put("altitude", location.getAltitude());
+                    loc.put("speed", (double) location.getSpeed());
+                    loc.put("speed_accuracy", (double) location.getSpeedAccuracyMetersPerSecond());
+
                     if (result != null) {
                         result.success(loc);
                         return;
