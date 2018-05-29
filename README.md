@@ -50,6 +50,8 @@ location.onLocationChanged.listen((Map<String,double> currentLocation) {
   print(currentLocation["longitude"]);
   print(currentLocation["accuracy"]);
   print(currentLocation["altitude"]);
+  print(currentLocation["speed"]);
+  print(currentLocation["speed_accuracy"]); // Will always be 0 on iOS
 });
 ```
 
