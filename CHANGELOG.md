@@ -1,3 +1,14 @@
+## [1.3.1] 29th May 2018
+* Added speed and speed_accuracy (only Android truly discover speed accuracy, so its always 0 for now on iOS)
+* Solved a crash
+
+
+## [1.3.0] 27th May 2018
+* Make it compatible with Firebase thanks to quangIO
+* Resolve runtime error exception thanks to jharrison902  
+* Update gitignore thanks to bcko
+
+
 ## [1.2.0] 5th April 2018
 * Permissions denied on Android handled thanks to g123k 
 * Dart 2 update thanks to efortuna
