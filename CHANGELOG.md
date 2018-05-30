@@ -1,3 +1,7 @@
+## [1.3.2] 30th May 2018
+* Change implementation to api in build.gradle in order to solve incompatibilities between 
+GMS versions thanks to luccascorrea 
+
 ## [1.3.1] 29th May 2018
 * Added speed and speed_accuracy (only Android truly discover speed accuracy, so its always 0 for now on iOS)
 * Solved a crash
