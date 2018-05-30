@@ -1,3 +1,8 @@
+## [1.3.3] 30th May 2018
+* Correct implementation of iOS plugin to match Android behaviour. No need to call getLocation 
+to get permissions for location callbacks.
+
+
 ## [1.3.2] 30th May 2018
 * Change implementation to api in build.gradle in order to solve incompatibilities between 
 GMS versions thanks to luccascorrea 

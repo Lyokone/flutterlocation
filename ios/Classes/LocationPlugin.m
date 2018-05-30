@@ -5,6 +5,8 @@
 @interface LocationPlugin() <FlutterStreamHandler, CLLocationManagerDelegate>
 @property (strong, nonatomic) CLLocationManager *clLocationManager;
 @property (copy, nonatomic)   FlutterResult      flutterResult;
+@property (assign, nonatomic) BOOL               locationWanted;
+
 @property (copy, nonatomic)   FlutterEventSink   flutterEventSink;
 @property (assign, nonatomic) BOOL               flutterListening;
 @end
@@ -22,15 +24,11 @@
 
 -(instancetype)init {
     self = [super init];
-    if (self) {
-        self.flutterListening = NO;
-    }
-    return self;
-}
 
--(void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-    if ([call.method isEqualToString:@"getLocation"]) {
-        self.flutterResult = result;
+    if (self) {
+        self.locationWanted = NO;
+        self.flutterListening = NO;
+        
         if ([CLLocationManager locationServicesEnabled]) {
             self.clLocationManager = [[CLLocationManager alloc] init];
             self.clLocationManager.delegate = self;
@@ -43,10 +41,20 @@
             else {
                 [NSException raise:NSInternalInconsistencyException format:@"To use location in iOS8 you need to define either NSLocationWhenInUseUsageDescription or NSLocationAlwaysUsageDescription in the app bundle's Info.plist file"];
             }
-
+            
             self.clLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
-            [self.clLocationManager startUpdatingLocation];
         }
+
+    }
+
+    return self;
+}
+
+-(void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
+    if ([call.method isEqualToString:@"getLocation"]) {
+        self.flutterResult = result;
+        self.locationWanted = YES;
+        [self.clLocationManager startUpdatingLocation];
     }
     else {
         result(FlutterMethodNotImplemented);
@@ -56,6 +64,7 @@
 -(FlutterError*)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)events {
     self.flutterEventSink = events;
     self.flutterListening = YES;
+    [self.clLocationManager startUpdatingLocation];
     return nil;
 }
 
@@ -74,7 +83,11 @@
                                                           @"speed": @(location.speed),
                                                           @"speed_accuracy": @(0.0),
                                                           };
-    self.flutterResult(coordinatesDict);
+
+    if (self.locationWanted) {
+        self.locationWanted = NO;
+        self.flutterResult(coordinatesDict);
+    }
     if (self.flutterListening) {
         self.flutterEventSink(coordinatesDict);
     } else {
