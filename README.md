@@ -1,5 +1,5 @@
 # Flutter Location Plugin
-
+[![pub package](https://img.shields.io/pub/v/location.svg)](https://pub.dartlang.org/packages/location)
 This plugin for [Flutter](https://flutter.io)
 handles getting location on Android and iOS. It also provides callbacks when location is changed.
 
