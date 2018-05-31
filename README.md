@@ -58,7 +58,7 @@ location.onLocationChanged.listen((Map<String,double> currentLocation) {
 ## API
 In this table you can find the different functions exposed by this plugin:
 
-| Method ||
+| Methods ||
 |--------|-----|
 | Future<Map<String, double>> | **getLocation** <br> Allow to get a one time position of the user. |
 | Stream<Map<String, double>> | **onLocationChanged** <br> Get the stream of the user's location. |
