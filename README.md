@@ -27,7 +27,7 @@ Then you just have to import the package with
 import 'package:location/location.dart';
 ```
 
-Look into the example for utilisation, but a basic implementation can be done like this for one time call :
+Look into the example for utilisation, but a basic implementation can be done like this for a one time location :
 ```dart
 var currentLocation = <String, double>{};
 
@@ -55,12 +55,6 @@ location.onLocationChanged.listen((Map<String,double> currentLocation) {
 });
 ```
 
-If you want a one shot updated location :
-```dart
-var location = new Location();
-
-Map<String,double> currentlocation = location.onLocationChanged.firstWhere((d) => d != null);
-```
 
 ## Feedback
 
