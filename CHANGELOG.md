@@ -1,3 +1,7 @@
+## [1.3.4] 4th June 2018
+* Fix crash for Android API pre 27 thanks to matthewtsmith.
+
+
 ## [1.3.3] 30th May 2018
 * Correct implementation of iOS plugin to match Android behaviour. No need to call getLocation 
 to get permissions for location callbacks.
