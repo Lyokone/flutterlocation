@@ -21,4 +21,10 @@ class Location {
     }
     return _onLocationChanged;
   }
+
+  static Future<bool> hasPermission() async
+  {
+    final int permission = await _channel.invokeMethod('hasPermission');
+    return (permission == 1);
+  }
 }
