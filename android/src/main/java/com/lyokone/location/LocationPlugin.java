@@ -139,7 +139,9 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     loc.put("speed_accuracy", (double) location.getSpeedAccuracyMetersPerSecond());
                 }
-                events.success(loc);
+                if (events != null) {
+                    events.success(loc);
+                }
             }
         };
     }
@@ -235,7 +237,9 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                         result.success(loc);
                         return;
                     }
-                    events.success(loc);
+                    if (events != null) {
+                        events.success(loc);
+                    }
                 } else {
                     if (result != null) {
                         result.error("ERROR", "Failed to get location.", null);
