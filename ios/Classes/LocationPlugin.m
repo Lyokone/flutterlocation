@@ -52,11 +52,38 @@
 
 -(void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     if ([call.method isEqualToString:@"getLocation"]) {
+        if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied && [CLLocationManager locationServicesEnabled])
+        {
+            // Location services are requested but user has denied
+            result([FlutterError errorWithCode:@"PERMISSION_DENIED"
+                                   message:@"The user explicitly denied the use of location services for this app or location services are currently disabled in Settings."
+                                   details:nil]);
+            return;
+        }
+        
         self.flutterResult = result;
         self.locationWanted = YES;
         [self.clLocationManager startUpdatingLocation];
-    }
-    else {
+    } else if ([call.method isEqualToString:@"hasPermission"]) {
+        NSLog(@"Do has permissions");
+        if ([CLLocationManager locationServicesEnabled]) {
+            
+            if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied)
+            {
+                // Location services are requested but user has denied
+                result(@(0));
+            } else {
+                // Location services are available
+                result(@(1));
+            }
+            
+            
+        } else {
+            // Location is not yet available
+            result(@(0));
+        }
+//
+    } else {
         result(FlutterMethodNotImplemented);
     }
 }
