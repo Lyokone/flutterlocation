@@ -1,3 +1,9 @@
+## [1.4.0] 21st August 2018
+* Add lazy permission request thanks to yathit
+* Add hasPermission() thanks to vagrantrobbie
+* Bug correction thanks to jalpedersen
+* Add more examples  
+
 ## [1.3.4] 4th June 2018
 * Fix crash for Android API pre 27 thanks to matthewtsmith.
 
