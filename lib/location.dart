@@ -8,11 +8,16 @@ class Location {
 
   Stream<Map<String,double>> _onLocationChanged;
 
-  Future<Map<String, double>> get getLocation => _channel
+  Future<Map<String, double>> getLocation() => _channel
       .invokeMethod('getLocation')
       .then((result) => result.cast<String, double>());
 
-  Stream<Map<String, double>> get onLocationChanged {
+  Future<bool> hasPermission() => _channel
+    .invokeMethod('hasPermission')
+    .then((result) => result == 1);
+  
+
+  Stream<Map<String, double>> onLocationChanged() {
     if (_onLocationChanged == null) {
       _onLocationChanged = _stream
           .receiveBroadcastStream()

@@ -217,6 +217,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     }
 
     private void getLastLocation(final Result result) {
+
         mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
@@ -256,6 +257,12 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                 return;
             }
             getLastLocation(result);
+        } else if(call.method.equals("hasPermission")) {
+            if(checkPermissions()) {
+                result.success(1);
+            } else {
+                result.error("PERMISSION_DENIED", "The user explicitly denied the use of location services for this app or location services are currently disabled in Settings.", null);
+            }
         } else {
             result.notImplemented();
         }
