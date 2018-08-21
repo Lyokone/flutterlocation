@@ -19,6 +19,7 @@ class _MyAppState extends State<MyApp> {
   StreamSubscription<Map<String, double>> _locationSubscription;
 
   Location _location = new Location();
+  bool _permission = false;
   String error;
 
   bool currentWidget = true;
@@ -32,7 +33,7 @@ class _MyAppState extends State<MyApp> {
     initPlatformState();
 
     _locationSubscription =
-        _location.onLocationChanged.listen((Map<String,double> result) {
+        _location.onLocationChanged().listen((Map<String,double> result) {
           setState(() {
             _currentLocation = result;
           });
@@ -45,7 +46,9 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
 
     try {
-      location = await _location.getLocation;
+      _permission = await _location.hasPermission();
+      location = await _location.getLocation();
+
 
       error = null;
     } on PlatformException catch (e) {
@@ -92,6 +95,11 @@ class _MyAppState extends State<MyApp> {
         child: new Text(_currentLocation != null
             ? 'Continuous location: $_currentLocation\n'
             : 'Error: $error\n')));
+
+    widgets.add(new Center(
+      child: new Text(_permission 
+            ? 'Has permission : Yes' 
+            : "Has permission : No")));
 
     return new MaterialApp(
         home: new Scaffold(
