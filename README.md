@@ -7,6 +7,9 @@ handles getting location on Android and iOS. It also provides callbacks when loc
   <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/src/demo_readme.gif" alt="Demo App" style="margin:auto" width="372" height="686">
 </p>
 
+# Breaking Changes
+As of the 1.4 version, you have to call `getLocation()` instead of just `getLocation` and `onLocationChanged()` instead of `onLocationChanged`.
+
 ## Getting Started
 
 In order to use this plugin in Android, you have to add this permission in AndroidManifest.xml :
@@ -58,10 +61,12 @@ location.onLocationChanged.listen((Map<String,double> currentLocation) {
 ## API
 In this table you can find the different functions exposed by this plugin:
 
-| Methods ||
+| Methods |Description|
 |--------|-----|
-| Future<Map<String, double>> | **getLocation** <br> Allow to get a one time position of the user. |
-| Stream<Map<String, double>> | **onLocationChanged** <br> Get the stream of the user's location. |
+| Future<Map<String, double>> | **getLocation()** <br> Allow to get a one time position of the user. |
+| Future\<bool> | **hasPermission()** <br> Return a boolean to know the state of the location permission. |
+| Stream<Map<String, double>> | **onLocationChanged()** <br> Get the stream of the user's location. |
+
 
 ## Feedback
 
