@@ -4,6 +4,9 @@ version: 1.4.0
 author: Guillaume Bernos
 homepage: https://github.com/Lyokone/flutterlocation
 
+environment:
+  sdk: ">=2.0.0 <3.0.0"
+
 flutter:
   plugin:
     androidPackage: com.lyokone.location
