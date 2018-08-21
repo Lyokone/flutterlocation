@@ -9,6 +9,7 @@
 
 @property (copy, nonatomic)   FlutterEventSink   flutterEventSink;
 @property (assign, nonatomic) BOOL               flutterListening;
+@property (assign, nonatomic) BOOL               hasInit;
 @end
 
 @implementation LocationPlugin
@@ -28,6 +29,15 @@
     if (self) {
         self.locationWanted = NO;
         self.flutterListening = NO;
+        self.hasInit = NO;
+  
+    }
+    return self;
+}
+    
+-(void)initLocation {
+    if (!(self.hasInit)) {
+        self.hasInit = YES;
         
         if ([CLLocationManager locationServicesEnabled]) {
             self.clLocationManager = [[CLLocationManager alloc] init];
@@ -44,13 +54,11 @@
             
             self.clLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
         }
-
     }
-
-    return self;
 }
 
 -(void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
+    [self initLocation];
     if ([call.method isEqualToString:@"getLocation"]) {
         if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied && [CLLocationManager locationServicesEnabled])
         {
