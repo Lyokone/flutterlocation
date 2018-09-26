@@ -130,12 +130,15 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
                 Location location = locationResult.getLastLocation();
-                HashMap<String, Double> loc = new HashMap<String, Double>();
+                HashMap<String, Object> loc = new HashMap<>();
                 loc.put("latitude", location.getLatitude());
                 loc.put("longitude", location.getLongitude());
                 loc.put("accuracy", (double) location.getAccuracy());
                 loc.put("altitude", location.getAltitude());
                 loc.put("speed", (double) location.getSpeed());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                    loc.put("is_from_mock_provider", location.isFromMockProvider());
+                }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     loc.put("speed_accuracy", (double) location.getSpeedAccuracyMetersPerSecond());
                 }
@@ -224,12 +227,15 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
             @Override
             public void onSuccess(Location location) {
                 if (location != null) {
-                    HashMap<String, Double> loc = new HashMap<String, Double>();
+                    HashMap<String, Object> loc = new HashMap<>();
                     loc.put("latitude", location.getLatitude());
                     loc.put("longitude", location.getLongitude());
                     loc.put("accuracy", (double) location.getAccuracy());
                     loc.put("altitude", location.getAltitude());
                     loc.put("speed", (double) location.getSpeed());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                        loc.put("is_from_mock_provider", location.isFromMockProvider());
+                    }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         loc.put("speed_accuracy", (double) location.getSpeedAccuracyMetersPerSecond());
                     }

@@ -13,10 +13,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Map<String, double> _startLocation;
-  Map<String, double> _currentLocation;
+  LocationSnapshot _startLocation;
+  LocationSnapshot _currentLocation;
 
-  StreamSubscription<Map<String, double>> _locationSubscription;
+  StreamSubscription<LocationSnapshot> _locationSubscription;
 
   Location _location = new Location();
   bool _permission = false;
@@ -33,16 +33,23 @@ class _MyAppState extends State<MyApp> {
     initPlatformState();
 
     _locationSubscription =
-        _location.onLocationChanged().listen((Map<String,double> result) {
+        _location.onLocationChanged().listen((LocationSnapshot result) {
           setState(() {
             _currentLocation = result;
           });
         });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+
+    _locationSubscription.cancel();
+  }
+
   // Platform messages are asynchronous, so we initialize in an async method.
   initPlatformState() async {
-    Map<String, double> location;
+    LocationSnapshot location;
     // Platform messages may fail, so we use a try/catch PlatformException.
 
     try {
@@ -82,7 +89,7 @@ class _MyAppState extends State<MyApp> {
     } else {
       widgets = [
         new Image.network(
-            "https://maps.googleapis.com/maps/api/staticmap?center=${_currentLocation["latitude"]},${_currentLocation["longitude"]}&zoom=18&size=640x400&key=YOUR_API_KEY")
+            "https://maps.googleapis.com/maps/api/staticmap?center=${_currentLocation.latitude},${_currentLocation.longitude}&zoom=18&size=640x400&key=YOUR_API_KEY")
       ];
     }
 
