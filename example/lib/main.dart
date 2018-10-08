@@ -31,13 +31,6 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     initPlatformState();
-
-    _locationSubscription =
-        _location.onLocationChanged().listen((Map<String,double> result) {
-          setState(() {
-            _currentLocation = result;
-          });
-        });
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -70,6 +63,12 @@ class _MyAppState extends State<MyApp> {
         _startLocation = location;
     });
 
+    _locationSubscription =
+      _location.onLocationChanged().listen((Map<String,double> result) {
+        setState(() {
+          _currentLocation = result;
+        });
+      });
   }
 
   @override
