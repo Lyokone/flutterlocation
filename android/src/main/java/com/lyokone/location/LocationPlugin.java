@@ -190,7 +190,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
      * Return the current state of the permissions needed.
      */
     private boolean checkPermissions() {
-        int permissionState = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION);
+        int permissionState = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION);
         return permissionState == PackageManager.PERMISSION_GRANTED;
     }
 
@@ -259,13 +259,14 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                 this.result = result;
                 requestPermissions();
                 return;
+            } else {
+                getLastLocation(result);
             }
-            getLastLocation(result);
         } else if(call.method.equals("hasPermission")) {
             if(checkPermissions()) {
                 result.success(1);
             } else {
-                result.error("PERMISSION_DENIED", "The user explicitly denied the use of location services for this app or location services are currently disabled in Settings.", null);
+                result.success(0);
             }
         } else {
             result.notImplemented();
@@ -276,7 +277,8 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     public void onListen(Object arguments, final EventSink eventsSink) {
         events = eventsSink;
         if (!checkPermissions()) {
-            requestPermissions();
+            String errorMessage = "Location runtime permission has not been granted";
+            Log.e(METHOD_CHANNEL_NAME, errorMessage);
             return;
         }
         getLastLocation(null);
