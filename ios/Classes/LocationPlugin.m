@@ -117,6 +117,7 @@
                                                           @"altitude": @(location.altitude),
                                                           @"speed": @(location.speed),
                                                           @"speed_accuracy": @(0.0),
+                                                          @"time": @(location.timestamp.timeIntervalSince1970 * 1000) // NSTimeInterval is seconds and we want millis
                                                           };
 
     if (self.locationWanted) {
