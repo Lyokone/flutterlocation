@@ -7,20 +7,28 @@
 @property (copy, nonatomic)   FlutterResult      flutterResult;
 @property (assign, nonatomic) BOOL               locationWanted;
 
-@property (copy, nonatomic)   FlutterEventSink   flutterEventSink;
 @property (assign, nonatomic) BOOL               flutterListening;
-@property (assign, nonatomic) BOOL               hasInit;
+@property (copy, nonatomic)   FlutterEventSink   flutterEventSink;
+@property(nonatomic, retain) FlutterMethodChannel *channel;
+@property(nonatomic, retain) LocationPermissionStreamHandler *locationPermissionStreamHandler;
 @end
 
 @implementation LocationPlugin
 
 +(void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
+    LocationPermissionStreamHandler *locationPermissionStreamHandler = [[LocationPermissionStreamHandler alloc] init];
+
     FlutterMethodChannel *channel = [FlutterMethodChannel methodChannelWithName:@"lyokone/location" binaryMessenger:registrar.messenger];
-    FlutterEventChannel *stream = [FlutterEventChannel eventChannelWithName:@"lyokone/locationstream" binaryMessenger:registrar.messenger];
+    FlutterEventChannel *locationStream = [FlutterEventChannel eventChannelWithName:@"lyokone/locationstream" binaryMessenger:registrar.messenger];
+    FlutterEventChannel *permissionStream = [FlutterEventChannel eventChannelWithName:@"lyokone/permissionstream" binaryMessenger:registrar.messenger];
 
     LocationPlugin *instance = [[LocationPlugin alloc] init];
+    instance.channel = channel;
+    instance.locationPermissionStreamHandler = locationPermissionStreamHandler;
+
     [registrar addMethodCallDelegate:instance channel:channel];
-    [stream setStreamHandler:instance];
+    [locationStream setStreamHandler:instance];
+    [permissionStream setStreamHandler:locationPermissionStreamHandler];
 }
 
 -(instancetype)init {
@@ -29,16 +37,13 @@
     if (self) {
         self.locationWanted = NO;
         self.flutterListening = NO;
-        self.hasInit = NO;
-  
     }
     return self;
 }
-    
--(void)initLocation {
-    if (!(self.hasInit)) {
-        self.hasInit = YES;
-        
+
+-(void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
+
+    if ([call.method isEqualToString:@"askForPermission"]) {
         if ([CLLocationManager locationServicesEnabled]) {
             self.clLocationManager = [[CLLocationManager alloc] init];
             self.clLocationManager.delegate = self;
@@ -51,15 +56,10 @@
             else {
                 [NSException raise:NSInternalInconsistencyException format:@"To use location in iOS8 you need to define either NSLocationWhenInUseUsageDescription or NSLocationAlwaysUsageDescription in the app bundle's Info.plist file"];
             }
-            
+
             self.clLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
         }
-    }
-}
-
--(void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-    [self initLocation];
-    if ([call.method isEqualToString:@"getLocation"]) {
+    } else if ([call.method isEqualToString:@"getLocation"]) {
         if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied && [CLLocationManager locationServicesEnabled])
         {
             // Location services are requested but user has denied
@@ -68,15 +68,15 @@
                                    details:nil]);
             return;
         }
-        
+
         self.flutterResult = result;
         self.locationWanted = YES;
         [self.clLocationManager startUpdatingLocation];
     } else if ([call.method isEqualToString:@"hasPermission"]) {
         NSLog(@"Do has permissions");
         if ([CLLocationManager locationServicesEnabled]) {
-            
-            if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied)
+
+            if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied || [CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined)
             {
                 // Location services are requested but user has denied
                 result(@(0));
@@ -84,8 +84,8 @@
                 // Location services are available
                 result(@(1));
             }
-            
-            
+
+
         } else {
             // Location is not yet available
             result(@(0));
@@ -128,6 +128,40 @@
     } else {
         [self.clLocationManager stopUpdatingLocation];
     }
+}
+
+- (void)locationManager:(CLLocationManager *)manager
+didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    BOOL hasPermission = NO;
+    if (status == kCLAuthorizationStatusDenied)
+    {
+        [self.locationPermissionStreamHandler sendPermissionData:&hasPermission];
+    } else if (status == kCLAuthorizationStatusAuthorized || status == kCLAuthorizationStatusAuthorizedAlways || status == kCLAuthorizationStatusAuthorizedWhenInUse) {
+        hasPermission = YES;
+        [self.locationPermissionStreamHandler sendPermissionData: &hasPermission];
+    }
+}
+
+@end
+
+@implementation LocationPermissionStreamHandler {
+    FlutterEventSink _eventSink;
+}
+
+- (FlutterError *_Nullable)onListenWithArguments:(id _Nullable)arguments eventSink:(FlutterEventSink)events {
+    _eventSink = events;
+    return nil;
+}
+
+- (void)sendPermissionData:(BOOL*) didGivePermission {
+    if (_eventSink) {
+        _eventSink([NSNumber numberWithBool:didGivePermission]);
+    }
+}
+
+- (FlutterError *_Nullable)onCancelWithArguments:(id _Nullable)arguments {
+    _eventSink = nil;
+    return nil;
 }
 
 @end
