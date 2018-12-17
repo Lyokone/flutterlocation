@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 class Location {
   static const MethodChannel _channel = const MethodChannel('lyokone/location');
   static const EventChannel _locationStream = const EventChannel('lyokone/locationstream');
-  static const EventChannel _permissionsStream = const EventChannel('lyokene/permissionsStream');
 
   Stream<Map<String,double>> _onLocationChanged;
 
