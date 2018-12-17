@@ -10,25 +10,19 @@
 @property (assign, nonatomic) BOOL               flutterListening;
 @property (copy, nonatomic)   FlutterEventSink   flutterEventSink;
 @property(nonatomic, retain) FlutterMethodChannel *channel;
-@property(nonatomic, retain) LocationPermissionStreamHandler *locationPermissionStreamHandler;
 @end
 
 @implementation LocationPlugin
 
 +(void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-    LocationPermissionStreamHandler *locationPermissionStreamHandler = [[LocationPermissionStreamHandler alloc] init];
-
     FlutterMethodChannel *channel = [FlutterMethodChannel methodChannelWithName:@"lyokone/location" binaryMessenger:registrar.messenger];
     FlutterEventChannel *locationStream = [FlutterEventChannel eventChannelWithName:@"lyokone/locationstream" binaryMessenger:registrar.messenger];
-    FlutterEventChannel *permissionStream = [FlutterEventChannel eventChannelWithName:@"lyokone/permissionstream" binaryMessenger:registrar.messenger];
 
     LocationPlugin *instance = [[LocationPlugin alloc] init];
     instance.channel = channel;
-    instance.locationPermissionStreamHandler = locationPermissionStreamHandler;
 
     [registrar addMethodCallDelegate:instance channel:channel];
     [locationStream setStreamHandler:instance];
-    [permissionStream setStreamHandler:locationPermissionStreamHandler];
 }
 
 -(instancetype)init {
@@ -42,7 +36,8 @@
 }
 
 -(void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-
+    NSNumber *hasPermissionNum = [self checkLocationPermission];
+    BOOL hasPermission = [hasPermissionNum boolValue];
     if ([call.method isEqualToString:@"askForPermission"]) {
         if ([CLLocationManager locationServicesEnabled]) {
             self.clLocationManager = [[CLLocationManager alloc] init];
@@ -58,42 +53,41 @@
             }
 
             self.clLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
+            [self.clLocationManager startUpdatingLocation];
         }
     } else if ([call.method isEqualToString:@"getLocation"]) {
-        if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied && [CLLocationManager locationServicesEnabled])
-        {
-            // Location services are requested but user has denied
-            result([FlutterError errorWithCode:@"PERMISSION_DENIED"
-                                   message:@"The user explicitly denied the use of location services for this app or location services are currently disabled in Settings."
-                                   details:nil]);
-            return;
+        if (hasPermission) {
+                self.flutterResult = result;
+                self.locationWanted = YES;
+                [self.clLocationManager startUpdatingLocation];
+        } else {
+                    // Location services are requested but user has denied
+                    result([FlutterError errorWithCode:@"PERMISSION_DENIED"
+                                           message:@"The user explicitly denied the use of location services for this app or location services are currently disabled in Settings."
+                                           details:nil]);
+                    return;
         }
-
-        self.flutterResult = result;
-        self.locationWanted = YES;
-        [self.clLocationManager startUpdatingLocation];
     } else if ([call.method isEqualToString:@"hasPermission"]) {
         NSLog(@"Do has permissions");
-        if ([CLLocationManager locationServicesEnabled]) {
-
-            if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied || [CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined)
-            {
-                // Location services are requested but user has denied
-                result(@(0));
-            } else {
-                // Location services are available
-                result(@(1));
-            }
-
-
-        } else {
-            // Location is not yet available
-            result(@(0));
-        }
-//
+        result(hasPermissionNum);
     } else {
         result(FlutterMethodNotImplemented);
     }
+}
+
+-(NSNumber*) checkLocationPermission {
+        if ([CLLocationManager locationServicesEnabled]) {
+            switch ([CLLocationManager authorizationStatus]) {
+            case kCLAuthorizationStatusNotDetermined:
+            case kCLAuthorizationStatusDenied:
+            case kCLAuthorizationStatusRestricted:
+                return [NSNumber numberWithInt:0];
+            case kCLAuthorizationStatusAuthorizedAlways:
+            case kCLAuthorizationStatusAuthorizedWhenInUse:
+                return [NSNumber numberWithInt:1];
+            }
+        }
+        return [NSNumber numberWithInt:0];
 }
 
 -(FlutterError*)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)events {
@@ -135,33 +129,11 @@ didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
     BOOL hasPermission = NO;
     if (status == kCLAuthorizationStatusDenied)
     {
-        [self.locationPermissionStreamHandler sendPermissionData:&hasPermission];
+        [self.channel invokeMethod:@"locationPermissionResponse" arguments:[NSNumber numberWithBool:hasPermission]];
     } else if (status == kCLAuthorizationStatusAuthorized || status == kCLAuthorizationStatusAuthorizedAlways || status == kCLAuthorizationStatusAuthorizedWhenInUse) {
         hasPermission = YES;
-        [self.locationPermissionStreamHandler sendPermissionData: &hasPermission];
+        [self.channel invokeMethod:@"locationPermissionResponse" arguments:[NSNumber numberWithBool:hasPermission]];
     }
-}
-
-@end
-
-@implementation LocationPermissionStreamHandler {
-    FlutterEventSink _eventSink;
-}
-
-- (FlutterError *_Nullable)onListenWithArguments:(id _Nullable)arguments eventSink:(FlutterEventSink)events {
-    _eventSink = events;
-    return nil;
-}
-
-- (void)sendPermissionData:(BOOL*) didGivePermission {
-    if (_eventSink) {
-        _eventSink([NSNumber numberWithBool:didGivePermission]);
-    }
-}
-
-- (FlutterError *_Nullable)onCancelWithArguments:(id _Nullable)arguments {
-    _eventSink = nil;
-    return nil;
 }
 
 @end
