@@ -224,32 +224,50 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
             @Override
             public void onSuccess(Location location) {
                 if (location != null) {
-                    HashMap<String, Double> loc = new HashMap<String, Double>();
-                    loc.put("latitude", location.getLatitude());
-                    loc.put("longitude", location.getLongitude());
-                    loc.put("accuracy", (double) location.getAccuracy());
-                    loc.put("altitude", location.getAltitude());
-                    loc.put("speed", (double) location.getSpeed());
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        loc.put("speed_accuracy", (double) location.getSpeedAccuracyMetersPerSecond());
-                    }
-
-                    if (result != null) {
-                        result.success(loc);
-                        return;
-                    }
-                    if (events != null) {
-                        events.success(loc);
-                    }
+                    handleGetLastLocationResponse(location, result);
                 } else {
-                    if (result != null) {
-                        result.error("ERROR", "Failed to get location.", null);
-                        return;
-                    }
-                    // Do not send error on events otherwise it will produce an error
+                    // Last location is null requestLocationUpdates required
+                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
+                        @Override
+                        public void onLocationResult(LocationResult locationResult) {
+                            super.onLocationResult(locationResult);
+
+                            Location location = locationResult.getLastLocation();
+                            if (location != null) {
+                                handleGetLastLocationResponse(location, result);
+                            } else {
+                                if (result != null) {
+                                    result.error("ERROR", "Failed to get location.", null);
+                                    return;
+                                }
+                                // Do not send error on events otherwise it will produce an error
+                            }
+                            mFusedLocationClient.removeLocationUpdates(this);
+                        }
+                    }, Looper.myLooper());
                 }
             }
         });
+    }
+
+    private void handleGetLastLocationResponse(Location location, Result result) {
+        HashMap<String, Double> loc = new HashMap<String, Double>();
+        loc.put("latitude", location.getLatitude());
+        loc.put("longitude", location.getLongitude());
+        loc.put("accuracy", (double) location.getAccuracy());
+        loc.put("altitude", location.getAltitude());
+        loc.put("speed", (double) location.getSpeed());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            loc.put("speed_accuracy", (double) location.getSpeedAccuracyMetersPerSecond());
+        }
+
+        if (result != null) {
+            result.success(loc);
+            return;
+        }
+        if (events != null) {
+            events.success(loc);
+        }
     }
 
     @Override
