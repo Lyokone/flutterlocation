@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+/// A data class that contains various information about the user's location.
+///
+/// speedAccuracy cannot be provided on iOS and thus is always 0.
 class LocationData {
   final double latitude;
   final double longitude;
@@ -37,13 +40,18 @@ const EventChannel _stream = const EventChannel('lyokone/locationstream');
 class Location {
   Stream<LocationData> _onLocationChanged;
 
+  /// Gets the current location of the user.
+  ///
+  /// Throws an error if the app has no permission to access location.
   Future<LocationData> getLocation() => _channel
       .invokeMethod('getLocation')
       .then((result) => LocationData.fromMap(result.cast<String, double>()));
 
+  /// Checks if the app has permission to access location.
   Future<bool> hasPermission() =>
       _channel.invokeMethod('hasPermission').then((result) => result == 1);
 
+  /// Returns a stream of location information.
   Stream<LocationData> onLocationChanged() {
     if (_onLocationChanged == null) {
       _onLocationChanged = _stream.receiveBroadcastStream().map<LocationData>(
