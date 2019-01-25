@@ -13,10 +13,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Map<String, double> _startLocation;
-  Map<String, double> _currentLocation;
+  LocationData _startLocation;
+  LocationData _currentLocation;
 
-  StreamSubscription<Map<String, double>> _locationSubscription;
+  StreamSubscription<LocationData> _locationSubscription;
 
   Location _location = new Location();
   bool _permission = false;
@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
     initPlatformState();
 
     _locationSubscription =
-        _location.onLocationChanged().listen((Map<String,double> result) {
+        _location.onLocationChanged().listen((LocationData result) {
           setState(() {
             _currentLocation = result;
           });
@@ -42,7 +42,7 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   initPlatformState() async {
-    Map<String, double> location;
+    LocationData location;
     // Platform messages may fail, so we use a try/catch PlatformException.
 
     try {
@@ -82,18 +82,18 @@ class _MyAppState extends State<MyApp> {
     } else {
       widgets = [
         new Image.network(
-            "https://maps.googleapis.com/maps/api/staticmap?center=${_currentLocation["latitude"]},${_currentLocation["longitude"]}&zoom=18&size=640x400&key=YOUR_API_KEY")
+            "https://maps.googleapis.com/maps/api/staticmap?center=${_currentLocation.latitude},${_currentLocation.longitude}&zoom=18&size=640x400&key=YOUR_API_KEY")
       ];
     }
 
     widgets.add(new Center(
         child: new Text(_startLocation != null
-            ? 'Start location: $_startLocation\n'
+            ? 'Start location: ${_startLocation.latitude} & ${_startLocation.longitude}\n'
             : 'Error: $error\n')));
 
     widgets.add(new Center(
         child: new Text(_currentLocation != null
-            ? 'Continuous location: $_currentLocation\n'
+            ? 'Continuous location: ${_currentLocation.latitude} & ${_currentLocation.longitude}\n'
             : 'Error: $error\n')));
 
     widgets.add(new Center(

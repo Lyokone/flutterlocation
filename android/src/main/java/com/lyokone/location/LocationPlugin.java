@@ -32,7 +32,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 
 import java.util.HashMap;
 import java.lang.RuntimeException;
@@ -59,8 +58,8 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
     private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2;
 
-    private FusedLocationProviderClient mFusedLocationClient;
-    private SettingsClient mSettingsClient;
+    private final FusedLocationProviderClient mFusedLocationClient;
+    private final SettingsClient mSettingsClient;
     private LocationRequest mLocationRequest;
     private LocationSettingsRequest mLocationSettingsRequest;
     private LocationCallback mLocationCallback;
@@ -130,7 +129,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
                 Location location = locationResult.getLastLocation();
-                HashMap<String, Double> loc = new HashMap<String, Double>();
+                HashMap<String, Double> loc = new HashMap<>();
                 loc.put("latitude", location.getLatitude());
                 loc.put("longitude", location.getLongitude());
                 loc.put("accuracy", (double) location.getAccuracy());
@@ -160,7 +159,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
      * updates.
      */
     private void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
+        mLocationRequest = LocationRequest.create();
 
         // Sets the desired interval for active location updates. This interval is
         // inexact. You may not receive updates at all if no location sources are available, or

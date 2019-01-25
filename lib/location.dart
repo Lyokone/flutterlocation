@@ -2,27 +2,52 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+class LocationData {
+  final double latitude;
+  final double longitude;
+  final double accuracy;
+  final double altitude;
+  final double speed;
+  final double speedAccuracy;
+
+  LocationData._(
+    this.latitude,
+    this.longitude,
+    this.accuracy,
+    this.altitude,
+    this.speed,
+    this.speedAccuracy,
+  );
+
+  factory LocationData.fromMap(Map<String, double> dataMap) {
+    return LocationData._(
+      dataMap['latitude'],
+      dataMap['longitude'],
+      dataMap['accuracy'],
+      dataMap['altitude'],
+      dataMap['speed'],
+      dataMap['speed_accuracy'],
+    );
+  }
+}
+
+const MethodChannel _channel = const MethodChannel('lyokone/location');
+const EventChannel _stream = const EventChannel('lyokone/locationstream');
+
 class Location {
-  static const MethodChannel _channel = const MethodChannel('lyokone/location');
-  static const EventChannel _stream = const EventChannel('lyokone/locationstream');
+  Stream<LocationData> _onLocationChanged;
 
-  Stream<Map<String,double>> _onLocationChanged;
-
-  Future<Map<String, double>> getLocation() => _channel
+  Future<LocationData> getLocation() => _channel
       .invokeMethod('getLocation')
-      .then((result) => result.cast<String, double>());
+      .then((result) => LocationData.fromMap(result.cast<String, double>()));
 
-  Future<bool> hasPermission() => _channel
-    .invokeMethod('hasPermission')
-    .then((result) => result == 1);
-  
+  Future<bool> hasPermission() =>
+      _channel.invokeMethod('hasPermission').then((result) => result == 1);
 
-  Stream<Map<String, double>> onLocationChanged() {
+  Stream<LocationData> onLocationChanged() {
     if (_onLocationChanged == null) {
-      _onLocationChanged = _stream
-          .receiveBroadcastStream()
-          .map<Map<String, double>>(
-              (element) => element.cast<String, double>());
+      _onLocationChanged = _stream.receiveBroadcastStream().map<LocationData>(
+          (element) => LocationData.fromMap(element.cast<String, double>()));
     }
     return _onLocationChanged;
   }
