@@ -216,7 +216,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
         mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
-                if (location == null) {
+                if (location != null) {
                     handleGetLastLocationResponse(location, result);
                 } else {
                     getCurrentLocation();
