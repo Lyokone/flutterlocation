@@ -21,6 +21,7 @@ import android.util.Log;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -226,8 +227,23 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                 if (location != null) {
                     handleGetLastLocationResponse(location, result);
                 } else {
-                    // Last location is null requestLocationUpdates required
+                    // Last location is null requestLocationUpdates might fix this
                     mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
+                        @Override
+                        public void onLocationAvailability(LocationAvailability locationAvailability) {
+                            super.onLocationAvailability(locationAvailability);
+
+                            if (!locationAvailability.isLocationAvailable()) {
+                                if (result != null) {
+                                    result.error("ERROR", "Failed to get location.", null);
+                                    return;
+                                }
+                                // Do not send error on events otherwise it will produce an error
+
+                                mFusedLocationClient.removeLocationUpdates(this);
+                            }
+                        }
+
                         @Override
                         public void onLocationResult(LocationResult locationResult) {
                             super.onLocationResult(locationResult);
@@ -242,6 +258,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                                 }
                                 // Do not send error on events otherwise it will produce an error
                             }
+
                             mFusedLocationClient.removeLocationUpdates(this);
                         }
                     }, Looper.myLooper());
