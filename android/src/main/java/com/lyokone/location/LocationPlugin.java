@@ -8,6 +8,7 @@ import android.content.IntentSender;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
@@ -220,49 +221,43 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     }
 
     private void getLastLocation(final Result result) {
-
         mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
                 if (location != null) {
                     handleGetLastLocationResponse(location, result);
-                } else {
-                    // Last location is null requestLocationUpdates might fix this
-                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
-                        @Override
-                        public void onLocationAvailability(LocationAvailability locationAvailability) {
-                            super.onLocationAvailability(locationAvailability);
-
-                            if (!locationAvailability.isLocationAvailable()) {
-                                if (result != null) {
-                                    result.error("ERROR", "Failed to get location.", null);
-                                    return;
-                                }
-                                // Do not send error on events otherwise it will produce an error
-
-                                mFusedLocationClient.removeLocationUpdates(this);
-                            }
-                        }
-
-                        @Override
-                        public void onLocationResult(LocationResult locationResult) {
-                            super.onLocationResult(locationResult);
-
-                            Location location = locationResult.getLastLocation();
-                            if (location != null) {
-                                handleGetLastLocationResponse(location, result);
-                            } else {
-                                if (result != null) {
-                                    result.error("ERROR", "Failed to get location.", null);
-                                    return;
-                                }
-                                // Do not send error on events otherwise it will produce an error
-                            }
-
-                            mFusedLocationClient.removeLocationUpdates(this);
-                        }
-                    }, Looper.myLooper());
+                    return;
                 }
+
+                if (!isLocationServicesEnabled()) {
+                    if (result != null) {
+                        result.error("ERROR", "Failed to get location.", null);
+                    }
+                    return;
+                    // Do not send error on events otherwise it will produce an error
+                }
+
+                // No last location returned however location is enabled and permissions are granted so request a location update
+                mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
+
+                    @Override
+                    public void onLocationResult(LocationResult locationResult) {
+                        super.onLocationResult(locationResult);
+
+                        Location location = locationResult.getLastLocation();
+                        if (location != null) {
+                            handleGetLastLocationResponse(location, result);
+                        } else {
+                            if (result != null) {
+                                result.error("ERROR", "Failed to get location.", null);
+                                return;
+                            }
+                            // Do not send error on events otherwise it will produce an error
+                        }
+
+                        mFusedLocationClient.removeLocationUpdates(this);
+                    }
+                }, Looper.myLooper());
             }
         });
     }
@@ -355,4 +350,23 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         events = null;
     }
+
+    private boolean isLocationServicesEnabled() {
+        LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+
+        boolean gpsEnabled = false;
+        boolean networkEnabled = false;
+
+        try {
+            gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception e) {}
+
+        try {
+            networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch(Exception e) {}
+
+
+        return gpsEnabled || networkEnabled;
+    }
+
 }
