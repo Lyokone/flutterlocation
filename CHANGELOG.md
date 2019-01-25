@@ -1,3 +1,7 @@
+## [2.0.0] 25th January 2019
+* Code cleanup
+* BREAKING CHANGE: Change Dart API to return structured data rather than a map.
+
 ## [1.4.0] 21st August 2018
 * Add lazy permission request thanks to yathit
 * Add hasPermission() thanks to vagrantrobbie
