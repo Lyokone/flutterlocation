@@ -1,6 +1,6 @@
 name: location
 description: A Flutter plugin for location with Callbacks.
-version: 1.4.0
+version: 2.0.0
 author: Guillaume Bernos
 homepage: https://github.com/Lyokone/flutterlocation
 
