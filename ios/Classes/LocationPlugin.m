@@ -1,6 +1,10 @@
 #import "LocationPlugin.h"
 
+#ifdef COCOAPODS
 @import CoreLocation;
+#else
+#import <CoreLocation/CoreLocation.h>
+#endif
 
 @interface LocationPlugin() <FlutterStreamHandler, CLLocationManagerDelegate>
 @property (strong, nonatomic) CLLocationManager *clLocationManager;
