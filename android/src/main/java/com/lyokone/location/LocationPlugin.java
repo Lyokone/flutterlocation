@@ -226,7 +226,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
             public void onSuccess(Location location) {
                 if (location != null) {
                     handleGetLastLocationResponse(location, result);
-                } else if (isLocationEnanbled()) {
+                } else if (isLocationEnabled()) {
                     // Last location is null requestLocationUpdates required
                     mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
                         @Override
@@ -346,19 +346,19 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
         events = null;
     }
 
-    private boolean isLocationEnanbled() {
+    private boolean isLocationEnabled() {
         LocationManager lm = (LocationManager)activity.getSystemService(Context.LOCATION_SERVICE);
-        boolean gps_enabled = false;
-        boolean network_enabled = false;
+        boolean gpsEnabled = false;
+        boolean networkEnabled = false;
 
         try {
-            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
         } catch(Exception ex) {}
 
         try {
-            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            networkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         } catch(Exception ex) {}
 
-        return gps_enabled || network_enabled;
+        return gpsEnabled || networkEnabled;
     }
 }
