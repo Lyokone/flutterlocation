@@ -3,16 +3,19 @@ package com.lyokone.location;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.BroadcastReceiver;
 import android.content.IntentSender;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.api.ApiException;
@@ -27,9 +30,12 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.HashMap;
+import java.lang.RuntimeException;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.EventChannel.EventSink;
@@ -213,62 +219,32 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     }
 
     private void getLastLocation(final Result result) {
+
         mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
                 if (location != null) {
                     handleGetLastLocationResponse(location, result);
                 } else {
-                    getCurrentLocation();
-                }
-            }
-
-            private void getCurrentLocation() {
-                try {
-                    //Request new location
-                    final LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
-
-                    locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
+                    // Last location is null requestLocationUpdates required
+                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
                         @Override
-                        public void onLocationChanged(Location location) {
+                        public void onLocationResult(LocationResult locationResult) {
+                            super.onLocationResult(locationResult);
+
+                            Location location = locationResult.getLastLocation();
                             if (location != null) {
                                 handleGetLastLocationResponse(location, result);
                             } else {
                                 if (result != null) {
                                     result.error("ERROR", "Failed to get location.", null);
+                                    return;
                                 }
+                                // Do not send error on events otherwise it will produce an error
                             }
-                            locationManager.removeUpdates(this);
-                        }
-
-                        @Override
-                        public void onStatusChanged(String s, int i, Bundle bundle) {
-                            // Nope
-                        }
-
-                        @Override
-                        public void onProviderEnabled(String s) {
-                            // Nope
-                        }
-
-                        @Override
-                        public void onProviderDisabled(String s) {
-                            if (LocationManager.GPS_PROVIDER.equals(s)) {
-                                if (result != null) {
-                                    result.error("ERROR", "Failed to get location.", null);
-                                }
-                                locationManager.removeUpdates(this);
-                            }
-                            // Nope
+                            mFusedLocationClient.removeLocationUpdates(this);
                         }
                     }, Looper.myLooper());
-
-                } catch (SecurityException e) {
-                    e.printStackTrace();
-
-                    if (result != null) {
-                        result.error("ERROR", "Failed to get location.", null);
-                    }
                 }
             }
         });
@@ -362,5 +338,4 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         events = null;
     }
-
 }
