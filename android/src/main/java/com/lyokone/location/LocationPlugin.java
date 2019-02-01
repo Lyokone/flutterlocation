@@ -8,6 +8,7 @@ import android.content.IntentSender;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
@@ -225,7 +226,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
             public void onSuccess(Location location) {
                 if (location != null) {
                     handleGetLastLocationResponse(location, result);
-                } else {
+                } else if (isLocationEnanbled()) {
                     // Last location is null requestLocationUpdates required
                     mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
                         @Override
@@ -236,18 +237,24 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                             if (location != null) {
                                 handleGetLastLocationResponse(location, result);
                             } else {
-                                if (result != null) {
-                                    result.error("ERROR", "Failed to get location.", null);
-                                    return;
-                                }
-                                // Do not send error on events otherwise it will produce an error
+                                handleGetLastLocationError(result);
                             }
+
                             mFusedLocationClient.removeLocationUpdates(this);
                         }
                     }, Looper.myLooper());
+                } else {
+                    handleGetLastLocationError(result);
                 }
             }
         });
+    }
+
+    private void handleGetLastLocationError(Result result) {
+        if (result != null) {
+            result.error("ERROR", "Failed to get location.", null);
+        }
+        // Do not send error on events otherwise it will produce an error
     }
 
     private void handleGetLastLocationResponse(Location location, Result result) {
@@ -337,5 +344,21 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     public void onCancel(Object arguments) {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         events = null;
+    }
+
+    private boolean isLocationEnanbled() {
+        LocationManager lm = (LocationManager)activity.getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch(Exception ex) {}
+
+        return gps_enabled || network_enabled;
     }
 }
