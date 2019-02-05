@@ -8,3 +8,17 @@ ios/.generated/
 packages
 pubspec.lock
 .flutter-plugins
+local.properties
+android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+ios/Podfile
+
+android/.project
+android/.settings/org.eclipse.buildship.core.prefs
+android/app/.classpath
+android/app/.project
+android/app/.settings/org.eclipse.buildship.core.prefs
+android/gradle/wrapper/gradle-wrapper.jar
+ios/Podfile.lock
+ios/Flutter/Generated.xcconfig
+ios/Runner/GeneratedPluginRegistrant.h
+ios/Runner/GeneratedPluginRegistrant.m
