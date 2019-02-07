@@ -64,9 +64,9 @@ In this table you can find the different functions exposed by this plugin:
 
 | Methods |Description|
 |--------|-----|
-| Future<LocationData> | **getLocation()** <br> Allow to get a one time position of the user. |
+| Future\<LocationData> | **getLocation()** <br> Allow to get a one time position of the user. |
 | Future\<bool> | **hasPermission()** <br> Return a boolean to know the state of the location permission. |
-| Stream<LocationData> | **onLocationChanged()** <br> Get the stream of the user's location. |
+| Stream\<LocationData> | **onLocationChanged()** <br> Get the stream of the user's location. |
   
 ### Objects
 ```dart
