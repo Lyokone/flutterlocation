@@ -8,7 +8,8 @@ handles getting location on Android and iOS. It also provides callbacks when loc
 </p>
 
 # Breaking Changes
-As of the 1.4 version, you have to call `getLocation()` instead of just `getLocation` and `onLocationChanged()` instead of `onLocationChanged`.
+As of the 2.0 version, you have to call the returned location is an LocationData Object. You can just access the different attribute like so : location.latitude.
+See the API part of the README for the changes.
 
 ## Getting Started
 
@@ -49,12 +50,12 @@ You can also get continuous callbacks when your position is changing:
 var location = new Location();
 
 location.onLocationChanged().listen((Map<String,double> currentLocation) {
-  print(currentLocation["latitude"]);
-  print(currentLocation["longitude"]);
-  print(currentLocation["accuracy"]);
-  print(currentLocation["altitude"]);
-  print(currentLocation["speed"]);
-  print(currentLocation["speed_accuracy"]); // Will always be 0 on iOS
+  print(currentLocation.latitude);
+  print(currentLocation.longitude);
+  print(currentLocation.accuracy);
+  print(currentLocation.altitude);
+  print(currentLocation.speed);
+  print(currentLocation.speed_accuracy); // Will always be 0 on iOS
 });
 ```
 
@@ -63,9 +64,21 @@ In this table you can find the different functions exposed by this plugin:
 
 | Methods |Description|
 |--------|-----|
-| Future<Map<String, double>> | **getLocation()** <br> Allow to get a one time position of the user. |
+| Future<LocationData> | **getLocation()** <br> Allow to get a one time position of the user. |
 | Future\<bool> | **hasPermission()** <br> Return a boolean to know the state of the location permission. |
-| Stream<Map<String, double>> | **onLocationChanged()** <br> Get the stream of the user's location. |
+| Stream<LocationData> | **onLocationChanged()** <br> Get the stream of the user's location. |
+  
+### Objects
+```dart
+class LocationData {
+  final double latitude;
+  final double longitude;
+  final double accuracy;
+  final double altitude;
+  final double speed;
+  final double speedAccuracy;
+}
+ ```
 
 
 ## Feedback
