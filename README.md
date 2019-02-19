@@ -10,6 +10,25 @@ handles getting location on Android and iOS. It also provides callbacks when loc
 # Breaking Changes
 As of the 2.0 version, you have to call the returned location is an LocationData Object. You can just access the different attribute like so : location.latitude.
 See the API part of the README for the changes.
+This version also switched to AndroidX instead of the old Android Support library. In order to use it you have to do the following things:
+
+Update your gradle.properties file with this:
+```
+android.enableJetifier=true
+android.useAndroidX=true
+org.gradle.jvmargs=-Xmx1536M
+```
+
+Please also make sure that you have those dependencies in your build.gradle:
+```
+  dependencies {
+      classpath 'com.android.tools.build:gradle:3.3.0'
+      classpath 'com.google.gms:google-services:4.2.0'
+  }
+...
+  compileSdkVersion 28
+```
+
 
 ## Getting Started
 
