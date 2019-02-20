@@ -75,6 +75,7 @@ location.onLocationChanged().listen((Map<String,double> currentLocation) {
   print(currentLocation.altitude);
   print(currentLocation.speed);
   print(currentLocation.speed_accuracy); // Will always be 0 on iOS
+  print(currentLocation.heading);
 });
 ```
 
@@ -96,6 +97,7 @@ class LocationData {
   final double altitude;
   final double speed;
   final double speedAccuracy;
+  final double heading;
 }
  ```
 

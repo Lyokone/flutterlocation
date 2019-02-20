@@ -121,6 +121,7 @@
                                                           @"altitude": @(location.altitude),
                                                           @"speed": @(location.speed),
                                                           @"speed_accuracy": @(0.0),
+                                                          @"heading": @(location.course),
                                                           };
 
     if (self.locationWanted) {

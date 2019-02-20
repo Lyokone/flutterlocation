@@ -12,6 +12,7 @@ class LocationData {
   final double altitude;
   final double speed;
   final double speedAccuracy;
+  final double heading;
 
   LocationData._(
     this.latitude,
@@ -20,6 +21,7 @@ class LocationData {
     this.altitude,
     this.speed,
     this.speedAccuracy,
+    this.heading,
   );
 
   factory LocationData.fromMap(Map<String, double> dataMap) {
@@ -30,6 +32,7 @@ class LocationData {
       dataMap['altitude'],
       dataMap['speed'],
       dataMap['speed_accuracy'],
+      dataMap['heading'],
     );
   }
 }
