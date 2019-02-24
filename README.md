@@ -68,14 +68,14 @@ You can also get continuous callbacks when your position is changing:
 ```dart
 var location = new Location();
 
-location.onLocationChanged().listen((LocationData currentLocation) {
-  print(currentLocation.latitude);
-  print(currentLocation.longitude);
-  print(currentLocation.accuracy);
-  print(currentLocation.altitude);
-  print(currentLocation.speed);
-  print(currentLocation.speed_accuracy); // Will always be 0 on iOS
-  print(currentLocation.heading);
+location.onLocationChanged().listen((Map<String,double> currentLocation) {
+  print(currentLocation["latitude"]);
+  print(currentLocation["longitude"]);
+  print(currentLocation["accuracy"]);
+  print(currentLocation["altitude"]);
+  print(currentLocation["speed"]);
+  print(currentLocation["speed_accuracy"]); // Will always be 0 on iOS
+
 });
 ```
 
