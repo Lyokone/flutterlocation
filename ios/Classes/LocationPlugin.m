@@ -128,7 +128,13 @@
 -(FlutterError*)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)events {
     self.flutterEventSink = events;
     self.flutterListening = YES;
-    [self.clLocationManager startUpdatingLocation];
+
+    if ([self isPermissionGranted]) {
+        [self.clLocationManager startUpdatingLocation];
+    } else {
+        [self requestPermission];
+    }
+
     return nil;
 }
 
@@ -136,6 +142,8 @@
     self.flutterListening = NO;
     return nil;
 }
+
+#pragma mark - CLLocationManagerDelegate Methods
 
 -(void)locationManager:(CLLocationManager*)manager didUpdateLocations:(NSArray<CLLocation*>*)locations {
     CLLocation *location = locations.firstObject;
@@ -157,6 +165,20 @@
         self.flutterEventSink(coordinatesDict);
     } else {
         [self.clLocationManager stopUpdatingLocation];
+    }
+}
+
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    if (status == kCLAuthorizationStatusDenied) {
+        // The user denied authorization
+        NSLog(@"User denied permissions");
+    }
+    else if (status == kCLAuthorizationStatusAuthorizedWhenInUse || status == kCLAuthorizationStatusAuthorizedAlways) {
+        NSLog(@"User granted permissions");
+
+        if (self.locationWanted || self.flutterListening) {
+            [self.clLocationManager startUpdatingLocation];
+        }
     }
 }
 
