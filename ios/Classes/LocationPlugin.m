@@ -114,7 +114,7 @@
             isPermissionGranted = NO;
             break;
             case kCLAuthorizationStatusNotDetermined:
-            // Location services are requested but user has denied
+            // Location services never requested / the user still haven't decide
             isPermissionGranted = NO;
             break;
         default:
