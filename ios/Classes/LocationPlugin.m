@@ -70,9 +70,11 @@
             [self.clLocationManager startUpdatingLocation];
         } else {
             [self requestPermission];
+            if ([self isPermissionGranted]) {
+                [self.clLocationManager startUpdatingLocation];
+            }
         }
     } else if ([call.method isEqualToString:@"hasPermission"]) {
-        NSLog(@"Do has permissions");
         if ([CLLocationManager locationServicesEnabled]) {
             if ([self isPermissionGranted]) {
                 result(@(1));
@@ -81,6 +83,13 @@
             }
         } else {
             // Location is not yet enabled
+            result(@(0));
+        }
+    } else if ([call.method isEqualToString:@"requestPermission"]) {
+        [self requestPermission];
+        if ([self isPermissionGranted]) {
+            result(@(1));
+        } else {
             result(@(0));
         }
     } else {
@@ -103,17 +112,17 @@
 -(BOOL) isPermissionGranted {
     BOOL isPermissionGranted = NO;
     switch ([CLLocationManager authorizationStatus]) {
-            case kCLAuthorizationStatusAuthorizedWhenInUse:
-            case kCLAuthorizationStatusAuthorizedAlways:
+        case kCLAuthorizationStatusAuthorizedWhenInUse:
+        case kCLAuthorizationStatusAuthorizedAlways:
             // Location services are available
             isPermissionGranted = YES;
             break;
-            case kCLAuthorizationStatusDenied:
-            case kCLAuthorizationStatusRestricted:
+        case kCLAuthorizationStatusDenied:
+        case kCLAuthorizationStatusRestricted:
             // Location services are requested but user has denied / the app is restricted from getting location
             isPermissionGranted = NO;
             break;
-            case kCLAuthorizationStatusNotDetermined:
+        case kCLAuthorizationStatusNotDetermined:
             // Location services never requested / the user still haven't decide
             isPermissionGranted = NO;
             break;

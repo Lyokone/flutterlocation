@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
 
+import 'config.dart';
+
 void main() {
   runApp(new MyApp());
 }
@@ -31,40 +33,34 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     initPlatformState();
-
-    _locationSubscription =
-        _location.onLocationChanged().listen((LocationData result) {
-          setState(() {
-            _currentLocation = result;
-          });
-        });
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   initPlatformState() async {
     LocationData location;
     // Platform messages may fail, so we use a try/catch PlatformException.
-
     try {
-      _permission = await _location.hasPermission();
+      _permission = await _location.requestPermission();
+      print("Permission: $_permission");
       location = await _location.getLocation();
+      print("Location: $location");
 
-
-      error = null;
-    } on PlatformException catch (e) {
-      if (e.code == 'PERMISSION_DENIED') {
-        error = 'Permission denied';
-      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
-        error = 'Permission denied - please ask the user to enable it from the app settings';
+      if (_permission) {
+        _locationSubscription = _location.onLocationChanged().listen((LocationData result) {
+          setState(() {
+            _currentLocation = result;
+          });
+        });
       }
 
+
+    } on PlatformException catch (e) {
+      print(e);
+      if (e.code == 'PERMISSION_DENIED') {
+        error = 'Permission denied';
+      } 
       location = null;
     }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    //if (!mounted) return;
 
     setState(() {
         _startLocation = location;
@@ -82,7 +78,7 @@ class _MyAppState extends State<MyApp> {
     } else {
       widgets = [
         new Image.network(
-            "https://maps.googleapis.com/maps/api/staticmap?center=${_currentLocation.latitude},${_currentLocation.longitude}&zoom=18&size=640x400&key=YOUR_API_KEY")
+            "https://maps.googleapis.com/maps/api/staticmap?center=${_currentLocation.latitude},${_currentLocation.longitude}&zoom=18&size=640x400&key=$API_KEY")
       ];
     }
 
@@ -93,7 +89,7 @@ class _MyAppState extends State<MyApp> {
 
     widgets.add(new Center(
         child: new Text(_currentLocation != null
-            ? 'Continuous location: ${_currentLocation.latitude} & ${_currentLocation.longitude}\n'
+            ? 'Continuous location: ${_currentLocation.latitude} & ${_currentLocation.longitude} & ${_currentLocation.heading}\n'
             : 'Error: $error\n')));
 
     widgets.add(new Center(
