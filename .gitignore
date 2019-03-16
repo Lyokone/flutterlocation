@@ -9,3 +9,14 @@ ios/.generated/
 packages
 pubspec.lock
 .vscode/launch.json
+example/ios/.symlinks
+example/ios/Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+.gitignore
+example/ios/ServiceDefinitions.json
+
+
+example/ios/Flutter/
+example/ios/Pods/
+example/ios/Runner/Info.plist
+example/ios/Runner.xcodeproj/project.pbxproj
+example/lib/config.dart
