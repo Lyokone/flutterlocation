@@ -20,3 +20,4 @@ example/ios/Pods/
 example/ios/Runner/Info.plist
 example/ios/Runner.xcodeproj/project.pbxproj
 example/lib/config.dart
+android/.classpath
