@@ -62,7 +62,11 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     private EventSink events;
     private Result result;
 
+    private int locationPermissionState;
+
     private final Activity activity;
+
+    private boolean waitingForPermission = false;
 
     LocationPlugin(Activity activity) {
         this.activity = activity;
@@ -83,6 +87,15 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
             @Override
             public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
                 if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE && permissions.length == 1 && permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    if (waitingForPermission) {
+                        waitingForPermission = false;
+                        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                            result.success(1);
+                        } else {
+                            result.success(0);
+                        }
+                        result = null;
+                    }
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                         if (result != null) {
                             getLastLocation(result);
@@ -108,7 +121,6 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                     }
                     return true;
                 }
-
                 return false;
             }
         };
@@ -183,8 +195,8 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
      * Return the current state of the permissions needed.
      */
     private boolean checkPermissions() {
-        int permissionState = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION);
-        return permissionState == PackageManager.PERMISSION_GRANTED;
+        this.locationPermissionState = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION);
+        return this.locationPermissionState == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestPermissions() {
@@ -212,7 +224,6 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     }
 
     private void getLastLocation(final Result result) {
-
         mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
@@ -249,18 +260,23 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     @Override
     public void onMethodCall(MethodCall call, final Result result) {
         if (call.method.equals("getLocation")) {
+            this.result = result;
             if (!checkPermissions()) {
-                this.result = result;
                 requestPermissions();
-                return;
+            } else {
+                getLastLocation(result);
             }
-            getLastLocation(result);
+            
         } else if(call.method.equals("hasPermission")) {
             if(checkPermissions()) {
                 result.success(1);
             } else {
-                result.error("PERMISSION_DENIED", "The user explicitly denied the use of location services for this app or location services are currently disabled in Settings.", null);
+                result.success(0);
             }
+        } else if (call.method.equals("requestPermission")) {
+            this.waitingForPermission = true; 
+            this.result = result;
+            requestPermissions();
         } else {
             result.notImplemented();
         }
@@ -271,7 +287,11 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
         events = eventsSink;
         if (!checkPermissions()) {
             requestPermissions();
-            return;
+            if (this.locationPermissionState == PackageManager.PERMISSION_DENIED) {
+                result.error("PERMISSION_DENIED",
+                        "The user explicitly denied the use of location services for this app or location services are currently disabled in Settings.",
+                        null);
+            }
         }
         getLastLocation(null);
         /**

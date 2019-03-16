@@ -54,6 +54,10 @@ class Location {
   Future<bool> hasPermission() =>
       _channel.invokeMethod('hasPermission').then((result) => result == 1);
 
+  Future<bool> requestPermission() =>
+    _channel.invokeMethod('requestPermission').then((result) => result == 1);
+
+
   /// Returns a stream of location information.
   Stream<LocationData> onLocationChanged() {
     if (_onLocationChanged == null) {
