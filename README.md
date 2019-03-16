@@ -44,6 +44,7 @@ And to use it in iOS, you have to add this permission in Info.plist :
 NSLocationWhenInUseUsageDescription
 NSLocationAlwaysUsageDescription
 ```
+**Warning:** there is a currently a bug in iOS simulator in which you have to manually select a Location several in order for the Simulator to actually send data. Please keep that in mind when testing in iOS simulator.  
 
 Then you just have to import the package with
 ```dart
@@ -52,14 +53,17 @@ import 'package:location/location.dart';
 
 Look into the example for utilisation, but a basic implementation can be done like this for a one time location :
 ```dart
-var currentLocation = <String, double>{};
+var currentLocation = LocationData;
 
 var location = new Location();
 
 // Platform messages may fail, so we use a try/catch PlatformException.
 try {
   currentLocation = await location.getLocation;
-} on PlatformException {
+} on PlatformException catch (e) {
+  if (e.code == 'PERMISSION_DENIED') {
+    error = 'Permission denied';
+  } 
   currentLocation = null;
 }
 ```
@@ -84,10 +88,13 @@ In this table you can find the different functions exposed by this plugin:
 
 | Methods |Description|
 |--------|-----|
-| Future\<LocationData> | **getLocation()** <br> Allow to get a one time position of the user. |
+| Future\<bool> | **requestPermission()** <br> Request the Location permission. Return a boolean to know if the permission has been granted. |
 | Future\<bool> | **hasPermission()** <br> Return a boolean to know the state of the location permission. |
-| Stream\<LocationData> | **onLocationChanged()** <br> Get the stream of the user's location. |
+| Future\<LocationData> | **getLocation()** <br> Allow to get a one time position of the user. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
+| Stream\<LocationData> | **onLocationChanged()** <br> Get the stream of the user's location. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
   
+You should try to manage permission manually with `requestPermission()` to avoid error, but plugin will try handle some cases for you.
+
 ### Objects
 ```dart
 class LocationData {

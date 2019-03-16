@@ -1,3 +1,10 @@
+## [2.1.0] 16th Match 2019
+* iOS permission should be closer to Android permission behaviour thanks to PerrchicK 
+* Adding requestPermission(), to manually request permission
+* Several feature fixed for less crash when using the plugin
+* Code Cleanup
+* Update Readme and add a warning for the location bug in iOS simulator
+
 ## [2.0.0] 25th January 2019
 * Code cleanup
 * BREAKING CHANGE: Change Dart API to return structured data rather than a map.
