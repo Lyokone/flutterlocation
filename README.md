@@ -88,10 +88,10 @@ In this table you can find the different functions exposed by this plugin:
 
 | Methods |Description|
 |--------|-----|
-| Future\<bool> **requestPermission()** | <br> Request the Location permission. Return a boolean to know if the permission has been granted. |
-| Future\<bool> **hasPermission()** | <br> Return a boolean to know the state of the location permission. |
-| Future\<LocationData> **getLocation()** | <br> Allow to get a one time position of the user. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
-| Stream\<LocationData> **onLocationChanged()** | <br> Get the stream of the user's location. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
+| Future\<bool> **requestPermission()** | Request the Location permission. Return a boolean to know if the permission has been granted. |
+| Future\<bool> **hasPermission()** | Return a boolean to know the state of the location permission. |
+| Future\<LocationData> **getLocation()** | Allow to get a one time position of the user. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
+| Stream\<LocationData> **onLocationChanged()** | Get the stream of the user's location. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
   
 You should try to manage permission manually with `requestPermission()` to avoid error, but plugin will try handle some cases for you.
 
