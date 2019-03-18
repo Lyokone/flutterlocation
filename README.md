@@ -31,7 +31,7 @@ Please also make sure that you have those dependencies in your build.gradle:
 
 
 ## Getting Started
-
+### Android
 In order to use this plugin in Android, you have to add this permission in AndroidManifest.xml :
 ```xml
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -39,6 +39,7 @@ In order to use this plugin in Android, you have to add this permission in Andro
 Permission check for Android 6+ was added. Still no callback when permissions granted
 so aiming SDK 21 is safer.
 
+### iOS
 And to use it in iOS, you have to add this permission in Info.plist :
 ```xml
 NSLocationWhenInUseUsageDescription
@@ -46,6 +47,7 @@ NSLocationAlwaysUsageDescription
 ```
 **Warning:** there is a currently a bug in iOS simulator in which you have to manually select a Location several in order for the Simulator to actually send data. Please keep that in mind when testing in iOS simulator.  
 
+### Sample Code
 Then you just have to import the package with
 ```dart
 import 'package:location/location.dart';
