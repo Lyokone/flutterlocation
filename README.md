@@ -102,7 +102,7 @@ class LocationData {
   final double longitude;
   final double accuracy;
   final double altitude;
-  final double speed;
+  final double speed; // In meters/second
   final double speedAccuracy;
   final double heading;
 }
