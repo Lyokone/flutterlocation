@@ -145,6 +145,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                     loc.put("speed_accuracy", (double) location.getSpeedAccuracyMetersPerSecond());
                 }
                 loc.put("heading", (double) location.getBearing());
+                loc.put("time", (double) location.getTime());
 
                 if (events != null) {
                     events.success(loc);
@@ -240,6 +241,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                         loc.put("speed_accuracy", (double) location.getSpeedAccuracyMetersPerSecond());
                     }
                     loc.put("heading", (double) location.getBearing());
+                    loc.put("time", (double) location.getTime());
 
                     if (result != null) {
                         result.success(loc);

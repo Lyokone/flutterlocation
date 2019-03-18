@@ -164,6 +164,7 @@
                                                           @"speed": @(location.speed),
                                                           @"speed_accuracy": @(0.0),
                                                           @"heading": @(location.course),
+                                                          @"time": @(location.timestamp)
                                                           };
 
     if (self.locationWanted) {

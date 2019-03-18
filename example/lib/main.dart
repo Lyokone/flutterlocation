@@ -53,7 +53,6 @@ class _MyAppState extends State<MyApp> {
         });
       }
 
-
     } on PlatformException catch (e) {
       print(e);
       if (e.code == 'PERMISSION_DENIED') {
@@ -71,7 +70,6 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     List<Widget> widgets;
-
 
     if (_currentLocation == null) {
       widgets = new List();
@@ -96,6 +94,7 @@ class _MyAppState extends State<MyApp> {
       child: new Text(_permission 
             ? 'Has permission : Yes' 
             : "Has permission : No")));
+
 
     return new MaterialApp(
         home: new Scaffold(
