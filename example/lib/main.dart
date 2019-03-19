@@ -49,14 +49,19 @@ class _MyAppState extends State<MyApp> {
           location = await _location.getLocation();
           print("Location: ${location.latitude}");
           _locationSubscription = _location.onLocationChanged().listen((LocationData result) {
-            setState(() {
-              _currentLocation = result;
-            });
+            if(mounted){
+              setState(() {
+                _currentLocation = result;
+              });
+            }
           });
         }
       } else {
         bool serviceStatusResult = await _location.requestService();
         print("Service status activated after request: $serviceStatusResult");
+        if(serviceStatusResult){
+          initPlatformState();
+        }
       }
     } on PlatformException catch (e) {
       print(e);
