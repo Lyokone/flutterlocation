@@ -57,6 +57,9 @@ class _MyAppState extends State<MyApp> {
       } else {
         bool serviceStatusResult = await _location.requestService();
         print("Service status activated after request: $serviceStatusResult");
+        if(serviceStatusResult){
+          initPlatformState();
+        }
       }
     } on PlatformException catch (e) {
       print(e);
