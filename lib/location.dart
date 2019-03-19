@@ -60,6 +60,12 @@ class Location {
   Future<bool> requestPermission() =>
     _channel.invokeMethod('requestPermission').then((result) => result == 1);
 
+  Future<bool> serviceEnabled() =>
+    _channel.invokeMethod('serviceEnabled').then((result) => result == 1);
+
+  Future<bool> requestService() =>
+    _channel.invokeMethod('requestService').then((result) => result == 1);
+
 
   /// Returns a stream of location information.
   Stream<LocationData> onLocationChanged() {

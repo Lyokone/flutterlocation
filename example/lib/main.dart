@@ -40,24 +40,31 @@ class _MyAppState extends State<MyApp> {
     LocationData location;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      _permission = await _location.requestPermission();
-      print("Permission: $_permission");
-      location = await _location.getLocation();
-      print("Location: $location");
-
-      if (_permission) {
-        _locationSubscription = _location.onLocationChanged().listen((LocationData result) {
-          setState(() {
-            _currentLocation = result;
+      bool serviceStatus = await _location.serviceEnabled();
+      print("Service status: $serviceStatus");
+      if (serviceStatus) {
+        _permission = await _location.requestPermission();
+        print("Permission: $_permission");
+        if (_permission) {
+          location = await _location.getLocation();
+          print("Location: ${location.latitude}");
+          _locationSubscription = _location.onLocationChanged().listen((LocationData result) {
+            setState(() {
+              _currentLocation = result;
+            });
           });
-        });
+        }
+      } else {
+        bool serviceStatusResult = await _location.requestService();
+        print("Service status activated after request: $serviceStatusResult");
       }
-
     } on PlatformException catch (e) {
       print(e);
       if (e.code == 'PERMISSION_DENIED') {
-        error = 'Permission denied';
-      } 
+        error = e.message;
+      } else if (e.code == 'SERVICE_STATUS_ERROR') {
+        error = e.message;
+      }
       location = null;
     }
 
@@ -75,8 +82,8 @@ class _MyAppState extends State<MyApp> {
       widgets = new List();
     } else {
       widgets = [
-        new Image.network(
-            "https://maps.googleapis.com/maps/api/staticmap?center=${_currentLocation.latitude},${_currentLocation.longitude}&zoom=18&size=640x400&key=$API_KEY")
+        // new Image.network(
+        //     "https://maps.googleapis.com/maps/api/staticmap?center=${_currentLocation.latitude},${_currentLocation.longitude}&zoom=18&size=640x400&key=$API_KEY")
       ];
     }
 
