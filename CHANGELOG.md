@@ -1,3 +1,10 @@
+## [2.2.0] 19th March 2019
+* Actually updating locatino when using getLocation (not only relying on LastLocation)
+* Add timestamp to LocationData
+* Add serviceEnabled method to check whether Location Service is enabled.
+* Add requestService method to ask the user to activate the location service.
+* Fix continuous callback heading
+
 ## [2.1.0] 16th Match 2019
 * iOS permission should be closer to Android permission behaviour thanks to PerrchicK 
 * Adding requestPermission(), to manually request permission
