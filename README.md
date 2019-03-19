@@ -77,11 +77,6 @@ var location = new Location();
 location.onLocationChanged().listen((LocationData currentLocation) {
   print(currentLocation.latitude);
   print(currentLocation.longitude);
-  print(currentLocation.accuracy);
-  print(currentLocation.altitude);
-  print(currentLocation.speed);
-  print(currentLocation.speed_accuracy); // Will always be 0 on iOS
-  print(currentLocation.heading);
 });
 ```
 
@@ -92,6 +87,10 @@ In this table you can find the different functions exposed by this plugin:
 |--------|-----|
 | Future\<bool> **requestPermission()** | Request the Location permission. Return a boolean to know if the permission has been granted. |
 | Future\<bool> **hasPermission()** | Return a boolean to know the state of the location permission. |
+| Future\<bool> **serviceEnabled()** | Return a boolean to know if the Location Service is enabled or if the user manually deactivated it. |
+| Future\<bool> **requestService()** | Show an alert dialog to request the user to activate the Location Service. On iOS, will only display an alert due to Apple Guidelines, the user having to manually go to Settings. Return a boolean to know if the Location Service has been activated (always `false` on iOS). |
+| Future\<bool> **hasPermission()** | Return a boolean to know the state of the location permission. |
+
 | Future\<LocationData> **getLocation()** | Allow to get a one time position of the user. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
 | Stream\<LocationData> **onLocationChanged()** | Get the stream of the user's location. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
   
@@ -100,13 +99,14 @@ You should try to manage permission manually with `requestPermission()` to avoid
 ### Objects
 ```dart
 class LocationData {
-  final double latitude;
-  final double longitude;
-  final double accuracy;
-  final double altitude;
+  final double latitude; // Latitude, in degrees
+  final double longitude; // Longitude, in degrees
+  final double accuracy; // Estimated horizontal accuracy of this location, radial, in meters
+  final double altitude; // In meters above the WGS 84 reference ellipsoid
   final double speed; // In meters/second
-  final double speedAccuracy;
-  final double heading;
+  final double speedAccuracy; // In meters/second, always 0 on iOS
+  final double heading; //Heading is the horizontal direction of travel of this device, in degrees
+  final double time; //timestamp of the LocationData
 }
  ```
 
