@@ -6,7 +6,7 @@
 #import <CoreLocation/CoreLocation.h>
 #endif
 
-@interface LocationPlugin() <FlutterStreamHandler, CLLocationManagerDelegate>
+@interface LocationPlugin() <FlutterStreamHandler, CLLocationManagerDelegate> 
 @property (strong, nonatomic) CLLocationManager *clLocationManager;
 @property (copy, nonatomic)   FlutterResult      flutterResult;
 @property (assign, nonatomic) BOOL               locationWanted;
@@ -16,7 +16,9 @@
 @property (assign, nonatomic) BOOL               hasInit;
 @end
 
-@implementation LocationPlugin
+@implementation LocationPlugin {
+    UIViewController *_viewController;
+}
 
 +(void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
     FlutterMethodChannel *channel = [FlutterMethodChannel methodChannelWithName:@"lyokone/location" binaryMessenger:registrar.messenger];
@@ -27,14 +29,13 @@
     [stream setStreamHandler:instance];
 }
 
--(instancetype)init {
+-(instancetype)initWithViewController:(UIViewController *)viewController {
     self = [super init];
 
     if (self) {
         self.locationWanted = NO;
         self.flutterListening = NO;
         self.hasInit = NO;
-  
     }
     return self;
 }
@@ -75,14 +76,9 @@
             }
         }
     } else if ([call.method isEqualToString:@"hasPermission"]) {
-        if ([CLLocationManager locationServicesEnabled]) {
-            if ([self isPermissionGranted]) {
-                result(@(1));
-            } else {
-                result(@(0));
-            }
+        if ([self isPermissionGranted]) {
+            result(@(1));
         } else {
-            // Location is not yet enabled
             result(@(0));
         }
     } else if ([call.method isEqualToString:@"requestPermission"]) {
@@ -92,10 +88,29 @@
         } else {
             result(@(0));
         }
+    } else if ([call.method isEqualToString:@"serviceEnabled"]) {
+        if ([CLLocationManager locationServicesEnabled]) {
+            result(@(1));
+        } else {
+            result(@(0));
+        }
+    } else if ([call.method isEqualToString:@"requestService"]) {
+        if ([CLLocationManager locationServicesEnabled]) {
+            result(@(1));
+        } else {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Location is Disabled"
+                message:@"To use location, go to your Settings App > Privacy > Location Services."
+                delegate:self
+                cancelButtonTitle:@"Cancel"
+                otherButtonTitles:nil];
+            [alert show];
+            result(@(0));
+        }
     } else {
         result(FlutterMethodNotImplemented);
     }
 }
+
 
 -(void) requestPermission {
     if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"] != nil) {
@@ -156,6 +171,7 @@
 
 -(void)locationManager:(CLLocationManager*)manager didUpdateLocations:(NSArray<CLLocation*>*)locations {
     CLLocation *location = locations.firstObject;
+    NSTimeInterval timeInSeconds = [location.timestamp timeIntervalSince1970];
     NSDictionary<NSString*,NSNumber*>* coordinatesDict = @{
                                                           @"latitude": @(location.coordinate.latitude),
                                                           @"longitude": @(location.coordinate.longitude),
@@ -164,7 +180,7 @@
                                                           @"speed": @(location.speed),
                                                           @"speed_accuracy": @(0.0),
                                                           @"heading": @(location.course),
-                                                          @"time": @(location.timestamp)
+                                                          @"time": @((double) timeInSeconds)
                                                           };
 
     if (self.locationWanted) {

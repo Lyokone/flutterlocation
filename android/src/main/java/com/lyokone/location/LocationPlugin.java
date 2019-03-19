@@ -2,9 +2,13 @@ package com.lyokone.location;
 
 import android.Manifest;
 import android.app.Activity;
+import android.provider.Settings;
 import android.content.IntentSender;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
+import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
 import androidx.annotation.MainThread;
@@ -15,6 +19,8 @@ import androidx.core.content.ContextCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.Status;
+
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -39,11 +45,12 @@ import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+import io.flutter.plugin.common.PluginRegistry.ActivityResultListener;
 
 /**
  * LocationPlugin
  */
-public class LocationPlugin implements MethodCallHandler, StreamHandler {
+public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginRegistry.ActivityResultListener {
     private static final String STREAM_CHANNEL_NAME = "lyokone/locationstream";
     private static final String METHOD_CHANNEL_NAME = "lyokone/location";
 
@@ -52,11 +59,14 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
     private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2;
 
+    private static final int GPS_ENABLE_REQUEST = 0x1001;
+
     private final FusedLocationProviderClient mFusedLocationClient;
     private final SettingsClient mSettingsClient;
     private LocationRequest mLocationRequest;
     private LocationSettingsRequest mLocationSettingsRequest;
     private LocationCallback mLocationCallback;
+    private LocationCallback locationCallbackOneTime;
     private PluginRegistry.RequestPermissionsResultListener mPermissionsResultListener;
 
     private EventSink events;
@@ -67,15 +77,63 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     private final Activity activity;
 
     private boolean waitingForPermission = false;
+    private LocationManager locationManager;
 
     LocationPlugin(Activity activity) {
         this.activity = activity;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
         mSettingsClient = LocationServices.getSettingsClient(activity);
+        locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+
         createLocationCallback();
         createLocationRequest();
         createPermissionsResultListener();
         buildLocationSettingsRequest();
+    }
+
+    /**
+     * Plugin registration.
+     */
+    public static void registerWith(Registrar registrar) {
+        final MethodChannel channel = new MethodChannel(registrar.messenger(), METHOD_CHANNEL_NAME);
+        LocationPlugin locationWithMethodChannel = new LocationPlugin(registrar.activity());
+        channel.setMethodCallHandler(locationWithMethodChannel);
+        registrar.addRequestPermissionsResultListener(locationWithMethodChannel.getPermissionsResultListener());
+        registrar.addActivityResultListener(locationWithMethodChannel);
+
+        final EventChannel eventChannel = new EventChannel(registrar.messenger(), STREAM_CHANNEL_NAME);
+        LocationPlugin locationWithEventChannel = new LocationPlugin(registrar.activity());
+        eventChannel.setStreamHandler(locationWithEventChannel);
+        registrar.addRequestPermissionsResultListener(locationWithEventChannel.getPermissionsResultListener());
+    }
+
+    @Override
+    public void onMethodCall(MethodCall call, final Result result) {
+        if (call.method.equals("getLocation")) {
+            this.result = result;
+            if (!checkPermissions()) {
+                requestPermissions();
+            } else {
+                startRequestingLocation();
+            }
+
+        } else if (call.method.equals("hasPermission")) {
+            if (checkPermissions()) {
+                result.success(1);
+            } else {
+                result.success(0);
+            }
+        } else if (call.method.equals("requestPermission")) {
+            this.waitingForPermission = true;
+            this.result = result;
+            requestPermissions();
+        } else if (call.method.equals("serviceEnabled")) {
+            checkServiceEnabled(result);
+        } else if (call.method.equals("requestService")) {
+            requestService(result);
+        } else {
+            result.notImplemented();
+        }
     }
 
     public PluginRegistry.RequestPermissionsResultListener getPermissionsResultListener() {
@@ -98,9 +156,9 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                     }
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                         if (result != null) {
-                            getLastLocation(result);
+                            startRequestingLocation();
                         } else if (events != null) {
-                            getLastLocation(null);
+                            startRequestingLocation();
                         }
                     } else {
                         if (!shouldShowRequestPermissionRationale()) {
@@ -126,6 +184,22 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
         };
     }
 
+    @Override
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case GPS_ENABLE_REQUEST:
+                if (resultCode == Activity.RESULT_OK) {
+                    this.result.success(1);
+                } else {
+                    this.result.success(0);
+                }
+                break;
+            default:
+                return false;
+            }
+        return true;
+    }
+
     /**
      * Creates a callback for receiving location events.
      */
@@ -147,8 +221,14 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                 loc.put("heading", (double) location.getBearing());
                 loc.put("time", (double) location.getTime());
 
+                if (result != null) {
+                    result.success(loc);
+                    result = null;
+                }
                 if (events != null) {
                     events.success(loc);
+                } else {
+                    mFusedLocationClient.removeLocationUpdates(mLocationCallback);
                 }
             }
         };
@@ -211,79 +291,91 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
         return ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
-    /**
-     * Plugin registration.
-     */
-    public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), METHOD_CHANNEL_NAME);
-        LocationPlugin locationWithMethodChannel = new LocationPlugin(registrar.activity());
-        channel.setMethodCallHandler(locationWithMethodChannel);
-        registrar.addRequestPermissionsResultListener(locationWithMethodChannel.getPermissionsResultListener());
 
-        final EventChannel eventChannel = new EventChannel(registrar.messenger(), STREAM_CHANNEL_NAME);
-        LocationPlugin locationWithEventChannel = new LocationPlugin(registrar.activity());
-        eventChannel.setStreamHandler(locationWithEventChannel);
-        registrar.addRequestPermissionsResultListener(locationWithEventChannel.getPermissionsResultListener());
-    }
+    public boolean checkServiceEnabled(final Result result) {
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
 
-    private void getLastLocation(final Result result) {
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    HashMap<String, Double> loc = new HashMap<String, Double>();
-                    loc.put("latitude", location.getLatitude());
-                    loc.put("longitude", location.getLongitude());
-                    loc.put("accuracy", (double) location.getAccuracy());
-                    loc.put("altitude", location.getAltitude());
-                    loc.put("speed", (double) location.getSpeed());
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        loc.put("speed_accuracy", (double) location.getSpeedAccuracyMetersPerSecond());
-                    }
-                    loc.put("heading", (double) location.getBearing());
-                    loc.put("time", (double) location.getTime());
-
-                    if (result != null) {
-                        result.success(loc);
-                        return;
-                    }
-                    if (events != null) {
-                        events.success(loc);
-                    }
-                } else {
-                    if (result != null) {
-                        result.error("ERROR", "Failed to get location.", null);
-                        return;
-                    }
-                    // Do not send error on events otherwise it will produce an error
-                }
-            }
-        });
-    }
-
-    @Override
-    public void onMethodCall(MethodCall call, final Result result) {
-        if (call.method.equals("getLocation")) {
-            this.result = result;
-            if (!checkPermissions()) {
-                requestPermissions();
-            } else {
-                getLastLocation(result);
-            }
-            
-        } else if(call.method.equals("hasPermission")) {
-            if(checkPermissions()) {
-                result.success(1);
-            } else {
-                result.success(0);
-            }
-        } else if (call.method.equals("requestPermission")) {
-            this.waitingForPermission = true; 
-            this.result = result;
-            requestPermissions();
-        } else {
-            result.notImplemented();
+        try {
+            gps_enabled = this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            network_enabled = this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch (Exception ex) {
+            result.error("SERVICE_STATUS_ERROR", "Location service status couldn't be determined", null);
+            return false;
         }
+        if (gps_enabled || network_enabled) {
+            if (result != null) {
+                result.success(1);
+            } 
+            return true;
+            
+        } else {
+            if (result != null) {
+                result.success(0);
+            } 
+            return false;
+        }
+    }
+
+    public void requestService(final Result result) {
+        if (this.checkServiceEnabled(null)) {
+            result.success(1);
+            return;
+        }
+        this.result = result;
+        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
+            .addOnFailureListener(activity, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    int statusCode = ((ApiException) e).getStatusCode();
+                    switch (statusCode) {
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        try {
+                            // Show the dialog by calling startResolutionForResult(), and check the
+                            // result in onActivityResult().
+                            ResolvableApiException rae = (ResolvableApiException) e;
+                            rae.startResolutionForResult(activity, GPS_ENABLE_REQUEST);
+                        } catch (IntentSender.SendIntentException sie) {
+                            Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        result.error("SERVICE_STATUS_DISABLED",
+                                "Failed to get location. Location services disabled", null);
+                    }
+                }
+            });
+    }
+
+    public void startRequestingLocation() {
+        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
+                .addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
+                    @Override
+                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+                    }
+                }).addOnFailureListener(activity, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        int statusCode = ((ApiException) e).getStatusCode();
+                        switch (statusCode) {
+                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                            try {
+                                // Show the dialog by calling startResolutionForResult(), and check the
+                                // result in onActivityResult().
+                                ResolvableApiException rae = (ResolvableApiException) e;
+                                rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
+                            } catch (IntentSender.SendIntentException sie) {
+                                Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
+                            }
+                            break;
+                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                            String errorMessage = "Location settings are inadequate, and cannot be "
+                                    + "fixed here. Fix in Settings.";
+                            Log.e(METHOD_CHANNEL_NAME, errorMessage);
+                        }
+                    }
+                });
     }
 
     @Override
@@ -296,41 +388,8 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                         "The user explicitly denied the use of location services for this app or location services are currently disabled in Settings.",
                         null);
             }
-        }
-        getLastLocation(null);
-        /**
-         * Requests location updates from the FusedLocationApi. Note: we don't call this unless location
-         * runtime permission has been granted.
-         */
-        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
-                .addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
-                    @Override
-                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
-                                Looper.myLooper());
-                    }
-                }).addOnFailureListener(activity, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                int statusCode = ((ApiException) e).getStatusCode();
-                switch (statusCode) {
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        try {
-                            // Show the dialog by calling startResolutionForResult(), and check the
-                            // result in onActivityResult().
-                            ResolvableApiException rae = (ResolvableApiException) e;
-                            rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
-                        } catch (IntentSender.SendIntentException sie) {
-                            Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        String errorMessage = "Location settings are inadequate, and cannot be "
-                                + "fixed here. Fix in Settings.";
-                        Log.e(METHOD_CHANNEL_NAME, errorMessage);
-                }
-            }
-        });
+        }     
+        startRequestingLocation();   
     }
 
     @Override
