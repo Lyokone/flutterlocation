@@ -40,11 +40,34 @@ class LocationData {
   }
 }
 
+/**
+ * https://developers.google.com/android/reference/com/google/android/gms/location/LocationRequest
+ * https://developer.apple.com/documentation/corelocation/cllocationaccuracy?language=objc
+ * Precision of the Location
+ */
+enum LocationAccuray { 
+  POWERSAVE,
+  LOW,
+  BALANCED,
+  HIGH,
+  NAVIGATION
+}
+
+
 const MethodChannel _channel = const MethodChannel('lyokone/location');
 const EventChannel _stream = const EventChannel('lyokone/locationstream');
 
 class Location {
   Stream<LocationData> _onLocationChanged;
+
+  Future<bool> changeSettings({LocationAccuray accuracy = LocationAccuray.HIGH, int interval = 5000}) =>
+    _channel.invokeMethod('changeSettings',
+    {
+      "accuracy": accuracy.index,
+      "interval": interval
+    })
+    .then((result) => result == 1);
+
 
   /// Gets the current location of the user.
   ///

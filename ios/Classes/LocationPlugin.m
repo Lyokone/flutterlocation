@@ -54,7 +54,20 @@
 
 -(void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     [self initLocation];
-    if ([call.method isEqualToString:@"getLocation"]) {
+    if ([call.method isEqualToString:@"changeSettings"]) {
+        if ([CLLocationManager locationServicesEnabled]) {
+            NSDictionary *dictionary = @{
+                @"0" : @(kCLLocationAccuracyKilometer),
+                @"1" : @(kCLLocationAccuracyHundredMeters),
+                @"2" : @(kCLLocationAccuracyNearestTenMeters),
+                @"3" : @(kCLLocationAccuracyBest),
+                @"4" : @(kCLLocationAccuracyBestForNavigation)
+            };
+
+            self.clLocationManager.desiredAccuracy = [dictionary[call.arguments[@"accuracy"]] doubleValue];
+            result(@(1));
+        }
+    } else if ([call.method isEqualToString:@"getLocation"]) {
         if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied && [CLLocationManager locationServicesEnabled])
         {
             // Location services are requested but user has denied
@@ -164,6 +177,7 @@
 
 -(FlutterError*)onCancelWithArguments:(id)arguments {
     self.flutterListening = NO;
+    [self.clLocationManager stopUpdatingLocation];
     return nil;
 }
 

@@ -20,7 +20,7 @@ class _MyAppState extends State<MyApp> {
 
   StreamSubscription<LocationData> _locationSubscription;
 
-  Location _location = new Location();
+  Location _locationService  = new Location();
   bool _permission = false;
   String error;
 
@@ -37,18 +37,20 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   initPlatformState() async {
+    await _locationService.changeSettings(accuracy: LocationAccuray.HIGH, interval: 1000);
+    
     LocationData location;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      bool serviceStatus = await _location.serviceEnabled();
+      bool serviceStatus = await _locationService.serviceEnabled();
       print("Service status: $serviceStatus");
       if (serviceStatus) {
-        _permission = await _location.requestPermission();
+        _permission = await _locationService.requestPermission();
         print("Permission: $_permission");
         if (_permission) {
-          location = await _location.getLocation();
+          location = await _locationService.getLocation();
           print("Location: ${location.latitude}");
-          _locationSubscription = _location.onLocationChanged().listen((LocationData result) {
+          _locationSubscription = _locationService.onLocationChanged().listen((LocationData result) {
             if(mounted){
               setState(() {
                 _currentLocation = result;
@@ -57,7 +59,7 @@ class _MyAppState extends State<MyApp> {
           });
         }
       } else {
-        bool serviceStatusResult = await _location.requestService();
+        bool serviceStatusResult = await _locationService.requestService();
         print("Service status activated after request: $serviceStatusResult");
         if(serviceStatusResult){
           initPlatformState();
@@ -77,6 +79,18 @@ class _MyAppState extends State<MyApp> {
         _startLocation = location;
     });
 
+  }
+
+  slowRefresh() async {
+    _locationSubscription.cancel();
+    await _locationService.changeSettings(accuracy: LocationAccuray.BALANCED, interval: 10000);
+    _locationSubscription = _locationService.onLocationChanged().listen((LocationData result) {
+      if(mounted){
+        setState(() {
+          _currentLocation = result;
+        });
+      }
+    });
   }
 
   @override
@@ -107,6 +121,12 @@ class _MyAppState extends State<MyApp> {
             ? 'Has permission : Yes' 
             : "Has permission : No")));
 
+    widgets.add(new Center(
+      child: new RaisedButton(
+        child: new Text("Slow refresh rate and accuracy"),
+        onPressed: () => slowRefresh()
+      )
+    ));
 
     return new MaterialApp(
         home: new Scaffold(
