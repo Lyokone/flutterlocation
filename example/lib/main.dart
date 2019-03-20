@@ -117,6 +117,14 @@ class _MyAppState extends State<MyApp> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: widgets,
-            )));
+            ),
+            floatingActionButton: new FloatingActionButton(
+              onPressed: () => _locationSubscription.cancel(),
+              tooltip: 'Stop Track Location',
+              child: Icon(Icons.stop),
+            ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        )
+      );
   }
 }
