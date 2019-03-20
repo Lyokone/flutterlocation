@@ -89,8 +89,6 @@ In this table you can find the different functions exposed by this plugin:
 | Future\<bool> **hasPermission()** | Return a boolean to know the state of the location permission. |
 | Future\<bool> **serviceEnabled()** | Return a boolean to know if the Location Service is enabled or if the user manually deactivated it. |
 | Future\<bool> **requestService()** | Show an alert dialog to request the user to activate the Location Service. On iOS, will only display an alert due to Apple Guidelines, the user having to manually go to Settings. Return a boolean to know if the Location Service has been activated (always `false` on iOS). |
-| Future\<bool> **hasPermission()** | Return a boolean to know the state of the location permission. |
-
 | Future\<LocationData> **getLocation()** | Allow to get a one time position of the user. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
 | Stream\<LocationData> **onLocationChanged()** | Get the stream of the user's location. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
   
