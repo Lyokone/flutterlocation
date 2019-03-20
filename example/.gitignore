@@ -17,7 +17,6 @@ android/.settings/org.eclipse.buildship.core.prefs
 android/app/.classpath
 android/app/.project
 android/app/.settings/org.eclipse.buildship.core.prefs
-android/gradle/wrapper/gradle-wrapper.jar
 ios/Podfile.lock
 ios/Flutter/Generated.xcconfig
 ios/Runner/GeneratedPluginRegistrant.h
