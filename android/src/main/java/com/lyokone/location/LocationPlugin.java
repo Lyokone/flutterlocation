@@ -56,18 +56,20 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
 
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
-    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
-    private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2;
 
     private static final int GPS_ENABLE_REQUEST = 0x1001;
 
     private final FusedLocationProviderClient mFusedLocationClient;
     private final SettingsClient mSettingsClient;
-    private LocationRequest mLocationRequest;
+    private static LocationRequest mLocationRequest;
     private LocationSettingsRequest mLocationSettingsRequest;
     private LocationCallback mLocationCallback;
-    private LocationCallback locationCallbackOneTime;
     private PluginRegistry.RequestPermissionsResultListener mPermissionsResultListener;
+
+    // Parameters of the request
+    private static long update_interval_in_milliseconds = 5000;
+    private static long fastest_update_interval_in_milliseconds = update_interval_in_milliseconds / 2;
+    private static Integer location_accuray = LocationRequest.PRIORITY_HIGH_ACCURACY;
 
     private EventSink events;
     private Result result;
@@ -79,11 +81,20 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
     private boolean waitingForPermission = false;
     private LocationManager locationManager;
 
+
+    private HashMap<Integer, Integer> mapFlutterAccuracy = new HashMap<>();
+
     LocationPlugin(Activity activity) {
         this.activity = activity;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
         mSettingsClient = LocationServices.getSettingsClient(activity);
         locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+
+        this.mapFlutterAccuracy.put(0, LocationRequest.PRIORITY_NO_POWER);
+        this.mapFlutterAccuracy.put(1, LocationRequest.PRIORITY_LOW_POWER);
+        this.mapFlutterAccuracy.put(2, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        this.mapFlutterAccuracy.put(3, LocationRequest.PRIORITY_HIGH_ACCURACY);
+        this.mapFlutterAccuracy.put(4, LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         createLocationCallback();
         createLocationRequest();
@@ -109,7 +120,22 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
 
     @Override
     public void onMethodCall(MethodCall call, final Result result) {
-        if (call.method.equals("getLocation")) {
+        if (call.method.equals("changeSettings")) {
+            try {
+                this.location_accuray = this.mapFlutterAccuracy.get(call.argument("accuracy"));
+                this.update_interval_in_milliseconds = new Long((int) call.argument("interval"));
+                this.fastest_update_interval_in_milliseconds = this.update_interval_in_milliseconds / 2;
+
+                createLocationCallback();
+                createLocationRequest();
+                createPermissionsResultListener();
+                buildLocationSettingsRequest();
+                result.success(1);
+            } catch(Exception e) {
+                result.error("CHANGE_SETTINGS_ERROR", "An unexcepted error happened during location settings change.", null);
+            }
+
+        } else if (call.method.equals("getLocation")) {
             this.result = result;
             if (!checkPermissions()) {
                 requestPermissions();
@@ -248,19 +274,19 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
      * updates.
      */
     private void createLocationRequest() {
-        mLocationRequest = LocationRequest.create();
+        this.mLocationRequest = LocationRequest.create();
 
         // Sets the desired interval for active location updates. This interval is
         // inexact. You may not receive updates at all if no location sources are available, or
         // you may receive them slower than requested. You may also receive updates faster than
         // requested if other applications are requesting location at a faster interval.
-        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+        this.mLocationRequest.setInterval(this.update_interval_in_milliseconds);
 
         // Sets the fastest rate for active location updates. This interval is exact, and your
         // application will never receive updates faster than this value.
-        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+        this.mLocationRequest.setFastestInterval(this.fastest_update_interval_in_milliseconds);
 
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        this.mLocationRequest.setPriority(this.location_accuray);
     }
 
     /**
