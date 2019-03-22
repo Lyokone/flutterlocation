@@ -1,3 +1,8 @@
+## [2.3.0] 22nd March 2019
+* Update example App with proper cancel
+* Add possibility to set accuracy, interval and minimum notification ditance of the requests.
+* Add LocationAccuracy object
+
 ## [2.2.0] 19th March 2019
 * Actually updating locatino when using getLocation (not only relying on LastLocation)
 * Add timestamp to LocationData

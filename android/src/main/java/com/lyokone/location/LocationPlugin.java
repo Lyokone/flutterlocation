@@ -70,6 +70,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
     private static long update_interval_in_milliseconds = 5000;
     private static long fastest_update_interval_in_milliseconds = update_interval_in_milliseconds / 2;
     private static Integer location_accuray = LocationRequest.PRIORITY_HIGH_ACCURACY;
+    private static float distanceFilter = 0f;
 
     private EventSink events;
     private Result result;
@@ -125,6 +126,8 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 this.location_accuray = this.mapFlutterAccuracy.get(call.argument("accuracy"));
                 this.update_interval_in_milliseconds = new Long((int) call.argument("interval"));
                 this.fastest_update_interval_in_milliseconds = this.update_interval_in_milliseconds / 2;
+                
+                this.distanceFilter = new Float((double) call.argument("distanceFilter"));
 
                 createLocationCallback();
                 createLocationRequest();
@@ -132,7 +135,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 buildLocationSettingsRequest();
                 result.success(1);
             } catch(Exception e) {
-                result.error("CHANGE_SETTINGS_ERROR", "An unexcepted error happened during location settings change.", null);
+                result.error("CHANGE_SETTINGS_ERROR", "An unexcepted error happened during location settings change:" + e.getMessage(), null);
             }
 
         } else if (call.method.equals("getLocation")) {
@@ -287,6 +290,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
         this.mLocationRequest.setFastestInterval(this.fastest_update_interval_in_milliseconds);
 
         this.mLocationRequest.setPriority(this.location_accuray);
+        this.mLocationRequest.setSmallestDisplacement(this.distanceFilter);
     }
 
     /**

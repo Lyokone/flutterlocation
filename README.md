@@ -80,17 +80,18 @@ location.onLocationChanged().listen((LocationData currentLocation) {
 });
 ```
 
-## API
+## Public Method Summary
 In this table you can find the different functions exposed by this plugin:
 
-| Methods |Description|
+| Return |Description|
 |--------|-----|
-| Future\<bool> **requestPermission()** | Request the Location permission. Return a boolean to know if the permission has been granted. |
-| Future\<bool> **hasPermission()** | Return a boolean to know the state of the location permission. |
-| Future\<bool> **serviceEnabled()** | Return a boolean to know if the Location Service is enabled or if the user manually deactivated it. |
-| Future\<bool> **requestService()** | Show an alert dialog to request the user to activate the Location Service. On iOS, will only display an alert due to Apple Guidelines, the user having to manually go to Settings. Return a boolean to know if the Location Service has been activated (always `false` on iOS). |
-| Future\<LocationData> **getLocation()** | Allow to get a one time position of the user. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
-| Stream\<LocationData> **onLocationChanged()** | Get the stream of the user's location. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
+| Future\<bool> |  **requestPermission()** <br>Request the Location permission. Return a boolean to know if the permission has been granted. |
+| Future\<bool> | **hasPermission()** <br>Return a boolean to know the state of the location permission. |
+| Future\<bool> | **serviceEnabled()** <br>Return a boolean to know if the Location Service is enabled or if the user manually deactivated it. |
+| Future\<bool> | **requestService()** <br>Show an alert dialog to request the user to activate the Location Service. On iOS, will only display an alert due to Apple Guidelines, the user having to manually go to Settings. Return a boolean to know if the Location Service has been activated (always `false` on iOS). |
+| Future<bool> | **changeSettings(LocationAccuracy accuracy = LocationAccuracy.HIGH, int interval = 1000, double distanceFilter = 0)** <br>Will change the settings of futur requests. `accuracy`will describe the accuracy of the request (see the LocationAccuracy object). `interval` will set the desired interval for active location updates, in milliseconds (only affects Android). `distanceFilter` set the minimum displacement between location updates in meters. |
+| Future\<LocationData> | **getLocation()** <br>Allow to get a one time position of the user. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
+| Stream\<LocationData> | **onLocationChanged()** <br>Get the stream of the user's location. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
   
 You should try to manage permission manually with `requestPermission()` to avoid error, but plugin will try handle some cases for you.
 
@@ -105,6 +106,15 @@ class LocationData {
   final double speedAccuracy; // In meters/second, always 0 on iOS
   final double heading; //Heading is the horizontal direction of travel of this device, in degrees
   final double time; //timestamp of the LocationData
+}
+
+
+enum LocationAccuracy { 
+  POWERSAVE, // To request best accuracy possible with zero additional power consumption, 
+  LOW, // To request "city" level accuracy
+  BALANCED, // To request "block" level accuracy
+  HIGH, // To request the most accurate locations available
+  NAVIGATION // To request location for navigation usage (affect only iOS)
 }
  ```
 

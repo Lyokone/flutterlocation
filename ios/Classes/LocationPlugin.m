@@ -65,6 +65,11 @@
             };
 
             self.clLocationManager.desiredAccuracy = [dictionary[call.arguments[@"accuracy"]] doubleValue];
+            double distanceFilter = [call.arguments[@"distanceFilter"] doubleValue];
+            if (distanceFilter == 0){
+                distanceFilter = kCLDistanceFilterNone;
+            }
+            self.clLocationManager.distanceFilter = distanceFilter;
             result(@(1));
         }
     } else if ([call.method isEqualToString:@"getLocation"]) {
