@@ -45,7 +45,7 @@ class LocationData {
  * https://developer.apple.com/documentation/corelocation/cllocationaccuracy?language=objc
  * Precision of the Location
  */
-enum LocationAccuray { 
+enum LocationAccuracy { 
   POWERSAVE,
   LOW,
   BALANCED,
@@ -60,12 +60,17 @@ const EventChannel _stream = const EventChannel('lyokone/locationstream');
 class Location {
   Stream<LocationData> _onLocationChanged;
 
-  Future<bool> changeSettings({LocationAccuray accuracy = LocationAccuray.HIGH, int interval = 5000}) =>
-    _channel.invokeMethod('changeSettings',
-    {
-      "accuracy": accuracy.index,
-      "interval": interval
-    })
+  Future<bool> changeSettings({
+      LocationAccuracy accuracy = LocationAccuracy.HIGH, 
+      int interval = 1000,
+      double distanceFilter = 0
+    }) =>
+      _channel.invokeMethod('changeSettings',
+      {
+        "accuracy": accuracy.index,
+        "interval": interval,
+        "distanceFilter": distanceFilter
+      })
     .then((result) => result == 1);
 
 
