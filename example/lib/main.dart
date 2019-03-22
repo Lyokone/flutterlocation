@@ -37,7 +37,7 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   initPlatformState() async {
-    await _locationService.changeSettings(accuracy: LocationAccuray.HIGH, interval: 1000);
+    await _locationService.changeSettings(accuracy: LocationAccuracy.HIGH, interval: 1000);
     
     LocationData location;
     // Platform messages may fail, so we use a try/catch PlatformException.
@@ -83,7 +83,7 @@ class _MyAppState extends State<MyApp> {
 
   slowRefresh() async {
     _locationSubscription.cancel();
-    await _locationService.changeSettings(accuracy: LocationAccuray.BALANCED, interval: 10000);
+    await _locationService.changeSettings(accuracy: LocationAccuracy.BALANCED, interval: 10000);
     _locationSubscription = _locationService.onLocationChanged().listen((LocationData result) {
       if(mounted){
         setState(() {
