@@ -36,8 +36,7 @@ In order to use this plugin in Android, you have to add this permission in Andro
 ```xml
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
-Permission check for Android 6+ was added. Still no callback when permissions granted
-so aiming SDK 21 is safer.
+Permission check for Android 6+ was added.
 
 ### iOS
 And to use it in iOS, you have to add this permission in Info.plist :
