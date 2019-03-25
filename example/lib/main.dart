@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
 
-import 'config.dart';
+//import 'config.dart';
 
 void main() {
   runApp(new MyApp());

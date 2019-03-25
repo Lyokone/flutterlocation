@@ -40,11 +40,9 @@ class LocationData {
   }
 }
 
-/**
- * https://developers.google.com/android/reference/com/google/android/gms/location/LocationRequest
- * https://developer.apple.com/documentation/corelocation/cllocationaccuracy?language=objc
- * Precision of the Location
- */
+/// https://developers.google.com/android/reference/com/google/android/gms/location/LocationRequest
+/// https://developer.apple.com/documentation/corelocation/cllocationaccuracy?language=objc
+/// Precision of the Location
 enum LocationAccuracy { 
   POWERSAVE,
   LOW,
@@ -54,10 +52,11 @@ enum LocationAccuracy {
 }
 
 
-const MethodChannel _channel = const MethodChannel('lyokone/location');
-const EventChannel _stream = const EventChannel('lyokone/locationstream');
 
 class Location {
+  static const MethodChannel _channel = const MethodChannel('lyokone/location');
+  static const EventChannel _stream = const EventChannel('lyokone/locationstream');
+
   Stream<LocationData> _onLocationChanged;
 
   Future<bool> changeSettings({
@@ -85,15 +84,17 @@ class Location {
   Future<bool> hasPermission() =>
       _channel.invokeMethod('hasPermission').then((result) => result == 1);
 
+  /// Request the permission to access the location
   Future<bool> requestPermission() =>
     _channel.invokeMethod('requestPermission').then((result) => result == 1);
 
+  /// Checks if the location service is enabled
   Future<bool> serviceEnabled() =>
     _channel.invokeMethod('serviceEnabled').then((result) => result == 1);
 
+  /// Request the activate of the location service
   Future<bool> requestService() =>
     _channel.invokeMethod('requestService').then((result) => result == 1);
-
 
   /// Returns a stream of location information.
   Stream<LocationData> onLocationChanged() {

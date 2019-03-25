@@ -10,6 +10,7 @@
 @property (strong, nonatomic) CLLocationManager *clLocationManager;
 @property (copy, nonatomic)   FlutterResult      flutterResult;
 @property (assign, nonatomic) BOOL               locationWanted;
+@property (assign, nonatomic) BOOL               permissionWanted;
 
 @property (copy, nonatomic)   FlutterEventSink   flutterEventSink;
 @property (assign, nonatomic) BOOL               flutterListening;
@@ -34,6 +35,7 @@
 
     if (self) {
         self.locationWanted = NO;
+        self.permissionWanted = NO;
         self.flutterListening = NO;
         self.hasInit = NO;
     }
@@ -100,12 +102,10 @@
             result(@(0));
         }
     } else if ([call.method isEqualToString:@"requestPermission"]) {
+        self.flutterResult = result;
+        self.permissionWanted = YES;
         [self requestPermission];
-        if ([self isPermissionGranted]) {
-            result(@(1));
-        } else {
-            result(@(0));
-        }
+
     } else if ([call.method isEqualToString:@"serviceEnabled"]) {
         if ([CLLocationManager locationServicesEnabled]) {
             result(@(1));
@@ -217,9 +217,18 @@
     if (status == kCLAuthorizationStatusDenied) {
         // The user denied authorization
         NSLog(@"User denied permissions");
+        if (self.permissionWanted) {
+            self.permissionWanted = NO;
+            self.flutterResult(@(0));
+        }
+        
     }
     else if (status == kCLAuthorizationStatusAuthorizedWhenInUse || status == kCLAuthorizationStatusAuthorizedAlways) {
         NSLog(@"User granted permissions");
+        if (self.permissionWanted) {
+            self.permissionWanted = NO;
+            self.flutterResult(@(1));
+        }
 
         if (self.locationWanted || self.flutterListening) {
             [self.clLocationManager startUpdatingLocation];
