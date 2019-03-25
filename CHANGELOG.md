@@ -1,3 +1,7 @@
+## [2.3.1] 25th March 2019
+* Fixes README
+* Fixes requestPermission not responding the correct result on iOS
+
 ## [2.3.0] 22nd March 2019
 * Update example App with proper cancel
 * Add possibility to set accuracy, interval and minimum notification ditance of the requests.
