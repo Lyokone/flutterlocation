@@ -1,3 +1,9 @@
+## [2.3.3] 31th March 2019
+* Align altitude on Sea Level when available on Android (matching iOS altitude).
+
+## [2.3.2] 27th March 2019
+* Remove GPS limitation on Android
+
 ## [2.3.1] 25th March 2019
 * Fixes README
 * Fixes requestPermission not responding the correct result on iOS
