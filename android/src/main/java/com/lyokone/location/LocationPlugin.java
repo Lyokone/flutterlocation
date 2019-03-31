@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.location.OnNmeaMessageListener;
 import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
@@ -34,6 +35,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnFailureListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.flutter.plugin.common.EventChannel;
@@ -65,6 +67,9 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
     private LocationSettingsRequest mLocationSettingsRequest;
     private LocationCallback mLocationCallback;
     private PluginRegistry.RequestPermissionsResultListener mPermissionsResultListener;
+    private OnNmeaMessageListener mMessageListener;
+
+    private Double mLastMslAltitude;
 
     // Parameters of the request
     private static long update_interval_in_milliseconds = 5000;
@@ -242,7 +247,14 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 loc.put("latitude", location.getLatitude());
                 loc.put("longitude", location.getLongitude());
                 loc.put("accuracy", (double) location.getAccuracy());
-                loc.put("altitude", location.getAltitude());
+                
+                // Using NMEA Data to get MSL level altitude
+                if (mLastMslAltitude == null) {
+                    loc.put("altitude", location.getAltitude());
+                } else {
+                    loc.put("altitude", mLastMslAltitude);
+                }
+
                 loc.put("speed", (double) location.getSpeed());
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     loc.put("speed_accuracy", (double) location.getSpeedAccuracyMetersPerSecond());
@@ -261,6 +273,23 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 }
             }
         };
+
+        mMessageListener = new OnNmeaMessageListener() {
+        @Override
+        public void onNmeaMessage(String message, long timestamp) {
+            if (message.startsWith("$")) {
+                String[] tokens = message.split(",");
+                String type = tokens[0];
+
+                // Parse altitude above sea level, Detailed description of NMEA string here
+                // http://aprs.gids.nl/nmea/#gga
+                if (type.startsWith("$GPGGA")) {
+                    if (!tokens[9].isEmpty()) {
+                        mLastMslAltitude = Double.parseDouble(tokens[9]);
+                    }
+                }
+            }
+        }};
     }
 
     /**
@@ -382,6 +411,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 .addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                        locationManager.addNmeaListener(mMessageListener);
                         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
                     }
                 }).addOnFailureListener(activity, new OnFailureListener() {
