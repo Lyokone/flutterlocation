@@ -116,6 +116,7 @@ enum LocationAccuracy {
   NAVIGATION // To request location for navigation usage (affect only iOS)
 }
  ```
+ Note: you can convert the timestamp into a `DateTime` with: `DateTime.fromMillisecondsSinceEpoch(locationData.time.toInt())`
 
 
 ## Feedback
