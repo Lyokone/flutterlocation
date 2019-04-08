@@ -1,3 +1,7 @@
+## [2.3.4] 8th April 2019
+* Fix error on Android 21 API thanks to noordawod
+* Update Google API version
+
 ## [2.3.3] 31th March 2019
 * Align altitude on Sea Level when available on Android (matching iOS altitude).
 
