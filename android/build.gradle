@@ -39,5 +39,5 @@ android {
 }
 
 dependencies {
-    api 'com.google.android.gms:play-services-location:15.+'
+    api 'com.google.android.gms:play-services-location:16.+'
 }
