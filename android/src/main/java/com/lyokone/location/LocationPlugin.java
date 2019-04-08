@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.util.Log;
+import android.annotation.TargetApi;
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Status;
@@ -67,6 +68,8 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
     private LocationSettingsRequest mLocationSettingsRequest;
     private LocationCallback mLocationCallback;
     private PluginRegistry.RequestPermissionsResultListener mPermissionsResultListener;
+
+    @TargetApi(Build.VERSION_CODES.N)
     private OnNmeaMessageListener mMessageListener;
 
     private Double mLastMslAltitude;
@@ -152,12 +155,22 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
             }
 
         } else if (call.method.equals("hasPermission")) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                result.success(1);
+                return;
+            }
+
             if (checkPermissions()) {
                 result.success(1);
             } else {
                 result.success(0);
             }
         } else if (call.method.equals("requestPermission")) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                result.success(1);
+                return;
+            }
+            
             this.waitingForPermission = true;
             this.result = result;
             requestPermissions();
@@ -249,7 +262,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 loc.put("accuracy", (double) location.getAccuracy());
                 
                 // Using NMEA Data to get MSL level altitude
-                if (mLastMslAltitude == null) {
+                if (mLastMslAltitude == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                     loc.put("altitude", location.getAltitude());
                 } else {
                     loc.put("altitude", mLastMslAltitude);
@@ -274,22 +287,24 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
             }
         };
 
-        mMessageListener = new OnNmeaMessageListener() {
-        @Override
-        public void onNmeaMessage(String message, long timestamp) {
-            if (message.startsWith("$")) {
-                String[] tokens = message.split(",");
-                String type = tokens[0];
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { 
+            mMessageListener = new OnNmeaMessageListener() {
+            @Override
+            public void onNmeaMessage(String message, long timestamp) {
+                if (message.startsWith("$")) {
+                    String[] tokens = message.split(",");
+                    String type = tokens[0];
 
-                // Parse altitude above sea level, Detailed description of NMEA string here
-                // http://aprs.gids.nl/nmea/#gga
-                if (type.startsWith("$GPGGA")) {
-                    if (!tokens[9].isEmpty()) {
-                        mLastMslAltitude = Double.parseDouble(tokens[9]);
+                    // Parse altitude above sea level, Detailed description of NMEA string here
+                    // http://aprs.gids.nl/nmea/#gga
+                    if (type.startsWith("$GPGGA")) {
+                        if (!tokens[9].isEmpty()) {
+                            mLastMslAltitude = Double.parseDouble(tokens[9]);
+                        }
                     }
                 }
-            }
-        }};
+            }};
+        }
     }
 
     /**
@@ -411,7 +426,9 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 .addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        locationManager.addNmeaListener(mMessageListener);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { 
+                            locationManager.addNmeaListener(mMessageListener);
+                        }
                         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
                     }
                 }).addOnFailureListener(activity, new OnFailureListener() {
