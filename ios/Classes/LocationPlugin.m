@@ -102,10 +102,13 @@
             result(@(0));
         }
     } else if ([call.method isEqualToString:@"requestPermission"]) {
-        self.flutterResult = result;
-        self.permissionWanted = YES;
-        [self requestPermission];
-
+        if ([self isPermissionGranted]) {
+            result(@(1));
+        } else {
+            self.flutterResult = result;
+            self.permissionWanted = YES;
+            [self requestPermission];
+        }
     } else if ([call.method isEqualToString:@"serviceEnabled"]) {
         if ([CLLocationManager locationServicesEnabled]) {
             result(@(1));
