@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 //import 'config.dart';
 
@@ -26,7 +27,15 @@ class _MyAppState extends State<MyApp> {
 
   bool currentWidget = true;
 
-  Image image1;
+  Completer<GoogleMapController> _controller = Completer();
+  static final CameraPosition _initialCamera = CameraPosition(
+    target: LatLng(0, 0),
+    zoom: 4,
+  );
+
+  CameraPosition _currentCameraPosition;
+
+  GoogleMap googleMap; 
 
   @override
   void initState() {
@@ -49,8 +58,16 @@ class _MyAppState extends State<MyApp> {
         print("Permission: $_permission");
         if (_permission) {
           location = await _locationService.getLocation();
-          print("Location: ${location.latitude}");
-          _locationSubscription = _locationService.onLocationChanged().listen((LocationData result) {
+
+          _locationSubscription = _locationService.onLocationChanged().listen((LocationData result) async {
+            _currentCameraPosition = CameraPosition(
+              target: LatLng(result.latitude, result.longitude),
+              zoom: 16
+            );
+
+            final GoogleMapController controller = await _controller.future;
+            controller.animateCamera(CameraUpdate.newCameraPosition(_currentCameraPosition));            
+
             if(mounted){
               setState(() {
                 _currentLocation = result;
@@ -97,14 +114,25 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     List<Widget> widgets;
 
-    if (_currentLocation == null) {
-      widgets = new List();
-    } else {
-      widgets = [
-        // new Image.network(
-        //     "https://maps.googleapis.com/maps/api/staticmap?center=${_currentLocation.latitude},${_currentLocation.longitude}&zoom=18&size=640x400&key=$API_KEY")
-      ];
-    }
+    googleMap = GoogleMap(
+      mapType: MapType.normal,
+      myLocationEnabled: true,
+      initialCameraPosition: _initialCamera,
+      onMapCreated: (GoogleMapController controller) {
+        _controller.complete(controller);
+      },
+    );
+
+
+    widgets = [
+      Center(
+          child: SizedBox(
+            height: 300.0,
+            child: googleMap
+          ),
+      ),
+    ];
+    
 
     widgets.add(new Center(
         child: new Text(_startLocation != null
