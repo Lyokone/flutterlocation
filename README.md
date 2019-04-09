@@ -46,6 +46,9 @@ NSLocationAlwaysUsageDescription
 ```
 **Warning:** there is a currently a bug in iOS simulator in which you have to manually select a Location several in order for the Simulator to actually send data. Please keep that in mind when testing in iOS simulator.  
 
+### Example App
+The example app uses (Google Maps Flutter Plugin)[https://github.com/flutter/plugins/tree/master/packages/google_maps_flutter], add your API Key in the `AndroidManifest.xml` and in `AppDelegate.m` to use the Google Maps plugin. 
+
 ### Sample Code
 Then you just have to import the package with
 ```dart
