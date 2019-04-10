@@ -115,16 +115,18 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
      * Plugin registration.
      */
     public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), METHOD_CHANNEL_NAME);
-        LocationPlugin locationWithMethodChannel = new LocationPlugin(registrar.activity());
-        channel.setMethodCallHandler(locationWithMethodChannel);
-        registrar.addRequestPermissionsResultListener(locationWithMethodChannel.getPermissionsResultListener());
-        registrar.addActivityResultListener(locationWithMethodChannel);
+        if(registrar.activity() != null) {
+            final MethodChannel channel = new MethodChannel(registrar.messenger(), METHOD_CHANNEL_NAME);
+            LocationPlugin locationWithMethodChannel = new LocationPlugin(registrar.activity());
+            channel.setMethodCallHandler(locationWithMethodChannel);
+            registrar.addRequestPermissionsResultListener(locationWithMethodChannel.getPermissionsResultListener());
+            registrar.addActivityResultListener(locationWithMethodChannel);
 
-        final EventChannel eventChannel = new EventChannel(registrar.messenger(), STREAM_CHANNEL_NAME);
-        LocationPlugin locationWithEventChannel = new LocationPlugin(registrar.activity());
-        eventChannel.setStreamHandler(locationWithEventChannel);
-        registrar.addRequestPermissionsResultListener(locationWithEventChannel.getPermissionsResultListener());
+            final EventChannel eventChannel = new EventChannel(registrar.messenger(), STREAM_CHANNEL_NAME);
+            LocationPlugin locationWithEventChannel = new LocationPlugin(registrar.activity());
+            eventChannel.setStreamHandler(locationWithEventChannel);
+            registrar.addRequestPermissionsResultListener(locationWithEventChannel.getPermissionsResultListener());
+        }
     }
 
     @Override
