@@ -1,3 +1,8 @@
+## [2.3.5] 10th April 2019
+* Fix incompatibily with headless plugins thanks to ehhc
+* Fix error with iOS when permission already given
+* Add Google maps example
+
 ## [2.3.4] 8th April 2019
 * Fix error on Android 21 API thanks to noordawod
 * Update Google API version
