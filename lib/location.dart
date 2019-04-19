@@ -72,13 +72,8 @@ class Location {
   ///
   /// Throws an error if there is no user last known location
   /// and the app has no permission to access location.
-  Future<LocationData> getLastKnownLocation() {
-    if (_lastKnownLocation != null) {
-      return _lastKnownLocation;
-    }
-
-    return getLocation();
-  }
+  Future<LocationData> getLastKnownLocation() =>
+      _lastKnownLocation ?? getLocation();
 
   /// Checks if the app has permission to access location.
   Future<bool> hasPermission() =>
