@@ -44,10 +44,10 @@ And to use it in iOS, you have to add this permission in Info.plist :
 NSLocationWhenInUseUsageDescription
 NSLocationAlwaysUsageDescription
 ```
-**Warning:** there is a currently a bug in iOS simulator in which you have to manually select a Location several in order for the Simulator to actually send data. Please keep that in mind when testing in iOS simulator.  
+**Warning:** there is a currently a bug in iOS simulator in which you have to manually select a Location several in order for the Simulator to actually send data. Please keep that in mind when testing in iOS simulator.
 
 ### Example App
-The example app uses [Google Maps Flutter Plugin](https://github.com/flutter/plugins/tree/master/packages/google_maps_flutter), add your API Key in the `AndroidManifest.xml` and in `AppDelegate.m` to use the Google Maps plugin. 
+The example app uses [Google Maps Flutter Plugin](https://github.com/flutter/plugins/tree/master/packages/google_maps_flutter), add your API Key in the `AndroidManifest.xml` and in `AppDelegate.m` to use the Google Maps plugin.
 
 ### Sample Code
 Then you just have to import the package with
@@ -67,7 +67,7 @@ try {
 } on PlatformException catch (e) {
   if (e.code == 'PERMISSION_DENIED') {
     error = 'Permission denied';
-  } 
+  }
   currentLocation = null;
 }
 ```
@@ -93,8 +93,9 @@ In this table you can find the different functions exposed by this plugin:
 | Future\<bool> | **requestService()** <br>Show an alert dialog to request the user to activate the Location Service. On iOS, will only display an alert due to Apple Guidelines, the user having to manually go to Settings. Return a boolean to know if the Location Service has been activated (always `false` on iOS). |
 | Future\<bool> | **changeSettings(LocationAccuracy accuracy = LocationAccuracy.HIGH, int interval = 1000, double distanceFilter = 0)** <br>Will change the settings of futur requests. `accuracy`will describe the accuracy of the request (see the LocationAccuracy object). `interval` will set the desired interval for active location updates, in milliseconds (only affects Android). `distanceFilter` set the minimum displacement between location updates in meters. |
 | Future\<LocationData> | **getLocation()** <br>Allow to get a one time position of the user. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
+| Future\<LocationData> | **getLastKnownLocation()** <br>Allow to get the last known location of the user, in case it exists. If there is no recorded last known location, it will get a one time position of the user. Also, if there is no recorded last known lcoation, it will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
 | Stream\<LocationData> | **onLocationChanged()** <br>Get the stream of the user's location. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted. |
-  
+
 You should try to manage permission manually with `requestPermission()` to avoid error, but plugin will try handle some cases for you.
 
 ### Objects
@@ -111,7 +112,7 @@ class LocationData {
 }
 
 
-enum LocationAccuracy { 
+enum LocationAccuracy {
   POWERSAVE, // To request best accuracy possible with zero additional power consumption, 
   LOW, // To request "city" level accuracy
   BALANCED, // To request "block" level accuracy

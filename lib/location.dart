@@ -43,6 +43,7 @@ class Location {
       const EventChannel('lyokone/locationstream');
 
   Stream<LocationData> _onLocationChanged;
+  Future<LocationData> _lastKnownLocation;
 
   Future<bool> changeSettings(
           {LocationAccuracy accuracy = LocationAccuracy.HIGH,
@@ -57,9 +58,27 @@ class Location {
   /// Gets the current location of the user.
   ///
   /// Throws an error if the app has no permission to access location.
-  Future<LocationData> getLocation() => _channel
+  Future<LocationData> getLocation() {
+    Future<LocationData> location = _channel
       .invokeMethod('getLocation')
       .then((result) => LocationData.fromMap(result.cast<String, double>()));
+
+      _lastKnownLocation = location;
+      return location;
+  }
+
+  /// Gets the user's last known location.
+  /// If it doesn't exist, gets the current location of the user.
+  ///
+  /// Throws an error if there is no user last known location
+  /// and the app has no permission to access location.
+  Future<LocationData> getLastKnownLocation() {
+    if (_lastKnownLocation != null) {
+      return _lastKnownLocation;
+    }
+
+    return getLocation();
+  }
 
   /// Checks if the app has permission to access location.
   Future<bool> hasPermission() =>
