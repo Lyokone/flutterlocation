@@ -7,6 +7,9 @@ handles getting location on Android and iOS. It also provides callbacks when loc
   <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/src/demo_readme.gif" alt="Demo App" style="margin:auto" width="372" height="686">
 </p>
 
+## :sparkles: New experimental feature :sparkles:
+To get location updates even your app is closed, you can see [this wiki post](https://github.com/Lyokone/flutterlocation/wiki/Background-Location-Updates).
+
 
 ## Getting Started
 ### Android
