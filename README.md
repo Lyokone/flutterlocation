@@ -7,10 +7,13 @@ handles getting location on Android and iOS. It also provides callbacks when loc
   <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/src/demo_readme.gif" alt="Demo App" style="margin:auto" width="372" height="686">
 </p>
 
-# Breaking Changes
-As of the 2.0 version, you have to call the returned location is an LocationData Object. You can just access the different attribute like so : location.latitude.
-See the API part of the README for the changes.
-This version also switched to AndroidX instead of the old Android Support library. In order to use it you have to do the following things:
+
+## Getting Started
+### Android
+In order to use this plugin in Android, you have to add this permission in AndroidManifest.xml :
+```xml
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+```
 
 Update your gradle.properties file with this:
 ```
@@ -28,15 +31,6 @@ Please also make sure that you have those dependencies in your build.gradle:
 ...
   compileSdkVersion 28
 ```
-
-
-## Getting Started
-### Android
-In order to use this plugin in Android, you have to add this permission in AndroidManifest.xml :
-```xml
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-```
-Permission check for Android 6+ was added.
 
 ### iOS
 And to use it in iOS, you have to add this permission in Info.plist :
