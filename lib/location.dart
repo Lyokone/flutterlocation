@@ -5,18 +5,55 @@ import 'package:flutter/services.dart';
 /// A data class that contains various information about the user's location.
 ///
 /// speedAccuracy cannot be provided on iOS and thus is always 0.
+/// Note that some data may be null.
 class LocationData {
   final double latitude;
   final double longitude;
+
+  //// The accuracy of the position in meters
   final double accuracy;
+
+  /// The altitude above Mean Sea level (MSL) in meters
   final double altitude;
+
+  /// The speed in meters/seconds
   final double speed;
+
+  /// the estimated speed accuracy of this location, in meters per second
   final double speedAccuracy;
+
+  /// The bearing in degrees. 0 is gps-north. Note that this property does NOT reflect the (magnetic) heading.
   final double heading;
+
+  /// the unix timestamp since epoch in milliseconds
   final double time;
 
-  LocationData._(this.latitude, this.longitude, this.accuracy, this.altitude,
-      this.speed, this.speedAccuracy, this.heading, this.time);
+  /// the estimated bearing accuracy of this location, in degrees.
+  final double bearingAccuracy;
+
+  /// The estimated vertical accuracy of this location, in meters.
+  final double verticalAccuracy;
+
+  /// true if the gps module reports that gps signals are available.
+  final bool available;
+
+  /// true if this data structure represents an availability event. Availability events does have the available property and the time property set.
+  /// all other properties are null
+  final bool availabilityEvent;
+
+  LocationData._(
+      this.latitude,
+      this.longitude,
+      this.accuracy,
+      this.altitude,
+      this.speed,
+      this.speedAccuracy,
+      this.heading,
+      this.time,
+      this.bearingAccuracy,
+      this.verticalAccuracy,
+      this.available,
+      this.availabilityEvent);
 
   factory LocationData.fromMap(Map<String, double> dataMap) {
     return LocationData._(
@@ -28,6 +65,27 @@ class LocationData {
       dataMap['speed_accuracy'],
       dataMap['heading'],
       dataMap['time'],
+      dataMap['bearingAccuracy'],
+      dataMap['verticalAccuracy'],
+      dataMap['availability'] == -1 ? null : dataMap['availability'] > 0,
+      false,
+    );
+  }
+
+  factory LocationData.availability(Map<String, double> dataMap) {
+    return LocationData._(
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      dataMap['time'],
+      null,
+      null,
+      dataMap['availability'] > 0,
+      true,
     );
   }
 }
@@ -80,8 +138,13 @@ class Location {
   /// Returns a stream of location information.
   Stream<LocationData> onLocationChanged() {
     if (_onLocationChanged == null) {
-      _onLocationChanged = _stream.receiveBroadcastStream().map<LocationData>(
-          (element) => LocationData.fromMap(element.cast<String, double>()));
+      _onLocationChanged =
+          _stream.receiveBroadcastStream().map<LocationData>((element) {
+        Map<String, double> result = element.cast<String, double>();
+        if (result.containsKey("AvailabilityEvent"))
+          return LocationData.availability(result);
+        return LocationData.fromMap(result);
+      });
     }
     return _onLocationChanged;
   }
