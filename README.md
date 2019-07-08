@@ -43,6 +43,8 @@ NSLocationAlwaysUsageDescription
 ```
 **Warning:** there is a currently a bug in iOS simulator in which you have to manually select a Location several in order for the Simulator to actually send data. Please keep that in mind when testing in iOS simulator.  
 
+The OnNmeaMessageListener property is only available for minimum SDK of 24.
+
 ### Example App
 The example app uses [Google Maps Flutter Plugin](https://github.com/flutter/plugins/tree/master/packages/google_maps_flutter), add your API Key in the `AndroidManifest.xml` and in `AppDelegate.m` to use the Google Maps plugin. 
 
