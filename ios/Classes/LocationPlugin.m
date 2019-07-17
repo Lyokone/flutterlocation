@@ -105,9 +105,13 @@
         if ([self isPermissionGranted]) {
             result(@(1));
         } else {
-            self.flutterResult = result;
-            self.permissionWanted = YES;
-            [self requestPermission];
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Autoriser l'accès"
+                 message:@"Pour pouvoir utiliser le service de localisation, Keyclic doit pouvoir accéder à votre position. Autorisez le service de localisation dans les Réglages."
+                 delegate:self
+                 cancelButtonTitle:@"Non merci"
+                 otherButtonTitles:@"Réglages", nil];
+            [alert show];
+            result(@(0));
         }
     } else if ([call.method isEqualToString:@"serviceEnabled"]) {
         if ([CLLocationManager locationServicesEnabled]) {
@@ -119,11 +123,11 @@
         if ([CLLocationManager locationServicesEnabled]) {
             result(@(1));
         } else {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Location is Disabled"
-                message:@"To use location, go to your Settings App > Privacy > Location Services."
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Localisation désactivée"
+                message:@"Votre localisation doit être activée pour utiliser les services de localisation. Activez la localisation dans les Réglages."
                 delegate:self
-                cancelButtonTitle:@"Cancel"
-                otherButtonTitles:nil];
+                cancelButtonTitle:@"Non merci"
+                otherButtonTitles:@"Réglages", nil];
             [alert show];
             result(@(0));
         }
@@ -142,6 +146,15 @@
     }
     else {
         [NSException raise:NSInternalInconsistencyException format:@"To use location in iOS8 and above you need to define either NSLocationWhenInUseUsageDescription or NSLocationAlwaysUsageDescription in the app bundle's Info.plist file"];
+    }
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    // When the "Settings" button is clicked
+    if (buttonIndex == 1)
+    {
+        NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+        [[UIApplication sharedApplication] openURL:url];
     }
 }
 
