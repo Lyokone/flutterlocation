@@ -44,14 +44,27 @@ class Location {
 
   Stream<LocationData> _onLocationChanged;
 
-  Future<bool> changeSettings(
-          {LocationAccuracy accuracy = LocationAccuracy.HIGH,
-          int interval = 1000,
-          double distanceFilter = 0}) =>
+  Future<bool> changeSettings({
+    LocationAccuracy accuracy = LocationAccuracy.HIGH,
+    String cancelButton,
+    double distanceFilter = 0,
+    int interval = 1000,
+    String permissionAlertMessage,
+    String permissionAlertTitle,
+    String serviceAlertMessage,
+    String serviceAlertTitle,
+    String settingsButton,
+  }) =>
       _channel.invokeMethod('changeSettings', {
         "accuracy": accuracy.index,
+        "cancelButton": cancelButton,
+        "distanceFilter": distanceFilter,
         "interval": interval,
-        "distanceFilter": distanceFilter
+        "permissionAlertMessage": permissionAlertMessage,
+        "permissionAlertTitle": permissionAlertTitle,
+        "serviceAlertMessage": serviceAlertMessage,
+        "serviceAlertTitle": serviceAlertTitle,
+        "settingsButton": settingsButton,
       }).then((result) => result == 1);
 
   /// Gets the current location of the user.

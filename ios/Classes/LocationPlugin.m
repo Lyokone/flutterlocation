@@ -8,9 +8,15 @@
 
 @interface LocationPlugin() <FlutterStreamHandler, CLLocationManagerDelegate> 
 @property (strong, nonatomic) CLLocationManager *clLocationManager;
-@property (copy, nonatomic)   FlutterResult      flutterResult;
-@property (assign, nonatomic) BOOL               locationWanted;
-@property (assign, nonatomic) BOOL               permissionWanted;
+@property (copy, nonatomic)   FlutterResult     flutterResult;
+@property (assign, nonatomic) BOOL              locationWanted;
+@property (assign, nonatomic) BOOL              permissionWanted;
+@property NSMutableString                       *serviceAlertTitle;
+@property NSMutableString                       *serviceAlertMessage;
+@property NSMutableString                       *permissionAlertTitle;
+@property NSMutableString                       *permissionAlertMessage;
+@property NSMutableString                       *cancelButton;
+@property NSMutableString                       *settingsButton;
 
 @property (copy, nonatomic)   FlutterEventSink   flutterEventSink;
 @property (assign, nonatomic) BOOL               flutterListening;
@@ -34,6 +40,12 @@
     self = [super init];
 
     if (self) {
+        self.serviceAlertTitle = [NSMutableString stringWithString:@"Location is disabled"];
+        self.serviceAlertMessage = [NSMutableString stringWithString:@"To use location, you need to turn on the location service in settings."];
+        self.permissionAlertTitle = [NSMutableString stringWithString:@"Request permission"];
+        self.permissionAlertMessage = [NSMutableString stringWithString:@"You need to allow the location permission for this app in your settings."];
+        self.cancelButton = [NSMutableString stringWithString:@"Cancel"];
+        self.settingsButton = [NSMutableString stringWithString:@"Settings"];
         self.locationWanted = NO;
         self.permissionWanted = NO;
         self.flutterListening = NO;
@@ -41,11 +53,11 @@
     }
     return self;
 }
-    
+
 -(void)initLocation {
     if (!(self.hasInit)) {
         self.hasInit = YES;
-        
+
         if ([CLLocationManager locationServicesEnabled]) {
             self.clLocationManager = [[CLLocationManager alloc] init];
             self.clLocationManager.delegate = self;
@@ -57,6 +69,8 @@
 -(void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     [self initLocation];
     if ([call.method isEqualToString:@"changeSettings"]) {
+        [self setAlertSettings:call.arguments];
+
         if ([CLLocationManager locationServicesEnabled]) {
             NSDictionary *dictionary = @{
                 @"0" : @(kCLLocationAccuracyKilometer),
@@ -83,10 +97,10 @@
                                    details:nil]);
             return;
         }
-        
+
         self.flutterResult = result;
         self.locationWanted = YES;
-        
+
         if ([self isPermissionGranted]) {
             [self.clLocationManager startUpdatingLocation];
         } else {
@@ -105,11 +119,11 @@
         if ([self isPermissionGranted]) {
             result(@(1));
         } else {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Autoriser l'accès"
-                 message:@"Pour pouvoir utiliser le service de localisation, Keyclic doit pouvoir accéder à votre position. Autorisez le service de localisation dans les Réglages."
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:self.permissionAlertTitle
+                 message:self.permissionAlertMessage
                  delegate:self
-                 cancelButtonTitle:@"Non merci"
-                 otherButtonTitles:@"Réglages", nil];
+                 cancelButtonTitle:self.cancelButton
+                 otherButtonTitles:self.settingsButton, nil];
             [alert show];
             result(@(0));
         }
@@ -123,11 +137,11 @@
         if ([CLLocationManager locationServicesEnabled]) {
             result(@(1));
         } else {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Localisation désactivée"
-                message:@"Votre localisation doit être activée pour utiliser les services de localisation. Activez la localisation dans les Réglages."
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:self.serviceAlertTitle
+                message:self.serviceAlertMessage
                 delegate:self
-                cancelButtonTitle:@"Non merci"
-                otherButtonTitles:@"Réglages", nil];
+                cancelButtonTitle:self.cancelButton
+                otherButtonTitles:self.settingsButton, nil];
             [alert show];
             result(@(0));
         }
@@ -135,7 +149,6 @@
         result(FlutterMethodNotImplemented);
     }
 }
-
 
 -(void) requestPermission {
     if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"] != nil) {
@@ -149,7 +162,34 @@
     }
 }
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+-(void)setAlertSettings:(id)arguments {
+    NSString *serviceAlertTitle = arguments[@"serviceAlertTitle"];
+    if ([serviceAlertTitle isKindOfClass:[NSString class]]) {
+        self.serviceAlertTitle = [serviceAlertTitle mutableCopy];
+    }
+    NSString *serviceAlertMessage = arguments[@"serviceAlertMessage"];
+    if ([serviceAlertMessage isKindOfClass:[NSString class]]) {
+        self.serviceAlertMessage = [serviceAlertMessage mutableCopy];
+    }
+    NSString *permissionAlertTitle = arguments[@"permissionAlertTitle"];
+    if ([permissionAlertTitle isKindOfClass:[NSString class]]) {
+        self.permissionAlertTitle = [permissionAlertTitle mutableCopy];
+    }
+    NSString *permissionAlertMessage = arguments[@"permissionAlertMessage"];
+    if ([permissionAlertMessage isKindOfClass:[NSString class]]) {
+        self.permissionAlertMessage = [permissionAlertMessage mutableCopy];
+    }
+    NSString *cancelButton = arguments[@"cancelButton"];
+    if ([cancelButton isKindOfClass:[NSString class]]) {
+        self.cancelButton = [cancelButton mutableCopy];
+    }
+    NSString *settings = arguments[@"settingsButton"];
+    if ([settings isKindOfClass:[NSString class]]) {
+        self.settingsButton = [settings mutableCopy];
+    }
+}
+
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     // When the "Settings" button is clicked
     if (buttonIndex == 1)
     {
@@ -237,7 +277,6 @@
             self.permissionWanted = NO;
             self.flutterResult(@(0));
         }
-        
     }
     else if (status == kCLAuthorizationStatusAuthorizedWhenInUse || status == kCLAuthorizationStatusAuthorizedAlways) {
         NSLog(@"User granted permissions");
