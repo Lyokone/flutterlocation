@@ -30,6 +30,19 @@ class LocationData {
       dataMap['time'],
     );
   }
+
+  Map<String, dynamic> toJson() =>
+    {
+      'latitude': latitude,
+      'longitude': longitude
+      'accuracy': accuracy
+      'altitude': altitude
+      'speed': speed
+      'speedAccuracy': speedAccuracy
+      'heading': heading
+      'time': time
+    };
+
 }
 
 /// https://developers.google.com/android/reference/com/google/android/gms/location/LocationRequest
