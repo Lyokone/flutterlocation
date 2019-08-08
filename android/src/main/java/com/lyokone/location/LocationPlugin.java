@@ -485,7 +485,6 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                         null);
             }
         }     
-        startRequestingLocation();   
 
         requestLocationStream();
     }
