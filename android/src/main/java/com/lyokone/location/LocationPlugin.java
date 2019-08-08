@@ -1,54 +1,48 @@
 package com.lyokone.location;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
-import android.provider.Settings;
-import android.content.IntentSender;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
-import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
-import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import android.util.Log;
-import android.annotation.TargetApi;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.Status;
-
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.EventChannel.EventSink;
 import io.flutter.plugin.common.EventChannel.StreamHandler;
+import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
-import io.flutter.plugin.common.PluginRegistry.ActivityResultListener;
 
 /**
  * LocationPlugin
@@ -66,7 +60,6 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
     private final SettingsClient mSettingsClient;
     private static LocationRequest mLocationRequest;
     private LocationSettingsRequest mLocationSettingsRequest;
-    private LocationCallback mLocationCallback;
     private PluginRegistry.RequestPermissionsResultListener mPermissionsResultListener;
 
     @TargetApi(Build.VERSION_CODES.N)
@@ -149,13 +142,12 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
             }
 
         } else if (call.method.equals("getLocation")) {
-            this.result = result;
             if (!checkPermissions()) {
+                this.result = result;
                 requestPermissions();
             } else {
-                startRequestingLocation();
+                requestLocation(result);
             }
-
         } else if (call.method.equals("hasPermission")) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                 result.success(1);
@@ -205,9 +197,10 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                     }
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                         if (result != null) {
-                            startRequestingLocation();
+                            requestLocation(result);
+                            result = null;
                         } else if (events != null) {
-                            startRequestingLocation();
+                            requestLocationStream();
                         }
                     } else {
                         if (!shouldShowRequestPermissionRationale()) {
@@ -253,42 +246,6 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
      * Creates a callback for receiving location events.
      */
     private void createLocationCallback() {
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                Location location = locationResult.getLastLocation();
-                HashMap<String, Double> loc = new HashMap<>();
-                loc.put("latitude", location.getLatitude());
-                loc.put("longitude", location.getLongitude());
-                loc.put("accuracy", (double) location.getAccuracy());
-                
-                // Using NMEA Data to get MSL level altitude
-                if (mLastMslAltitude == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                    loc.put("altitude", location.getAltitude());
-                } else {
-                    loc.put("altitude", mLastMslAltitude);
-                }
-
-                loc.put("speed", (double) location.getSpeed());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    loc.put("speed_accuracy", (double) location.getSpeedAccuracyMetersPerSecond());
-                }
-                loc.put("heading", (double) location.getBearing());
-                loc.put("time", (double) location.getTime());
-
-                if (result != null) {
-                    result.success(loc);
-                    result = null;
-                }
-                if (events != null) {
-                    events.success(loc);
-                } else {
-                    mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-                }
-            }
-        };
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { 
             mMessageListener = new OnNmeaMessageListener() {
             @Override
@@ -423,38 +380,98 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
             });
     }
 
-    public void startRequestingLocation() {
-        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
+    private void requestLocation(final Result result) {
+        createCheckLocationSettingsTask()
                 .addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { 
                             locationManager.addNmeaListener(mMessageListener);
                         }
-                        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+
+                        mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
+                            @Override
+                            public void onLocationResult(LocationResult locationResult) {
+                                HashMap<String, Double> locationMap = locationToMap(locationResult.getLastLocation());
+                                result.success(locationMap);
+                                mFusedLocationClient.removeLocationUpdates(this);
+                            }
+                        }, Looper.myLooper());
                     }
-                }).addOnFailureListener(activity, new OnFailureListener() {
+                });
+    }
+
+    private void requestLocationStream() {
+        createCheckLocationSettingsTask()
+                .addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
+                    @Override
+                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            locationManager.addNmeaListener(mMessageListener);
+                        }
+
+                        mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
+                            @Override
+                            public void onLocationResult(LocationResult locationResult) {
+                                if(events == null) {
+                                    mFusedLocationClient.removeLocationUpdates(this);
+                                    return;
+                                }
+
+                                HashMap<String, Double> locationMap = locationToMap(locationResult.getLastLocation());
+                                events.success(locationMap);
+                            }
+                        }, Looper.myLooper());
+                    }
+                });
+    }
+
+    private Task<LocationSettingsResponse> createCheckLocationSettingsTask() {
+        return mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
+                .addOnFailureListener(activity, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         int statusCode = ((ApiException) e).getStatusCode();
                         switch (statusCode) {
-                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                            try {
-                                // Show the dialog by calling startResolutionForResult(), and check the
-                                // result in onActivityResult().
-                                ResolvableApiException rae = (ResolvableApiException) e;
-                                rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
-                            } catch (IntentSender.SendIntentException sie) {
-                                Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
-                            }
-                            break;
-                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                            String errorMessage = "Location settings are inadequate, and cannot be "
-                                    + "fixed here. Fix in Settings.";
-                            Log.e(METHOD_CHANNEL_NAME, errorMessage);
+                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                try {
+                                    // Show the dialog by calling startResolutionForResult(), and check the
+                                    // result in onActivityResult().
+                                    ResolvableApiException rae = (ResolvableApiException) e;
+                                    rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
+                                } catch (IntentSender.SendIntentException sie) {
+                                    Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
+                                }
+                                break;
+                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                String errorMessage = "Location settings are inadequate, and cannot be "
+                                        + "fixed here. Fix in Settings.";
+                                Log.e(METHOD_CHANNEL_NAME, errorMessage);
                         }
                     }
                 });
+    }
+
+    private HashMap<String, Double> locationToMap(Location location) {
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("latitude", location.getLatitude());
+        map.put("longitude", location.getLongitude());
+        map.put("accuracy", (double) location.getAccuracy());
+
+        // Using NMEA Data to get MSL level altitude
+        if (mLastMslAltitude == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            map.put("altitude", location.getAltitude());
+        } else {
+            map.put("altitude", mLastMslAltitude);
+        }
+
+        map.put("speed", (double) location.getSpeed());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            map.put("speed_accuracy", (double) location.getSpeedAccuracyMetersPerSecond());
+        }
+        map.put("heading", (double) location.getBearing());
+        map.put("time", (double) location.getTime());
+        return map;
     }
 
     @Override
@@ -469,11 +486,12 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
             }
         }     
         startRequestingLocation();   
+
+        requestLocationStream();
     }
 
     @Override
     public void onCancel(Object arguments) {
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         events = null;
     }
 }
