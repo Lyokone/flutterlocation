@@ -27,6 +27,8 @@ class _MyAppState extends State<MyApp> {
 
   bool currentWidget = true;
 
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   Completer<GoogleMapController> _controller = Completer();
   static final CameraPosition _initialCamera = CameraPosition(
     target: LatLng(0, 0),
@@ -156,22 +158,69 @@ class _MyAppState extends State<MyApp> {
       )
     ));
 
+    widgets.add(new Center(
+      child: new RaisedButton(
+        child: new Text("Get Location"),
+        onPressed: () => _locationService.getLocation()
+      )
+    ));
+
+    widgets.add(new Center(
+      child: new RaisedButton(
+        child: new Text("Mock Location On"),
+        onPressed: () async {
+          String message;
+
+          if(await _locationService.isMockLocationOn()){
+            message = "Mock Location on";
+          }
+          else {
+            message = "Mock Location off";
+          }
+
+          _scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Text(message),
+            duration: Duration(seconds: 3),
+          ));
+        }
+      )
+    ));
+
+    widgets.add(new Center(
+      child: new RaisedButton(
+        child: new Text("Detect Apps Used Mock Location"),
+        onPressed: () async {
+          String message;
+          
+          if(await _locationService.isMockLocationUsed()){
+            message = "Found apps used mock location";
+          }
+          else {
+            message = "Not found apps used mock location";
+          }
+
+          _scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Text(message),
+            duration: Duration(seconds: 3),
+          ));
+        }
+      )
+    ));
+
     return new MaterialApp(
         home: new Scaffold(
+            key: _scaffoldKey,
             appBar: new AppBar(
               title: new Text('Location plugin example app'),
             ),
-            body: new Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+            body: new ListView(
               children: widgets,
             ),
             floatingActionButton: new FloatingActionButton(
               onPressed: () => _locationSubscription.cancel(),
               tooltip: 'Stop Track Location',
               child: Icon(Icons.stop),
-            ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+            )
         )
       );
   }

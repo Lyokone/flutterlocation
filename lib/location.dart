@@ -85,4 +85,12 @@ class Location {
     }
     return _onLocationChanged;
   }
+
+  // cek mock location is on or off
+  Future<bool> isMockLocationOn() => 
+    _channel.invokeMethod('isMockLocationOn').then((result) => result == 1);
+
+  // cek any apps using mock location
+  Future<bool> isMockLocationUsed() => 
+    _channel.invokeMethod('isMockLocationUsed').then((result) => result == 1);
 }

@@ -1,54 +1,52 @@
 package com.lyokone.location;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
-import android.provider.Settings;
-import android.content.IntentSender;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
-import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
-import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import android.provider.Settings;
 import android.util.Log;
-import android.annotation.TargetApi;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.Status;
-
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.EventChannel.EventSink;
 import io.flutter.plugin.common.EventChannel.StreamHandler;
+import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener;
+import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /**
  * LocationPlugin
@@ -86,6 +84,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
     private int locationPermissionState;
 
     private final Activity activity;
+    private Location mLocation;
 
     private boolean waitingForPermission = false;
     private LocationManager locationManager;
@@ -180,6 +179,20 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
             checkServiceEnabled(result);
         } else if (call.method.equals("requestService")) {
             requestService(result);
+        } else if (call.method.equals("isMockLocationOn")) {
+            if(isMockLocationOn(activity, mLocation)){
+                result.success(1);
+            }  
+            else {
+                result.success(0);
+            }
+        } else if (call.method.equals("isMockLocationUsed")) {
+            if(isMockLocationUsed(activity)){
+                result.success(1);
+            }
+            else {
+                result.success(0);
+            }
         } else {
             result.notImplemented();
         }
@@ -258,6 +271,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
                 Location location = locationResult.getLastLocation();
+                mLocation = location;
                 HashMap<String, Double> loc = new HashMap<>();
                 loc.put("latitude", location.getLatitude());
                 loc.put("longitude", location.getLongitude());
@@ -475,5 +489,54 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
     public void onCancel(Object arguments) {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         events = null;
+    }
+
+    public boolean isMockLocationOn(Activity activity, Location location) {
+        if(android.os.Build.VERSION.SDK_INT >= 18){
+            return location.isFromMockProvider();
+        }
+        else {
+            if (Settings.Secure.getString(activity.getContentResolver(), 
+                Settings.Secure.ALLOW_MOCK_LOCATION).equals("0")){
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+    }
+
+    public boolean isMockLocationUsed(Activity activity){
+        int count = 0;
+
+        PackageManager pm = activity.getPackageManager();
+        List<ApplicationInfo> packages =
+            pm.getInstalledApplications(PackageManager.GET_META_DATA);
+
+        for (ApplicationInfo applicationInfo : packages) {
+            try {
+                PackageInfo packageInfo = pm.getPackageInfo(applicationInfo.packageName,
+                                                        PackageManager.GET_PERMISSIONS);
+
+                // Get Permissions
+                String[] requestedPermissions = packageInfo.requestedPermissions;
+
+                if (requestedPermissions != null) {
+                    for (int i = 0; i < requestedPermissions.length; i++) {
+                        if (requestedPermissions[i]
+                            .equals("android.permission.ACCESS_MOCK_LOCATION")
+                            && !applicationInfo.packageName.equals(activity.getPackageName())) {
+                            count++;
+                        }
+                    }
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.e("Got exception " , e.getMessage());
+            }
+        }
+
+        if (count > 0)
+            return true;
+        return false;
     }
 }
