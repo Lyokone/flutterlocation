@@ -127,6 +127,12 @@
             [alert show];
             result(@(0));
         }
+    } 
+    else if ([call.method isEqualToString:@"isMockLocationOn"]) {
+        // Check Mock Location On
+    } 
+    else if ([call.method isEqualToString:@"isMockLocationUsed"]) {
+        // Check app uses mock location
     } else {
         result(FlutterMethodNotImplemented);
     }

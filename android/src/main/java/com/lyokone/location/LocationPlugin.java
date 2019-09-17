@@ -493,7 +493,12 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
 
     public boolean isMockLocationOn(Activity activity, Location location) {
         if(android.os.Build.VERSION.SDK_INT >= 18){
-            return location.isFromMockProvider();
+            if(location != null){
+                return location.isFromMockProvider();
+            }
+            else {
+                return false;
+            }
         }
         else {
             if (Settings.Secure.getString(activity.getContentResolver(), 
