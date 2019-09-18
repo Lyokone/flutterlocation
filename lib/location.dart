@@ -2,6 +2,29 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+/// An enum represents possible status for services
+enum ServiceStatus { disabled, enabled, unkown }
+
+/// A data class that contains status for location service and gps service
+///
+/// both properties will have same value on iOS and thus is always 0.
+class LocationServiceStatus {
+  ServiceStatus networkStatus;
+  ServiceStatus gpsStatus;
+
+  LocationServiceStatus._(this.networkStatus, this.gpsStatus);
+
+  factory LocationServiceStatus.fromMap(Map<String, int> dataMap) {
+    var networkValue = dataMap['network_enabled'];
+    var gpsValue = dataMap['gps_enabled'];
+
+    var networkStatus = ServiceStatus.values[networkValue];
+    var gpsStatus = ServiceStatus.values[gpsValue];
+
+    return LocationServiceStatus._(networkStatus, gpsStatus);
+  }
+}
+
 /// A data class that contains various information about the user's location.
 ///
 /// speedAccuracy cannot be provided on iOS and thus is always 0.
@@ -72,6 +95,11 @@ class Location {
   /// Checks if the location service is enabled
   Future<bool> serviceEnabled() =>
       _channel.invokeMethod('serviceEnabled').then((result) => result == 1);
+
+  /// Checks if the network and GPS service are enabled
+  Future<LocationServiceStatus> serviceStatus() =>
+      _channel.invokeMethod('serviceStatus').then((result) =>
+          LocationServiceStatus.fromMap(result.cast<String, int>()));
 
   /// Request the activate of the location service
   Future<bool> requestService() =>

@@ -178,7 +178,9 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
             requestPermissions();
         } else if (call.method.equals("serviceEnabled")) {
             checkServiceEnabled(result);
-        } else if (call.method.equals("requestService")) {
+        } else if (call.method.equals("serviceStatus")) {
+            checkServiceStatus(result);
+        }else if (call.method.equals("requestService")) {
             requestService(result);
         } else {
             result.notImplemented();
@@ -367,7 +369,31 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
         return ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
+    public HashMap<String, Integer> checkServiceStatus(final Result result) {
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
 
+        try {
+            gps_enabled = this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            network_enabled = this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch (Exception ex) {
+            result.error("SERVICE_STATUS_ERROR", "Location service status couldn't be determined", null);
+            HashMap<String, Integer> statusMap = new HashMap<>();
+            statusMap.put("network_enabled", 2);
+            statusMap.put("gps_enabled", 2);
+            return statusMap;
+        }
+        
+        HashMap<String, Integer> statusMap = new HashMap<>();
+        statusMap.put("network_enabled", network_enabled == true ? 1 : 0);
+        statusMap.put("gps_enabled", gps_enabled == true ? 1 : 0);
+        if (result != null) {
+            result.success(statusMap);
+        } 
+        return statusMap;
+    }
+
+    
     public boolean checkServiceEnabled(final Result result) {
         boolean gps_enabled = false;
         boolean network_enabled = false;

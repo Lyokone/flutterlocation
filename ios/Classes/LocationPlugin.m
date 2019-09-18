@@ -115,6 +115,20 @@
         } else {
             result(@(0));
         }
+    } else if ([call.method isEqualToString:@"serviceStatus"]) {      
+        if ([CLLocationManager locationServicesEnabled]) {
+            NSDictionary<NSString*,NSNumber*>* enabledStatusDict = @{
+                                                          @"network_enabled": @(1),
+                                                          @"gps_enabled": @(1)                                                        
+                                                          };
+            result(enabledStatusDict);
+        } else {
+            NSDictionary<NSString*,NSNumber*>* disabledStatusDict = @{
+                                                          @"network_enabled": @(0),
+                                                          @"gps_enabled": @(0)                                                        
+                                                          };
+            result(disabledStatusDict);
+        }
     } else if ([call.method isEqualToString:@"requestService"]) {
         if ([CLLocationManager locationServicesEnabled]) {
             result(@(1));
