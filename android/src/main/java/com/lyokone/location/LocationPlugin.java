@@ -180,7 +180,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
             checkServiceEnabled(result);
         } else if (call.method.equals("serviceStatus")) {
             checkServiceStatus(result);
-        }else if (call.method.equals("requestService")) {
+        } else if (call.method.equals("requestService")) {
             requestService(result);
         } else {
             result.notImplemented();
@@ -393,7 +393,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
         return statusMap;
     }
 
-    
+
     public boolean checkServiceEnabled(final Result result) {
         boolean gps_enabled = false;
         boolean network_enabled = false;
