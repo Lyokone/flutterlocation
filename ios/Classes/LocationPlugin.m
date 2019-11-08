@@ -90,6 +90,7 @@
         if ([self isPermissionGranted]) {
             [self.clLocationManager startUpdatingLocation];
         } else {
+            self.permissionWanted = YES;
             [self requestPermission];
             if ([self isPermissionGranted]) {
                 [self.clLocationManager startUpdatingLocation];
