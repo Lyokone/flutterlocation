@@ -367,30 +367,24 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
         return ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
-
+    boolean isLocationServiceEnabled = false;
     public boolean checkServiceEnabled(final Result result) {
-        boolean gps_enabled = false;
-        boolean network_enabled = false;
-
-        try {
-            gps_enabled = this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            network_enabled = this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch (Exception ex) {
-            result.error("SERVICE_STATUS_ERROR", "Location service status couldn't be determined", null);
-            return false;
-        }
-        if (gps_enabled || network_enabled) {
-            if (result != null) {
-                result.success(1);
-            } 
-            return true;
-            
-        } else {
-            if (result != null) {
+        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
+                .addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
+                    @Override
+                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                        result.success(1);
+                        isLocationServiceEnabled =  true;
+                    }
+                }).addOnFailureListener(activity, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
                 result.success(0);
-            } 
-            return false;
-        }
+                isLocationServiceEnabled = false;
+            }
+        });
+
+        return isLocationServiceEnabled;
     }
 
     public void requestService(final Result result) {
