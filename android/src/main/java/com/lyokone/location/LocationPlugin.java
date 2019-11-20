@@ -1,54 +1,48 @@
 package com.lyokone.location;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
-import android.provider.Settings;
-import android.content.IntentSender;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
-import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
-import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import android.provider.Settings;
 import android.util.Log;
-import android.annotation.TargetApi;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.Status;
-
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.EventChannel.EventSink;
 import io.flutter.plugin.common.EventChannel.StreamHandler;
+import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
-import io.flutter.plugin.common.PluginRegistry.ActivityResultListener;
 
 /**
  * LocationPlugin
@@ -89,6 +83,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
 
     private boolean waitingForPermission = false;
     private LocationManager locationManager;
+    private static Context context;
 
 
     private HashMap<Integer, Integer> mapFlutterAccuracy = new HashMap<>();
@@ -115,7 +110,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
      * Plugin registration.
      */
     public static void registerWith(Registrar registrar) {
-        if(registrar.activity() != null) {
+        if (registrar.activity() != null) {
             final MethodChannel channel = new MethodChannel(registrar.messenger(), METHOD_CHANNEL_NAME);
             LocationPlugin locationWithMethodChannel = new LocationPlugin(registrar.activity());
             channel.setMethodCallHandler(locationWithMethodChannel);
@@ -126,6 +121,8 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
             LocationPlugin locationWithEventChannel = new LocationPlugin(registrar.activity());
             eventChannel.setStreamHandler(locationWithEventChannel);
             registrar.addRequestPermissionsResultListener(locationWithEventChannel.getPermissionsResultListener());
+
+            LocationPlugin.context = registrar.context();
         }
     }
 
@@ -136,7 +133,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 this.location_accuray = this.mapFlutterAccuracy.get(call.argument("accuracy"));
                 this.update_interval_in_milliseconds = new Long((int) call.argument("interval"));
                 this.fastest_update_interval_in_milliseconds = this.update_interval_in_milliseconds / 2;
-                
+
                 this.distanceFilter = new Float((double) call.argument("distanceFilter"));
 
                 createLocationCallback();
@@ -144,7 +141,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 createPermissionsResultListener();
                 buildLocationSettingsRequest();
                 result.success(1);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 result.error("CHANGE_SETTINGS_ERROR", "An unexcepted error happened during location settings change:" + e.getMessage(), null);
             }
 
@@ -172,7 +169,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 result.success(1);
                 return;
             }
-            
+
             this.waitingForPermission = true;
             this.result = result;
             requestPermissions();
@@ -245,7 +242,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 break;
             default:
                 return false;
-            }
+        }
         return true;
     }
 
@@ -262,7 +259,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 loc.put("latitude", location.getLatitude());
                 loc.put("longitude", location.getLongitude());
                 loc.put("accuracy", (double) location.getAccuracy());
-                
+
                 // Using NMEA Data to get MSL level altitude
                 if (mLastMslAltitude == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                     loc.put("altitude", location.getAltitude());
@@ -277,6 +274,13 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 loc.put("heading", (double) location.getBearing());
                 loc.put("time", (double) location.getTime());
 
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2)
+                    loc.put("isMockLocation", location.isFromMockProvider() ? 1.0 : 0.0);
+                else {
+                    loc.put("isMockLocation", isMockEnabled() ? 1.0 : 0.0);
+                }
+
+
                 if (result != null) {
                     result.success(loc);
                     result = null;
@@ -289,23 +293,24 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
             }
         };
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             mMessageListener = new OnNmeaMessageListener() {
-            @Override
-            public void onNmeaMessage(String message, long timestamp) {
-                if (message.startsWith("$")) {
-                    String[] tokens = message.split(",");
-                    String type = tokens[0];
+                @Override
+                public void onNmeaMessage(String message, long timestamp) {
+                    if (message.startsWith("$")) {
+                        String[] tokens = message.split(",");
+                        String type = tokens[0];
 
-                    // Parse altitude above sea level, Detailed description of NMEA string here
-                    // http://aprs.gids.nl/nmea/#gga
-                    if (type.startsWith("$GPGGA")) {
-                        if (!tokens[9].isEmpty()) {
-                            mLastMslAltitude = Double.parseDouble(tokens[9]);
+                        // Parse altitude above sea level, Detailed description of NMEA string here
+                        // http://aprs.gids.nl/nmea/#gga
+                        if (type.startsWith("$GPGGA")) {
+                            if (!tokens[9].isEmpty()) {
+                                mLastMslAltitude = Double.parseDouble(tokens[9]);
+                            }
                         }
                     }
                 }
-            }};
+            };
         }
     }
 
@@ -382,13 +387,13 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
         if (gps_enabled || network_enabled) {
             if (result != null) {
                 result.success(1);
-            } 
+            }
             return true;
-            
+
         } else {
             if (result != null) {
                 result.success(0);
-            } 
+            }
             return false;
         }
     }
@@ -400,27 +405,27 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
         }
         this.result = result;
         mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
-            .addOnFailureListener(activity, new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    int statusCode = ((ApiException) e).getStatusCode();
-                    switch (statusCode) {
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        try {
-                            // Show the dialog by calling startResolutionForResult(), and check the
-                            // result in onActivityResult().
-                            ResolvableApiException rae = (ResolvableApiException) e;
-                            rae.startResolutionForResult(activity, GPS_ENABLE_REQUEST);
-                        } catch (IntentSender.SendIntentException sie) {
-                            Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
+                .addOnFailureListener(activity, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        int statusCode = ((ApiException) e).getStatusCode();
+                        switch (statusCode) {
+                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                try {
+                                    // Show the dialog by calling startResolutionForResult(), and check the
+                                    // result in onActivityResult().
+                                    ResolvableApiException rae = (ResolvableApiException) e;
+                                    rae.startResolutionForResult(activity, GPS_ENABLE_REQUEST);
+                                } catch (IntentSender.SendIntentException sie) {
+                                    Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
+                                }
+                                break;
+                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                result.error("SERVICE_STATUS_DISABLED",
+                                        "Failed to get location. Location services disabled", null);
                         }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        result.error("SERVICE_STATUS_DISABLED",
-                                "Failed to get location. Location services disabled", null);
                     }
-                }
-            });
+                });
     }
 
     public void startRequestingLocation() {
@@ -428,33 +433,38 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 .addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { 
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             locationManager.addNmeaListener(mMessageListener);
                         }
                         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
                     }
                 }).addOnFailureListener(activity, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        int statusCode = ((ApiException) e).getStatusCode();
-                        switch (statusCode) {
-                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                            try {
-                                // Show the dialog by calling startResolutionForResult(), and check the
-                                // result in onActivityResult().
-                                ResolvableApiException rae = (ResolvableApiException) e;
-                                rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
-                            } catch (IntentSender.SendIntentException sie) {
-                                Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
-                            }
-                            break;
-                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                            String errorMessage = "Location settings are inadequate, and cannot be "
-                                    + "fixed here. Fix in Settings.";
-                            Log.e(METHOD_CHANNEL_NAME, errorMessage);
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                int statusCode = ((ApiException) e).getStatusCode();
+                switch (statusCode) {
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        try {
+                            // Show the dialog by calling startResolutionForResult(), and check the
+                            // result in onActivityResult().
+                            ResolvableApiException rae = (ResolvableApiException) e;
+                            rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException sie) {
+                            Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
                         }
-                    }
-                });
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        String errorMessage = "Location settings are inadequate, and cannot be "
+                                + "fixed here. Fix in Settings.";
+                        Log.e(METHOD_CHANNEL_NAME, errorMessage);
+                }
+            }
+        });
+    }
+
+    private boolean isMockEnabled() {
+        return !Settings.Secure.getString(context.getContentResolver(),
+                Settings.Secure.ALLOW_MOCK_LOCATION).equals("0");
     }
 
     @Override
@@ -467,8 +477,8 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                         "The user explicitly denied the use of location services for this app or location services are currently disabled in Settings.",
                         null);
             }
-        }     
-        startRequestingLocation();   
+        }
+        startRequestingLocation();
     }
 
     @Override

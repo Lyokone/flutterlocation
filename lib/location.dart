@@ -14,9 +14,11 @@ class LocationData {
   final double speedAccuracy;
   final double heading;
   final double time;
+  final bool isMockLocation;
 
   LocationData._(this.latitude, this.longitude, this.accuracy, this.altitude,
-      this.speed, this.speedAccuracy, this.heading, this.time);
+      this.speed, this.speedAccuracy, this.heading, this.time,
+      {this.isMockLocation = false});
 
   factory LocationData.fromMap(Map<String, double> dataMap) {
     return LocationData._(
@@ -28,6 +30,7 @@ class LocationData {
       dataMap['speed_accuracy'],
       dataMap['heading'],
       dataMap['time'],
+      isMockLocation: (dataMap['isMockLocation']?.toInt() == 1),
     );
   }
 }
