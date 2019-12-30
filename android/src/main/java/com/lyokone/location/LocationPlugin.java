@@ -180,6 +180,8 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
             checkServiceEnabled(result);
         } else if (call.method.equals("requestService")) {
             requestService(result);
+        }else if(call.method.equals("openAppSettings")){
+            openAppSettings(result);
         } else {
             result.notImplemented();
         }
@@ -475,5 +477,23 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
     public void onCancel(Object arguments) {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         events = null;
+    }
+
+    public void openAppSettings(final Result result){
+        try {
+            Intent settingsIntent = new Intent();
+            settingsIntent.setAction(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            settingsIntent.addCategory(Intent.CATEGORY_DEFAULT);
+            settingsIntent.setData(android.net.Uri.parse("package:" + activity.getPackageName()));
+            settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            settingsIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+
+            activity.startActivity(settingsIntent);
+
+            result.success(1);
+        } catch (Exception ex) {
+            result.success(0);
+        }
     }
 }

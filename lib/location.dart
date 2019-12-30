@@ -77,6 +77,11 @@ class Location {
   Future<bool> requestService() =>
       _channel.invokeMethod('requestService').then((result) => result == 1);
 
+  /// Open the App settings.
+  ///
+  /// Returns [true] if the app settings page could be opened, otherwise [false] is returned.
+  Future<bool> openAppSettings() => _channel.invokeMethod('openAppSettings').then((result) => result == 1);
+
   /// Returns a stream of location information.
   Stream<LocationData> onLocationChanged() {
     if (_onLocationChanged == null) {
