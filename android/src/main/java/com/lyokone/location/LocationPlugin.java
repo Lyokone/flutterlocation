@@ -403,21 +403,27 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
             .addOnFailureListener(activity, new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    int statusCode = ((ApiException) e).getStatusCode();
-                    switch (statusCode) {
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        try {
-                            // Show the dialog by calling startResolutionForResult(), and check the
-                            // result in onActivityResult().
-                            ResolvableApiException rae = (ResolvableApiException) e;
-                            rae.startResolutionForResult(activity, GPS_ENABLE_REQUEST);
-                        } catch (IntentSender.SendIntentException sie) {
-                            Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
+                    if (e instanceof ResolvableApiException) {
+                        ResolvableApiException rae = (ResolvableApiException) e;
+                        int statusCode = rae.getStatusCode();
+                        switch (statusCode) {
+                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                            try {
+                                // Show the dialog by calling startResolutionForResult(), and check the
+                                // result in onActivityResult().
+                                rae.startResolutionForResult(activity, GPS_ENABLE_REQUEST);
+                            } catch (IntentSender.SendIntentException sie) {
+                                result.error("SERVICE_STATUS_ERROR", "Could not resolve location request", null);
+                            }
+                            break;
+                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                            result.error("SERVICE_STATUS_DISABLED",
+                                    "Failed to get location. Location services disabled", null);
                         }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        result.error("SERVICE_STATUS_DISABLED",
-                                "Failed to get location. Location services disabled", null);
+                    } else {
+                        // This should not happen according to Android documentation but it has been
+                        // observed on some phones.
+                        result.error("SERVICE_STATUS_ERROR", "Unexpected error type received", null);
                     }
                 }
             });
@@ -436,22 +442,28 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
                 }).addOnFailureListener(activity, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        int statusCode = ((ApiException) e).getStatusCode();
-                        switch (statusCode) {
-                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                            try {
-                                // Show the dialog by calling startResolutionForResult(), and check the
-                                // result in onActivityResult().
-                                ResolvableApiException rae = (ResolvableApiException) e;
-                                rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
-                            } catch (IntentSender.SendIntentException sie) {
-                                Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
+                        if (e instanceof ResolvableApiException) {
+                            ResolvableApiException rae = (ResolvableApiException) e;
+                            int statusCode = rae.getStatusCode();
+                            switch (statusCode) {
+                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                try {
+                                    // Show the dialog by calling startResolutionForResult(), and check the
+                                    // result in onActivityResult().
+                                    rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
+                                } catch (IntentSender.SendIntentException sie) {
+                                    Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
+                                }
+                                break;
+                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                String errorMessage = "Location settings are inadequate, and cannot be "
+                                        + "fixed here. Fix in Settings.";
+                                Log.e(METHOD_CHANNEL_NAME, errorMessage);
                             }
-                            break;
-                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                            String errorMessage = "Location settings are inadequate, and cannot be "
-                                    + "fixed here. Fix in Settings.";
-                            Log.e(METHOD_CHANNEL_NAME, errorMessage);
+                        } else {
+                            // This should not happen according to Android documentation but it has been
+                            // observed on some phones.
+                            Log.e(METHOD_CHANNEL_NAME, "Unexpected error type received");
                         }
                     }
                 });

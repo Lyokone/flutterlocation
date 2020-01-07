@@ -1,3 +1,6 @@
+## [2.3.6] 07th January 2020
+* Fix ClassCastException errors on some Android phones when requesting Location status.
+
 ## [2.3.5] 10th April 2019
 * Fix incompatibily with headless plugins thanks to ehhc
 * Fix error with iOS when permission already given
