@@ -1,3 +1,9 @@
+## [2.3.7] 08th January 2020
+* Fix bug where requestPermission is called after the user has already denied the system location dialog, then this method call would never return.
+
+## [2.3.6] 07th January 2020
+* Fix ClassCastException errors on some Android phones when requesting Location status.
+
 ## [2.3.5] 10th April 2019
 * Fix incompatibily with headless plugins thanks to ehhc
 * Fix error with iOS when permission already given
