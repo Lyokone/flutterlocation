@@ -75,7 +75,12 @@
             result(@(1));
         }
     } else if ([call.method isEqualToString:@"getLocation"]) {
-        if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied && [CLLocationManager locationServicesEnabled])
+        if (![CLLocationManager locationServicesEnabled]) {
+            result([FlutterError errorWithCode:@"SERVICE_STATUS_DISABLED" message:@"Failed to get location. Location services disabled" details:nil]);
+            return;
+        }
+        
+        if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied)
         {
             // Location services are requested but user has denied
             result([FlutterError errorWithCode:@"PERMISSION_DENIED"
@@ -131,7 +136,6 @@
         result(FlutterMethodNotImplemented);
     }
 }
-
 
 -(void) requestPermission {
     if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"] != nil) {
