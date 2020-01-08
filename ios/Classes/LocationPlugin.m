@@ -6,7 +6,7 @@
 #import <CoreLocation/CoreLocation.h>
 #endif
 
-@interface LocationPlugin() <FlutterStreamHandler, CLLocationManagerDelegate> 
+@interface LocationPlugin() <FlutterStreamHandler, CLLocationManagerDelegate>
 @property (strong, nonatomic) CLLocationManager *clLocationManager;
 @property (copy, nonatomic)   FlutterResult      flutterResult;
 @property (assign, nonatomic) BOOL               locationWanted;
@@ -22,8 +22,12 @@
 }
 
 +(void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-    FlutterMethodChannel *channel = [FlutterMethodChannel methodChannelWithName:@"lyokone/location" binaryMessenger:registrar.messenger];
-    FlutterEventChannel *stream = [FlutterEventChannel eventChannelWithName:@"lyokone/locationstream" binaryMessenger:registrar.messenger];
+    FlutterMethodChannel *channel =
+        [FlutterMethodChannel methodChannelWithName:@"lyokone/location"
+                                    binaryMessenger:registrar.messenger];
+    FlutterEventChannel *stream =
+        [FlutterEventChannel eventChannelWithName:@"lyokone/locationstream"
+                                  binaryMessenger:registrar.messenger];
 
     LocationPlugin *instance = [[LocationPlugin alloc] init];
     [registrar addMethodCallDelegate:instance channel:channel];
@@ -41,11 +45,11 @@
     }
     return self;
 }
-    
+
 -(void)initLocation {
     if (!(self.hasInit)) {
         self.hasInit = YES;
-        
+
         if ([CLLocationManager locationServicesEnabled]) {
             self.clLocationManager = [[CLLocationManager alloc] init];
             self.clLocationManager.delegate = self;
@@ -66,27 +70,31 @@
                 @"4" : @(kCLLocationAccuracyBestForNavigation)
             };
 
-            self.clLocationManager.desiredAccuracy = [dictionary[call.arguments[@"accuracy"]] doubleValue];
+            self.clLocationManager.desiredAccuracy =
+                [dictionary[call.arguments[@"accuracy"]] doubleValue];
             double distanceFilter = [call.arguments[@"distanceFilter"] doubleValue];
             if (distanceFilter == 0){
                 distanceFilter = kCLDistanceFilterNone;
             }
             self.clLocationManager.distanceFilter = distanceFilter;
-            result(@(1));
+            result(@1);
         }
     } else if ([call.method isEqualToString:@"getLocation"]) {
-        if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied && [CLLocationManager locationServicesEnabled])
+        if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied &&
+            [CLLocationManager locationServicesEnabled])
         {
             // Location services are requested but user has denied
+            NSString *message = @"The user explicitly denied the use of location services for this "
+                "app or location services are currently disabled in Settings.";
             result([FlutterError errorWithCode:@"PERMISSION_DENIED"
-                                   message:@"The user explicitly denied the use of location services for this app or location services are currently disabled in Settings."
-                                   details:nil]);
+                                       message:message
+                                       details:nil]);
             return;
         }
-        
+
         self.flutterResult = result;
         self.locationWanted = YES;
-        
+
         if ([self isPermissionGranted]) {
             [self.clLocationManager startUpdatingLocation];
         } else {
@@ -97,27 +105,29 @@
         }
     } else if ([call.method isEqualToString:@"hasPermission"]) {
         if ([self isPermissionGranted]) {
-            result(@(1));
+            result(@1);
         } else {
-            result(@(0));
+            result(@0);
         }
     } else if ([call.method isEqualToString:@"requestPermission"]) {
         if ([self isPermissionGranted]) {
-            result(@(1));
+            result(@1);
+        } else if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
+          self.flutterResult = result;
+          self.permissionWanted = YES;
+          [self requestPermission];
         } else {
-            self.flutterResult = result;
-            self.permissionWanted = YES;
-            [self requestPermission];
+          result(@0);
         }
     } else if ([call.method isEqualToString:@"serviceEnabled"]) {
         if ([CLLocationManager locationServicesEnabled]) {
-            result(@(1));
+            result(@1);
         } else {
-            result(@(0));
+            result(@0);
         }
     } else if ([call.method isEqualToString:@"requestService"]) {
         if ([CLLocationManager locationServicesEnabled]) {
-            result(@(1));
+            result(@1);
         } else {
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Location is Disabled"
                 message:@"To use location, go to your Settings App > Privacy > Location Services."
@@ -125,7 +135,7 @@
                 cancelButtonTitle:@"Cancel"
                 otherButtonTitles:nil];
             [alert show];
-            result(@(0));
+            result(@0);
         }
     } else {
         result(FlutterMethodNotImplemented);
@@ -134,14 +144,19 @@
 
 
 -(void) requestPermission {
-    if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"] != nil) {
+    if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]
+        != nil) {
         [self.clLocationManager requestWhenInUseAuthorization];
     }
-    else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] != nil) {
+    else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]
+        != nil) {
         [self.clLocationManager requestAlwaysAuthorization];
     }
     else {
-        [NSException raise:NSInternalInconsistencyException format:@"To use location in iOS8 and above you need to define either NSLocationWhenInUseUsageDescription or NSLocationAlwaysUsageDescription in the app bundle's Info.plist file"];
+        [NSException raise:NSInternalInconsistencyException format:
+            @"To use location in iOS8 and above you need to define either "
+            "NSLocationWhenInUseUsageDescription or NSLocationAlwaysUsageDescription in the app "
+            "bundle's Info.plist file"];
     }
 }
 
@@ -155,7 +170,8 @@
             break;
         case kCLAuthorizationStatusDenied:
         case kCLAuthorizationStatusRestricted:
-            // Location services are requested but user has denied / the app is restricted from getting location
+            // Location services are requested but user has denied / the app is restricted from
+            // getting location
             isPermissionGranted = NO;
             break;
         case kCLAuthorizationStatusNotDetermined:
@@ -166,7 +182,7 @@
             isPermissionGranted = NO;
             break;
     }
-    
+
     return isPermissionGranted;
 }
 
@@ -191,19 +207,21 @@
 
 #pragma mark - CLLocationManagerDelegate Methods
 
--(void)locationManager:(CLLocationManager*)manager didUpdateLocations:(NSArray<CLLocation*>*)locations {
+-(void)locationManager:(CLLocationManager*)manager
+    didUpdateLocations:(NSArray<CLLocation*>*)locations {
     CLLocation *location = locations.firstObject;
     NSTimeInterval timeInSeconds = [location.timestamp timeIntervalSince1970];
-    NSDictionary<NSString*,NSNumber*>* coordinatesDict = @{
-                                                          @"latitude": @(location.coordinate.latitude),
-                                                          @"longitude": @(location.coordinate.longitude),
-                                                          @"accuracy": @(location.horizontalAccuracy),
-                                                          @"altitude": @(location.altitude),
-                                                          @"speed": @(location.speed),
-                                                          @"speed_accuracy": @(0.0),
-                                                          @"heading": @(location.course),
-                                                          @"time": @((double) timeInSeconds)
-                                                          };
+    NSDictionary<NSString*,NSNumber*>* coordinatesDict =
+        @{
+          @"latitude": @(location.coordinate.latitude),
+          @"longitude": @(location.coordinate.longitude),
+          @"accuracy": @(location.horizontalAccuracy),
+          @"altitude": @(location.altitude),
+          @"speed": @(location.speed),
+          @"speed_accuracy": @0.0,
+          @"heading": @(location.course),
+          @"time": @((double) timeInSeconds)
+        };
 
     if (self.locationWanted) {
         self.locationWanted = NO;
@@ -216,21 +234,22 @@
     }
 }
 
-- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+- (void)locationManager:(CLLocationManager *)manager
+    didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
     if (status == kCLAuthorizationStatusDenied) {
         // The user denied authorization
         NSLog(@"User denied permissions");
         if (self.permissionWanted) {
             self.permissionWanted = NO;
-            self.flutterResult(@(0));
+            self.flutterResult(@0);
         }
-        
     }
-    else if (status == kCLAuthorizationStatusAuthorizedWhenInUse || status == kCLAuthorizationStatusAuthorizedAlways) {
+    else if (status == kCLAuthorizationStatusAuthorizedWhenInUse ||
+        status == kCLAuthorizationStatusAuthorizedAlways) {
         NSLog(@"User granted permissions");
         if (self.permissionWanted) {
             self.permissionWanted = NO;
-            self.flutterResult(@(1));
+            self.flutterResult(@1);
         }
 
         if (self.locationWanted || self.flutterListening) {
