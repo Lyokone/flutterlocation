@@ -120,7 +120,9 @@
           self.permissionWanted = YES;
           [self requestPermission];
         } else {
-          result(@0);
+          result([FlutterError errorWithCode:@"PERMISSION_DENIED"
+          message:@"User previously reject permissions"
+          details:nil]);
         }
     } else if ([call.method isEqualToString:@"serviceEnabled"]) {
         if ([CLLocationManager locationServicesEnabled]) {
