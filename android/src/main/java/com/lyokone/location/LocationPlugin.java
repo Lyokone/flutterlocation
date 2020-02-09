@@ -125,6 +125,8 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
     @Override
     public void onAttachedToActivity(ActivityPluginBinding binding) {
         initLocationPlugin(binding.getActivity());
+        binding.addRequestPermissionsResultListener(this.getPermissionsResultListener());
+        binding.addActivityResultListener(this);
     }
 
     @Override
@@ -140,8 +142,6 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
     @Override
     public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
         setChannelHandler(binding.getActivity());
-        binding.addRequestPermissionsResultListener(this.getPermissionsResultListener());
-        binding.addActivityResultListener(this);
     }
 
     /**
@@ -161,7 +161,6 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
     private void setupChannels(BinaryMessenger messenger) {
         methodChannel = new MethodChannel(messenger, METHOD_CHANNEL_NAME);
         eventChannel = new EventChannel(messenger, STREAM_CHANNEL_NAME);
-
     }
 
     private void teardownChannels() {
@@ -170,7 +169,6 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
     }
 
     private void setChannelHandler(Activity activity) {
-        initLocationPlugin(activity);
         methodChannel.setMethodCallHandler(this);
         eventChannel.setStreamHandler(this);
     }
