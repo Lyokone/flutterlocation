@@ -1,44 +1,36 @@
 package com.lyokone.location;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
-import android.provider.Settings;
-import android.content.IntentSender;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
-import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
-import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import android.util.Log;
-import android.annotation.TargetApi;
-
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.Status;
 
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -46,13 +38,12 @@ import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.EventChannel.EventSink;
 import io.flutter.plugin.common.EventChannel.StreamHandler;
+import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
-import io.flutter.plugin.common.PluginRegistry.ActivityResultListener;
 
 /**
  * LocationPlugin
@@ -66,8 +57,8 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
 
     private static final int GPS_ENABLE_REQUEST = 0x1001;
 
-    private final FusedLocationProviderClient mFusedLocationClient;
-    private final SettingsClient mSettingsClient;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private SettingsClient mSettingsClient;
     private static LocationRequest mLocationRequest;
     private LocationSettingsRequest mLocationSettingsRequest;
     private LocationCallback mLocationCallback;
@@ -91,7 +82,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
 
     private MethodChannel methodChannel;
     private EventChannel eventChannel;
-    private final Activity activity;
+    private Activity activity;
 
     private boolean waitingForPermission = false;
     private LocationManager locationManager;
@@ -99,7 +90,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
 
     private HashMap<Integer, Integer> mapFlutterAccuracy = new HashMap<>();
 
-    LocationPlugin(Activity activity) {
+    private void initLocationPlugin(Activity activity) {
         this.activity = activity;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
         mSettingsClient = LocationServices.getSettingsClient(activity);
@@ -111,6 +102,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
         this.mapFlutterAccuracy.put(3, LocationRequest.PRIORITY_HIGH_ACCURACY);
         this.mapFlutterAccuracy.put(4, LocationRequest.PRIORITY_HIGH_ACCURACY);
 
+        setChannelHandler(activity);
         createLocationCallback();
         createLocationRequest();
         createPermissionsResultListener();
@@ -132,7 +124,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
 
     @Override
     public void onAttachedToActivity(ActivityPluginBinding binding) {
-        setChannelHandler(binding.getActivity());
+        initLocationPlugin(binding.getActivity());
     }
 
     @Override
@@ -148,28 +140,21 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
     @Override
     public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
         setChannelHandler(binding.getActivity());
+        binding.addRequestPermissionsResultListener(this.getPermissionsResultListener());
+        binding.addActivityResultListener(this);
     }
 
     /**
      * Deprecated Plugin registration.
      */
     public static void registerWith(Registrar registrar) {
-        if(registrar.activity() != null) {
-            LocationPlugin locationPlugin = new LocationPlugin(registrar.activity());
-
-
-
-            setupChannels(registrar.messenger());
-            final MethodChannel channel = new MethodChannel(registrar.messenger(), METHOD_CHANNEL_NAME);
-            LocationPlugin locationWithMethodChannel = new LocationPlugin(registrar.activity());
-            channel.setMethodCallHandler(locationWithMethodChannel);
-            registrar.addRequestPermissionsResultListener(locationWithMethodChannel.getPermissionsResultListener());
-            registrar.addActivityResultListener(locationWithMethodChannel);
-
-            final EventChannel eventChannel = new EventChannel(registrar.messenger(), STREAM_CHANNEL_NAME);
-            LocationPlugin locationWithEventChannel = new LocationPlugin(registrar.activity());
-            eventChannel.setStreamHandler(locationWithEventChannel);
-            registrar.addRequestPermissionsResultListener(locationWithEventChannel.getPermissionsResultListener());
+        if (registrar.activity() != null) {
+            LocationPlugin locationPlugin = new LocationPlugin();
+            locationPlugin.initLocationPlugin(registrar.activity());
+            locationPlugin.setupChannels(registrar.messenger());
+            locationPlugin.setChannelHandler(registrar.activity());
+            registrar.addRequestPermissionsResultListener(locationPlugin.getPermissionsResultListener());
+            registrar.addActivityResultListener(locationPlugin);
         }
     }
 
@@ -185,11 +170,9 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
     }
 
     private void setChannelHandler(Activity activity) {
-        LocationPlugin locationWithMethodChannel = new LocationPlugin(activity);
-        methodChannel.setMethodCallHandler(locationWithMethodChannel);
-
-        LocationPlugin locationWithEventChannel = new LocationPlugin(activity);
-        eventChannel.setStreamHandler(locationWithEventChannel);
+        initLocationPlugin(activity);
+        methodChannel.setMethodCallHandler(this);
+        eventChannel.setStreamHandler(this);
     }
 
     private void teardownChannelHandler() {
@@ -204,7 +187,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
                 this.location_accuray = this.mapFlutterAccuracy.get(call.argument("accuracy"));
                 this.update_interval_in_milliseconds = new Long((int) call.argument("interval"));
                 this.fastest_update_interval_in_milliseconds = this.update_interval_in_milliseconds / 2;
-                
+
                 this.distanceFilter = new Float((double) call.argument("distanceFilter"));
 
                 createLocationCallback();
@@ -212,7 +195,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
                 createPermissionsResultListener();
                 buildLocationSettingsRequest();
                 result.success(1);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 result.error("CHANGE_SETTINGS_ERROR", "An unexcepted error happened during location settings change:" + e.getMessage(), null);
             }
 
@@ -240,7 +223,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
                 result.success(1);
                 return;
             }
-            
+
             this.waitingForPermission = true;
             this.result = result;
             requestPermissions();
@@ -313,7 +296,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
                 break;
             default:
                 return false;
-            }
+        }
         return true;
     }
 
@@ -330,7 +313,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
                 loc.put("latitude", location.getLatitude());
                 loc.put("longitude", location.getLongitude());
                 loc.put("accuracy", (double) location.getAccuracy());
-                
+
                 // Using NMEA Data to get MSL level altitude
                 if (mLastMslAltitude == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                     loc.put("altitude", location.getAltitude());
@@ -357,23 +340,24 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
             }
         };
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             mMessageListener = new OnNmeaMessageListener() {
-            @Override
-            public void onNmeaMessage(String message, long timestamp) {
-                if (message.startsWith("$")) {
-                    String[] tokens = message.split(",");
-                    String type = tokens[0];
+                @Override
+                public void onNmeaMessage(String message, long timestamp) {
+                    if (message.startsWith("$")) {
+                        String[] tokens = message.split(",");
+                        String type = tokens[0];
 
-                    // Parse altitude above sea level, Detailed description of NMEA string here
-                    // http://aprs.gids.nl/nmea/#gga
-                    if (type.startsWith("$GPGGA")) {
-                        if (!tokens[9].isEmpty()) {
-                            mLastMslAltitude = Double.parseDouble(tokens[9]);
+                        // Parse altitude above sea level, Detailed description of NMEA string here
+                        // http://aprs.gids.nl/nmea/#gga
+                        if (type.startsWith("$GPGGA")) {
+                            if (!tokens[9].isEmpty()) {
+                                mLastMslAltitude = Double.parseDouble(tokens[9]);
+                            }
                         }
                     }
                 }
-            }};
+            };
         }
     }
 
@@ -450,13 +434,13 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
         if (gps_enabled || network_enabled) {
             if (result != null) {
                 result.success(1);
-            } 
+            }
             return true;
-            
+
         } else {
             if (result != null) {
                 result.success(0);
-            } 
+            }
             return false;
         }
     }
@@ -468,33 +452,33 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
         }
         this.result = result;
         mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
-            .addOnFailureListener(activity, new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    if (e instanceof ResolvableApiException) {
-                        ResolvableApiException rae = (ResolvableApiException) e;
-                        int statusCode = rae.getStatusCode();
-                        switch (statusCode) {
-                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                            try {
-                                // Show the dialog by calling startResolutionForResult(), and check the
-                                // result in onActivityResult().
-                                rae.startResolutionForResult(activity, GPS_ENABLE_REQUEST);
-                            } catch (IntentSender.SendIntentException sie) {
-                                result.error("SERVICE_STATUS_ERROR", "Could not resolve location request", null);
+                .addOnFailureListener(activity, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (e instanceof ResolvableApiException) {
+                            ResolvableApiException rae = (ResolvableApiException) e;
+                            int statusCode = rae.getStatusCode();
+                            switch (statusCode) {
+                                case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                    try {
+                                        // Show the dialog by calling startResolutionForResult(), and check the
+                                        // result in onActivityResult().
+                                        rae.startResolutionForResult(activity, GPS_ENABLE_REQUEST);
+                                    } catch (IntentSender.SendIntentException sie) {
+                                        result.error("SERVICE_STATUS_ERROR", "Could not resolve location request", null);
+                                    }
+                                    break;
+                                case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                    result.error("SERVICE_STATUS_DISABLED",
+                                            "Failed to get location. Location services disabled", null);
                             }
-                            break;
-                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                            result.error("SERVICE_STATUS_DISABLED",
-                                    "Failed to get location. Location services disabled", null);
+                        } else {
+                            // This should not happen according to Android documentation but it has been
+                            // observed on some phones.
+                            result.error("SERVICE_STATUS_ERROR", "Unexpected error type received", null);
                         }
-                    } else {
-                        // This should not happen according to Android documentation but it has been
-                        // observed on some phones.
-                        result.error("SERVICE_STATUS_ERROR", "Unexpected error type received", null);
                     }
-                }
-            });
+                });
     }
 
     public void startRequestingLocation() {
@@ -502,39 +486,39 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
                 .addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { 
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             locationManager.addNmeaListener(mMessageListener);
                         }
                         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
                     }
                 }).addOnFailureListener(activity, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (e instanceof ResolvableApiException) {
-                            ResolvableApiException rae = (ResolvableApiException) e;
-                            int statusCode = rae.getStatusCode();
-                            switch (statusCode) {
-                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                                try {
-                                    // Show the dialog by calling startResolutionForResult(), and check the
-                                    // result in onActivityResult().
-                                    rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
-                                } catch (IntentSender.SendIntentException sie) {
-                                    Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
-                                }
-                                break;
-                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                                String errorMessage = "Location settings are inadequate, and cannot be "
-                                        + "fixed here. Fix in Settings.";
-                                Log.e(METHOD_CHANNEL_NAME, errorMessage);
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (e instanceof ResolvableApiException) {
+                    ResolvableApiException rae = (ResolvableApiException) e;
+                    int statusCode = rae.getStatusCode();
+                    switch (statusCode) {
+                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                            try {
+                                // Show the dialog by calling startResolutionForResult(), and check the
+                                // result in onActivityResult().
+                                rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
+                            } catch (IntentSender.SendIntentException sie) {
+                                Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
                             }
-                        } else {
-                            // This should not happen according to Android documentation but it has been
-                            // observed on some phones.
-                            Log.e(METHOD_CHANNEL_NAME, "Unexpected error type received");
-                        }
+                            break;
+                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                            String errorMessage = "Location settings are inadequate, and cannot be "
+                                    + "fixed here. Fix in Settings.";
+                            Log.e(METHOD_CHANNEL_NAME, errorMessage);
                     }
-                });
+                } else {
+                    // This should not happen according to Android documentation but it has been
+                    // observed on some phones.
+                    Log.e(METHOD_CHANNEL_NAME, "Unexpected error type received");
+                }
+            }
+        });
     }
 
     @Override
@@ -547,8 +531,8 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
                         "The user explicitly denied the use of location services for this app or location services are currently disabled in Settings.",
                         null);
             }
-        }     
-        startRequestingLocation();   
+        }
+        startRequestingLocation();
     }
 
     @Override
