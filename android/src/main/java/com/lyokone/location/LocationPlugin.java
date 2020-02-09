@@ -39,6 +39,10 @@ import com.google.android.gms.tasks.OnFailureListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.EventChannel.EventSink;
 import io.flutter.plugin.common.EventChannel.StreamHandler;
@@ -53,7 +57,7 @@ import io.flutter.plugin.common.PluginRegistry.ActivityResultListener;
 /**
  * LocationPlugin
  */
-public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginRegistry.ActivityResultListener {
+public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler, StreamHandler, PluginRegistry.ActivityResultListener {
     private static final String STREAM_CHANNEL_NAME = "lyokone/locationstream";
     private static final String METHOD_CHANNEL_NAME = "lyokone/location";
 
@@ -85,6 +89,8 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
 
     private int locationPermissionState;
 
+    private MethodChannel methodChannel;
+    private EventChannel eventChannel;
     private final Activity activity;
 
     private boolean waitingForPermission = false;
@@ -112,10 +118,48 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
     }
 
     /**
-     * Plugin registration.
+     * v2 Plugin Embedding
+     */
+    @Override
+    public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
+        setupChannels(binding.getBinaryMessenger());
+    }
+
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        teardownChannels();
+    }
+
+    @Override
+    public void onAttachedToActivity(ActivityPluginBinding binding) {
+        setChannelHandler(binding.getActivity());
+    }
+
+    @Override
+    public void onDetachedFromActivity() {
+        teardownChannelHandler();
+    }
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        teardownChannelHandler();
+    }
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
+        setChannelHandler(binding.getActivity());
+    }
+
+    /**
+     * Deprecated Plugin registration.
      */
     public static void registerWith(Registrar registrar) {
         if(registrar.activity() != null) {
+            LocationPlugin locationPlugin = new LocationPlugin(registrar.activity());
+
+
+
+            setupChannels(registrar.messenger());
             final MethodChannel channel = new MethodChannel(registrar.messenger(), METHOD_CHANNEL_NAME);
             LocationPlugin locationWithMethodChannel = new LocationPlugin(registrar.activity());
             channel.setMethodCallHandler(locationWithMethodChannel);
@@ -127,6 +171,30 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
             eventChannel.setStreamHandler(locationWithEventChannel);
             registrar.addRequestPermissionsResultListener(locationWithEventChannel.getPermissionsResultListener());
         }
+    }
+
+    private void setupChannels(BinaryMessenger messenger) {
+        methodChannel = new MethodChannel(messenger, METHOD_CHANNEL_NAME);
+        eventChannel = new EventChannel(messenger, STREAM_CHANNEL_NAME);
+
+    }
+
+    private void teardownChannels() {
+        methodChannel = null;
+        eventChannel = null;
+    }
+
+    private void setChannelHandler(Activity activity) {
+        LocationPlugin locationWithMethodChannel = new LocationPlugin(activity);
+        methodChannel.setMethodCallHandler(locationWithMethodChannel);
+
+        LocationPlugin locationWithEventChannel = new LocationPlugin(activity);
+        eventChannel.setStreamHandler(locationWithEventChannel);
+    }
+
+    private void teardownChannelHandler() {
+        methodChannel.setMethodCallHandler(null);
+        eventChannel.setStreamHandler(null);
     }
 
     @Override
