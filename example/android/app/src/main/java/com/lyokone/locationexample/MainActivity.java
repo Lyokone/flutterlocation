@@ -1,7 +1,7 @@
 package com.lyokone.locationexample;
 
-import io.flutter.app.FlutterActivity;
+import io.flutter.embedding.android.FlutterActivity;
 
 public class MainActivity extends FlutterActivity {
-  //
+    //
 }

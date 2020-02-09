@@ -102,7 +102,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
         this.mapFlutterAccuracy.put(3, LocationRequest.PRIORITY_HIGH_ACCURACY);
         this.mapFlutterAccuracy.put(4, LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        setChannelHandler(activity);
+        setChannelHandler();
         createLocationCallback();
         createLocationRequest();
         createPermissionsResultListener();
@@ -141,7 +141,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
 
     @Override
     public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
-        setChannelHandler(binding.getActivity());
+        setChannelHandler();
     }
 
     /**
@@ -150,9 +150,8 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
     public static void registerWith(Registrar registrar) {
         if (registrar.activity() != null) {
             LocationPlugin locationPlugin = new LocationPlugin();
-            locationPlugin.initLocationPlugin(registrar.activity());
             locationPlugin.setupChannels(registrar.messenger());
-            locationPlugin.setChannelHandler(registrar.activity());
+            locationPlugin.initLocationPlugin(registrar.activity());
             registrar.addRequestPermissionsResultListener(locationPlugin.getPermissionsResultListener());
             registrar.addActivityResultListener(locationPlugin);
         }
@@ -168,7 +167,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
         eventChannel = null;
     }
 
-    private void setChannelHandler(Activity activity) {
+    private void setChannelHandler() {
         methodChannel.setMethodCallHandler(this);
         eventChannel.setStreamHandler(this);
     }
