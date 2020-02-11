@@ -80,9 +80,12 @@
             result(@1);
         }
     } else if ([call.method isEqualToString:@"getLocation"]) {
-        if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied &&
-            [CLLocationManager locationServicesEnabled])
-        {
+        if (![CLLocationManager locationServicesEnabled]) {
+            result([FlutterError errorWithCode:@"SERVICE_STATUS_DISABLED" message:@"Failed to get location. Location services disabled" details:nil]);
+            return;
+        }
+        
+        if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
             // Location services are requested but user has denied
             NSString *message = @"The user explicitly denied the use of location services for this "
                 "app or location services are currently disabled in Settings.";
@@ -117,7 +120,9 @@
           self.permissionWanted = YES;
           [self requestPermission];
         } else {
-          result(@0);
+          result([FlutterError errorWithCode:@"PERMISSION_DENIED"
+          message:@"User previously reject permissions"
+          details:nil]);
         }
     } else if ([call.method isEqualToString:@"serviceEnabled"]) {
         if ([CLLocationManager locationServicesEnabled]) {
@@ -141,7 +146,6 @@
         result(FlutterMethodNotImplemented);
     }
 }
-
 
 -(void) requestPermission {
     if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]
