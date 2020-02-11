@@ -220,7 +220,7 @@
           @"speed": @(location.speed),
           @"speed_accuracy": @0.0,
           @"heading": @(location.course),
-          @"time": @((double) timeInSeconds * 1000.0)
+          @"time": @(((double) timeInSeconds) * 1000.0)  // in milliseconds since the epoch
         };
 
     if (self.locationWanted) {
