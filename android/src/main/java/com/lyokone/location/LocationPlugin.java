@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.IntentSender;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -12,7 +13,14 @@ import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
 import android.os.Build;
 import android.os.Looper;
+
 import android.util.Log;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import android.util.Log;
+import android.annotation.TargetApi;
+
+import com.google.android.gms.common.api.ApiException;
 
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -72,7 +80,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
     // Parameters of the request
     private static long update_interval_in_milliseconds = 5000;
     private static long fastest_update_interval_in_milliseconds = update_interval_in_milliseconds / 2;
-    private static Integer location_accuray = LocationRequest.PRIORITY_HIGH_ACCURACY;
+    private static Integer location_accuracy = LocationRequest.PRIORITY_HIGH_ACCURACY;
     private static float distanceFilter = 0f;
 
     private EventSink events;
@@ -181,7 +189,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
     public void onMethodCall(MethodCall call, final Result result) {
         if (call.method.equals("changeSettings")) {
             try {
-                this.location_accuray = this.mapFlutterAccuracy.get(call.argument("accuracy"));
+                this.location_accuracy = this.mapFlutterAccuracy.get(call.argument("accuracy"));
                 this.update_interval_in_milliseconds = new Long((int) call.argument("interval"));
                 this.fastest_update_interval_in_milliseconds = this.update_interval_in_milliseconds / 2;
 
@@ -291,6 +299,15 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
                     this.result.success(0);
                 }
                 break;
+            case REQUEST_CHECK_SETTINGS:
+                if (resultCode == Activity.RESULT_OK) {
+                    startRequestingLocation();
+                    return true;
+                }
+
+                this.result.error("SERVICE_STATUS_DISABLED",
+                        "Failed to get location. Location services disabled", null);
+                return false;
             default:
                 return false;
         }
@@ -384,7 +401,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware, MethodCallH
         // application will never receive updates faster than this value.
         this.mLocationRequest.setFastestInterval(this.fastest_update_interval_in_milliseconds);
 
-        this.mLocationRequest.setPriority(this.location_accuray);
+        this.mLocationRequest.setPriority(this.location_accuracy);
         this.mLocationRequest.setSmallestDisplacement(this.distanceFilter);
     }
 
