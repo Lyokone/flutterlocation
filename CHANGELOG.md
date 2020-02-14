@@ -1,3 +1,6 @@
+## [2.4.0] 14th Februarty 2020
+* Align timestamp in Android and iOS, previously the iOS timestamp was in seconds instead of milliseconds. Thanks to 781flyingdutchman.
+
 ## [2.3.7] 08th January 2020
 * Fix bug where requestPermission is called after the user has already denied the system location dialog, then this method call would never return.
 
