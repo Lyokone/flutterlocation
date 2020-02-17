@@ -3,10 +3,12 @@ package com.lyokone.location;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
@@ -234,7 +236,7 @@ class FlutterLocation
 
                         // Parse altitude above sea level, Detailed description of NMEA string here
                         // http://aprs.gids.nl/nmea/#gga
-                        if (type.startsWith("$GPGGA")) {
+                        if (type.startsWith("$GPGGA") && tokens.length > 9) {
                             if (!tokens[9].isEmpty()) {
                                 mLastMslAltitude = Double.parseDouble(tokens[9]);
                             }
