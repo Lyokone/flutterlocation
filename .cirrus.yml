@@ -1,0 +1,49 @@
+container:
+  dockerfile: .ci/Dockerfile
+  kvm: true
+
+task:
+  upgrade_script:
+    - flutter channel stable
+    - flutter upgrade
+    - flutter channel master
+    - flutter upgrade
+    - git fetch origin master
+  activate_script: pub global activate flutter_plugin_tools
+  matrix:
+    - name: analyze
+      test_script: 
+        - flutter analyze
+    - name: test
+      env:
+        matrix:
+          CHANNEL: "master"
+          CHANNEL: "stable"
+      test_script:
+        - flutter channel $CHANNEL
+        - flutter test
+    - name: e2e
+      env:
+        matrix:
+          CHANNEL: "master"
+          CHANNEL: "stable"
+      accel_check_script:
+        - sudo chown cirrus:cirrus /dev/kvm
+        - $ANDROID_HOME/emulator/emulator -accel-check
+      create_device_script:
+        echo no | avdmanager create avd --force
+          -n test
+          -k "system-images;android-29;default;x86"
+      start_emulator_background_script:
+        $ANDROID_HOME/emulator/emulator
+            -avd test
+            -no-audio
+            -no-window
+      wait_for_emulator_script:
+        - adb wait-for-device
+      test_script:
+        - flutter channel $CHANNEL
+        - cd example
+        - flutter build apk
+        - cd android
+        - ./gradlew app:connectedAndroidTest -Ptarget=`pwd`/../../test/location_e2e.dart
