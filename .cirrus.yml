@@ -25,6 +25,10 @@ task:
   container:
     dockerfile: .ci/Dockerfile
     kvm: true
+  env:
+    matrix:
+      CHANNEL: "master"
+      CHANNEL: "stable"
   name: e2e
   upgrade_script:
     - flutter channel stable
@@ -47,13 +51,9 @@ task:
       -no-window
   wait_for_emulator_script:
     - adb wait-for-device
-  env:
-    matrix:
-      CHANNEL: "master"
-      CHANNEL: "stable"
-    test_script:
-      - flutter channel $CHANNEL
-      - cd example
-      - flutter build apk
-      - cd android
-      - ./gradlew app:connectedAndroidTest -Ptarget=`pwd`/../../test/location_e2e.dart
+  test_script:
+    - flutter channel $CHANNEL
+    - cd example
+    - flutter build apk
+    - cd android
+    - ./gradlew app:connectedAndroidTest -Ptarget=`pwd`/../../test/location_e2e.dart
