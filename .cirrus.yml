@@ -1,8 +1,6 @@
-container:
-  dockerfile: .ci/Dockerfile
-  kvm: true
-
 task:
+  container:
+    dockerfile: .ci/Dockerfile
   upgrade_script:
     - flutter channel stable
     - flutter upgrade
@@ -22,28 +20,40 @@ task:
       test_script:
         - flutter channel $CHANNEL
         - flutter test
-    - name: e2e
-      env:
-        matrix:
-          CHANNEL: "master"
-          CHANNEL: "stable"
-      accel_check_script:
-        - sudo chown cirrus:cirrus /dev/kvm
-        - $ANDROID_HOME/emulator/emulator -accel-check
-      create_device_script:
-        echo no | avdmanager create avd --force
-          -n test
-          -k "system-images;android-29;default;x86"
-      start_emulator_background_script:
-        $ANDROID_HOME/emulator/emulator
-            -avd test
-            -no-audio
-            -no-window
-      wait_for_emulator_script:
-        - adb wait-for-device
-      test_script:
-        - flutter channel $CHANNEL
-        - cd example
-        - flutter build apk
-        - cd android
-        - ./gradlew app:connectedAndroidTest -Ptarget=`pwd`/../../test/location_e2e.dart
+
+task:
+  container:
+    dockerfile: .ci/Dockerfile
+    kvm: true
+  name: e2e
+  upgrade_script:
+    - flutter channel stable
+    - flutter upgrade
+    - flutter channel master
+    - flutter upgrade
+    - git fetch origin master
+  activate_script: pub global activate flutter_plugin_tools
+  accel_check_script:
+    - sudo chown cirrus:cirrus /dev/kvm
+    - $ANDROID_HOME/emulator/emulator -accel-check
+  create_device_script:
+    echo no | avdmanager create avd --force
+      -n test
+      -k "system-images;android-29;default;x86"
+  start_emulator_background_script:
+    $ANDROID_HOME/emulator/emulator
+      -avd test
+      -no-audio
+      -no-window
+  wait_for_emulator_script:
+    - adb wait-for-device
+  env:
+    matrix:
+      CHANNEL: "master"
+      CHANNEL: "stable"
+    test_script:
+      - flutter channel $CHANNEL
+      - cd example
+      - flutter build apk
+      - cd android
+      - ./gradlew app:connectedAndroidTest -Ptarget=`pwd`/../../test/location_e2e.dart
