@@ -25,6 +25,8 @@ task:
   container:
     dockerfile: .ci/Dockerfile
     kvm: true
+    cpu: 8
+    memory: 16G
   env:
     matrix:
       CHANNEL: "master"
