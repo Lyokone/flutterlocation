@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:meta/meta.dart' show visibleForTesting;
 
 /// A data class that contains various information about the user's location.
 ///
@@ -38,9 +39,27 @@ class LocationData {
 enum LocationAccuracy { POWERSAVE, LOW, BALANCED, HIGH, NAVIGATION }
 
 class Location {
-  static const MethodChannel _channel = const MethodChannel('lyokone/location');
-  static const EventChannel _stream =
-      const EventChannel('lyokone/locationstream');
+  /// Initializes the plugin and starts listening for potential platform events.
+  factory Location() {
+    if (_instance == null) {
+      final MethodChannel methodChannel =
+          const MethodChannel('lyokone/location');
+      final EventChannel eventChannel =
+          const EventChannel('lyokone/locationstream');
+      _instance = Location.private(methodChannel, eventChannel);
+    }
+    return _instance;
+  }
+
+  /// This constructor is only used for testing and shouldn't be accessed by
+  /// users of the plugin. It may break or change at any time.
+  @visibleForTesting
+  Location.private(this._methodChannel, this._eventChannel);
+
+  static Location _instance;
+
+  final MethodChannel _methodChannel;
+  final EventChannel _eventChannel;
 
   Stream<LocationData> _onLocationChanged;
 
@@ -48,7 +67,7 @@ class Location {
           {LocationAccuracy accuracy = LocationAccuracy.HIGH,
           int interval = 1000,
           double distanceFilter = 0}) =>
-      _channel.invokeMethod('changeSettings', {
+      _methodChannel.invokeMethod('changeSettings', {
         "accuracy": accuracy.index,
         "interval": interval,
         "distanceFilter": distanceFilter
@@ -57,31 +76,37 @@ class Location {
   /// Gets the current location of the user.
   ///
   /// Throws an error if the app has no permission to access location.
-  Future<LocationData> getLocation() => _channel
+  Future<LocationData> getLocation() => _methodChannel
       .invokeMethod('getLocation')
       .then((result) => LocationData.fromMap(result.cast<String, double>()));
 
   /// Checks if the app has permission to access location.
-  Future<bool> hasPermission() =>
-      _channel.invokeMethod('hasPermission').then((result) => result == 1);
+  Future<bool> hasPermission() => _methodChannel
+      .invokeMethod('hasPermission')
+      .then((result) => result == 1);
 
   /// Request the permission to access the location
-  Future<bool> requestPermission() =>
-      _channel.invokeMethod('requestPermission').then((result) => result == 1);
+  Future<bool> requestPermission() => _methodChannel
+      .invokeMethod('requestPermission')
+      .then((result) => result == 1);
 
   /// Checks if the location service is enabled
-  Future<bool> serviceEnabled() =>
-      _channel.invokeMethod('serviceEnabled').then((result) => result == 1);
+  Future<bool> serviceEnabled() => _methodChannel
+      .invokeMethod('serviceEnabled')
+      .then((result) => result == 1);
 
   /// Request the activate of the location service
-  Future<bool> requestService() =>
-      _channel.invokeMethod('requestService').then((result) => result == 1);
+  Future<bool> requestService() => _methodChannel
+      .invokeMethod('requestService')
+      .then((result) => result == 1);
 
   /// Returns a stream of location information.
   Stream<LocationData> onLocationChanged() {
     if (_onLocationChanged == null) {
-      _onLocationChanged = _stream.receiveBroadcastStream().map<LocationData>(
-          (element) => LocationData.fromMap(element.cast<String, double>()));
+      _onLocationChanged = _eventChannel
+          .receiveBroadcastStream()
+          .map<LocationData>((element) =>
+              LocationData.fromMap(element.cast<String, double>()));
     }
     return _onLocationChanged;
   }
