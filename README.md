@@ -29,7 +29,6 @@ Please also make sure that you have those dependencies in your build.gradle:
 ```
   dependencies {
       classpath 'com.android.tools.build:gradle:3.3.0'
-      classpath 'com.google.gms:google-services:4.2.0'
   }
 ...
   compileSdkVersion 28
