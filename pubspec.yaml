@@ -21,7 +21,6 @@ dependencies:
   flutter:
     sdk: flutter
   meta: ^1.0.5
-  flutter_plugin_android_lifecycle: ^1.0.2
 
 dev_dependencies:
   async: ^2.0.8
