@@ -21,3 +21,4 @@ example/ios/Runner/Info.plist
 example/ios/Runner.xcodeproj/project.pbxproj
 android/.classpath
 example/android/.gradle/*
+*.flutter-plugins-dependencies

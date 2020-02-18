@@ -348,6 +348,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler, PluginR
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
         builder.addLocationRequest(mLocationRequest);
         mLocationSettingsRequest = builder.build();
+        builder.setAlwaysShow(true);
     }
 
     /**
