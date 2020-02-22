@@ -113,63 +113,77 @@ class FlutterLocation
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE && permissions.length == 1
                 && permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
-            if (result != null) {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    result.success(1);
-                } else {
-                    result.success(0);
-                }
-                result = null;
-            }
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Checks if this permission was automatically triggered by a location request
                 if (getLocationResult != null || events != null) {
                     startRequestingLocation();
+                }
+                if (result != null) {
+                    result.success(1);
+                    result = null;
                 }
             } else {
                 if (!shouldShowRequestPermissionRationale()) {
                     if (getLocationResult != null) {
                         getLocationResult.error("PERMISSION_DENIED_NEVER_ASK",
                                 "Location permission denied forever- please open app settings", null);
-                    } else if (events != null) {
+                        getLocationResult = null;
+                    }
+                    if (events != null) {
                         events.error("PERMISSION_DENIED_NEVER_ASK",
                                 "Location permission denied forever - please open app settings", null);
                         events = null;
                     }
+                    if (result != null) {
+                        result.success(2);
+                        result = null;
+                    }
+
                 } else {
                     if (getLocationResult != null) {
                         getLocationResult.error("PERMISSION_DENIED", "Location permission denied", null);
-                    } else if (events != null) {
+                        getLocationResult = null;
+                    }
+                    if (events != null) {
                         events.error("PERMISSION_DENIED", "Location permission denied", null);
                         events = null;
                     }
+                    if (result != null) {
+                        result.success(0);
+                        result = null;
+                    }
+
                 }
             }
             return true;
         }
         return false;
+
     }
 
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (result == null) {
+            return false;
+        }
         switch (requestCode) {
-        case GPS_ENABLE_REQUEST:
-            if (resultCode == Activity.RESULT_OK) {
-                result.success(1);
-            } else {
-                result.success(0);
-            }
-            break;
-        case REQUEST_CHECK_SETTINGS:
-            if (resultCode == Activity.RESULT_OK) {
-                startRequestingLocation();
-                return true;
-            }
+            case GPS_ENABLE_REQUEST:
+                if (resultCode == Activity.RESULT_OK) {
+                    result.success(1);
+                } else {
+                    result.success(0);
+                }
+                break;
+            case REQUEST_CHECK_SETTINGS:
+                if (resultCode == Activity.RESULT_OK) {
+                    startRequestingLocation();
+                    return true;
+                }
 
-            result.error("SERVICE_STATUS_DISABLED", "Failed to get location. Location services disabled", null);
-            return false;
-        default:
-            return false;
+                result.error("SERVICE_STATUS_DISABLED", "Failed to get location. Location services disabled", null);
+                return false;
+            default:
+                return false;
         }
         return true;
     }
@@ -332,18 +346,20 @@ class FlutterLocation
                             ResolvableApiException rae = (ResolvableApiException) e;
                             int statusCode = rae.getStatusCode();
                             switch (statusCode) {
-                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                                try {
-                                    // Show the dialog by calling startResolutionForResult(), and check the
-                                    // result in onActivityResult().
-                                    rae.startResolutionForResult(activity, GPS_ENABLE_REQUEST);
-                                } catch (IntentSender.SendIntentException sie) {
-                                    result.error("SERVICE_STATUS_ERROR", "Could not resolve location request", null);
-                                }
-                                break;
-                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                                result.error("SERVICE_STATUS_DISABLED",
-                                        "Failed to get location. Location services disabled", null);
+                                case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                    try {
+                                        // Show the dialog by calling startResolutionForResult(), and check the
+                                        // result in onActivityResult().
+                                        rae.startResolutionForResult(activity, GPS_ENABLE_REQUEST);
+                                    } catch (IntentSender.SendIntentException sie) {
+                                        result.error("SERVICE_STATUS_ERROR", "Could not resolve location request",
+                                                null);
+                                    }
+                                    break;
+                                case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                    result.error("SERVICE_STATUS_DISABLED",
+                                            "Failed to get location. Location services disabled", null);
+                                    break;
                             }
                         } else {
                             // This should not happen according to Android documentation but it has been
@@ -372,19 +388,19 @@ class FlutterLocation
                             ResolvableApiException rae = (ResolvableApiException) e;
                             int statusCode = rae.getStatusCode();
                             switch (statusCode) {
-                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                                try {
-                                    // Show the dialog by calling startResolutionForResult(), and check the
-                                    // result in onActivityResult().
-                                    rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
-                                } catch (IntentSender.SendIntentException sie) {
-                                    Log.i(TAG, "PendingIntent unable to execute request.");
-                                }
-                                break;
-                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                                String errorMessage = "Location settings are inadequate, and cannot be "
-                                        + "fixed here. Fix in Settings.";
-                                Log.e(TAG, errorMessage);
+                                case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                    try {
+                                        // Show the dialog by calling startResolutionForResult(), and check the
+                                        // result in onActivityResult().
+                                        rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
+                                    } catch (IntentSender.SendIntentException sie) {
+                                        Log.i(TAG, "PendingIntent unable to execute request.");
+                                    }
+                                    break;
+                                case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                    String errorMessage = "Location settings are inadequate, and cannot be "
+                                            + "fixed here. Fix in Settings.";
+                                    Log.e(TAG, errorMessage);
                             }
                         } else {
                             // This should not happen according to Android documentation but it has been
