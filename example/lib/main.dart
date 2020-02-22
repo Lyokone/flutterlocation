@@ -1,139 +1,106 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:location/location.dart';
+import 'package:location_example/get_location.dart';
+import 'package:location_example/listen_location.dart';
+import 'package:location_example/permission_status.dart';
+import 'package:location_example/service_enabled.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-void main() {
-  runApp(new MyApp());
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Location',
+      theme: ThemeData(
+        primarySwatch: Colors.amber,
+      ),
+      home: MyHomePage(title: 'Flutter Location Demo'),
+    );
+  }
 }
 
-class MyApp extends StatefulWidget {
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key key, this.title}) : super(key: key);
+  final String title;
+
   @override
-  _MyAppState createState() => new _MyAppState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyAppState extends State<MyApp> {
-  LocationData _startLocation;
-  LocationData _currentLocation;
+class _MyHomePageState extends State<MyHomePage> {
+  final Location location = new Location();
 
-  StreamSubscription<LocationData> _locationSubscription;
-
-  Location _locationService = new Location();
-  bool _permission = false;
-  String error;
-
-  bool currentWidget = true;
-
-  @override
-  void initState() {
-    super.initState();
-
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  initPlatformState() async {
-    await _locationService.changeSettings(
-        accuracy: LocationAccuracy.HIGH, interval: 1000);
-
-    LocationData location;
-
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      bool serviceStatus = await _locationService.serviceEnabled();
-      print("Service status activated: $serviceStatus");
-      if (serviceStatus) {
-        _permission = await _locationService.requestPermission();
-        print("Permission result: $_permission");
-        if (_permission) {
-          location = await _locationService.getLocation();
-
-          _locationSubscription = _locationService
-              .onLocationChanged()
-              .listen((LocationData result) async {
-            if (mounted) {
-              setState(() {
-                _currentLocation = result;
-              });
-            }
-          });
-        }
-      } else {
-        bool serviceStatusResult = await _locationService.requestService();
-        print("Service status activated after request: $serviceStatusResult");
-        if (serviceStatusResult) {
-          initPlatformState();
-        }
-      }
-    } on PlatformException catch (e) {
-      print(e);
-      if (e.code == 'PERMISSION_DENIED') {
-        error = e.message;
-      } else if (e.code == 'SERVICE_STATUS_ERROR') {
-        error = e.message;
-      }
-      location = null;
-    }
-
-    setState(() {
-      _startLocation = location;
-    });
-  }
-
-  slowRefresh() async {
-    _locationSubscription.cancel();
-    await _locationService.changeSettings(
-        accuracy: LocationAccuracy.BALANCED, interval: 10000);
-    _locationSubscription =
-        _locationService.onLocationChanged().listen((LocationData result) {
-      if (mounted) {
-        setState(() {
-          _currentLocation = result;
-        });
-      }
-    });
+  _showInfoDialog() {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Demo Application'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Created by Guillaume Bernos'),
+                InkWell(
+                  child: Text(
+                    'https://github.com/Lyokone/flutterlocation',
+                    style: TextStyle(
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                  onTap: () =>
+                      launch("https://github.com/Lyokone/flutterlocation"),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Ok'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> widgets = [];
-
-    widgets.add(new Center(
-        child: new Text(_startLocation != null
-            ? 'Start location: ${_startLocation.latitude} & ${_startLocation.longitude}\n'
-            : 'Error: $error\n')));
-
-    widgets.add(new Center(
-        child: new Text(
-            _currentLocation != null
-                ? 'Continuous location: \nlat: ${_currentLocation.latitude} & long: ${_currentLocation.longitude} \nalt: ${_currentLocation.altitude}m\n'
-                : 'Error: $error\n',
-            textAlign: TextAlign.center)));
-
-    widgets.add(new Center(
-        child: new Text(
-            _permission ? 'Has permission : Yes' : "Has permission : No")));
-
-    widgets.add(new Center(
-        child: new RaisedButton(
-            child: new Text("Slow refresh rate and accuracy"),
-            onPressed: () => slowRefresh())));
-
-    return new MaterialApp(
-        home: new Scaffold(
-      appBar: new AppBar(
-        title: new Text('Location plugin example app'),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: _showInfoDialog,
+          )
+        ],
       ),
-      body: new Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: widgets,
+      body: Container(
+        padding: EdgeInsets.all(32),
+        child: Column(
+          children: <Widget>[
+            PermissionStatusWidget(),
+            Divider(
+              height: 32,
+            ),
+            ServiceEnabledWidget(),
+            Divider(
+              height: 32,
+            ),
+            GetLocationWidget(),
+            Divider(
+              height: 32,
+            ),
+            ListenLocationWidget()
+          ],
+        ),
       ),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: () => _locationSubscription.cancel(),
-        tooltip: 'Stop Track Location',
-        child: Icon(Icons.stop),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    ));
+    );
   }
 }

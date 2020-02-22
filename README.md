@@ -1,4 +1,5 @@
-# Flutter Location Plugin [![pub package](https://img.shields.io/pub/v/location.svg)](https://pub.dartlang.org/packages/location)
+# Flutter Location Plugin 
+[![pub package](https://img.shields.io/pub/v/location.svg)](https://pub.dartlang.org/packages/location) ![Cirrus CI - Task and Script Build Status](https://img.shields.io/cirrus/github/Lyokone/flutterlocation?task=test)
 
 This plugin for [Flutter](https://flutter.io)
 handles getting location on Android and iOS. It also provides callbacks when location is changed.
@@ -12,27 +13,14 @@ To get location updates even your app is closed, you can see [this wiki post](ht
 
 
 ## Getting Started
+Add this to your package's `pubspec.yaml` file:
+```yaml
+dependencies:
+  location: ^2.5.0
+```
+
 ### Android
-In order to use this plugin in Android, you have to add this permission in AndroidManifest.xml :
-```xml
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-```
-
-Update your gradle.properties file with this:
-```
-android.enableJetifier=true
-android.useAndroidX=true
-org.gradle.jvmargs=-Xmx1536M
-```
-
-Please also make sure that you have those dependencies in your build.gradle:
-```
-  dependencies {
-      classpath 'com.android.tools.build:gradle:3.3.0'
-  }
-...
-  compileSdkVersion 28
-```
+With Flutter 1.12, all the dependencies are automatically added to your project.
 
 ### iOS
 And to use it in iOS, you have to add this permission in Info.plist :
@@ -40,53 +28,53 @@ And to use it in iOS, you have to add this permission in Info.plist :
 NSLocationWhenInUseUsageDescription
 NSLocationAlwaysUsageDescription
 ```
-**Warning:** there is a currently a bug in iOS simulator in which you have to manually select a Location several in order for the Simulator to actually send data. Please keep that in mind when testing in iOS simulator.  
 
-The OnNmeaMessageListener property is only available for minimum SDK of 24.
-
-### Example App
-The example app uses [Google Maps Flutter Plugin](https://github.com/flutter/plugins/tree/master/packages/google_maps_flutter), add your API Key in the `AndroidManifest.xml` and in `AppDelegate.m` to use the Google Maps plugin. 
-
-### Sample Code
+## Usage
 Then you just have to import the package with
 ```dart
 import 'package:location/location.dart';
 ```
 
-Look into the example for utilisation, but a basic implementation can be done like this for a one time location :
+In order to request location, you should always check manually Location Service status and Permission status.
+
 ```dart
-var currentLocation = LocationData;
+Location location = new Location();
 
-var location = new Location();
+bool _serviceEnabled;
+PermissionStatus _permissionGranted;
+LocationData _locationData;
 
-// Platform messages may fail, so we use a try/catch PlatformException.
-try {
-  currentLocation = await location.getLocation();
-} on PlatformException catch (e) {
-  if (e.code == 'PERMISSION_DENIED') {
-    error = 'Permission denied';
-  } 
-  currentLocation = null;
+_serviceEnabled = await location.serviceEnabled();
+if (!_serviceEnabled) {
+  _serviceEnabled = await location.requestService();
+  if (!_serviceEnabled) {
+    return;
+  }
 }
+
+_permissionGranted = await location.hasPermission();
+if (_permissionGranted == PermissionStatus.DENIED) {
+  _permissionGranted = await location.requestPermission();
+  if (_permissionGranted != PermissionStatus.GRANTED) {
+    return;
+  }
+}
+
+_locationData = await location.getLocation();
 ```
 
 You can also get continuous callbacks when your position is changing:
 ```dart
-var location = new Location();
-
 location.onLocationChanged().listen((LocationData currentLocation) {
-  print(currentLocation.latitude);
-  print(currentLocation.longitude);
+  // Use current location
 });
 ```
 
-## Public Method Summary
-In this table you can find the different functions exposed by this plugin:
-
+## Public Methods Summary
 | Return |Description|
 |--------|-----|
-| Future\<bool> |  **requestPermission()** <br>Request the Location permission. Return a boolean to know if the permission has been granted. |
-| Future\<bool> | **hasPermission()** <br>Return a boolean to know the state of the location permission. |
+| Future\<PermissionStatus> |  **requestPermission()** <br>Request the Location permission. Return a PermissionStatus to know if the permission has been granted. |
+| Future\<PermissionStatus> | **hasPermission()** <br>Return a PermissionStatus to know the state of the location permission. |
 | Future\<bool> | **serviceEnabled()** <br>Return a boolean to know if the Location Service is enabled or if the user manually deactivated it. |
 | Future\<bool> | **requestService()** <br>Show an alert dialog to request the user to activate the Location Service. On iOS, will only display an alert due to Apple Guidelines, the user having to manually go to Settings. Return a boolean to know if the Location Service has been activated (always `false` on iOS). |
 | Future\<bool> | **changeSettings(LocationAccuracy accuracy = LocationAccuracy.HIGH, int interval = 1000, double distanceFilter = 0)** <br>Will change the settings of futur requests. `accuracy`will describe the accuracy of the request (see the LocationAccuracy object). `interval` will set the desired interval for active location updates, in milliseconds (only affects Android). `distanceFilter` set the minimum displacement between location updates in meters. |
@@ -95,7 +83,7 @@ In this table you can find the different functions exposed by this plugin:
   
 You should try to manage permission manually with `requestPermission()` to avoid error, but plugin will try handle some cases for you.
 
-### Objects
+## Objects
 ```dart
 class LocationData {
   final double latitude; // Latitude, in degrees
@@ -116,6 +104,17 @@ enum LocationAccuracy {
   HIGH, // To request the most accurate locations available
   NAVIGATION // To request location for navigation usage (affect only iOS)
 }
+
+// Status of a permission request to use location services.
+enum PermissionStatus {
+  /// The permission to use location services has been granted.
+  GRANTED,
+  // The permission to use location services has been denied by the user. May have been denied forever on iOS.
+  DENIED,
+  // The permission to use location services has been denied forever by the user. No dialog will be displayed on permission request.
+  DENIED_FOREVER
+}
+
  ```
  Note: you can convert the timestamp into a `DateTime` with: `DateTime.fromMillisecondsSinceEpoch(locationData.time.toInt())`
 

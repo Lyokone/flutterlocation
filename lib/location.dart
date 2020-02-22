@@ -31,12 +31,27 @@ class LocationData {
       dataMap['time'],
     );
   }
+
+  @override
+  String toString() {
+    return "LocationData<lat: $latitude, long: $longitude>";
+  }
 }
 
 /// https://developers.google.com/android/reference/com/google/android/gms/location/LocationRequest
 /// https://developer.apple.com/documentation/corelocation/cllocationaccuracy?language=objc
 /// Precision of the Location
 enum LocationAccuracy { POWERSAVE, LOW, BALANCED, HIGH, NAVIGATION }
+
+// Status of a permission request to use location services.
+enum PermissionStatus {
+  /// The permission to use location services has been granted.
+  GRANTED,
+  // The permission to use location services has been denied by the user. May have been denied forever on iOS.
+  DENIED,
+  // The permission to use location services has been denied forever by the user. No dialog will be displayed on permission request.
+  DENIED_FOREVER
+}
 
 class Location {
   /// Initializes the plugin and starts listening for potential platform events.
@@ -76,19 +91,46 @@ class Location {
   /// Gets the current location of the user.
   ///
   /// Throws an error if the app has no permission to access location.
-  Future<LocationData> getLocation() => _methodChannel
-      .invokeMethod('getLocation')
-      .then((result) => LocationData.fromMap(result.cast<String, double>()));
+  Future<LocationData> getLocation() async {
+    Map<String, double> resultMap =
+        (await _methodChannel.invokeMethod('getLocation'))
+            .cast<String, double>();
+    return LocationData.fromMap(resultMap);
+  }
 
   /// Checks if the app has permission to access location.
-  Future<bool> hasPermission() => _methodChannel
-      .invokeMethod('hasPermission')
-      .then((result) => result == 1);
+  Future<PermissionStatus> hasPermission() =>
+      _methodChannel.invokeMethod('hasPermission').then((result) {
+        switch (result) {
+          case 0:
+            return PermissionStatus.DENIED;
+            break;
+          case 1:
+            return PermissionStatus.GRANTED;
+            break;
+          case 2:
+            return PermissionStatus.DENIED_FOREVER;
+          default:
+            throw PlatformException(code: "UNKNOWN_NATIVE_MESSAGE");
+        }
+      });
 
   /// Request the permission to access the location
-  Future<bool> requestPermission() => _methodChannel
-      .invokeMethod('requestPermission')
-      .then((result) => result == 1);
+  Future<PermissionStatus> requestPermission() =>
+      _methodChannel.invokeMethod('requestPermission').then((result) {
+        switch (result) {
+          case 0:
+            return PermissionStatus.DENIED;
+            break;
+          case 1:
+            return PermissionStatus.GRANTED;
+            break;
+          case 2:
+            return PermissionStatus.DENIED_FOREVER;
+          default:
+            throw PlatformException(code: "UNKNOWN_NATIVE_MESSAGE");
+        }
+      });
 
   /// Checks if the location service is enabled
   Future<bool> serviceEnabled() => _methodChannel
