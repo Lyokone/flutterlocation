@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
-import 'package:location_example/get_location.dart';
-import 'package:location_example/listen_location.dart';
-import 'package:location_example/permission_status.dart';
-import 'package:location_example/service_enabled.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'get_location.dart';
+import 'listen_location.dart';
+import 'permission_status.dart';
+import 'service_enabled.dart';
 
 void main() => runApp(MyApp());
 
