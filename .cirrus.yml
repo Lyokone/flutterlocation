@@ -16,6 +16,7 @@ task:
           CHANNEL: "stable"
       test_script: 
         - flutter channel $CHANNEL
+        - flutter pub get
         - flutter analyze
     - name: test
       env:
