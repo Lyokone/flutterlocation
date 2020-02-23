@@ -50,6 +50,7 @@ class StreamHandlerImpl implements StreamHandler {
         location.events = eventsSink;
         if (!location.checkPermissions()) {
             location.requestPermissions();
+            return;
         }
         location.startRequestingLocation();
     }
