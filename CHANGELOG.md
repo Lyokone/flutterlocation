@@ -1,4 +1,12 @@
-## [2.4.0] 14th Februarty 2020
+## [2.5.0] 23rd February 2020
+* [BREAKING] The `requestPermission` and `hasPermission` are now returning PermissionStatus enum.
+* Resolve getLocation when service is disabled thanks to nicowernli
+* Update example app
+* Fix bugs leading to non returning code
+* `getLocation` now throws properly  
+* `pub.dev` now states that the plugin is not compatible with Flutter Web (yet)
+
+## [2.4.0] 14th February 2020
 * Align timestamp in Android and iOS, previously the iOS timestamp was in seconds instead of milliseconds. Thanks to 781flyingdutchman.
 
 ## [2.3.7] 08th January 2020

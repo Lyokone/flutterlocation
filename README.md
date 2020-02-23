@@ -70,6 +70,8 @@ location.onLocationChanged().listen((LocationData currentLocation) {
 });
 ```
 
+Be sure to check the example project to get other code samples.
+
 ## Public Methods Summary
 | Return |Description|
 |--------|-----|
