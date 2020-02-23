@@ -1,3 +1,6 @@
+## [2.5.1] 23rd February 2020
+* Fix SDK version
+
 ## [2.5.0] 23rd February 2020
 * [BREAKING] The `requestPermission` and `hasPermission` are now returning PermissionStatus enum.
 * Resolve getLocation when service is disabled thanks to nicowernli
