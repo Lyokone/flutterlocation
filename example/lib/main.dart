@@ -3,6 +3,7 @@ import 'package:location/location.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'get_location.dart';
+import 'gps_enabled.dart';
 import 'listen_location.dart';
 import 'permission_status.dart';
 import 'service_enabled.dart';
@@ -51,8 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       decoration: TextDecoration.underline,
                     ),
                   ),
-                  onTap: () =>
-                      launch("https://github.com/Lyokone/flutterlocation"),
+                  onTap: () => launch("https://github.com/Lyokone/flutterlocation"),
                 ),
               ],
             ),
@@ -98,7 +98,11 @@ class _MyHomePageState extends State<MyHomePage> {
             Divider(
               height: 32,
             ),
-            ListenLocationWidget()
+            ListenLocationWidget(),
+            Divider(
+              height: 32,
+            ),
+            GpsEnabledWidget()
           ],
         ),
       ),

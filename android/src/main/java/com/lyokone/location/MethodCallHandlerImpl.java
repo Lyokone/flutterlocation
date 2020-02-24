@@ -44,6 +44,9 @@ final class MethodCallHandlerImpl implements MethodCallHandler {
         case "requestService":
             location.requestService(result);
             break;
+        case "isGpsEnabled":
+            location.isGpsEnabledInDevice(result);
+            break;
         default:
             result.notImplemented();
             break;

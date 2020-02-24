@@ -283,6 +283,7 @@ class FlutterLocation
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
         builder.addLocationRequest(mLocationRequest);
         mLocationSettingsRequest = builder.build();
+        builder.setAlwaysShow(true);
     }
 
     /**
@@ -308,8 +309,8 @@ class FlutterLocation
     }
 
     public boolean checkServiceEnabled(final Result result) {
-        boolean gps_enabled = false;
-        boolean network_enabled = false;
+        boolean gps_enabled;
+        boolean network_enabled;
 
         try {
             gps_enabled = this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -332,8 +333,30 @@ class FlutterLocation
         }
     }
 
+    public boolean isGpsEnabledInDevice(final Result result) {
+        boolean isGpsEnabled;
+        try {
+            isGpsEnabled = this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception ex) {
+            result.error("SERVICE_STATUS_ERROR", "Location service status couldn't be determined", null);
+            return false;
+        }
+        if (isGpsEnabled) {
+            if (result != null) {
+                result.success(1);
+            }
+            return true;
+
+        } else {
+            if (result != null) {
+                result.success(0);
+            }
+            return false;
+        }
+    }
+
     public void requestService(final Result result) {
-        if (this.checkServiceEnabled(null)) {
+        if (this.isGpsEnabledInDevice(null)) {
             result.success(1);
             return;
         }

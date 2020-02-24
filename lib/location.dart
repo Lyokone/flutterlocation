@@ -142,6 +142,10 @@ class Location {
       .invokeMethod('requestService')
       .then((result) => result == 1);
 
+  Future<bool> isGpsEnabled() => _methodChannel
+    .invokeMethod('isGpsEnabled')
+    .then((result) => result == 1);
+
   /// Returns a stream of location information.
   Stream<LocationData> onLocationChanged() {
     if (_onLocationChanged == null) {
