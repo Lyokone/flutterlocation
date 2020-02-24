@@ -115,13 +115,11 @@
         if ([self isPermissionGranted]) {
             result(@1);
         } else if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
-          self.flutterResult = result;
-          self.permissionWanted = YES;
-          [self requestPermission];
+            self.flutterResult = result;
+            self.permissionWanted = YES;
+            [self requestPermission];
         } else {
-          result([FlutterError errorWithCode:@"PERMISSION_DENIED"
-          message:@"User previously reject permissions"
-          details:nil]);
+            result(@2);
         }
     } else if ([call.method isEqualToString:@"serviceEnabled"]) {
         if ([CLLocationManager locationServicesEnabled]) {
