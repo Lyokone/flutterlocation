@@ -33,6 +33,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware {
 
     public static void registerWith(Registrar registrar) {
         FlutterLocation flutterLocation = new FlutterLocation(registrar.context(), registrar.activity());
+        flutterLocation.setActivity(registrar.activity());
 
         MethodCallHandlerImpl handler = new MethodCallHandlerImpl(flutterLocation);
         handler.startListening(registrar.messenger());
