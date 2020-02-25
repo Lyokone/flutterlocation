@@ -1,3 +1,7 @@
+## [2.5.2] 25th February 2020
+* Fix crash on pre-1.12 projects
+* Align PermissionStatus on iOS with Android
+
 ## [2.5.1] 23rd February 2020
 * Fix SDK version
 
