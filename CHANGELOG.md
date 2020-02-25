@@ -3,6 +3,7 @@
 
 ## [2.5.0] 23rd February 2020
 * [BREAKING] The `requestPermission` and `hasPermission` are now returning PermissionStatus enum.
+* Upgrade to Android Embedding V2 (follow https://github.com/flutter/flutter/wiki/Upgrading-pre-1.12-Android-projects if the plugin isn't working after upgrade)
 * Resolve getLocation when service is disabled thanks to nicowernli
 * Update example app
 * Fix bugs leading to non returning code
