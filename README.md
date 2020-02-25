@@ -21,6 +21,7 @@ dependencies:
 
 ### Android
 With Flutter 1.12, all the dependencies are automatically added to your project.
+If your project was created before Flutter 1.12, you may need to follow [this](https://github.com/flutter/flutter/wiki/Upgrading-pre-1.12-Android-projects).
 
 ### iOS
 And to use it in iOS, you have to add this permission in Info.plist :
