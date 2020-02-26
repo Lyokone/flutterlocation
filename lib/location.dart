@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' show visibleForTesting;
 
-/// A data class that contains various information about the user's location.
+/// The response object of [Location.getLocation] and [Location.onLocationChanged]
 ///
 /// speedAccuracy cannot be provided on iOS and thus is always 0.
 class LocationData {
@@ -38,9 +38,10 @@ class LocationData {
   }
 }
 
+/// Precision of the Location. A lower precision will provide a greater battery life
+///
 /// https://developers.google.com/android/reference/com/google/android/gms/location/LocationRequest
 /// https://developer.apple.com/documentation/corelocation/cllocationaccuracy?language=objc
-/// Precision of the Location
 enum LocationAccuracy { POWERSAVE, LOW, BALANCED, HIGH, NAVIGATION }
 
 // Status of a permission request to use location services.
@@ -78,6 +79,11 @@ class Location {
 
   Stream<LocationData> _onLocationChanged;
 
+  /// Change settings of the location request.
+  ///
+  /// The `accuracy` argument is controlling the precision of the [LocationData].
+  /// The `interval` and `distanceFilter` are controlling how often a new location is sent
+  /// through [onLocationChanged].
   Future<bool> changeSettings(
           {LocationAccuracy accuracy = LocationAccuracy.HIGH,
           int interval = 1000,
@@ -89,6 +95,7 @@ class Location {
       }).then((result) => result == 1);
 
   /// Gets the current location of the user.
+  /// Returns a [LocationData] object.
   ///
   /// Throws an error if the app has no permission to access location.
   Future<LocationData> getLocation() async {
@@ -99,6 +106,10 @@ class Location {
   }
 
   /// Checks if the app has permission to access location.
+  /// Returns a [PermissionStatus] object.
+  ///
+  /// If the result is [PermissionStatus.DENIED_FOREVER],
+  /// no dialog will be shown on [requestPermission].
   Future<PermissionStatus> hasPermission() =>
       _methodChannel.invokeMethod('hasPermission').then((result) {
         switch (result) {
@@ -116,6 +127,10 @@ class Location {
       });
 
   /// Request the permission to access the location
+  /// Returns a [PermissionStatus] object.
+  ///
+  /// If the result is [PermissionStatus.DENIED_FOREVER],
+  /// no dialog will be shown in the future.
   Future<PermissionStatus> requestPermission() =>
       _methodChannel.invokeMethod('requestPermission').then((result) {
         switch (result) {
@@ -132,17 +147,20 @@ class Location {
         }
       });
 
-  /// Checks if the location service is enabled
+  /// Checks if the location service is enabled.
   Future<bool> serviceEnabled() => _methodChannel
       .invokeMethod('serviceEnabled')
       .then((result) => result == 1);
 
-  /// Request the activate of the location service
+  /// Request the activation of the location service.
   Future<bool> requestService() => _methodChannel
       .invokeMethod('requestService')
       .then((result) => result == 1);
 
-  /// Returns a stream of location information.
+  /// Returns a stream of [LocationData] objects.
+  /// The frequency and accuracy of this stream can be changed with [changeSettings]
+  ///
+  /// Throws an error if the app has no permission to access location.
   Stream<LocationData> onLocationChanged() {
     if (_onLocationChanged == null) {
       _onLocationChanged = _eventChannel
