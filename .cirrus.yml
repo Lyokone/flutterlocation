@@ -1,3 +1,6 @@
+pub_cache:
+  folder: ~/.pub-cache
+
 task:
   container:
     dockerfile: .ci/Dockerfile
@@ -21,12 +24,15 @@ task:
         - flutter analyze
     - name: test
       env:
+        CODECOV_TOKEN: ENCRYPTED[9ba9d1e58de2fc81556d89154383b44d9360408c6e7f40f5f7940d42b6c5bbac1cfb9c773ddcc20db6eba85622a3db38]
         matrix:
           CHANNEL: "master"
           CHANNEL: "stable"
       test_script:
         - flutter channel $CHANNEL
-        - flutter test
+        - flutter test --coverage
+        - if [ $CHANNEL = "stable" ]; then bash <(curl -s https://codecov.io/bash); fi
+
 
 task:
   container:
