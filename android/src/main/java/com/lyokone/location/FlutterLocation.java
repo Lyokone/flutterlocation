@@ -99,8 +99,8 @@ class FlutterLocation
     }
 
     void setActivity(@Nullable Activity activity) {
-        this.activity = activity;
         try {
+            this.activity = activity;
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
             mSettingsClient = LocationServices.getSettingsClient(activity);
             locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
