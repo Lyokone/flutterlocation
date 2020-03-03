@@ -48,6 +48,11 @@ class StreamHandlerImpl implements StreamHandler {
     @Override
     public void onListen(Object arguments, final EventSink eventsSink) {
         location.events = eventsSink;
+        if (location.activity == null) {
+            eventsSink.error("NO_ACTIVITY", null, null);
+            return;
+        }
+
         if (!location.checkPermissions()) {
             location.requestPermissions();
             return;

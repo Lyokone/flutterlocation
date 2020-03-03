@@ -46,7 +46,7 @@ class FlutterLocation
     private final Context applicationContext;
 
     @Nullable
-    private Activity activity;
+    public Activity activity;
 
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
