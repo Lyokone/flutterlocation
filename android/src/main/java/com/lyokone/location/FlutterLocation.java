@@ -124,35 +124,18 @@ class FlutterLocation
                 }
             } else {
                 if (!shouldShowRequestPermissionRationale()) {
-                    if (getLocationResult != null) {
-                        getLocationResult.error("PERMISSION_DENIED_NEVER_ASK",
-                                "Location permission denied forever- please open app settings", null);
-                        getLocationResult = null;
-                    }
-                    if (events != null) {
-                        events.error("PERMISSION_DENIED_NEVER_ASK",
-                                "Location permission denied forever - please open app settings", null);
-                        events = null;
-                    }
+                    sendError("PERMISSION_DENIED_NEVER_ASK",
+                            "Location permission denied forever - please open app settings", null);
                     if (result != null) {
                         result.success(2);
                         result = null;
                     }
-
                 } else {
-                    if (getLocationResult != null) {
-                        getLocationResult.error("PERMISSION_DENIED", "Location permission denied", null);
-                        getLocationResult = null;
-                    }
-                    if (events != null) {
-                        events.error("PERMISSION_DENIED", "Location permission denied", null);
-                        events = null;
-                    }
+                    sendError("PERMISSION_DENIED", "Location permission denied", null);
                     if (result != null) {
                         result.success(0);
                         result = null;
                     }
-
                 }
             }
             return true;
@@ -198,6 +181,17 @@ class FlutterLocation
         createLocationCallback();
         createLocationRequest();
         buildLocationSettingsRequest();
+    }
+
+    private void sendError(String errorCode, String errorMessage, Object errorDetails) {
+        if (getLocationResult != null) {
+            getLocationResult.error(errorCode, errorMessage, errorDetails);
+            getLocationResult = null;
+        }
+        if (events != null) {
+            events.error(errorCode, errorMessage, errorDetails);
+            events = null;
+        }
     }
 
     /**
@@ -400,12 +394,12 @@ class FlutterLocation
                                 case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
                                     String errorMessage = "Location settings are inadequate, and cannot be "
                                             + "fixed here. Fix in Settings.";
-                                    Log.e(TAG, errorMessage);
+                                    sendError("WRONG_LOCATION_SETTINGS", errorMessage, null);
                             }
                         } else {
                             // This should not happen according to Android documentation but it has been
                             // observed on some phones.
-                            Log.e(TAG, "Unexpected error type received");
+                            sendError("UNEXPECTED_ERROR", e.getMessage(), null);
                         }
                     }
                 });
