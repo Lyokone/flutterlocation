@@ -7,13 +7,28 @@ import 'package:meta/meta.dart' show visibleForTesting;
 ///
 /// speedAccuracy cannot be provided on iOS and thus is always 0.
 class LocationData {
+  /// Latitude in degrees
   final double latitude;
+
+  /// Longitude, in degrees
   final double longitude;
+
+  /// Estimated horizontal accuracy of this location, radial, in meters
   final double accuracy;
+
+  /// In meters above the WGS 84 reference ellipsoid
   final double altitude;
+
+  /// In meters/second
   final double speed;
+
+  /// In meters/second, always 0 on iOS
   final double speedAccuracy;
+
+  /// Heading is the horizontal direction of travel of this device, in degrees
   final double heading;
+
+  /// timestamp of the LocationData
   final double time;
 
   LocationData._(this.latitude, this.longitude, this.accuracy, this.altitude,
@@ -38,19 +53,36 @@ class LocationData {
   }
 }
 
-/// Precision of the Location. A lower precision will provide a greater battery life
+/// Precision of the Location. A lower precision will provide a greater battery life.
 ///
 /// https://developers.google.com/android/reference/com/google/android/gms/location/LocationRequest
 /// https://developer.apple.com/documentation/corelocation/cllocationaccuracy?language=objc
-enum LocationAccuracy { POWERSAVE, LOW, BALANCED, HIGH, NAVIGATION }
+enum LocationAccuracy {
+  /// To request best accuracy possible with zero additional power consumption
+  POWERSAVE,
+
+  /// To request "city" level accuracy
+  LOW,
+
+  /// To request "block" level accuracy
+  BALANCED,
+
+  /// To request the most accurate locations available
+  HIGH,
+
+  /// To request location for navigation usage (affect only iOS)
+  NAVIGATION
+}
 
 // Status of a permission request to use location services.
 enum PermissionStatus {
   /// The permission to use location services has been granted.
   GRANTED,
-  // The permission to use location services has been denied by the user. May have been denied forever on iOS.
+
+  /// The permission to use location services has been denied by the user. May have been denied forever on iOS.
   DENIED,
-  // The permission to use location services has been denied forever by the user. No dialog will be displayed on permission request.
+
+  /// The permission to use location services has been denied forever by the user. No dialog will be displayed on permission request.
   DENIED_FOREVER
 }
 
