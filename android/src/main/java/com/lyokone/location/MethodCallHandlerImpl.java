@@ -25,28 +25,33 @@ final class MethodCallHandlerImpl implements MethodCallHandler {
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
+        if (location.activity == null) {
+            result.error("NO_ACTIVITY", null, null);
+            return;
+        }
+
         switch (call.method) {
-        case "changeSettings":
-            onChangeSettings(call, result);
-            break;
-        case "getLocation":
-            onGetLocation(result);
-            break;
-        case "hasPermission":
-            onHasPermission(result);
-            break;
-        case "requestPermission":
-            onRequestPermission(result);
-            break;
-        case "serviceEnabled":
-            location.checkServiceEnabled(result);
-            break;
-        case "requestService":
-            location.requestService(result);
-            break;
-        default:
-            result.notImplemented();
-            break;
+            case "changeSettings":
+                onChangeSettings(call, result);
+                break;
+            case "getLocation":
+                onGetLocation(result);
+                break;
+            case "hasPermission":
+                onHasPermission(result);
+                break;
+            case "requestPermission":
+                onRequestPermission(result);
+                break;
+            case "serviceEnabled":
+                location.checkServiceEnabled(result);
+                break;
+            case "requestService":
+                location.requestService(result);
+                break;
+            default:
+                result.notImplemented();
+                break;
         }
     }
 
