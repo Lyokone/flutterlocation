@@ -84,7 +84,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware {
     }
 
     @Override
-    public void onDetachedFromActivity() {1
+    public void onDetachedFromActivity() {
         tearDown();
     }
 
