@@ -100,17 +100,13 @@ class FlutterLocation
 
     void setActivity(@Nullable Activity activity) {
         this.activity = activity;
-        try {
-            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
-            mSettingsClient = LocationServices.getSettingsClient(activity);
-            locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
+        mSettingsClient = LocationServices.getSettingsClient(activity);
+        locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
 
-            createLocationCallback();
-            createLocationRequest();
-            buildLocationSettingsRequest();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        createLocationCallback();
+        createLocationRequest();
+        buildLocationSettingsRequest();
     }
 
     @Override
