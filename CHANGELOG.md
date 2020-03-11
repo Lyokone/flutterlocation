@@ -1,3 +1,8 @@
+## [2.5.4] 11st March 2020
+* Update documentation
+* Fix: Airplane mode was preventing location from being requested
+* Fix: Not crashing when activity is not set on Android
+
 ## [2.5.3] 26th February 2020
 * Improve code coverage
 * Update documentation
