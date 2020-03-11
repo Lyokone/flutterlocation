@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Looper;
 import android.util.Log;
 
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -391,15 +392,25 @@ class FlutterLocation
                                         Log.i(TAG, "PendingIntent unable to execute request.");
                                     }
                                     break;
-                                case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                                    String errorMessage = "Location settings are inadequate, and cannot be "
-                                            + "fixed here. Fix in Settings.";
-                                    sendError("WRONG_LOCATION_SETTINGS", errorMessage, null);
                             }
                         } else {
-                            // This should not happen according to Android documentation but it has been
-                            // observed on some phones.
-                            sendError("UNEXPECTED_ERROR", e.getMessage(), null);
+                            ApiException ae = (ApiException) e;
+                            int statusCode = ae.getStatusCode();
+                            switch (statusCode) {
+                                case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                    // This error code happens during AirPlane mode.
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                        locationManager.addNmeaListener(mMessageListener);
+                                    }
+                                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
+                                            Looper.myLooper());
+                                    break;
+                                default:
+                                    // This should not happen according to Android documentation but it has been
+                                    // observed on some phones.
+                                    sendError("UNEXPECTED_ERROR", e.getMessage(), null);
+                                    break;
+                            }
                         }
                     }
                 });
