@@ -3,12 +3,10 @@ package com.lyokone.location;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
@@ -38,7 +36,6 @@ import androidx.core.app.ActivityCompat;
 import io.flutter.plugin.common.EventChannel.EventSink;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.plugin.common.PluginRegistry.ActivityResultListener;
 
 class FlutterLocation
         implements PluginRegistry.RequestPermissionsResultListener, PluginRegistry.ActivityResultListener {
@@ -99,6 +96,11 @@ class FlutterLocation
         this.activity = activity;
     }
 
+    FlutterLocation(PluginRegistry.Registrar registrar) {
+        this(registrar.context(), registrar.activity());
+        registrar.addRequestPermissionsResultListener(requestPermissionsResultListener);
+    }
+
     void setActivity(@Nullable Activity activity) {
         this.activity = activity;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
@@ -112,6 +114,17 @@ class FlutterLocation
 
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        return onRequestPermissionsResultHandler(requestCode, permissions, grantResults);
+    }
+
+    final PluginRegistry.RequestPermissionsResultListener requestPermissionsResultListener = new PluginRegistry.RequestPermissionsResultListener() {
+        @Override
+        public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+            return onRequestPermissionsResultHandler(requestCode, permissions, grantResults);
+        }
+    };
+
+    public boolean onRequestPermissionsResultHandler(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE && permissions.length == 1
                 && permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
