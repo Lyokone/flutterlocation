@@ -72,4 +72,4 @@ task:
     - cd example
     - flutter build apk
     - cd android
-    - ./gradlew app:connectedAndroidTest -Ptarget=`pwd`/../../test/location_e2e.dart
+    - ./gradlew app:connectedAndroidTest -Ptarget=`pwd`/../../location/test/location_e2e.dart
