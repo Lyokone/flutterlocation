@@ -18,6 +18,8 @@ class Location {
   /// The [accuracy] argument is controlling the precision of the
   /// [LocationData]. The [interval] and [distanceFilter] are controlling how
   /// often a new location is sent through [onLocationChanged].
+  ///
+  /// [interval] and [distanceFilter] are not used on web.
   Future<bool> changeSettings({
     LocationAccuracy accuracy = LocationAccuracy.high,
     int interval = 1000,
@@ -53,7 +55,7 @@ class Location {
   /// shown on [requestPermission].
   /// Returns a [PermissionStatus] object.
   Future<PermissionStatus> requestPermission() {
-    return LocationPlatform.instance.hasPermission();
+    return LocationPlatform.instance.requestPermission();
   }
 
   /// Checks if the location service is enabled.

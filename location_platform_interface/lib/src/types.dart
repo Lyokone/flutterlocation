@@ -31,18 +31,28 @@ class LocationData {
   final double longitude;
 
   /// Estimated horizontal accuracy of this location, radial, in meters
+  ///
+  /// Always 0 on Web
   final double accuracy;
 
   /// In meters above the WGS 84 reference ellipsoid
+  ///
+  /// Always 0 on Web
   final double altitude;
 
   /// In meters/second
+  ///
+  /// Always 0 on Web
   final double speed;
 
-  /// In meters/second, always 0 on iOS
+  /// In meters/second
+  ///
+  /// Always 0 on Web and iOS
   final double speedAccuracy;
 
   /// Heading is the horizontal direction of travel of this device, in degrees
+  ///
+  /// Always 0 on Web
   final double heading;
 
   /// timestamp of the LocationData

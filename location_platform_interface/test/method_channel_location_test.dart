@@ -46,7 +46,7 @@ void main() {
     log.clear();
   });
 
-  group('Permission Status', () {
+  group('getLocation', () {
     test('getLocation should convert results correctly', () async {
       final LocationData receivedLocation = await location.getLocation();
       expect(receivedLocation.latitude, 48.8534);
