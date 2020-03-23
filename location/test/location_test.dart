@@ -1,169 +1,132 @@
 import 'dart:async';
 
-import 'package:async/async.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:location/location.dart';
+import 'package:location_platform_interface/location_platform_interface.dart';
 import 'package:mockito/mockito.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  MethodChannel methodChannel;
-  MockEventChannel eventChannel;
-  Location location;
+  final Location location = Location();
+  final LocationPlatformMock platform = LocationPlatformMock();
+  LocationPlatform.instance = platform;
 
-  final List<MethodCall> log = <MethodCall>[];
+  tearDown(resetMockitoState);
 
-  setUp(() {
-    methodChannel = MethodChannel('lyokone/location');
-    eventChannel = MockEventChannel();
-    location = Location.private(methodChannel, eventChannel);
-
-    methodChannel.setMockMethodCallHandler((MethodCall methodCall) async {
-      log.add(methodCall);
-      switch (methodCall.method) {
-        case "getLocation":
-          return {
-            "latitude": 48.8534,
-            "longitude": 2.3488,
-          };
-        case "changeSettings":
-          return 1;
-        case "serviceEnabled":
-          return 1;
-        case "requestService":
-          return 1;
-        default:
-          return '';
-      }
+  group('getLocation', () {
+    when(platform.getLocation()).thenAnswer((_) async {
+      return LocationData.fromMap(<String, double>{
+        'latitude': 48.8534,
+        'longitude': 2.3488,
+      });
     });
 
-    log.clear();
-  });
-
-  group('Permission Status', () {
     test('getLocation should convert results correctly', () async {
-      var receivedLocation = await location.getLocation();
+      final LocationData receivedLocation = await location.getLocation();
       expect(receivedLocation.latitude, 48.8534);
       expect(receivedLocation.longitude, 2.3488);
     });
 
     test('getLocation should convert to string correctly', () async {
-      var receivedLocation = await location.getLocation();
+      final LocationData receivedLocation = await location.getLocation();
+
       expect(receivedLocation.toString(),
-          "LocationData<lat: ${receivedLocation.latitude}, long: ${receivedLocation.longitude}>");
+          'LocationData<lat: ${receivedLocation.latitude}, long: ${receivedLocation.longitude}>');
     });
   });
 
-  test('changeSettings passes parameters correctly', () async {
+  test('changeSettings', () async {
+    when(platform.changeSettings(
+      accuracy: captureAnyNamed('accuracy'),
+      interval: captureAnyNamed('interval'),
+      distanceFilter: captureAnyNamed('distanceFilter'),
+    ));
+
     await location.changeSettings();
-    expect(log, <Matcher>[
-      isMethodCall('changeSettings', arguments: <String, dynamic>{
-        "accuracy": LocationAccuracy.HIGH.index,
-        "interval": 1000,
-        "distanceFilter": 0
-      }),
-    ]);
+    final VerificationResult result = verify(platform.changeSettings(
+      accuracy: captureAnyNamed('accuracy'),
+      interval: captureAnyNamed('interval'),
+      distanceFilter: captureAnyNamed('distanceFilter'),
+    ));
+
+    expect(result.callCount, 1);
+    expect(result.captured[0], LocationAccuracy.high);
+    expect(result.captured[1], 1000);
+    expect(result.captured[2], 0);
   });
 
-  group('Service Status', () {
-    test('serviceEnabled should convert results correctly', () async {
-      var result = await location.serviceEnabled();
-      expect(result, true);
+  group('serviceEnabled-requestService', () {
+    when(platform.serviceEnabled()).thenAnswer((_) async => true);
+    when(platform.requestService()).thenAnswer((_) async => true);
+
+    test('serviceEnabled', () async {
+      final bool result = await location.serviceEnabled();
+      expect(result, isTrue);
     });
 
-    test('requestService should convert to string correctly', () async {
-      var result = await location.requestService();
-      expect(result, true);
-    });
-  });
-
-  group('Permission Status', () {
-    test('Should convert int to correct Permission Status', () async {
-      methodChannel.setMockMethodCallHandler((MethodCall methodCall) async {
-        return 0;
-      });
-      var receivedPermission = await location.hasPermission();
-      expect(receivedPermission, PermissionStatus.DENIED);
-      receivedPermission = await location.requestPermission();
-      expect(receivedPermission, PermissionStatus.DENIED);
-
-      methodChannel.setMockMethodCallHandler((MethodCall methodCall) async {
-        return 1;
-      });
-      receivedPermission = await location.hasPermission();
-      expect(receivedPermission, PermissionStatus.GRANTED);
-      receivedPermission = await location.requestPermission();
-      expect(receivedPermission, PermissionStatus.GRANTED);
-
-      methodChannel.setMockMethodCallHandler((MethodCall methodCall) async {
-        return 2;
-      });
-      receivedPermission = await location.hasPermission();
-      expect(receivedPermission, PermissionStatus.DENIED_FOREVER);
-      receivedPermission = await location.requestPermission();
-      expect(receivedPermission, PermissionStatus.DENIED_FOREVER);
-    });
-
-    test('Should throw if other message is sent', () async {
-      methodChannel.setMockMethodCallHandler((MethodCall methodCall) async {
-        return 12;
-      });
-      try {
-        await location.hasPermission();
-      } on PlatformException catch (err) {
-        expect(err.code, "UNKNOWN_NATIVE_MESSAGE");
-      }
-      try {
-        await location.requestPermission();
-      } on PlatformException catch (err) {
-        expect(err.code, "UNKNOWN_NATIVE_MESSAGE");
-      }
+    test('requestService', () async {
+      final bool result = await location.requestService();
+      expect(result, isTrue);
     });
   });
 
-  group("Location Updates", () {
-    StreamController<Map<String, double>> controller;
+  test('hasPermission', () async {
+    when(platform.hasPermission())
+        .thenAnswer((_) async => PermissionStatus.denied);
+    when(platform.requestPermission())
+        .thenAnswer((_) async => PermissionStatus.denied);
+
+    PermissionStatus receivedPermission = await location.hasPermission();
+    expect(receivedPermission, PermissionStatus.denied);
+
+    receivedPermission = await location.requestPermission();
+    expect(receivedPermission, PermissionStatus.denied);
+  });
+
+  group('onLocationChanged', () {
+    StreamController<LocationData> controller;
 
     setUp(() {
-      controller = StreamController<Map<String, double>>();
-      when(eventChannel.receiveBroadcastStream())
+      controller = StreamController<LocationData>();
+      when(platform.onLocationChanged)
           .thenAnswer((Invocation invoke) => controller.stream);
     });
 
-    tearDown(() {
-      controller.close();
-    });
-
-    test('call receiveBrodcastStream once', () {
-      location.onLocationChanged();
-      location.onLocationChanged();
-      location.onLocationChanged();
-      verify(eventChannel.receiveBroadcastStream()).called(1);
-    });
+    tearDown(() => controller.close());
 
     test('should receive values', () async {
-      final StreamQueue<LocationData> queue =
-          StreamQueue<LocationData>(location.onLocationChanged());
+      controller.add(LocationData.fromMap(<String, double>{
+        'latitude': 48.8534,
+        'longitude': 2.3488,
+      }));
+      controller.add(LocationData.fromMap(<String, double>{
+        'latitude': 42.8534,
+        'longitude': 23.3488,
+      }));
+      controller.close();
 
-      controller.add({
-        "latitude": 48.8534,
-        "longitude": 2.3488,
-      });
-      LocationData data = await queue.next;
-      expect(data.latitude, 48.8534);
-      expect(data.longitude, 2.3488);
-
-      controller.add({
-        "latitude": 42.8534,
-        "longitude": 23.3488,
-      });
-      data = await queue.next;
-      expect(data.latitude, 42.8534);
-      expect(data.longitude, 23.3488);
+      await expectLater(
+        location.onLocationChanged,
+        emitsInOrder(
+          <dynamic>[
+            LocationData.fromMap(<String, double>{
+              'latitude': 48.8534,
+              'longitude': 2.3488,
+            }),
+            LocationData.fromMap(<String, double>{
+              'latitude': 42.8534,
+              'longitude': 23.3488,
+            }),
+            emitsDone,
+          ],
+        ),
+      );
     });
   });
 }
 
-class MockEventChannel extends Mock implements EventChannel {}
+class LocationPlatformMock extends Mock
+    with MockPlatformInterfaceMixin
+    implements LocationPlatform {}

@@ -18,13 +18,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.amber,
       ),
-      home: MyHomePage(title: 'Flutter Location Demo'),
+      home: const MyHomePage(title: 'Flutter Location Demo'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  const MyHomePage({Key key, this.title}) : super(key: key);
   final String title;
 
   @override
@@ -32,18 +32,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final Location location = new Location();
+  final Location location = Location();
 
-  _showInfoDialog() {
+  Future<void> _showInfoDialog() {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Demo Application'),
+          title: const Text('Demo Application'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Created by Guillaume Bernos'),
+                const Text('Created by Guillaume Bernos'),
                 InkWell(
                   child: Text(
                     'https://github.com/Lyokone/flutterlocation',
@@ -52,14 +52,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                   onTap: () =>
-                      launch("https://github.com/Lyokone/flutterlocation"),
+                      launch('https://github.com/Lyokone/flutterlocation'),
                 ),
               ],
             ),
           ),
           actions: <Widget>[
             FlatButton(
-              child: Text('Ok'),
+              child: const Text('Ok'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -83,21 +83,15 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       body: Container(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Column(
-          children: <Widget>[
+          children: const <Widget>[
             PermissionStatusWidget(),
-            Divider(
-              height: 32,
-            ),
+            Divider(height: 32),
             ServiceEnabledWidget(),
-            Divider(
-              height: 32,
-            ),
+            Divider(height: 32),
             GetLocationWidget(),
-            Divider(
-              height: 32,
-            ),
+            Divider(height: 32),
             ListenLocationWidget()
           ],
         ),

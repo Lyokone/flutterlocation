@@ -4,21 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
 class ListenLocationWidget extends StatefulWidget {
-  ListenLocationWidget({Key key}) : super(key: key);
+  const ListenLocationWidget({Key key}) : super(key: key);
 
   @override
   _ListenLocationState createState() => _ListenLocationState();
 }
 
 class _ListenLocationState extends State<ListenLocationWidget> {
-  final Location location = new Location();
+  final Location location = Location();
 
   LocationData _location;
   StreamSubscription<LocationData> _locationSubscription;
   String _error;
 
-  _listenLocation() async {
-    _locationSubscription = location.onLocationChanged().handleError((err) {
+  Future<void> _listenLocation() async {
+    _locationSubscription =
+        location.onLocationChanged.handleError((dynamic err) {
       setState(() {
         _error = err.code;
       });
@@ -32,7 +33,7 @@ class _ListenLocationState extends State<ListenLocationWidget> {
     });
   }
 
-  _stopListen() async {
+  Future<void> _stopListen() async {
     _locationSubscription.cancel();
   }
 
@@ -46,16 +47,16 @@ class _ListenLocationState extends State<ListenLocationWidget> {
           style: Theme.of(context).textTheme.body2,
         ),
         Row(
-          children: [
+          children: <Widget>[
             Container(
-              margin: EdgeInsets.only(right: 42),
+              margin: const EdgeInsets.only(right: 42),
               child: RaisedButton(
-                child: Text("Listen"),
+                child: const Text('Listen'),
                 onPressed: _listenLocation,
               ),
             ),
             RaisedButton(
-              child: Text("Stop"),
+              child: const Text('Stop'),
               onPressed: _stopListen,
             )
           ],

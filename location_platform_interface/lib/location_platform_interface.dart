@@ -1,17 +1,34 @@
-import 'dart:async';
+library location_platform_interface;
 
-import 'package:location_platform_interface/location_platform_interface.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:meta/meta.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-export 'package:location_platform_interface/location_platform_interface.dart'
-    show PermissionStatus, LocationAccuracy, LocationData;
+part 'src/method_channel_location.dart';
+part 'src/types.dart';
 
-class Location {
-  /// Initializes the plugin and starts listening for potential platform events.
-  factory Location() => instance;
+class LocationPlatform extends PlatformInterface {
+  LocationPlatform() : super(token: _token);
 
-  Location._();
+  static final Object _token = Object();
 
-  static final Location instance = Location._();
+  /// The default instance of [LocationPlatform] to use.
+  ///
+  /// Platform-specific plugins should override this with their own class
+  /// that extends [LocationPlatform] when they register themselves.
+  ///
+  /// Defaults to [MethodChannelLocation].
+  static LocationPlatform get instance => _instance;
+
+  static LocationPlatform _instance = MethodChannelLocation();
+
+  /// Platform-specific plugins should set this with their own platform-specific
+  /// class that extends [LocationPlatform] when they register themselves.
+  static set instance(LocationPlatform instance) {
+    PlatformInterface.verifyToken(instance, _token);
+    _instance = instance;
+  }
 
   /// Change settings of the location request.
   ///
@@ -19,23 +36,19 @@ class Location {
   /// [LocationData]. The [interval] and [distanceFilter] are controlling how
   /// often a new location is sent through [onLocationChanged].
   Future<bool> changeSettings({
-    LocationAccuracy accuracy = LocationAccuracy.high,
-    int interval = 1000,
-    double distanceFilter = 0,
+    LocationAccuracy accuracy,
+    int interval,
+    double distanceFilter,
   }) {
-    return LocationPlatform.instance.changeSettings(
-      accuracy: accuracy,
-      interval: interval,
-      distanceFilter: distanceFilter,
-    );
+    throw UnimplementedError();
   }
 
   /// Gets the current location of the user.
   ///
   /// Throws an error if the app has no permission to access location.
   /// Returns a [LocationData] object.
-  Future<LocationData> getLocation() async {
-    return LocationPlatform.instance.getLocation();
+  Future<LocationData> getLocation() {
+    throw UnimplementedError();
   }
 
   /// Checks if the app has permission to access location.
@@ -44,7 +57,7 @@ class Location {
   /// shown on [requestPermission].
   /// Returns a [PermissionStatus] object.
   Future<PermissionStatus> hasPermission() {
-    return LocationPlatform.instance.hasPermission();
+    throw UnimplementedError();
   }
 
   /// Checks if the app has permission to access location.
@@ -53,17 +66,17 @@ class Location {
   /// shown on [requestPermission].
   /// Returns a [PermissionStatus] object.
   Future<PermissionStatus> requestPermission() {
-    return LocationPlatform.instance.hasPermission();
+    throw UnimplementedError();
   }
 
   /// Checks if the location service is enabled.
   Future<bool> serviceEnabled() {
-    return LocationPlatform.instance.serviceEnabled();
+    throw UnimplementedError();
   }
 
   /// Request the activation of the location service.
   Future<bool> requestService() {
-    return LocationPlatform.instance.requestService();
+    throw UnimplementedError();
   }
 
   /// Returns a stream of [LocationData] objects.
@@ -72,6 +85,6 @@ class Location {
   ///
   /// Throws an error if the app has no permission to access location.
   Stream<LocationData> get onLocationChanged {
-    return LocationPlatform.instance.onLocationChanged;
+    throw UnimplementedError();
   }
 }

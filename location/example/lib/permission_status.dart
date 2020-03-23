@@ -2,32 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
 class PermissionStatusWidget extends StatefulWidget {
-  PermissionStatusWidget({Key key}) : super(key: key);
+  const PermissionStatusWidget({Key key}) : super(key: key);
 
   @override
   _PermissionStatusState createState() => _PermissionStatusState();
 }
 
 class _PermissionStatusState extends State<PermissionStatusWidget> {
-  final Location location = new Location();
+  final Location location = Location();
 
   PermissionStatus _permissionGranted;
 
-  _checkPermissions() async {
-    PermissionStatus permissionGrantedResult = await location.hasPermission();
+  Future<void> _checkPermissions() async {
+    final PermissionStatus permissionGrantedResult =
+        await location.hasPermission();
     setState(() {
       _permissionGranted = permissionGrantedResult;
     });
   }
 
-  _requestPermission() async {
-    if (_permissionGranted != PermissionStatus.GRANTED) {
-      PermissionStatus permissionRequestedResult =
+  Future<void> _requestPermission() async {
+    if (_permissionGranted != PermissionStatus.granted) {
+      final PermissionStatus permissionRequestedResult =
           await location.requestPermission();
       setState(() {
         _permissionGranted = permissionRequestedResult;
       });
-      if (permissionRequestedResult != PermissionStatus.GRANTED) {
+      if (permissionRequestedResult != PermissionStatus.granted) {
         return;
       }
     }
@@ -45,15 +46,15 @@ class _PermissionStatusState extends State<PermissionStatusWidget> {
         Row(
           children: <Widget>[
             Container(
-              margin: EdgeInsets.only(right: 42),
+              margin: const EdgeInsets.only(right: 42),
               child: RaisedButton(
-                child: Text("Check"),
+                child: const Text('Check'),
                 onPressed: _checkPermissions,
               ),
             ),
             RaisedButton(
-              child: Text("Request"),
-              onPressed: _permissionGranted == PermissionStatus.GRANTED
+              child: const Text('Request'),
+              onPressed: _permissionGranted == PermissionStatus.granted
                   ? null
                   : _requestPermission,
             )

@@ -16,11 +16,13 @@ flutter:
         pluginClass: LocationPlugin
       ios:
         pluginClass: LocationPlugin
-        
+
 dependencies:
   flutter:
     sdk: flutter
   meta: ^1.0.5
+  location_platform_interface:
+    path: ../location_platform_interface
 
 dev_dependencies:
   async: ^2.0.8
