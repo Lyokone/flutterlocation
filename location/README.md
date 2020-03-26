@@ -31,6 +31,21 @@ NSLocationWhenInUseUsageDescription
 NSLocationAlwaysUsageDescription
 ```
 
+### macOS
+Ensure that the application is properly "sandboxed" and that the location is enabled. You can do this in Xcode with the following steps:
+
+1. In the project navigator, click on your application's target. This should bring up a view with tabs such as "General", "Capabilities", "Resource Tags", etc.
+1. Click on the "Capabilities" tab. This will give you a list of items such as "App Groups", "App Sandbox" and so on. Each item will have an "On/Off" button.
+1. Turn on the "App Sandbox" item and press the ">" button on the left to show the sandbox stuff.
+1. In the "App Data" section, select "Location".
+
+Add this permission in Info.plist :
+```xml
+NSLocationWhenInUseUsageDescription
+NSLocationAlwaysUsageDescription
+```
+
+
 ## Usage
 Then you just have to import the package with
 ```dart
