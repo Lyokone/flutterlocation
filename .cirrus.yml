@@ -38,6 +38,7 @@ task:
         - flutter channel $CHANNEL
         - cd location
         - flutter test --coverage
+        - if [ $CHANNEL = "stable" ]; then bash <(curl -s https://codecov.io/bash); fi
         - cd ../location_platform_interface
         - flutter test --coverage
         - if [ $CHANNEL = "stable" ]; then bash <(curl -s https://codecov.io/bash); fi
