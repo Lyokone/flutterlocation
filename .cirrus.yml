@@ -20,7 +20,13 @@ task:
           CHANNEL: "stable"
       test_script: 
         - flutter channel $CHANNEL
+        - cd location
         - flutter pub get
+        - cd ../location_platform_interface
+        - flutter pub get
+        - cd ../location_web
+        - flutter pub get
+        - cd ..
         - flutter analyze
     - name: test
       env:
@@ -30,6 +36,10 @@ task:
           CHANNEL: "stable"
       test_script:
         - flutter channel $CHANNEL
+        - cd location
+        - flutter test --coverage
+        - if [ $CHANNEL = "stable" ]; then bash <(curl -s https://codecov.io/bash); fi
+        - cd ../location_platform_interface
         - flutter test --coverage
         - if [ $CHANNEL = "stable" ]; then bash <(curl -s https://codecov.io/bash); fi
 
@@ -68,6 +78,7 @@ task:
   wait_for_emulator_script:
     - adb wait-for-device
   test_script:
+    - cd location
     - flutter channel $CHANNEL
     - cd example
     - flutter build apk

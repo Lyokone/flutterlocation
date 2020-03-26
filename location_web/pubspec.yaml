@@ -1,0 +1,31 @@
+name: location_web
+description: The web implementation of the location plugin.
+version: 1.0.0
+author: Guillaume Bernos <guillaume@bernos.dev>
+homepage: https://github.com/Lyokone/flutterlocation
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+  flutter: ">=1.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  location_platform_interface: ^1.0.0
+  http_parser: ^3.1.3
+  meta: ^1.1.8
+  js: ^0.6.1+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mockito: ^4.1.1
+
+flutter:
+  plugin:
+    platforms:
+      web:
+        pluginClass: LocationWebPlugin
+        fileName: location_web.dart
