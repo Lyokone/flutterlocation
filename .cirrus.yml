@@ -35,8 +35,10 @@ task:
           CHANNEL: "master"
           CHANNEL: "stable"
       test_script:
-        - cd location
         - flutter channel $CHANNEL
+        - cd location
+        - flutter test --coverage
+        - cd ../location_platform_interface
         - flutter test --coverage
         - if [ $CHANNEL = "stable" ]; then bash <(curl -s https://codecov.io/bash); fi
 
