@@ -5,7 +5,6 @@ task:
   container:
     dockerfile: .ci/Dockerfile
   upgrade_script:
-    - cd location
     - flutter channel stable
     - flutter upgrade
     - flutter channel master
@@ -21,7 +20,13 @@ task:
           CHANNEL: "stable"
       test_script: 
         - flutter channel $CHANNEL
+        - cd location
         - flutter pub get
+        - cd ../location_platform_interface
+        - flutter pub get
+        - cd ../location_web
+        - flutter pub get
+        - cd ..
         - flutter analyze
     - name: test
       env:
@@ -31,6 +36,10 @@ task:
           CHANNEL: "stable"
       test_script:
         - flutter channel $CHANNEL
+        - cd location
+        - flutter test --coverage
+        - if [ $CHANNEL = "stable" ]; then bash <(curl -s https://codecov.io/bash); fi
+        - cd ../location_platform_interface
         - flutter test --coverage
         - if [ $CHANNEL = "stable" ]; then bash <(curl -s https://codecov.io/bash); fi
 
@@ -48,7 +57,6 @@ task:
   allow_failures: $CHANNEL == "master"
   name: e2e
   upgrade_script:
-    - cd location
     - flutter channel stable
     - flutter upgrade
     - flutter channel master
@@ -70,8 +78,9 @@ task:
   wait_for_emulator_script:
     - adb wait-for-device
   test_script:
+    - cd location
     - flutter channel $CHANNEL
     - cd example
     - flutter build apk
     - cd android
-    - ./gradlew app:connectedAndroidTest -Ptarget=`pwd`/../../location/test/location_e2e.dart
+    - ./gradlew app:connectedAndroidTest -Ptarget=`pwd`/../../test/location_e2e.dart
