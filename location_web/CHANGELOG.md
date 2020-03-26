@@ -1,3 +1,3 @@
-## 0.0.1
+## 1.0.0 26th March 2020
 
-* TODO: Describe initial release.
+- First release of the Web platform of the Location plugin (huge thanks to long1eu)

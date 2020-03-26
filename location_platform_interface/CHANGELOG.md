@@ -1,3 +1,3 @@
-## [0.0.1] - TODO: Add release date.
+## [1.0.0] - 26th March 2020
 
-* TODO: Describe initial release.
+- Created the platform interface of the Location plugin in order to support Web and macOS (huge thanks to long1eu)
