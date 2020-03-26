@@ -19,9 +19,10 @@ task:
           CHANNEL: "master"
           CHANNEL: "stable"
       test_script: 
-        - cd location
         - flutter channel $CHANNEL
+        - cd location
         - flutter pub get
+        - cd ..
         - flutter analyze
     - name: test
       env:
