@@ -5,7 +5,6 @@ task:
   container:
     dockerfile: .ci/Dockerfile
   upgrade_script:
-    - cd location
     - flutter channel stable
     - flutter upgrade
     - flutter channel master
@@ -20,6 +19,7 @@ task:
           CHANNEL: "master"
           CHANNEL: "stable"
       test_script: 
+        - cd location
         - flutter channel $CHANNEL
         - flutter pub get
         - flutter analyze
@@ -30,6 +30,7 @@ task:
           CHANNEL: "master"
           CHANNEL: "stable"
       test_script:
+        - cd location
         - flutter channel $CHANNEL
         - flutter test --coverage
         - if [ $CHANNEL = "stable" ]; then bash <(curl -s https://codecov.io/bash); fi
@@ -48,7 +49,6 @@ task:
   allow_failures: $CHANNEL == "master"
   name: e2e
   upgrade_script:
-    - cd location
     - flutter channel stable
     - flutter upgrade
     - flutter channel master
@@ -70,6 +70,7 @@ task:
   wait_for_emulator_script:
     - adb wait-for-device
   test_script:
+    - cd location
     - flutter channel $CHANNEL
     - cd example
     - flutter build apk
