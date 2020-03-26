@@ -22,6 +22,10 @@ task:
         - flutter channel $CHANNEL
         - cd location
         - flutter pub get
+        - cd ../location_platform_interface
+        - flutter pub get
+        - cd ../location_web
+        - flutter pub get
         - cd ..
         - flutter analyze
     - name: test
