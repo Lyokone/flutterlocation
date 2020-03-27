@@ -1,3 +1,7 @@
+## [3.0.1] 27th March 2020
+
+- Fix a crash happening during iOS build
+
 ## [3.0.0] 26th March 2020
 
 - Add Web and macOS as new supported platforms (huge thanks to long1eu)
