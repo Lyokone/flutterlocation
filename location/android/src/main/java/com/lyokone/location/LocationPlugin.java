@@ -29,7 +29,6 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware {
 
     private FlutterPluginBinding pluginBinding;
     private ActivityPluginBinding activityBinding;
-    private Activity activity;
 
     public static void registerWith(Registrar registrar) {
         FlutterLocation flutterLocation = new FlutterLocation(registrar.context(), registrar.activity());
@@ -96,7 +95,6 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware {
 
     private void setup(final BinaryMessenger messenger, final Activity activity,
             final PluginRegistry.Registrar registrar) {
-        this.activity = activity;
         if (registrar != null) {
             // V1 embedding setup for activity listeners.
             registrar.addActivityResultListener(location);
@@ -111,7 +109,5 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware {
     private void tearDown() {
         activityBinding.removeActivityResultListener(location);
         activityBinding.removeRequestPermissionsResultListener(location);
-        location = null;
     }
-
 }
