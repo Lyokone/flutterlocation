@@ -52,12 +52,6 @@ void main() {
       expect(receivedLocation.latitude, 48.8534);
       expect(receivedLocation.longitude, 2.3488);
     });
-
-    test('getLocation should convert to string correctly', () async {
-      final LocationData receivedLocation = await location.getLocation();
-      expect(receivedLocation.toString(),
-          'LocationData<lat: ${receivedLocation.latitude}, long: ${receivedLocation.longitude}>');
-    });
   });
 
   test('changeSettings passes parameters correctly', () async {
