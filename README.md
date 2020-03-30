@@ -79,9 +79,9 @@ if (!_serviceEnabled) {
 }
 
 _permissionGranted = await location.hasPermission();
-if (_permissionGranted == PermissionStatus.DENIED) {
+if (_permissionGranted == PermissionStatus.denied) {
   _permissionGranted = await location.requestPermission();
-  if (_permissionGranted != PermissionStatus.GRANTED) {
+  if (_permissionGranted != PermissionStatus.granted) {
     return;
   }
 }
@@ -92,7 +92,7 @@ _locationData = await location.getLocation();
 You can also get continuous callbacks when your position is changing:
 
 ```dart
-location.onLocationChanged().listen((LocationData currentLocation) {
+location.onLocationChanged.listen((LocationData currentLocation) {
   // Use current location
 });
 ```
