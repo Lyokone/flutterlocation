@@ -98,7 +98,7 @@ class FlutterLocation
 
     FlutterLocation(PluginRegistry.Registrar registrar) {
         this(registrar.context(), registrar.activity());
-        registrar.addRequestPermissionsResultListener(requestPermissionsResultListener);
+        registrar.addRequestPermissionsResultListener(this);
     }
 
     void setActivity(@Nullable Activity activity) {
