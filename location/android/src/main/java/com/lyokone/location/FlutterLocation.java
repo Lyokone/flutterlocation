@@ -98,7 +98,7 @@ class FlutterLocation
 
     FlutterLocation(PluginRegistry.Registrar registrar) {
         this(registrar.context(), registrar.activity());
-        registrar.addRequestPermissionsResultListener(requestPermissionsResultListener);
+        registrar.addRequestPermissionsResultListener(this);
     }
 
     void setActivity(@Nullable Activity activity) {
@@ -116,13 +116,6 @@ class FlutterLocation
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         return onRequestPermissionsResultHandler(requestCode, permissions, grantResults);
     }
-
-    final PluginRegistry.RequestPermissionsResultListener requestPermissionsResultListener = new PluginRegistry.RequestPermissionsResultListener() {
-        @Override
-        public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-            return onRequestPermissionsResultHandler(requestCode, permissions, grantResults);
-        }
-    };
 
     public boolean onRequestPermissionsResultHandler(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE && permissions.length == 1
