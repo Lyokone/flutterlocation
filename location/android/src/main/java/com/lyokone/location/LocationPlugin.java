@@ -72,10 +72,13 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware {
 
     @Override
     public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
-        location.setActivity(binding.getActivity());
-
-        activityBinding = binding;
-        setup(pluginBinding.getBinaryMessenger(), activityBinding.getActivity(), null);
+        try {
+            location.setActivity(binding.getActivity());
+            activityBinding = binding;
+            setup(pluginBinding.getBinaryMessenger(), activityBinding.getActivity(), null);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
