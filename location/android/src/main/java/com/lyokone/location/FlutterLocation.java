@@ -334,7 +334,7 @@ class FlutterLocation
     }
 
     public void requestService(final Result result) {
-        if (this.checkServiceEnabled(null)) {
+        if (this.checkServiceEnabled(result)) {
             result.success(1);
             return;
         }
