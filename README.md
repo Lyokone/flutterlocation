@@ -33,6 +33,13 @@ NSLocationWhenInUseUsageDescription
 NSLocationAlwaysUsageDescription
 ```
 
+Be aware that calls to `getLocation()` may silently fail when using the iOS Simulator if you have not set a location.
+You can do this by following these steps:
+
+1. Open the Simulator and select the "Features" tab.
+2. Hover over "Location" and select "Custom Location...".
+3. From there you can set a custom latitude and longitude which will be used by the Simulator.
+
 ### Web
 
 Nothing to do, the plugin works directly out of box.
