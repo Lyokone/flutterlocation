@@ -46,9 +46,8 @@
 
 -(void)initLocation {
     if (!(self.hasInit)) {
-        self.hasInit = YES;
-
         if ([CLLocationManager locationServicesEnabled]) {
+            self.hasInit = YES;
             self.clLocationManager = [[CLLocationManager alloc] init];
             self.clLocationManager.delegate = self;
             self.clLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
