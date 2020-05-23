@@ -23,6 +23,19 @@ class LocationData {
       dataMap['time'],
     );
   }
+  
+  Map<String, double> toMap() {
+    return {
+      'latitude': latitude,
+      'longitude': longitude,
+      'accuracy': accuracy,
+      'altitude': altitude,
+      'speed': speed,
+      'speed_accuracy': speedAccuracy,
+      'heading': heading,
+      'time': time,
+    };
+  }
 
   /// Latitude in degrees
   final double latitude;
