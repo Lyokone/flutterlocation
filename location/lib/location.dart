@@ -22,8 +22,8 @@ class Location {
   /// [interval] and [distanceFilter] are not used on web.
   Future<bool> changeSettings({
     LocationAccuracy accuracy = LocationAccuracy.high,
-    int interval = 1000,
-    double distanceFilter = 0,
+    int interval = 10000,
+    double distanceFilter = 10,
   }) {
     return LocationPlatform.instance.changeSettings(
       accuracy: accuracy,
