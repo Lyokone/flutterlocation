@@ -163,6 +163,7 @@ class FlutterLocation
                 } else {
                     result.success(0);
                 }
+                result = null;
                 break;
             case REQUEST_CHECK_SETTINGS:
                 if (resultCode == Activity.RESULT_OK) {
@@ -171,6 +172,7 @@ class FlutterLocation
                 }
 
                 result.error("SERVICE_STATUS_DISABLED", "Failed to get location. Location services disabled", null);
+                result = null;
                 return false;
             default:
                 return false;
@@ -308,7 +310,11 @@ class FlutterLocation
         return ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
-    public boolean checkServiceEnabled(final Result result) {
+    /**
+     * Checks whether location services is enabled. Returns the result in the {@link Result}, if
+     * provided.
+     */
+    public boolean checkServiceEnabled(@Nullable final Result result) {
         boolean gps_enabled = false;
         boolean network_enabled = false;
 
@@ -316,7 +322,9 @@ class FlutterLocation
             gps_enabled = this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             network_enabled = this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         } catch (Exception ex) {
-            result.error("SERVICE_STATUS_ERROR", "Location service status couldn't be determined", null);
+            if (result != null) {
+                result.error("SERVICE_STATUS_ERROR", "Location service status couldn't be determined", null);
+            }
             return false;
         }
         if (gps_enabled || network_enabled) {
@@ -334,7 +342,7 @@ class FlutterLocation
     }
 
     public void requestService(final Result result) {
-        if (this.checkServiceEnabled(result)) {
+        if (this.checkServiceEnabled(null)) {
             result.success(1);
             return;
         }
