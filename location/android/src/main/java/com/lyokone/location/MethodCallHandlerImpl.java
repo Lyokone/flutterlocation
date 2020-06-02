@@ -44,7 +44,7 @@ final class MethodCallHandlerImpl implements MethodCallHandler {
                 onRequestPermission(result);
                 break;
             case "serviceEnabled":
-                location.checkServiceEnabled(result);
+                onServiceEnabled(result);
                 break;
             case "requestService":
                 location.requestService(result);
@@ -118,6 +118,14 @@ final class MethodCallHandlerImpl implements MethodCallHandler {
             result.success(1);
         } else {
             result.success(0);
+        }
+    }
+
+    private void onServiceEnabled(Result result) {
+        try {
+            result.success(location.checkServiceEnabled() ? 1 : 0);
+        } catch (Exception e) {
+            result.error("SERVICE_STATUS_ERROR", "Location service status couldn't be determined", null);
         }
     }
 
