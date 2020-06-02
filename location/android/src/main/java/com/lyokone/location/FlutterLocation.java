@@ -163,7 +163,8 @@ class FlutterLocation
                 } else {
                     result.success(0);
                 }
-                break;
+                result = null;
+                return true;
             case REQUEST_CHECK_SETTINGS:
                 if (resultCode == Activity.RESULT_OK) {
                     startRequestingLocation();
@@ -171,11 +172,11 @@ class FlutterLocation
                 }
 
                 result.error("SERVICE_STATUS_DISABLED", "Failed to get location. Location services disabled", null);
-                return false;
+                result = null;
+                return true;
             default:
                 return false;
         }
-        return true;
     }
 
     public void changeSettings(Integer locationAccuracy, Long updateIntervalMilliseconds,
@@ -308,36 +309,25 @@ class FlutterLocation
         return ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
-    public boolean checkServiceEnabled(final Result result) {
-        boolean gps_enabled = false;
-        boolean network_enabled = false;
+    /** Checks whether location services is enabled. */
+    public boolean checkServiceEnabled() {
+        boolean gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);;
+        boolean network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-        try {
-            gps_enabled = this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            network_enabled = this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch (Exception ex) {
-            result.error("SERVICE_STATUS_ERROR", "Location service status couldn't be determined", null);
-            return false;
-        }
-        if (gps_enabled || network_enabled) {
-            if (result != null) {
-                result.success(1);
-            }
-            return true;
-
-        } else {
-            if (result != null) {
-                result.success(0);
-            }
-            return false;
-        }
+        return gps_enabled || network_enabled;
     }
 
     public void requestService(final Result result) {
-        if (this.checkServiceEnabled(result)) {
-            result.success(1);
+        try {
+            if (this.checkServiceEnabled()) {
+                result.success(1);
+                return;
+            }
+        } catch (Exception e) {
+            result.error("SERVICE_STATUS_ERROR", "Location service status couldn't be determined", null);
             return;
         }
+
         this.result = result;
         mSettingsClient.checkLocationSettings(mLocationSettingsRequest).addOnFailureListener(activity,
                 new OnFailureListener() {
