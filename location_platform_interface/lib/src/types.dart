@@ -60,6 +60,20 @@ class LocationData {
 
   @override
   String toString() => 'LocationData<lat: $latitude, long: $longitude>';
+  
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      'latitude': this.latitude,
+      'longitude': this.longitude,
+      'accuracy': this.accuracy,
+      'altitude': this.altitude,
+      'speed': this.speed,
+      'speed_accuracy': this.speedAccuracy,
+      'heading': this.heading,
+      'time': this.time,
+    };
+  }
 
   @override
   bool operator ==(Object other) =>
