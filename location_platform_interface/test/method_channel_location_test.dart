@@ -102,6 +102,14 @@ void main() {
       expect(receivedPermission, PermissionStatus.deniedForever);
       receivedPermission = await location.requestPermission();
       expect(receivedPermission, PermissionStatus.deniedForever);
+
+      methodChannel.setMockMethodCallHandler((MethodCall methodCall) async {
+        return 3;
+      });
+      receivedPermission = await location.hasPermission();
+      expect(receivedPermission, PermissionStatus.grantedLimited);
+      receivedPermission = await location.requestPermission();
+      expect(receivedPermission, PermissionStatus.grantedLimited);
     });
 
     test('Should throw if other message is sent', () async {

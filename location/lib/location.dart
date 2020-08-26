@@ -49,7 +49,7 @@ class Location {
     return LocationPlatform.instance.hasPermission();
   }
 
-  /// Checks if the app has permission to access location.
+  /// Requests permission to access location.
   ///
   /// If the result is [PermissionStatus.deniedForever], no dialog will be
   /// shown on [requestPermission].

@@ -11,6 +11,11 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('$LocationPlatform', () {
+    final defaultInstance = LocationPlatform.instance;
+    tearDown(() {
+      LocationPlatform.instance = defaultInstance;
+    });
+
     test('$MethodChannelLocation is the default instance', () {
       expect(LocationPlatform.instance, isA<MethodChannelLocation>());
     });

@@ -69,48 +69,33 @@ class MethodChannelLocation extends LocationPlatform {
     return LocationData.fromMap(resultMap);
   }
 
-  /// Checks if the app has permission to access location.
-  ///
-  /// If the result is [PermissionStatus.deniedForever], no dialog will be
-  /// shown on [requestPermission].
-  /// Returns a [PermissionStatus] object.
   @override
   Future<PermissionStatus> hasPermission() async {
     final int result = await _methodChannel.invokeMethod('hasPermission');
-    switch (result) {
-      case 0:
-        return PermissionStatus.denied;
-        break;
-      case 1:
-        return PermissionStatus.granted;
-        break;
-      case 2:
-        return PermissionStatus.deniedForever;
-      default:
-        throw PlatformException(code: 'UNKNOWN_NATIVE_MESSAGE');
-    }
+    return _parsePermissionStatus(result);
   }
 
-  /// Checks if the app has permission to access location.
-  ///
-  /// If the result is [PermissionStatus.deniedForever], no dialog will be
-  /// shown on [requestPermission].
-  /// Returns a [PermissionStatus] object.
   @override
   Future<PermissionStatus> requestPermission() async {
     final int result = await _methodChannel.invokeMethod('requestPermission');
+    return _parsePermissionStatus(result);
+  }
 
+  PermissionStatus _parsePermissionStatus(int result) {
     switch (result) {
       case 0:
         return PermissionStatus.denied;
-        break;
       case 1:
         return PermissionStatus.granted;
-        break;
       case 2:
         return PermissionStatus.deniedForever;
+      case 3:
+        return PermissionStatus.grantedLimited;
       default:
-        throw PlatformException(code: 'UNKNOWN_NATIVE_MESSAGE');
+        throw PlatformException(
+          code: 'UNKNOWN_NATIVE_MESSAGE',
+          message: 'Could not decode parsePermissionStatus with $result',
+        );
     }
   }
 
