@@ -39,8 +39,16 @@ void main() {
     test('getLocation should convert to map correctly', () async {
       final LocationData receivedLocation = await location.getLocation();
 
-      expect(receivedLocation.toMap(),
-          {'latitude': receivedLocation.latitude, 'longitude': receivedLocation.longitude});
+      expect(receivedLocation.toMap(), {
+        'latitude': receivedLocation.latitude,
+        'longitude': receivedLocation.longitude,
+        'accuracy': null,
+        'altitude': null,
+        'speed': null,
+        'speed_accuracy': null,
+        'heading': null,
+        'time': null
+      });
     });
   });
 
