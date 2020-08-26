@@ -105,13 +105,13 @@
         }
     } else if ([call.method isEqualToString:@"hasPermission"]) {
         if ([self isPermissionGranted]) {
-            result(@1);
+            result([self isHighAccuracyPermitted] ? @1 : @3);
         } else {
             result(@0);
         }
     } else if ([call.method isEqualToString:@"requestPermission"]) {
         if ([self isPermissionGranted]) {
-            result(@1);
+            result([self isHighAccuracyPermitted] ? @1 : @3);
         } else if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
             self.flutterResult = result;
             self.permissionWanted = YES;
@@ -140,8 +140,6 @@
                 if (returnCode == NSAlertFirstButtonReturn) {
                     NSString *urlString = @"x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices";
                     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:urlString]];
-                } else {
-                    NSLog(@"Cancel");
                 }
             }];
 #else
@@ -181,6 +179,18 @@
             "NSLocationWhenInUseUsageDescription or NSLocationAlwaysUsageDescription in the app "
             "bundle's Info.plist file"];
     }
+}
+
+-(BOOL) isHighAccuracyPermitted {
+#if __IPHONE_14_0
+    if (@available(iOS 14.0, *)) {
+      CLAccuracyAuthorization accuracy = [self.clLocationManager accuracyAuthorization];
+      if (accuracy == CLAccuracyAuthorizationReducedAccuracy) {
+        return NO;
+      }
+    }
+#endif
+    return YES;
 }
 
 -(BOOL) isPermissionGranted {
@@ -270,8 +280,6 @@
 - (void)locationManager:(CLLocationManager *)manager
     didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
     if (status == kCLAuthorizationStatusDenied) {
-        // The user denied authorization
-        NSLog(@"User denied permissions");
         if (self.permissionWanted) {
             self.permissionWanted = NO;
             self.flutterResult(@0);
@@ -279,7 +287,6 @@
     }
 #if TARGET_OS_OSX
     else if (status == kCLAuthorizationStatusAuthorized) {
-        NSLog(@"User granted permissions");
         if (self.permissionWanted) {
             self.permissionWanted = NO;
             self.flutterResult(@1);
@@ -290,7 +297,6 @@
         }
     } else if (@available(macOS 10.12, *)) {
         if (status == kCLAuthorizationStatusAuthorizedAlways) {
-            NSLog(@"User granted permissions");
             if (self.permissionWanted) {
                 self.permissionWanted = NO;
                 self.flutterResult(@1);
@@ -304,10 +310,9 @@
 #else //if TARGET_OS_IOS
     else if (status == kCLAuthorizationStatusAuthorizedWhenInUse ||
         status == kCLAuthorizationStatusAuthorizedAlways) {
-        NSLog(@"User granted permissions");
         if (self.permissionWanted) {
             self.permissionWanted = NO;
-            self.flutterResult(@1);
+            self.flutterResult([self isHighAccuracyPermitted] ? @1 : @3);
         }
 
         if (self.locationWanted || self.flutterListening) {
