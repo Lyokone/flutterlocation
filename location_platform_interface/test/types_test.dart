@@ -10,6 +10,32 @@ void main() {
           'LocationData<lat: ${locationData.latitude}, long: ${locationData.longitude}>');
     });
 
+    test('LocationData should be correctly converted to a map', () {
+      final LocationData locationData = LocationData.fromMap(
+          <String, double>{'latitude': 42, 'longitude': 2});
+      expect(locationData.toMap(), {
+        'latitude': 42,
+        'longitude': 2,
+        'accuracy': null,
+        'altitude': null,
+        'speed': null,
+        'speed_accuracy': null,
+        'heading': null,
+        'time': null
+      });
+    });
+
+    test(
+        'LocationData constructed from OriginalLocationData.toMap() should equal OriginalLocationData',
+        () {
+      final LocationData originalLocationData = LocationData.fromMap(
+          <String, double>{'latitude': 42, 'longitude': 2});
+      final LocationData newLocationData =
+          LocationData.fromMap(originalLocationData.toMap());
+      expect(originalLocationData == newLocationData, true);
+      expect(originalLocationData.hashCode == newLocationData.hashCode, true);
+    });
+
     test('LocationData should be equal if all parameters are equals', () {
       final LocationData locationData = LocationData.fromMap(<String, double>{
         'latitude': 42,
