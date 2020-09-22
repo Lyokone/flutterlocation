@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:location_platform_interface/location_platform_interface.dart';
 
 export 'package:location_platform_interface/location_platform_interface.dart'
