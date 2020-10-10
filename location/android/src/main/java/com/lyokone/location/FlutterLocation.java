@@ -3,6 +3,7 @@ package com.lyokone.location;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -79,7 +80,7 @@ class FlutterLocation
     private int locationPermissionState;
 
     private boolean waitingForPermission = false;
-    private LocationManager locationManager;
+    private final LocationManager locationManager;
 
     public HashMap<Integer, Integer> mapFlutterAccuracy = new HashMap<Integer, Integer>() {
         {
@@ -94,6 +95,7 @@ class FlutterLocation
     FlutterLocation(Context applicationContext, @Nullable Activity activity) {
         this.applicationContext = applicationContext;
         this.activity = activity;
+        this.locationManager = (LocationManager) applicationContext.getSystemService(Context.LOCATION_SERVICE);
     }
 
     FlutterLocation(PluginRegistry.Registrar registrar) {
@@ -105,7 +107,6 @@ class FlutterLocation
         this.activity = activity;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
         mSettingsClient = LocationServices.getSettingsClient(activity);
-        locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
 
         createLocationCallback();
         createLocationRequest();
@@ -291,12 +292,18 @@ class FlutterLocation
      * Return the current state of the permissions needed.
      */
     public boolean checkPermissions() {
+        if (this.activity == null) {
+            throw new ActivityNotFoundException();
+        }
         this.locationPermissionState = ActivityCompat.checkSelfPermission(activity,
                 Manifest.permission.ACCESS_FINE_LOCATION);
         return this.locationPermissionState == PackageManager.PERMISSION_GRANTED;
     }
 
     public void requestPermissions() {
+        if (this.activity == null) {
+            throw new ActivityNotFoundException();
+        }
         if (checkPermissions()) {
             result.success(1);
             return;
@@ -318,6 +325,9 @@ class FlutterLocation
     }
 
     public void requestService(final Result result) {
+        if (this.activity == null) {
+            throw new ActivityNotFoundException();
+        }
         try {
             if (this.checkServiceEnabled()) {
                 result.success(1);
@@ -362,6 +372,9 @@ class FlutterLocation
     }
 
     public void startRequestingLocation() {
+        if (this.activity == null) {
+            throw new ActivityNotFoundException();
+        }
         mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
                 .addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
                     @Override
