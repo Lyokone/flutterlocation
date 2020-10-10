@@ -1,3 +1,10 @@
+## [3.1.0] 09 October 2020
+
+- Do not throw errors from methods that do not need an activity.
+- [BREAKING] The error thrown is now ActivityNotFoundException which changes the error code
+returned when activity is not found. It used to be NO_ACTIVITY, now it is just error. We
+anticipate this error to be rarely experienced in the wild.
+
 ## [3.0.3] 25th August 2020
 
 - Add capability to return reduced accuracy permission on iOS 14.0
