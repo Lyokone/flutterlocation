@@ -3,12 +3,10 @@ package com.lyokone.location;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
@@ -38,7 +36,6 @@ import androidx.core.app.ActivityCompat;
 import io.flutter.plugin.common.EventChannel.EventSink;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.plugin.common.PluginRegistry.ActivityResultListener;
 
 class FlutterLocation
         implements PluginRegistry.RequestPermissionsResultListener, PluginRegistry.ActivityResultListener {
@@ -99,6 +96,11 @@ class FlutterLocation
         this.activity = activity;
     }
 
+    FlutterLocation(PluginRegistry.Registrar registrar) {
+        this(registrar.context(), registrar.activity());
+        registrar.addRequestPermissionsResultListener(this);
+    }
+
     void setActivity(@Nullable Activity activity) {
         this.activity = activity;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
@@ -112,6 +114,10 @@ class FlutterLocation
 
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        return onRequestPermissionsResultHandler(requestCode, permissions, grantResults);
+    }
+
+    public boolean onRequestPermissionsResultHandler(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE && permissions.length == 1
                 && permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -157,7 +163,8 @@ class FlutterLocation
                 } else {
                     result.success(0);
                 }
-                break;
+                result = null;
+                return true;
             case REQUEST_CHECK_SETTINGS:
                 if (resultCode == Activity.RESULT_OK) {
                     startRequestingLocation();
@@ -165,11 +172,11 @@ class FlutterLocation
                 }
 
                 result.error("SERVICE_STATUS_DISABLED", "Failed to get location. Location services disabled", null);
-                return false;
+                result = null;
+                return true;
             default:
                 return false;
         }
-        return true;
     }
 
     public void changeSettings(Integer locationAccuracy, Long updateIntervalMilliseconds,
@@ -302,36 +309,25 @@ class FlutterLocation
         return ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
-    public boolean checkServiceEnabled(final Result result) {
-        boolean gps_enabled = false;
-        boolean network_enabled = false;
+    /** Checks whether location services is enabled. */
+    public boolean checkServiceEnabled() {
+        boolean gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);;
+        boolean network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-        try {
-            gps_enabled = this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            network_enabled = this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch (Exception ex) {
-            result.error("SERVICE_STATUS_ERROR", "Location service status couldn't be determined", null);
-            return false;
-        }
-        if (gps_enabled || network_enabled) {
-            if (result != null) {
-                result.success(1);
-            }
-            return true;
-
-        } else {
-            if (result != null) {
-                result.success(0);
-            }
-            return false;
-        }
+        return gps_enabled || network_enabled;
     }
 
     public void requestService(final Result result) {
-        if (this.checkServiceEnabled(null)) {
-            result.success(1);
+        try {
+            if (this.checkServiceEnabled()) {
+                result.success(1);
+                return;
+            }
+        } catch (Exception e) {
+            result.error("SERVICE_STATUS_ERROR", "Location service status couldn't be determined", null);
             return;
         }
+
         this.result = result;
         mSettingsClient.checkLocationSettings(mLocationSettingsRequest).addOnFailureListener(activity,
                 new OnFailureListener() {

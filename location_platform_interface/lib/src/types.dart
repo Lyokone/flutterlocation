@@ -111,8 +111,11 @@ enum LocationAccuracy {
 
 // Status of a permission request to use location services.
 enum PermissionStatus {
-  /// The permission to use location services has been granted.
+  /// The permission to use location services has been granted for high accuracy.
   granted,
+
+  /// The permission has been granted but for low accuracy. Only valid on iOS 14+.
+  grantedLimited,
 
   /// The permission to use location services has been denied by the user. May
   /// have been denied forever on iOS.

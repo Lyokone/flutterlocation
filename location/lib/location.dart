@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:location_platform_interface/location_platform_interface.dart';
 
 export 'package:location_platform_interface/location_platform_interface.dart'
@@ -49,7 +47,7 @@ class Location {
     return LocationPlatform.instance.hasPermission();
   }
 
-  /// Checks if the app has permission to access location.
+  /// Requests permission to access location.
   ///
   /// If the result is [PermissionStatus.deniedForever], no dialog will be
   /// shown on [requestPermission].

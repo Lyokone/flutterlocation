@@ -23,78 +23,85 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware {
     private MethodCallHandlerImpl methodCallHandler;
     @Nullable
     private StreamHandlerImpl streamHandlerImpl;
-
     @Nullable
     private FlutterLocation location;
-
-    private FlutterPluginBinding pluginBinding;
+    @Nullable
     private ActivityPluginBinding activityBinding;
+    @Nullable
+    private PluginRegistry.Registrar registrar;
 
     public static void registerWith(Registrar registrar) {
-        FlutterLocation flutterLocation = new FlutterLocation(registrar.context(), registrar.activity());
-        flutterLocation.setActivity(registrar.activity());
+        LocationPlugin instance = new LocationPlugin();
+        instance.registrar = registrar;
+        instance.location = new FlutterLocation(registrar);
+        instance.location.setActivity(registrar.activity());
+        instance.setup();
+        instance.initInstance(registrar.messenger());
+    }
 
-        MethodCallHandlerImpl handler = new MethodCallHandlerImpl(flutterLocation);
-        handler.startListening(registrar.messenger());
-
-        StreamHandlerImpl streamHandlerImpl = new StreamHandlerImpl(flutterLocation);
-        streamHandlerImpl.startListening(registrar.messenger());
+    private void initInstance(BinaryMessenger binaryMessenger) {
+        methodCallHandler = new MethodCallHandlerImpl(location);
+        methodCallHandler.startListening(binaryMessenger);
+        streamHandlerImpl = new StreamHandlerImpl(location);
+        streamHandlerImpl.startListening(binaryMessenger);
     }
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
-        pluginBinding = binding;
-
         location = new FlutterLocation(binding.getApplicationContext(), /* activity= */ null);
-        methodCallHandler = new MethodCallHandlerImpl(location);
-        methodCallHandler.startListening(binding.getBinaryMessenger());
-
-        streamHandlerImpl = new StreamHandlerImpl(location);
-        streamHandlerImpl.startListening(binding.getBinaryMessenger());
+        this.initInstance(binding.getBinaryMessenger());
     }
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-        pluginBinding = null;
-
         if (methodCallHandler != null) {
             methodCallHandler.stopListening();
             methodCallHandler = null;
         }
-
         if (streamHandlerImpl != null) {
             streamHandlerImpl.stopListening();
             streamHandlerImpl = null;
         }
-
         location = null;
+    }
+
+    private void attachToActivity(ActivityPluginBinding binding) {
+        activityBinding = binding;
+        try {
+            location.setActivity(binding.getActivity());
+            this.setup();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void detachActivity() {
+        activityBinding.removeActivityResultListener(location);
+        activityBinding.removeRequestPermissionsResultListener(location);
+        activityBinding = null;
     }
 
     @Override
     public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
-        location.setActivity(binding.getActivity());
-
-        activityBinding = binding;
-        setup(pluginBinding.getBinaryMessenger(), activityBinding.getActivity(), null);
+        this.attachToActivity(binding);
     }
 
     @Override
     public void onDetachedFromActivity() {
-        tearDown();
+        this.detachActivity();
     }
 
     @Override
     public void onDetachedFromActivityForConfigChanges() {
-        onDetachedFromActivity();
+        this.detachActivity();
     }
 
     @Override
     public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
-        onAttachedToActivity(binding);
+        this.attachToActivity(binding);
     }
 
-    private void setup(final BinaryMessenger messenger, final Activity activity,
-            final PluginRegistry.Registrar registrar) {
+    private void setup() {
         if (registrar != null) {
             // V1 embedding setup for activity listeners.
             registrar.addActivityResultListener(location);
@@ -104,10 +111,5 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware {
             activityBinding.addActivityResultListener(location);
             activityBinding.addRequestPermissionsResultListener(location);
         }
-    }
-
-    private void tearDown() {
-        activityBinding.removeActivityResultListener(location);
-        activityBinding.removeRequestPermissionsResultListener(location);
     }
 }

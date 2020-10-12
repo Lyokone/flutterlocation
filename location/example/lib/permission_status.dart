@@ -28,9 +28,6 @@ class _PermissionStatusState extends State<PermissionStatusWidget> {
       setState(() {
         _permissionGranted = permissionRequestedResult;
       });
-      if (permissionRequestedResult != PermissionStatus.granted) {
-        return;
-      }
     }
   }
 

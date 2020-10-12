@@ -52,12 +52,6 @@ void main() {
       expect(receivedLocation.latitude, 48.8534);
       expect(receivedLocation.longitude, 2.3488);
     });
-
-    test('getLocation should convert to string correctly', () async {
-      final LocationData receivedLocation = await location.getLocation();
-      expect(receivedLocation.toString(),
-          'LocationData<lat: ${receivedLocation.latitude}, long: ${receivedLocation.longitude}>');
-    });
   });
 
   test('changeSettings passes parameters correctly', () async {
@@ -108,6 +102,14 @@ void main() {
       expect(receivedPermission, PermissionStatus.deniedForever);
       receivedPermission = await location.requestPermission();
       expect(receivedPermission, PermissionStatus.deniedForever);
+
+      methodChannel.setMockMethodCallHandler((MethodCall methodCall) async {
+        return 3;
+      });
+      receivedPermission = await location.hasPermission();
+      expect(receivedPermission, PermissionStatus.grantedLimited);
+      receivedPermission = await location.requestPermission();
+      expect(receivedPermission, PermissionStatus.grantedLimited);
     });
 
     test('Should throw if other message is sent', () async {

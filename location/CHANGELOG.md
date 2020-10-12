@@ -1,3 +1,11 @@
+## [3.0.3] 25th August 2020
+
+- Add capability to return reduced accuracy permission on iOS 14.0
+
+## [3.0.2] 23rd April 2020
+
+- Fix crashes on v1 apps. 
+
 ## [3.0.1] 27th March 2020
 
 - Fix a crash happening during iOS build
