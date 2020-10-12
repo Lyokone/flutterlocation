@@ -14,7 +14,9 @@ import android.location.OnNmeaMessageListener;
 import android.os.Build;
 import android.os.Looper;
 import android.util.Log;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -28,15 +30,10 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-
-import java.util.HashMap;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import io.flutter.plugin.common.EventChannel.EventSink;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
+import java.util.HashMap;
 
 class FlutterLocation
         implements PluginRegistry.RequestPermissionsResultListener, PluginRegistry.ActivityResultListener {
@@ -105,12 +102,25 @@ class FlutterLocation
 
     void setActivity(@Nullable Activity activity) {
         this.activity = activity;
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
-        mSettingsClient = LocationServices.getSettingsClient(activity);
+        if (this.activity != null) {
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
+            mSettingsClient = LocationServices.getSettingsClient(activity);
 
-        createLocationCallback();
-        createLocationRequest();
-        buildLocationSettingsRequest();
+            createLocationCallback();
+            createLocationRequest();
+            buildLocationSettingsRequest();
+        } else {
+            if (mFusedLocationClient != null) {
+                mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+            }
+            mFusedLocationClient = null;
+            mSettingsClient = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && locationManager != null) {
+                locationManager.removeNmeaListener(mMessageListener);
+                mMessageListener = null;
+            }
+            locationManager = null;
+        }
     }
 
     @Override
