@@ -45,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 const Text('Created by Guillaume Bernos'),
                 InkWell(
-                  child: Text(
+                  child: const Text(
                     'https://github.com/Lyokone/flutterlocation',
                     style: TextStyle(
                       decoration: TextDecoration.underline,
@@ -77,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.info_outline),
+            icon: const Icon(Icons.info_outline),
             onPressed: _showInfoDialog,
           )
         ],

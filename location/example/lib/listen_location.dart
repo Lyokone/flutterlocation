@@ -44,7 +44,7 @@ class _ListenLocationState extends State<ListenLocationWidget> {
       children: <Widget>[
         Text(
           'Listen location: ' + (_error ?? '${_location ?? "unknown"}'),
-          style: Theme.of(context).textTheme.body2,
+          style: Theme.of(context).textTheme.bodyText1,
         ),
         Row(
           children: <Widget>[

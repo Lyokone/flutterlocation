@@ -11,7 +11,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('$LocationPlatform', () {
-    final defaultInstance = LocationPlatform.instance;
+    final LocationPlatform defaultInstance = LocationPlatform.instance;
     tearDown(() {
       LocationPlatform.instance = defaultInstance;
     });

@@ -38,7 +38,7 @@ class _ServiceEnabledState extends State<ServiceEnabledWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text('Service enabled: ${_serviceEnabled ?? "unknown"}',
-            style: Theme.of(context).textTheme.body2),
+            style: Theme.of(context).textTheme.bodyText1),
         Row(
           children: <Widget>[
             Container(
