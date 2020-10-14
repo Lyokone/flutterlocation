@@ -25,11 +25,6 @@ final class MethodCallHandlerImpl implements MethodCallHandler {
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
-        if (location.activity == null) {
-            result.error("NO_ACTIVITY", null, null);
-            return;
-        }
-
         switch (call.method) {
             case "changeSettings":
                 onChangeSettings(call, result);
