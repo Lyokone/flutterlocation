@@ -155,8 +155,20 @@ class FlutterLocation
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         if (result == null) {
-            return false;
-        }
+            switch(requestCode) {
+                // Request is made from `startRequestingLocation`, so start requesting location updates for broadcasting. 
+                case GPS_ENABLE_REQUEST:
+                    if (resultCode == Activity.RESULT_OK) {
+                        requestLocationUpdates();
+		        return true;
+                    } else {
+                        return false;
+                    }
+                default:
+                    return false;
+            }
+	}
+            
         switch (requestCode) {
             case GPS_ENABLE_REQUEST:
                 if (resultCode == Activity.RESULT_OK) {
@@ -379,11 +391,7 @@ class FlutterLocation
                 .addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            locationManager.addNmeaListener(mMessageListener);
-                        }
-                        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
-                                Looper.myLooper());
+                        requestLocationUpdates();
                     }
                 }).addOnFailureListener(activity, new OnFailureListener() {
                     @Override
@@ -396,7 +404,7 @@ class FlutterLocation
                                     try {
                                         // Show the dialog by calling startResolutionForResult(), and check the
                                         // result in onActivityResult().
-                                        rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
+                                        rae.startResolutionForResult(activity, GPS_ENABLE_REQUEST);
                                     } catch (IntentSender.SendIntentException sie) {
                                         Log.i(TAG, "PendingIntent unable to execute request.");
                                     }
@@ -423,6 +431,15 @@ class FlutterLocation
                         }
                     }
                 });
+    }
+        
+    private void requestLocationUpdates() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            locationManager.addNmeaListener(mMessageListener);
+        }
+
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
+            Looper.myLooper());
     }
 
 }
