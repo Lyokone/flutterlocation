@@ -38,7 +38,7 @@ class _GetLocationState extends State<GetLocationWidget> {
       children: <Widget>[
         Text(
           'Location: ' + (_error ?? '${_location ?? "unknown"}'),
-          style: Theme.of(context).textTheme.body2,
+          style: Theme.of(context).textTheme.bodyText1,
         ),
         Row(
           children: <Widget>[
