@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Needed to force leak canary to run in debug mode, where -->
+  <!--  Junit seems to be in the classpath. -->
+  <!--  Instructions in https://github.com/square/leakcanary/pull/1654. -->
+  <string name="leak_canary_test_class_name">org.assertj.core.api.Assertions</string>
+</resources>
