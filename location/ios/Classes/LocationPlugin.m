@@ -172,6 +172,9 @@
     else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] != nil) {
         [self.clLocationManager requestAlwaysAuthorization];
     }
+    else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysAndWhenInUseUsageDescription"] != nil) {
+        [self.clLocationManager requestAlwaysAuthorization];
+    }
 #endif
     else {
         [NSException raise:NSInternalInconsistencyException format:
