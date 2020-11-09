@@ -77,7 +77,7 @@ class FlutterLocation
     private int locationPermissionState;
 
     private boolean waitingForPermission = false;
-    private final LocationManager locationManager;
+    private LocationManager locationManager;
 
     public HashMap<Integer, Integer> mapFlutterAccuracy = new HashMap<Integer, Integer>() {
         {
