@@ -30,6 +30,16 @@ class Location {
     );
   }
 
+  /// Checks if service is enabled in the background mode.
+  Future<bool> isBackgroundModeEnabled() {
+    return LocationPlatform.instance.isBackgroundModeEnabled();
+  }
+
+  /// Enables or disables service in the background mode.
+  Future<bool> enableBackgroundMode({bool enable}) {
+    return LocationPlatform.instance.enableBackgroundMode(enable: enable);
+  }
+
   /// Gets the current location of the user.
   ///
   /// Throws an error if the app has no permission to access location.
