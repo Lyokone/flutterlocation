@@ -7,7 +7,9 @@ This plugin for [Flutter](https://flutter.io)
 handles getting location on Android and iOS. It also provides callbacks when location is changed.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/location/src/demo_readme.gif" alt="Demo App" style="margin:auto" width="372" height="686">
+  <a href="http://www.youtube.com/watch?feature=player_embedded&v=65qbtJMltVk" target="_blank">
+    <img src="http://img.youtube.com/vi/65qbtJMltVk/0.jpg" alt="Youtube Video" width=480" height="360" border="10" />
+  </a>
 </p>
 
 ## Getting Started
