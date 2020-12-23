@@ -1,13 +1,17 @@
 package com.lyokone.location;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
-import io.flutter.plugin.common.BinaryMessenger;
-import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /**
  * LocationPlugin
@@ -19,32 +23,16 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware {
     @Nullable
     private StreamHandlerImpl streamHandlerImpl;
     @Nullable
-    private FlutterLocation location;
+    private FlutterLocationService locationService;
     @Nullable
     private ActivityPluginBinding activityBinding;
-    @Nullable
-    private PluginRegistry.Registrar registrar;
-
-    public static void registerWith(Registrar registrar) {
-        LocationPlugin instance = new LocationPlugin();
-        instance.registrar = registrar;
-        instance.location = new FlutterLocation(registrar);
-        instance.location.setActivity(registrar.activity());
-        instance.setup();
-        instance.initInstance(registrar.messenger());
-    }
-
-    private void initInstance(BinaryMessenger binaryMessenger) {
-        methodCallHandler = new MethodCallHandlerImpl(location);
-        methodCallHandler.startListening(binaryMessenger);
-        streamHandlerImpl = new StreamHandlerImpl(location);
-        streamHandlerImpl.startListening(binaryMessenger);
-    }
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
-        location = new FlutterLocation(binding.getApplicationContext(), /* activity= */ null);
-        this.initInstance(binding.getBinaryMessenger());
+        methodCallHandler = new MethodCallHandlerImpl();
+        methodCallHandler.startListening(binding.getBinaryMessenger());
+        streamHandlerImpl = new StreamHandlerImpl();
+        streamHandlerImpl.startListening(binding.getBinaryMessenger());
     }
 
     @Override
@@ -57,24 +45,18 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware {
             streamHandlerImpl.stopListening();
             streamHandlerImpl = null;
         }
-        location = null;
     }
 
     private void attachToActivity(ActivityPluginBinding binding) {
         activityBinding = binding;
-        try {
-            location.setActivity(binding.getActivity());
-            this.setup();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        activityBinding.getActivity().bindService(new Intent(binding.getActivity(), FlutterLocationService.class), serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     private void detachActivity() {
-        activityBinding.removeActivityResultListener(location);
-        activityBinding.removeRequestPermissionsResultListener(location);
+        deinitialize();
+
+        activityBinding.getActivity().unbindService(serviceConnection);
         activityBinding = null;
-        location.setActivity(null);
     }
 
     @Override
@@ -97,15 +79,47 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware {
         this.attachToActivity(binding);
     }
 
-    private void setup() {
-        if (registrar != null) {
-            // V1 embedding setup for activity listeners.
-            registrar.addActivityResultListener(location);
-            registrar.addRequestPermissionsResultListener(location);
-        } else {
-            // V2 embedding setup for activity listeners.
-            activityBinding.addActivityResultListener(location);
-            activityBinding.addRequestPermissionsResultListener(location);
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(TAG, "Service connected: " + name);
+            initialize(((FlutterLocationService.LocalBinder) service).getService());
         }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.d(TAG, "Service disconnected:" + name);
+        }
+    };
+
+    private void initialize(FlutterLocationService service) {
+        locationService = service;
+
+        locationService.setActivity(activityBinding.getActivity());
+
+        activityBinding.addActivityResultListener(locationService.getLocationActivityResultListener());
+        activityBinding.addRequestPermissionsResultListener(locationService.getLocationRequestPermissionsResultListener());
+        activityBinding.addRequestPermissionsResultListener(locationService.getServiceRequestPermissionsResultListener());
+
+        methodCallHandler.setLocation(locationService.getLocation());
+        methodCallHandler.setLocationService(locationService);
+
+        streamHandlerImpl.setLocation(locationService.getLocation());
+    }
+
+    private void deinitialize() {
+        streamHandlerImpl.setLocation(null);
+
+        methodCallHandler.setLocationService(null);
+        methodCallHandler.setLocation(null);
+
+        activityBinding.removeRequestPermissionsResultListener(locationService.getServiceRequestPermissionsResultListener());
+        activityBinding.removeRequestPermissionsResultListener(locationService.getLocationRequestPermissionsResultListener());
+        activityBinding.removeActivityResultListener(locationService.getLocationActivityResultListener());
+
+        locationService.setActivity(null);
+
+        locationService = null;
     }
 }

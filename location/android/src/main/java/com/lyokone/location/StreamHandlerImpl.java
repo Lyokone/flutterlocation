@@ -9,12 +9,12 @@ import io.flutter.plugin.common.EventChannel.EventSink;
 class StreamHandlerImpl implements StreamHandler {
     private static final String TAG = "StreamHandlerImpl";
 
-    private final FlutterLocation location;
+    private FlutterLocation location;
     private EventChannel channel;
 
     private static final String STREAM_CHANNEL_NAME = "lyokone/locationstream";
 
-    StreamHandlerImpl(FlutterLocation location) {
+    void setLocation(FlutterLocation location) {
         this.location = location;
     }
 

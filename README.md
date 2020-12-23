@@ -12,6 +12,18 @@ handles getting location on Android and iOS. It also provides callbacks when loc
   </a>
 </p>
 
+On iOS while app is in the background and gets location, blue system bar notifies User about updates. Tapping on this bar moves User back to the app.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/location/src/background_location_ios.png" alt="iOS background location" style="margin:auto" width="386" height="686">
+</p>
+
+On Android a foreground notification is displayed with information that location service is running in the background.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/location/src/background_location_android.png" alt="Androig background location" style="margin:auto" width="343" height="686">
+</p>
+
 ## Getting Started
 
 Add this to your package's `pubspec.yaml` file:
@@ -26,6 +38,8 @@ dependencies:
 With Flutter 1.12, all the dependencies are automatically added to your project.
 If your project was created before Flutter 1.12, you may need to follow [this](https://github.com/flutter/flutter/wiki/Upgrading-pre-1.12-Android-projects).
 
+To use location background mode on Android you have to use the `enableBackgroundMode({bool enable})` API before trying to access location in the background. Remember that the user has to accept the location permission to `always allow` to use background location. From Android 11 option to `always allow` is not presented on the location permission dialog prompt. The user has to enable it manually from the app settings and this should be explained to the user on a separate UI that redirects user to app's location settings managed by the operating system. More on that topic can be found on [Android developer](https://developer.android.com/training/location/permissions#request-background-location) pages.
+
 ### iOS
 
 And to use it in iOS, you have to add this permission in Info.plist :
@@ -33,6 +47,16 @@ And to use it in iOS, you have to add this permission in Info.plist :
 ```xml
 NSLocationWhenInUseUsageDescription
 NSLocationAlwaysUsageDescription
+```
+To receive location when application is in background, to Info.plist you have to add property list key :
+
+```xml
+UIBackgroundModes
+```
+with string value:
+
+```xml
+location
 ```
 
 ### Web
@@ -99,6 +123,11 @@ location.onLocationChanged.listen((LocationData currentLocation) {
 });
 ```
 
+To receive location when application is in background you have to enable it:
+```dart
+location.enableBackgroundMode(enable: true)
+```
+
 Be sure to check the example project to get other code samples.
 
 ## Public Methods Summary
@@ -112,6 +141,7 @@ Be sure to check the example project to get other code samples.
 | Future\<bool>             | **changeSettings(LocationAccuracy accuracy = LocationAccuracy.HIGH, int interval = 1000, double distanceFilter = 0)** <br>Will change the settings of futur requests. `accuracy`will describe the accuracy of the request (see the LocationAccuracy object). `interval` will set the desired interval for active location updates, in milliseconds (only affects Android). `distanceFilter` set the minimum displacement between location updates in meters. |
 | Future\<LocationData>     | **getLocation()** <br>Allow to get a one time position of the user. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted.                                                                                                                                                                                                                                                    |
 | Stream\<LocationData>     | **onLocationChanged** <br>Get the stream of the user's location. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted.                                                                                                                                                                                                                                                       |
+| Future\<bool>             | **enableBackgroundMode({bool enable})** <br>Allow or disallow to retrieve location events in the background. Return a boolean to know if background mode was successfully enabled.                                                                                                                                                                                                                                                                           |
 
 You should try to manage permission manually with `requestPermission()` to avoid error, but plugin will try handle some cases for you.
 
