@@ -48,11 +48,25 @@ class MethodChannelLocation extends LocationPlatform {
   }) async {
     final int result = await _methodChannel.invokeMethod(
       'changeSettings',
-      <String, dynamic>{
-        'accuracy': accuracy.index,
-        'interval': interval,
-        'distanceFilter': distanceFilter
-      },
+      <String, dynamic>{'accuracy': accuracy.index, 'interval': interval, 'distanceFilter': distanceFilter},
+    );
+
+    return result == 1;
+  }
+
+  /// Checks if service is enabled in the background mode.
+  @override
+  Future<bool> isBackgroundModeEnabled() async {
+    final int result = await _methodChannel.invokeMethod('isBackgroundModeEnabled');
+    return result == 1;
+  }
+
+  /// Enables or disables service in the background mode.
+  @override
+  Future<bool> enableBackgroundMode({bool enable}) async {
+    final int result = await _methodChannel.invokeMethod(
+      'enableBackgroundMode',
+      <String, dynamic>{'enable': enable},
     );
 
     return result == 1;
@@ -64,8 +78,7 @@ class MethodChannelLocation extends LocationPlatform {
   /// Returns a [LocationData] object.
   @override
   Future<LocationData> getLocation() async {
-    final Map<String, double> resultMap =
-        await _methodChannel.invokeMapMethod('getLocation');
+    final Map<String, double> resultMap = await _methodChannel.invokeMapMethod('getLocation');
     return LocationData.fromMap(resultMap);
   }
 
@@ -121,7 +134,6 @@ class MethodChannelLocation extends LocationPlatform {
   Stream<LocationData> get onLocationChanged {
     return _onLocationChanged ??= _eventChannel
         .receiveBroadcastStream()
-        .map<LocationData>((dynamic element) =>
-            LocationData.fromMap(Map<String, double>.from(element)));
+        .map<LocationData>((dynamic element) => LocationData.fromMap(Map<String, double>.from(element)));
   }
 }

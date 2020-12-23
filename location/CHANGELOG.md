@@ -1,3 +1,10 @@
+## [3.2.0] 07th December 2020
+- Add the ability to launch location notifications when application is in background
+  - on iOS implemented with native background location support by adding required permissions and permission checks
+  - on Android by providing a custom service that wraps existing native location API calls in a foreground service  
+- Update Android SDK to Android 10/Q (API level 29)
+- Updated sample application to include the background mode
+
 ## [3.1.0] 09 October 2020
 
 - Do not throw errors from methods that do not need an activity.
