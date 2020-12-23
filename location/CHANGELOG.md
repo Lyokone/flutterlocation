@@ -1,4 +1,8 @@
-## [3.2.0] 07th December 2020
+## [3.2.1] 23rd December 2020
+
+- Fix crash during build
+
+## [3.2.0] 23rd December 2020
 
 - Add the ability to launch location notifications when application is in background
   - on iOS implemented with native background location support by adding required permissions and permission checks
