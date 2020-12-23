@@ -12,18 +12,6 @@ handles getting location on Android and iOS. It also provides callbacks when loc
   </a>
 </p>
 
-On iOS while app is in the background and gets location, blue system bar notifies User about updates. Tapping on this bar moves User back to the app.
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/location/src/background_location_ios.png" alt="iOS background location" style="margin:auto" width="386" height="686">
-</p>
-
-On Android a foreground notification is displayed with information that location service is running in the background.
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/location/src/background_location_android.png" alt="Androig background location" style="margin:auto" width="343" height="686">
-</p>
-
 ## Getting Started
 
 Add this to your package's `pubspec.yaml` file:
@@ -48,11 +36,13 @@ And to use it in iOS, you have to add this permission in Info.plist :
 NSLocationWhenInUseUsageDescription
 NSLocationAlwaysUsageDescription
 ```
+
 To receive location when application is in background, to Info.plist you have to add property list key :
 
 ```xml
 UIBackgroundModes
 ```
+
 with string value:
 
 ```xml
@@ -124,11 +114,21 @@ location.onLocationChanged.listen((LocationData currentLocation) {
 ```
 
 To receive location when application is in background you have to enable it:
+
 ```dart
 location.enableBackgroundMode(enable: true)
 ```
 
 Be sure to check the example project to get other code samples.
+
+On Android a foreground notification is displayed with information that location service is running in the background.
+
+On iOS while app is in the background and gets location, blue system bar notifies User about updates. Tapping on this bar moves User back to the app.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/location/src/background_location_android.png" alt="Androig background location"  width="343" height="686">
+  <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/location/src/background_location_ios.png" alt="iOS background location"  width="386" height="686">
+</p>
 
 ## Public Methods Summary
 
