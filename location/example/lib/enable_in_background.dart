@@ -36,7 +36,8 @@ class _EnableInBackgroundState extends State<EnableInBackgroundWidget> {
       _error = null;
     });
     try {
-      final bool result = await location.enableBackgroundMode(enable: !(_enabled ?? false));
+      final bool result =
+          await location.enableBackgroundMode(enable: !(_enabled ?? false));
       setState(() {
         _enabled = result;
       });
@@ -52,9 +53,10 @@ class _EnableInBackgroundState extends State<EnableInBackgroundWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Enabled in background: ${_error ?? '${_enabled ?? false}'}', style: Theme.of(context).textTheme.bodyText1),
+        Text('Enabled in background: ${_error ?? '${_enabled ?? false}'}',
+            style: Theme.of(context).textTheme.bodyText1),
         Row(
-          children: [
+          children: <Widget>[
             Container(
               margin: const EdgeInsets.only(right: 42),
               child: RaisedButton(
@@ -62,8 +64,8 @@ class _EnableInBackgroundState extends State<EnableInBackgroundWidget> {
                 onPressed: _checkBackgroundMode,
               ),
             ),
-            RaisedButton( 
-              child: Text(_enabled ?? false ? 'Disable' : 'Enable'),                           
+            RaisedButton(
+              child: Text(_enabled ?? false ? 'Disable' : 'Enable'),
               onPressed: _enabled == null ? null : _toggleBackgroundMode,
             )
           ],
