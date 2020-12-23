@@ -82,5 +82,4 @@ task:
     - flutter channel $CHANNEL
     - cd example
     - flutter build apk
-    - cd android
-    - ./gradlew app:connectedAndroidTest -Ptarget=`pwd`/../../test/location_e2e.dart
+    - flutter drive --driver=test_driver/integration_test.dart --target=integration_test/location_test.dart
