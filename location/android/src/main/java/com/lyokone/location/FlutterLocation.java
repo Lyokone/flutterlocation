@@ -240,7 +240,10 @@ public class FlutterLocation
                 if (events != null) {
                     events.success(loc);
                 } else {
-                    mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+                    if (mFusedLocationClient != null) {
+                        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+                    }
+                    mFusedLocationClient = null;
                 }
             }
         };
@@ -384,8 +387,7 @@ public class FlutterLocation
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             locationManager.addNmeaListener(mMessageListener);
                         }
-                        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
-                                Looper.myLooper());
+                        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
                     }
                 }).addOnFailureListener(activity, new OnFailureListener() {
                     @Override
