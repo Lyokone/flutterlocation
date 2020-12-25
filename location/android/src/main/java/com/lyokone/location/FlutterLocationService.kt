@@ -141,7 +141,7 @@ class FlutterLocationService : Service(), PluginRegistry.RequestPermissionsResul
         isForeground = false
     }
 
-    fun setActivity(activity: Activity) {
+    fun setActivity(activity: Activity?) {
         this.activity = activity
         location?.setActivity(activity)
     }
