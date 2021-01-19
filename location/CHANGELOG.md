@@ -1,3 +1,8 @@
+## [3.2.2] 19th January 2021
+
+- Fix crash during close of the app
+- Remove mandatory Android permission if not using the background location
+
 ## [3.2.1] 23rd December 2020
 
 - Fix crash during build
