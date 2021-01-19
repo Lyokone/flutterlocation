@@ -52,11 +52,9 @@
         NSArray *backgroundModes = [NSBundle.mainBundle objectForInfoDictionaryKey:@"UIBackgroundModes"];
         self.applicationHasLocationBackgroundMode = [backgroundModes containsObject: @"location"];
 
-        if ([CLLocationManager locationServicesEnabled]) {
-            self.clLocationManager = [[CLLocationManager alloc] init];
-            self.clLocationManager.delegate = self;
-            self.clLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
-        }
+        self.clLocationManager = [[CLLocationManager alloc] init];
+        self.clLocationManager.delegate = self;
+        self.clLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
     }
 }
 
