@@ -2,7 +2,9 @@
     package="com.lyokone.locationexample">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="Location Example"
