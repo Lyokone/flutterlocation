@@ -1,3 +1,7 @@
+## [3.2.4] 19th January 2021
+
+- Fix crash on Android
+
 ## [3.2.3] 19th January 2021
 
 - Fix crash during close of the app

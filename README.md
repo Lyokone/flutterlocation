@@ -18,7 +18,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  location: ^3.2.1
+  location: ^3.2.4
 ```
 
 ### Android
