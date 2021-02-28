@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:location_example/enable_in_background.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'change_notification.dart';
 import 'get_location.dart';
 import 'listen_location.dart';
 import 'permission_status.dart';
@@ -83,20 +86,24 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         ],
       ),
-      body: Container(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          children: const <Widget>[
-            PermissionStatusWidget(),
-            Divider(height: 32),
-            ServiceEnabledWidget(),
-            Divider(height: 32),
-            GetLocationWidget(),
-            Divider(height: 32),
-            ListenLocationWidget(),
-            Divider(height: 32),
-            EnableInBackgroundWidget(),
-          ],
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            children: const <Widget>[
+              PermissionStatusWidget(),
+              Divider(height: 32),
+              ServiceEnabledWidget(),
+              Divider(height: 32),
+              GetLocationWidget(),
+              Divider(height: 32),
+              ListenLocationWidget(),
+              Divider(height: 32),
+              EnableInBackgroundWidget(),
+              Divider(height: 32),
+              ChangeNotificationWidget(),
+            ],
+          ),
         ),
       ),
     );
