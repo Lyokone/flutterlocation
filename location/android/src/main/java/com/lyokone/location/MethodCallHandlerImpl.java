@@ -55,6 +55,9 @@ final class MethodCallHandlerImpl implements MethodCallHandler {
             case "enableBackgroundMode":
                 enableBackgroundMode(call, result);
                 break;
+            case "changeNotificationOptions":
+                onChangeNotificationOptions(call, result);
+                break;
             default:
                 result.notImplemented();
                 break;
@@ -178,6 +181,32 @@ final class MethodCallHandlerImpl implements MethodCallHandler {
             }
         } else {
             result.success(0);
+        }
+    }
+
+    private void onChangeNotificationOptions(MethodCall call, Result result) {
+        try {
+            String passedChannelName = call.argument("channelName");
+            String channelName = passedChannelName != null
+                    ? passedChannelName
+                    : FlutterLocationServiceKt.kDefaultChannelName;
+
+            String passedTitle = call.argument("title");
+            String title = passedTitle != null
+                    ? passedTitle
+                    : FlutterLocationServiceKt.kDefaultNotificationTitle;
+
+            String passedIconName = call.argument("iconName");
+            String iconName = passedIconName != null
+                    ? passedIconName
+                    : FlutterLocationServiceKt.kDefaultNotificationIconName;
+
+            NotificationOptions options = new NotificationOptions(channelName, title, iconName);
+            this.locationService.changeNotificationOptions(options);
+            result.success(1);
+        } catch (Exception e) {
+            result.error("CHANGE_NOTIFICATION_OPTIONS_ERROR",
+                    "An unexpected error happened during notification options change:" + e.getMessage(), null);
         }
     }
 }
