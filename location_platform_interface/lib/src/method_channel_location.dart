@@ -57,7 +57,8 @@ class MethodChannelLocation extends LocationPlatform {
   /// Checks if service is enabled in the background mode.
   @override
   Future<bool> isBackgroundModeEnabled() async {
-    final int result = await _methodChannel.invokeMethod('isBackgroundModeEnabled');
+    final int result =
+        await _methodChannel.invokeMethod('isBackgroundModeEnabled');
     return result == 1;
   }
 
@@ -135,5 +136,41 @@ class MethodChannelLocation extends LocationPlatform {
     return _onLocationChanged ??= _eventChannel
         .receiveBroadcastStream()
         .map<LocationData>((dynamic element) => LocationData.fromMap(Map<String, double>.from(element)));
+  }
+
+  /// Change options of sticky background notification on Android.
+  ///
+  /// This method only applies to Android and allows for customizing the
+  /// notification, which is shown when [enableBackgroundMode] is set to true.
+  /// On platforms other than Android, this method will do nothing.
+  ///
+  /// Uses [title] as the notification's content title and searches for a
+  /// drawable resource with the given [iconName]. If no matching resource is
+  /// found, no icon is shown.
+  ///
+  /// For Android SDK versions above 25, uses [channelName] for the
+  /// [NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel).
+  @override
+  Future<bool> changeNotificationOptions({
+    String channelName,
+    String title,
+    String iconName,
+  }) async {
+    if (!Platform.isAndroid) {
+      // This method only applies to Android.
+      // Do nothing to prevent user from handling a potential error.
+      return true;
+    }
+
+    final int result = await _methodChannel.invokeMethod(
+      'changeNotificationOptions',
+      <String, dynamic>{
+        'channelName': channelName,
+        'title': title,
+        'iconName': iconName,
+      },
+    );
+
+    return result == 1;
   }
 }
