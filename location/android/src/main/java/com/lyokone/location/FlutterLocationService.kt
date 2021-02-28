@@ -74,8 +74,8 @@ class BackgroundNotification(
             updateChannel(options.channelName)
         }
 
-        if (options.title != this.options.title) {
-            updateNotification(options.title, "", isVisible)
+        if (options.title != this.options.title || options.iconName != this.options.iconName) {
+            updateNotification(options.title, options.iconName, isVisible)
         }
 
         this.options = options
