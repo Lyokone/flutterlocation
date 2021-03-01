@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:location_example/enable_in_background.dart';
