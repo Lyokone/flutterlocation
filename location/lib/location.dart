@@ -99,18 +99,22 @@ class Location {
   /// the sub text will be set to [description]. The notification [color] can
   /// also be customized.
   ///
+  /// When [onTapBringToFront] is set to true, tapping the notification will
+  /// bring the activity back to the front.
+  ///
   /// Both [title] and [channelName] will be set to defaults, if no values are
   /// provided. All other null arguments will be ignored.
   ///
   /// For Android SDK versions above 25, uses [channelName] for the
   /// [NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel).
   Future<bool> changeNotificationOptions({
-  String channelName,
-  String title,
-  String iconName,
-  String subtitle,
-  String description,
-  Color color,
+    String channelName,
+    String title,
+    String iconName,
+    String subtitle,
+    String description,
+    Color color,
+    bool onTapBringToFront,
   }) {
     return LocationPlatform.instance.changeNotificationOptions(
       channelName: channelName,
@@ -119,6 +123,7 @@ class Location {
       subtitle: subtitle,
       description: description,
       color: color,
+      onTapBringToFront: onTapBringToFront,
     );
   }
 }

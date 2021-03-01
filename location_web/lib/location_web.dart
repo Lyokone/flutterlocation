@@ -91,6 +91,7 @@ class LocationWebPlugin extends LocationPlatform {
     String subtitle,
     String description,
     Color color,
+    bool onTapBringToFront,
   }) async {
     // This method only applies to Android.
     // Do nothing to prevent user from handling a potential UnimplementedError.

@@ -27,6 +27,7 @@ data class NotificationOptions(
         val subtitle: String? = null,
         val description: String? = null,
         val color: Int? = null,
+        val onTapBringToFront: Boolean = false,
 )
 
 class BackgroundNotification(
@@ -39,17 +40,24 @@ class BackgroundNotification(
             .setPriority(NotificationCompat.PRIORITY_HIGH)
 
     init {
-        updateNotification(
-                options.title,
-                options.iconName,
-                options.subtitle,
-                options.description,
-                options.color,
-                false)
+        updateNotification(options, false)
     }
 
     private fun getDrawableId(iconName: String): Int {
         return context.resources.getIdentifier(iconName, "drawable", context.packageName)
+    }
+
+    private fun buildBringToFrontIntent(): PendingIntent? {
+        val intent: Intent? = context.packageManager
+                .getLaunchIntentForPackage(context.packageName)
+                ?.setPackage(null)
+                ?.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+
+        return if (intent != null) {
+            PendingIntent.getActivity(context, 0, intent, 0)
+        } else {
+            null
+        }
     }
 
     private fun updateChannel(channelName: String) {
@@ -67,27 +75,29 @@ class BackgroundNotification(
     }
 
     private fun updateNotification(
-            title: String,
-            iconName: String,
-            subtitle: String?,
-            description: String?,
-            color: Int?,
+            options: NotificationOptions,
             notify: Boolean
     ) {
-        val iconId = getDrawableId(iconName).let {
+        val iconId = getDrawableId(options.iconName).let {
             if (it != 0) it else getDrawableId(kDefaultNotificationIconName)
         }
         builder = builder
-                .setContentTitle(title)
+                .setContentTitle(options.title)
                 .setSmallIcon(iconId)
+                .setContentText(options.subtitle)
+                .setSubText(options.description)
 
-        builder = if (color != null) {
-            builder.setColor(color).setColorized(true)
+        builder = if (options.color != null) {
+            builder.setColor(options.color).setColorized(true)
         } else {
             builder.setColor(0).setColorized(false)
         }
-        builder = builder.setContentText(subtitle)
-        builder = builder.setSubText(description)
+
+        builder = if (options.onTapBringToFront) {
+            builder.setContentIntent(buildBringToFrontIntent())
+        } else {
+            builder.setContentIntent(null)
+        }
 
         if (notify) {
             val notificationManager = NotificationManagerCompat.from(context)
@@ -100,13 +110,7 @@ class BackgroundNotification(
             updateChannel(options.channelName)
         }
 
-        updateNotification(
-                options.title,
-                options.iconName,
-                options.subtitle,
-                options.description,
-                options.color,
-                isVisible)
+        updateNotification(options, isVisible)
 
         this.options = options
     }
