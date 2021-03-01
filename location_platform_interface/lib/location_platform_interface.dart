@@ -1,6 +1,7 @@
 library location_platform_interface;
 
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -104,10 +105,16 @@ class LocationPlatform extends PlatformInterface {
   ///
   /// This method only applies to Android and allows for customizing the
   /// notification, which is shown when [enableBackgroundMode] is set to true.
+  /// On platforms other than Android, this method will do nothing.
   ///
   /// Uses [title] as the notification's content title and searches for a
   /// drawable resource with the given [iconName]. If no matching resource is
-  /// found, no icon is shown.
+  /// found, no icon is shown. The content text will be set to [subTitle], while
+  /// the sub text will be set to [description]. The notification [color] can
+  /// also be customized.
+  ///
+  /// Both [title] and [channelName] will be set to defaults, if no values are
+  /// provided. All other null arguments will be ignored.
   ///
   /// For Android SDK versions above 25, uses [channelName] for the
   /// [NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel).
@@ -115,6 +122,9 @@ class LocationPlatform extends PlatformInterface {
     String channelName,
     String title,
     String iconName,
+    String subtitle,
+    String description,
+    Color color,
   }) {
     throw UnimplementedError();
   }

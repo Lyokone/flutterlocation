@@ -146,7 +146,12 @@ class MethodChannelLocation extends LocationPlatform {
   ///
   /// Uses [title] as the notification's content title and searches for a
   /// drawable resource with the given [iconName]. If no matching resource is
-  /// found, no icon is shown.
+  /// found, no icon is shown. The content text will be set to [subTitle], while
+  /// the sub text will be set to [description]. The notification [color] can
+  /// also be customized.
+  ///
+  /// Both [title] and [channelName] will be set to defaults, if no values are
+  /// provided. All other null arguments will be ignored.
   ///
   /// For Android SDK versions above 25, uses [channelName] for the
   /// [NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel).
@@ -155,6 +160,9 @@ class MethodChannelLocation extends LocationPlatform {
     String channelName,
     String title,
     String iconName,
+    String subtitle,
+    String description,
+    Color color,
   }) async {
     if (!Platform.isAndroid) {
       // This method only applies to Android.
@@ -162,14 +170,26 @@ class MethodChannelLocation extends LocationPlatform {
       return true;
     }
 
-    final int result = await _methodChannel.invokeMethod(
-      'changeNotificationOptions',
-      <String, dynamic>{
-        'channelName': channelName,
-        'title': title,
-        'iconName': iconName,
-      },
-    );
+    final Map<String, dynamic> data = <String, dynamic>{
+      'channelName': channelName,
+      'title': title,
+      'iconName': iconName,
+    };
+
+    if (subtitle != null) {
+      data['subtitle'] = subtitle;
+    }
+
+    if (description != null) {
+      data['description'] = description;
+    }
+
+    if (color != null) {
+      data['color'] = '#${color.value.toRadixString(16)}';
+    }
+
+    final int result =
+        await _methodChannel.invokeMethod('changeNotificationOptions', data);
 
     return result == 1;
   }
