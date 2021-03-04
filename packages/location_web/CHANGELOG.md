@@ -1,3 +1,7 @@
+## 2.0.2
+
+ - **FIX**: Update Flutter SDK constraint to >=1.20.0 in order to remove placeholder folders
+
 ## 2.0.1
 
  - **DOCS**: update readme web.
