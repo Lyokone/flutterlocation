@@ -122,10 +122,14 @@ class FlutterLocationService : Service(), PluginRegistry.RequestPermissionsResul
                 notificationManager.createNotificationChannel(channel)
             }
 
+            val intent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+            val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
             val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
                     .setContentTitle(getText(R.string.notification_title))
                     .setSmallIcon(R.drawable.navigation_empty_icon)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setContentIntent(pendingIntent)
                     .build()
 
             startForeground(ONGOING_NOTIFICATION_ID, notification)
