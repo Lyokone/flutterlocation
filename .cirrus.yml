@@ -10,7 +10,7 @@ task:
     - flutter channel master
     - flutter upgrade
     - git fetch origin master
-  activate_script: pub global activate flutter_plugin_tools
+    - pub global activate melos
   allow_failures: $CHANNEL == "master"
   matrix:
     - name: analyze
@@ -19,15 +19,10 @@ task:
           CHANNEL: "master"
           CHANNEL: "stable"
       test_script: 
+        - export PATH="$PATH":"$HOME/.pub-cache/bin"
         - flutter channel $CHANNEL
-        - cd location
-        - flutter pub get
-        - cd ../location_platform_interface
-        - flutter pub get
-        - cd ../location_web
-        - flutter pub get
-        - cd ..
-        - flutter analyze
+        - melos bootstrap
+        - melos run lint:all
     - name: test
       env:
         CODECOV_TOKEN: ENCRYPTED[9ba9d1e58de2fc81556d89154383b44d9360408c6e7f40f5f7940d42b6c5bbac1cfb9c773ddcc20db6eba85622a3db38]
@@ -35,51 +30,13 @@ task:
           CHANNEL: "master"
           CHANNEL: "stable"
       test_script:
+        - export PATH="$PATH":"$HOME/.pub-cache/bin"
         - flutter channel $CHANNEL
-        - cd location
-        - flutter test --coverage
+        - melos bootstrap
+        - melos run lint:all
+        - cd packages/location
         - if [ $CHANNEL = "stable" ]; then bash <(curl -s https://codecov.io/bash); fi
         - cd ../location_platform_interface
-        - flutter test --coverage
         - if [ $CHANNEL = "stable" ]; then bash <(curl -s https://codecov.io/bash); fi
 
 
-task:
-  container:
-    dockerfile: .ci/Dockerfile
-    kvm: true
-    cpu: 8
-    memory: 16G
-  env:
-    matrix:
-      CHANNEL: "master"
-      CHANNEL: "stable"
-  allow_failures: $CHANNEL == "master"
-  name: e2e
-  upgrade_script:
-    - flutter channel stable
-    - flutter upgrade
-    - flutter channel master
-    - flutter upgrade
-    - git fetch origin master
-  activate_script: pub global activate flutter_plugin_tools
-  accel_check_script:
-    - sudo chown cirrus:cirrus /dev/kvm
-    - $ANDROID_HOME/emulator/emulator -accel-check
-  create_device_script:
-    echo no | avdmanager create avd --force
-      -n test
-      -k "system-images;android-29;default;x86"
-  start_emulator_background_script:
-    $ANDROID_HOME/emulator/emulator
-      -avd test
-      -no-audio
-      -no-window
-  wait_for_emulator_script:
-    - adb wait-for-device
-  test_script:
-    - cd location
-    - flutter channel $CHANNEL
-    - cd example
-    - flutter build apk
-    - flutter drive --driver=test_driver/integration_test.dart --target=integration_test/location_test.dart

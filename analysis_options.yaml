@@ -1,7 +1,10 @@
 analyzer:
   strong-mode:
     implicit-dynamic: false
-  exclude: [build/**]
+  exclude:
+    - "build/**"
+    - "**/*.mocks.dart" # Mockito @GenerateMocks
+
   errors:
     uri_has_not_been_generated: ignore
     missing_required_param: warning
