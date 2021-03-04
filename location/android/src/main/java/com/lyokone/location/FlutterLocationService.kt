@@ -14,6 +14,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
+import android.content.Context 
 
 class FlutterLocationService : Service(), PluginRegistry.RequestPermissionsResultListener {
     companion object {
@@ -115,7 +116,7 @@ class FlutterLocationService : Service(), PluginRegistry.RequestPermissionsResul
             Log.d(TAG, "Start service in foreground mode.")
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val notificationManager = NotificationManagerCompat.from(this)
+                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_NONE).apply {
                     lockscreenVisibility = Notification.VISIBILITY_PRIVATE
                 }
