@@ -10,7 +10,7 @@ task:
     - flutter channel master
     - flutter upgrade
     - git fetch origin master
-  activate_script: pub global activate melos
+    - pub global activate melos
   allow_failures: $CHANNEL == "master"
   matrix:
     - name: analyze
@@ -19,6 +19,7 @@ task:
           CHANNEL: "master"
           CHANNEL: "stable"
       test_script: 
+        - export PATH="$PATH":"$HOME/.pub-cache/bin"
         - flutter channel $CHANNEL
         - melos bootstrap
         - melos run lint:all
@@ -29,6 +30,7 @@ task:
           CHANNEL: "master"
           CHANNEL: "stable"
       test_script:
+        - export PATH="$PATH":"$HOME/.pub-cache/bin"
         - flutter channel $CHANNEL
         - melos bootstrap
         - melos run lint:all
