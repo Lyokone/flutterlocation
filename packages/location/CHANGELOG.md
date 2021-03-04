@@ -1,3 +1,7 @@
+## 4.0.2
+
+ - Bump "location" to `4.0.2`.
+
 ## 4.0.1
 
  - **DOCS**: update readme web.
