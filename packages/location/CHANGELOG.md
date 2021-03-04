@@ -1,5 +1,6 @@
-## [4.0.0] 04th March 2021
+## 4.0.0
 
+- **FEAT**: Update to null safety.
 - Update to null safety and Melos
 
 ## [3.2.4] 19th January 2021
