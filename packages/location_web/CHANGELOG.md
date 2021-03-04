@@ -1,3 +1,8 @@
+## 2.0.1
+
+ - **DOCS**: update readme web.
+ - **CHORE**: publish packages.
+
 ## 2.0.0
 
 - **FEAT**: Update to null safety.
