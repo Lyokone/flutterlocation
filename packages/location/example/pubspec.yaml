@@ -1,0 +1,19 @@
+name: location_example
+description: Demonstrates how to use the location plugin.
+
+environment:
+  sdk: '>=2.12.0 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  location:
+    path: ../
+  url_launcher: ^6.0.2
+
+dev_dependencies:
+  flutter_driver:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
