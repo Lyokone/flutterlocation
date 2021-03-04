@@ -42,7 +42,7 @@ class _GetLocationState extends State<GetLocationWidget> {
         ),
         Row(
           children: <Widget>[
-            RaisedButton(
+            ElevatedButton(
               child: const Text('Get'),
               onPressed: _getLocation,
             )

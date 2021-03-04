@@ -44,12 +44,12 @@ class _PermissionStatusState extends State<PermissionStatusWidget> {
           children: <Widget>[
             Container(
               margin: const EdgeInsets.only(right: 42),
-              child: RaisedButton(
+              child: ElevatedButton(
                 child: const Text('Check'),
                 onPressed: _checkPermissions,
               ),
             ),
-            RaisedButton(
+            ElevatedButton(
               child: const Text('Request'),
               onPressed: _permissionGranted == PermissionStatus.granted
                   ? null

@@ -3,20 +3,23 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:location/location.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+import 'location_test.mocks.dart';
+
+// ignore: always_specify_types
+@GenerateMocks([Location])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final Location location = Location();
-  final LocationPlatformMock platform = LocationPlatformMock();
-  LocationPlatform.instance = platform;
+  final Location location = MockLocation();
 
   tearDown(resetMockitoState);
 
   group('getLocation', () {
-    when(platform.getLocation()).thenAnswer((_) async {
+    when(location.getLocation()).thenAnswer((_) async {
       return LocationData.fromMap(<String, double>{
         'latitude': 48.8534,
         'longitude': 2.3488,
@@ -38,28 +41,25 @@ void main() {
   });
 
   test('changeSettings', () async {
-    when(platform.changeSettings(
-      accuracy: captureAnyNamed('accuracy')!,
-      interval: captureAnyNamed('interval')!,
-      distanceFilter: captureAnyNamed('distanceFilter')!,
-    ));
+    when(location.changeSettings(
+      accuracy: LocationAccuracy.high,
+      interval: 1000,
+      distanceFilter: 0,
+    )).thenAnswer((_) async => true);
 
     await location.changeSettings();
-    final VerificationResult result = verify(platform.changeSettings(
-      accuracy: captureAnyNamed('accuracy')!,
-      interval: captureAnyNamed('interval')!,
-      distanceFilter: captureAnyNamed('distanceFilter')!,
+    final VerificationResult result = verify(location.changeSettings(
+      accuracy: LocationAccuracy.high,
+      interval: 1000,
+      distanceFilter: 0,
     ));
 
     expect(result.callCount, 1);
-    expect(result.captured[0], LocationAccuracy.high);
-    expect(result.captured[1], 1000);
-    expect(result.captured[2], 0);
   });
 
   group('serviceEnabled-requestService', () {
-    when(platform.serviceEnabled()).thenAnswer((_) async => true);
-    when(platform.requestService()).thenAnswer((_) async => true);
+    when(location.serviceEnabled()).thenAnswer((_) async => true);
+    when(location.requestService()).thenAnswer((_) async => true);
 
     test('serviceEnabled', () async {
       final bool result = await location.serviceEnabled();
@@ -73,9 +73,9 @@ void main() {
   });
 
   test('hasPermission', () async {
-    when(platform.hasPermission())
+    when(location.hasPermission())
         .thenAnswer((_) async => PermissionStatus.denied);
-    when(platform.requestPermission())
+    when(location.requestPermission())
         .thenAnswer((_) async => PermissionStatus.denied);
 
     PermissionStatus receivedPermission = await location.hasPermission();
@@ -90,7 +90,7 @@ void main() {
 
     setUp(() {
       controller = StreamController<LocationData>();
-      when(platform.onLocationChanged)
+      when(location.onLocationChanged)
           .thenAnswer((Invocation invoke) => controller.stream);
     });
 

@@ -43,12 +43,12 @@ class _ServiceEnabledState extends State<ServiceEnabledWidget> {
           children: <Widget>[
             Container(
               margin: const EdgeInsets.only(right: 42),
-              child: RaisedButton(
+              child: ElevatedButton(
                 child: const Text('Check'),
                 onPressed: _checkService,
               ),
             ),
-            RaisedButton(
+            ElevatedButton(
               child: const Text('Request'),
               onPressed: _serviceEnabled == true ? null : _requestService,
             )

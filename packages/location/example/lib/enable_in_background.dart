@@ -59,12 +59,12 @@ class _EnableInBackgroundState extends State<EnableInBackgroundWidget> {
           children: <Widget>[
             Container(
               margin: const EdgeInsets.only(right: 42),
-              child: RaisedButton(
+              child: ElevatedButton(
                 child: const Text('Check'),
                 onPressed: _checkBackgroundMode,
               ),
             ),
-            RaisedButton(
+            ElevatedButton(
               child: Text(_enabled ?? false ? 'Disable' : 'Enable'),
               onPressed: _enabled == null ? null : _toggleBackgroundMode,
             )

@@ -8,8 +8,13 @@ import 'package:async/async.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import 'method_channel_location_test.mocks.dart';
+
+// ignore: always_specify_types
+@GenerateMocks([EventChannel])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -171,5 +176,3 @@ void main() {
     });
   });
 }
-
-class MockEventChannel extends Mock implements EventChannel {}

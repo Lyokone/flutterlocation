@@ -50,12 +50,12 @@ class _ListenLocationState extends State<ListenLocationWidget> {
           children: <Widget>[
             Container(
               margin: const EdgeInsets.only(right: 42),
-              child: RaisedButton(
+              child: ElevatedButton(
                 child: const Text('Listen'),
                 onPressed: _listenLocation,
               ),
             ),
-            RaisedButton(
+            ElevatedButton(
               child: const Text('Stop'),
               onPressed: _stopListen,
             )

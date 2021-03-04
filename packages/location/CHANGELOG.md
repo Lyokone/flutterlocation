@@ -1,4 +1,4 @@
-## [2.0.0] 04th March 2021
+## [4.0.0] 04th March 2021
 
 - Update to null safety and Melos
 

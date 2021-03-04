@@ -66,12 +66,12 @@ class LocationWebPlugin extends LocationPlatform {
 
   @override
   Future<bool> requestService() async {
-    return _geolocation != null;
+    return true;
   }
 
   @override
   Future<bool> serviceEnabled() async {
-    return _geolocation != null;
+    return true;
   }
 
   @override
@@ -83,9 +83,9 @@ class LocationWebPlugin extends LocationPlatform {
   }
 
   LocationData _toLocationData(js.Geoposition result) {
-    return LocationData.fromMap(<String, double?>{
-      'latitude': result.coords!.latitude as double?,
-      'longitude': result.coords!.longitude as double?,
+    return LocationData.fromMap(<String, double>{
+      'latitude': result.coords!.latitude!.toDouble(),
+      'longitude': result.coords!.longitude!.toDouble(),
       'accuracy': 0,
       'altitude': 0,
       'speed': 0,
