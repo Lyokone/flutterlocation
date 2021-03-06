@@ -125,3 +125,39 @@ enum PermissionStatus {
   /// user. No dialog will be displayed on permission request.
   deniedForever
 }
+
+/// The response object of [Location.changeNotificationOptions].
+///
+/// Contains native information about the notification shown on Android, when
+/// running in background mode.
+class AndroidNotificationData {
+  const AndroidNotificationData._(this.channelId, this.notificationId);
+
+  factory AndroidNotificationData.fromMap(Map<String, dynamic> data) {
+    return AndroidNotificationData._(
+      data['channelId'],
+      data['notificationId'],
+    );
+  }
+
+  /// The id of the used Android notification channel.
+  final String channelId;
+
+  /// The id of the shown Android notification.
+  final int notificationId;
+
+  @override
+  String toString() =>
+      'AndroidNotificationData<channelId: $channelId, notificationId: $notificationId>';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AndroidNotificationData &&
+          runtimeType == other.runtimeType &&
+          channelId == other.channelId &&
+          notificationId == other.notificationId;
+
+  @override
+  int get hashCode => channelId.hashCode ^ notificationId.hashCode;
+}

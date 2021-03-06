@@ -82,6 +82,17 @@ class LocationWebPlugin extends LocationPlatform {
         .map(_toLocationData);
   }
 
+  @override
+  Future<AndroidNotificationData?> changeNotificationOptions({
+    String? channelName,
+    String? title,
+    String? iconName,
+  }) async {
+    // This method only applies to Android.
+    // Do nothing to prevent user from handling a potential UnimplementedError.
+    return null;
+  }
+
   LocationData _toLocationData(js.Geoposition result) {
     return LocationData.fromMap(<String, double>{
       'latitude': result.coords!.latitude!.toDouble(),

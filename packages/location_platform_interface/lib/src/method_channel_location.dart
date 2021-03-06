@@ -149,4 +149,43 @@ class MethodChannelLocation extends LocationPlatform {
         .map<LocationData>((dynamic element) =>
             LocationData.fromMap(Map<String, double>.from(element)));
   }
+
+  /// Change options of sticky background notification on Android.
+  ///
+  /// This method only applies to Android and allows for customizing the
+  /// notification, which is shown when [enableBackgroundMode] is set to true.
+  ///
+  /// Uses [title] as the notification's content title and searches for a
+  /// drawable resource with the given [iconName]. If no matching resource is
+  /// found, no icon is shown.
+  ///
+  /// Returns [AndroidNotificationData] if the notification is currently being
+  /// shown. This can be used to change the notification from other parts of the
+  /// app.
+  ///
+  /// For Android SDK versions above 25, uses [channelName] for the
+  /// [NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel).
+  @override
+  Future<AndroidNotificationData?> changeNotificationOptions({
+    String? channelName,
+    String? title,
+    String? iconName,
+  }) async {
+    if (!Platform.isAndroid) {
+      // This method only applies to Android.
+      // Do nothing to prevent user from handling a potential error.
+      return null;
+    }
+
+    final Map<String, dynamic>? result = await _methodChannel!.invokeMethod(
+      'changeNotificationOptions',
+      <String, dynamic>{
+        'channelName': channelName,
+        'title': title,
+        'iconName': iconName,
+      },
+    );
+
+    return result != null ? AndroidNotificationData.fromMap(result) : null;
+  }
 }

@@ -84,4 +84,31 @@ class Location {
   Stream<LocationData> get onLocationChanged {
     return LocationPlatform.instance.onLocationChanged;
   }
+
+  /// Change options of sticky background notification on Android.
+  ///
+  /// This method only applies to Android and allows for customizing the
+  /// notification, which is shown when [enableBackgroundMode] is set to true.
+  ///
+  /// Uses [title] as the notification's content title and searches for a
+  /// drawable resource with the given [iconName]. If no matching resource is
+  /// found, no icon is shown.
+  ///
+  /// Returns [AndroidNotificationData] if the notification is currently being
+  /// shown. This can be used to change the notification from other parts of the
+  /// app.
+  ///
+  /// For Android SDK versions above 25, uses [channelName] for the
+  /// [NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel).
+  Future<AndroidNotificationData?> changeNotificationOptions({
+    String? channelName,
+    String? title,
+    String? iconName,
+  }) {
+    return LocationPlatform.instance.changeNotificationOptions(
+      channelName: channelName,
+      title: title,
+      iconName: iconName,
+    );
+  }
 }
