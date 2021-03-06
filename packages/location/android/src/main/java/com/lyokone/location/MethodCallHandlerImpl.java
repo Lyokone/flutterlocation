@@ -208,6 +208,11 @@ final class MethodCallHandlerImpl implements MethodCallHandler {
 
             String subtitle = call.argument("subtitle");
             String description = call.argument("description");
+            Boolean onTapBringToFront = call.argument("onTapBringToFront");
+            if (onTapBringToFront == null) {
+                onTapBringToFront = false;
+            }
+
             String hexColor = call.argument("color");
             Integer color = null;
             if (hexColor != null) {
@@ -220,7 +225,8 @@ final class MethodCallHandlerImpl implements MethodCallHandler {
                     iconName,
                     subtitle,
                     description,
-                    color);
+                    color,
+                    onTapBringToFront);
             Map<String, Object> notificationMeta = this.locationService.changeNotificationOptions(options);
             result.success(notificationMeta);
         } catch (Exception e) {
