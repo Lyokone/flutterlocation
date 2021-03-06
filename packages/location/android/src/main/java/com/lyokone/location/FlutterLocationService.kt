@@ -207,8 +207,13 @@ class FlutterLocationService : Service(), PluginRegistry.RequestPermissionsResul
         isForeground = false
     }
 
-    fun changeNotificationOptions(options: NotificationOptions) {
+    fun changeNotificationOptions(options: NotificationOptions): Map<String, Any>? {
         backgroundNotification?.updateOptions(options, isForeground)
+
+        return if (isForeground)
+            mapOf("channelId" to CHANNEL_ID, "notificationId" to ONGOING_NOTIFICATION_ID)
+        else
+            null
     }
 
     fun setActivity(activity: Activity?) {
