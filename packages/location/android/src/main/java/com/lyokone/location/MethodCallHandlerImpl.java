@@ -2,7 +2,11 @@ package com.lyokone.location;
 
 import android.os.Build;
 import android.util.Log;
+
 import androidx.annotation.Nullable;
+
+import java.util.Map;
+
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -54,6 +58,9 @@ final class MethodCallHandlerImpl implements MethodCallHandler {
                 break;
             case "enableBackgroundMode":
                 enableBackgroundMode(call, result);
+                break;
+            case "changeNotificationOptions":
+                onChangeNotificationOptions(call, result);
                 break;
             default:
                 result.notImplemented();
@@ -178,6 +185,32 @@ final class MethodCallHandlerImpl implements MethodCallHandler {
             }
         } else {
             result.success(0);
+        }
+    }
+
+    private void onChangeNotificationOptions(MethodCall call, Result result) {
+        try {
+            String passedChannelName = call.argument("channelName");
+            String channelName = passedChannelName != null
+                    ? passedChannelName
+                    : FlutterLocationServiceKt.kDefaultChannelName;
+
+            String passedTitle = call.argument("title");
+            String title = passedTitle != null
+                    ? passedTitle
+                    : FlutterLocationServiceKt.kDefaultNotificationTitle;
+
+            String passedIconName = call.argument("iconName");
+            String iconName = passedIconName != null
+                    ? passedIconName
+                    : FlutterLocationServiceKt.kDefaultNotificationIconName;
+
+            NotificationOptions options = new NotificationOptions(channelName, title, iconName);
+            Map<String, Object> notificationMeta = this.locationService.changeNotificationOptions(options);
+            result.success(notificationMeta);
+        } catch (Exception e) {
+            result.error("CHANGE_NOTIFICATION_OPTIONS_ERROR",
+                    "An unexpected error happened during notification options change:" + e.getMessage(), null);
         }
     }
 }
