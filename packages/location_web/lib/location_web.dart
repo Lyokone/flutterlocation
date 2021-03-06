@@ -1,4 +1,5 @@
 import 'dart:html' as js;
+import 'dart:ui';
 
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
@@ -87,6 +88,9 @@ class LocationWebPlugin extends LocationPlatform {
     String? channelName,
     String? title,
     String? iconName,
+    String? subtitle,
+    String? description,
+    Color? color,
   }) async {
     // This method only applies to Android.
     // Do nothing to prevent user from handling a potential UnimplementedError.

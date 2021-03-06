@@ -133,7 +133,7 @@ enum PermissionStatus {
 class AndroidNotificationData {
   const AndroidNotificationData._(this.channelId, this.notificationId);
 
-  factory AndroidNotificationData.fromMap(Map<String, dynamic> data) {
+  factory AndroidNotificationData.fromMap(Map<dynamic, dynamic> data) {
     return AndroidNotificationData._(
       data['channelId'],
       data['notificationId'],

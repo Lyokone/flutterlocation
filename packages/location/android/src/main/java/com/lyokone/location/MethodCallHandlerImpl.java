@@ -1,5 +1,6 @@
 package com.lyokone.location;
 
+import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
 
@@ -205,7 +206,21 @@ final class MethodCallHandlerImpl implements MethodCallHandler {
                     ? passedIconName
                     : FlutterLocationServiceKt.kDefaultNotificationIconName;
 
-            NotificationOptions options = new NotificationOptions(channelName, title, iconName);
+            String subtitle = call.argument("subtitle");
+            String description = call.argument("description");
+            String hexColor = call.argument("color");
+            Integer color = null;
+            if (hexColor != null) {
+                color = Color.parseColor(hexColor);
+            }
+
+            NotificationOptions options = new NotificationOptions(
+                    channelName,
+                    title,
+                    iconName,
+                    subtitle,
+                    description,
+                    color);
             Map<String, Object> notificationMeta = this.locationService.changeNotificationOptions(options);
             result.success(notificationMeta);
         } catch (Exception e) {

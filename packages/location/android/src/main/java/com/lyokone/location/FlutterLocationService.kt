@@ -24,6 +24,9 @@ data class NotificationOptions(
         val channelName: String = kDefaultChannelName,
         val title: String = kDefaultNotificationTitle,
         val iconName: String = kDefaultNotificationIconName,
+        val subtitle: String? = null,
+        val description: String? = null,
+        val color: Int? = null,
 )
 
 class BackgroundNotification(
@@ -36,7 +39,13 @@ class BackgroundNotification(
             .setPriority(NotificationCompat.PRIORITY_HIGH)
 
     init {
-        updateNotification(options.title, options.iconName, false)
+        updateNotification(
+                options.title,
+                options.iconName,
+                options.subtitle,
+                options.description,
+                options.color,
+                false)
     }
 
     private fun getDrawableId(iconName: String): Int {
@@ -57,11 +66,28 @@ class BackgroundNotification(
         }
     }
 
-    private fun updateNotification(title: String, iconName: String, notify: Boolean) {
+    private fun updateNotification(
+            title: String,
+            iconName: String,
+            subtitle: String?,
+            description: String?,
+            color: Int?,
+            notify: Boolean
+    ) {
         val iconId = getDrawableId(iconName).let {
             if (it != 0) it else getDrawableId(kDefaultNotificationIconName)
         }
-        builder = builder.setContentTitle(title).setSmallIcon(iconId)
+        builder = builder
+                .setContentTitle(title)
+                .setSmallIcon(iconId)
+
+        builder = if (color != null) {
+            builder.setColor(color).setColorized(true)
+        } else {
+            builder.setColor(0).setColorized(false)
+        }
+        builder = builder.setContentText(subtitle)
+        builder = builder.setSubText(description)
 
         if (notify) {
             val notificationManager = NotificationManagerCompat.from(context)
@@ -74,9 +100,13 @@ class BackgroundNotification(
             updateChannel(options.channelName)
         }
 
-        if (options.title != this.options.title || options.iconName != this.options.iconName) {
-            updateNotification(options.title, options.iconName, isVisible)
-        }
+        updateNotification(
+                options.title,
+                options.iconName,
+                options.subtitle,
+                options.description,
+                options.color,
+                isVisible)
 
         this.options = options
     }
