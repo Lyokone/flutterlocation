@@ -27,13 +27,13 @@ data class NotificationOptions(
         val subtitle: String? = null,
         val description: String? = null,
         val color: Int? = null,
-        val onTapBringToFront: Boolean = false,
+        val onTapBringToFront: Boolean = false
 )
 
 class BackgroundNotification(
         private val context: Context,
         private val channelId: String,
-        private val notificationId: Int,
+        private val notificationId: Int
 ) {
     private var options: NotificationOptions = NotificationOptions()
     private var builder: NotificationCompat.Builder = NotificationCompat.Builder(context, channelId)
