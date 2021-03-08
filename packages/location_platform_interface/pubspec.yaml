@@ -1,6 +1,6 @@
 name: location_platform_interface
 description: A common platform interface for the location plugin.
-version: 2.0.1
+version: 2.1.0
 homepage: https://github.com/Lyokone/flutterlocation
 
 environment:

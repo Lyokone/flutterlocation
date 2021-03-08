@@ -1,3 +1,19 @@
+## 4.1.0
+
+ - **REFACTOR**: remove Android strings.
+ - **REFACTOR**: extract background notification logic to separate class.
+ - **FEAT**: add option to reopen app from notification.
+ - **FEAT**: allow for customizing Android notification text, subtext and color.
+ - **FEAT**: update example app to showcase Android notification options.
+ - **FEAT**: allow for customizing Android background notification from dart.
+ - **FEAT**: handle notification changes in Android MethodCallHandler.
+ - **FEAT**: return notification and channel id when changing options.
+ - **DOCS**: update readme web.
+ - **CHORE**: publish packages.
+ - **CHORE**: publish packages.
+ - **CHORE**: publish packages.
+ - **CHORE**: publish packages.
+
 ## 4.0.2
 
  - Bump "location" to `4.0.2`.

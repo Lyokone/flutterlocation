@@ -1,3 +1,9 @@
+## 2.1.0
+
+ - **FEAT**: add option to reopen app from notification.
+ - **FEAT**: allow for customizing Android notification text, subtext and color.
+ - **FEAT**: allow for customizing Android background notification from dart.
+
 ## 2.0.1
 
  - **DOCS**: update readme web.
