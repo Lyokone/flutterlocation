@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:location_platform_interface/location_platform_interface.dart';
 
 export 'package:location_platform_interface/location_platform_interface.dart'
@@ -83,5 +85,48 @@ class Location {
   /// Throws an error if the app has no permission to access location.
   Stream<LocationData> get onLocationChanged {
     return LocationPlatform.instance.onLocationChanged;
+  }
+
+  /// Change options of sticky background notification on Android.
+  ///
+  /// This method only applies to Android and allows for customizing the
+  /// notification, which is shown when [enableBackgroundMode] is set to true.
+  ///
+  /// Uses [title] as the notification's content title and searches for a
+  /// drawable resource with the given [iconName]. If no matching resource is
+  /// found, no icon is shown. The content text will be set to [subTitle], while
+  /// the sub text will be set to [description]. The notification [color] can
+  /// also be customized.
+  ///
+  /// When [onTapBringToFront] is set to true, tapping the notification will
+  /// bring the activity back to the front.
+  ///
+  /// Both [title] and [channelName] will be set to defaults, if no values are
+  /// provided. All other null arguments will be ignored.
+  ///
+  /// Returns [AndroidNotificationData] if the notification is currently being
+  /// shown. This can be used to change the notification from other parts of the
+  /// app.
+  ///
+  /// For Android SDK versions above 25, uses [channelName] for the
+  /// [NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel).
+  Future<AndroidNotificationData?> changeNotificationOptions({
+    String? channelName,
+    String? title,
+    String? iconName,
+    String? subtitle,
+    String? description,
+    Color? color,
+    bool? onTapBringToFront,
+  }) {
+    return LocationPlatform.instance.changeNotificationOptions(
+      channelName: channelName,
+      title: title,
+      iconName: iconName,
+      subtitle: subtitle,
+      description: description,
+      color: color,
+      onTapBringToFront: onTapBringToFront,
+    );
   }
 }

@@ -149,4 +149,71 @@ class MethodChannelLocation extends LocationPlatform {
         .map<LocationData>((dynamic element) =>
             LocationData.fromMap(Map<String, double>.from(element)));
   }
+
+  /// Change options of sticky background notification on Android.
+  ///
+  /// This method only applies to Android and allows for customizing the
+  /// notification, which is shown when [enableBackgroundMode] is set to true.
+  ///
+  /// Uses [title] as the notification's content title and searches for a
+  /// drawable resource with the given [iconName]. If no matching resource is
+  /// found, no icon is shown. The content text will be set to [subTitle], while
+  /// the sub text will be set to [description]. The notification [color] can
+  /// also be customized.
+  ///
+  /// When [onTapBringToFront] is set to true, tapping the notification will
+  /// bring the activity back to the front.
+  ///
+  /// Both [title] and [channelName] will be set to defaults, if no values are
+  /// provided. All other null arguments will be ignored.
+  ///
+  /// Returns [AndroidNotificationData] if the notification is currently being
+  /// shown. This can be used to change the notification from other parts of the
+  /// app.
+  ///
+  /// For Android SDK versions above 25, uses [channelName] for the
+  /// [NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel).
+  @override
+  Future<AndroidNotificationData?> changeNotificationOptions({
+    String? channelName,
+    String? title,
+    String? iconName,
+    String? subtitle,
+    String? description,
+    Color? color,
+    bool? onTapBringToFront,
+  }) async {
+    if (!Platform.isAndroid) {
+      // This method only applies to Android.
+      // Do nothing to prevent user from handling a potential error.
+      return null;
+    }
+
+    final Map<String, dynamic> data = <String, dynamic>{
+      'channelName': channelName,
+      'title': title,
+      'iconName': iconName,
+    };
+
+    if (subtitle != null) {
+      data['subtitle'] = subtitle;
+    }
+
+    if (description != null) {
+      data['description'] = description;
+    }
+
+    if (color != null) {
+      data['color'] = '#${color.value.toRadixString(16)}';
+    }
+
+    if (onTapBringToFront != null) {
+      data['onTapBringToFront'] = onTapBringToFront;
+    }
+
+    final Map<dynamic, dynamic>? result =
+        await _methodChannel!.invokeMethod('changeNotificationOptions', data);
+
+    return result != null ? AndroidNotificationData.fromMap(result) : null;
+  }
 }

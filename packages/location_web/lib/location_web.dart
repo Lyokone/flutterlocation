@@ -1,4 +1,5 @@
 import 'dart:html' as js;
+import 'dart:ui';
 
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
@@ -80,6 +81,21 @@ class LocationWebPlugin extends LocationPlatform {
         .watchPosition(
             enableHighAccuracy: _accuracy!.index >= LocationAccuracy.high.index)
         .map(_toLocationData);
+  }
+
+  @override
+  Future<AndroidNotificationData?> changeNotificationOptions({
+    String? channelName,
+    String? title,
+    String? iconName,
+    String? subtitle,
+    String? description,
+    Color? color,
+    bool? onTapBringToFront,
+  }) async {
+    // This method only applies to Android.
+    // Do nothing to prevent user from handling a potential UnimplementedError.
+    return null;
   }
 
   LocationData _toLocationData(js.Geoposition result) {
