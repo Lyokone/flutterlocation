@@ -1,3 +1,8 @@
+## 4.1.1
+
+ - **FIX**: fix crash on build.
+
+
 ## 4.1.0
 
  - **REFACTOR**: remove Android strings.
