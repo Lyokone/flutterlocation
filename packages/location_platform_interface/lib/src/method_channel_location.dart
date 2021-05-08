@@ -147,7 +147,7 @@ class MethodChannelLocation extends LocationPlatform {
     return _onLocationChanged ??= _eventChannel!
         .receiveBroadcastStream()
         .map<LocationData>((dynamic element) =>
-            LocationData.fromMap(Map<String, double>.from(element)));
+            LocationData.fromMap(Map<String, double>.of(element)));
   }
 
   /// Change options of sticky background notification on Android.
