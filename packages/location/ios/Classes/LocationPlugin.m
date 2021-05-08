@@ -71,7 +71,7 @@
                 @"1" : @(kCLLocationAccuracyHundredMeters),
                 @"2" : @(kCLLocationAccuracyNearestTenMeters),
                 @"3" : @(kCLLocationAccuracyBest),
-                @"4" : @(kCLLocationAccuracyBestForNavigation)
+                @"4" : @(kCLLocationAccuracyBestForNavigation),
                 @"5" : @(reducedAccuracy)
             };
 
