@@ -71,9 +71,16 @@ Ensure that the application is properly "sandboxed" and that the location is ena
 
 Add this permission in Info.plist :
 
-```xml
+```
+# 
+// The is likely the only one you need. Background location is supported by this -- the caveat is that a blue badge is shown in the status bar when the app is using location service while in the background.
 NSLocationWhenInUseUsageDescription
+
+// Deprecated, use NSLocationAlwaysAndWhenInUseUsageDescription instead.
 NSLocationAlwaysUsageDescription
+
+// Use this very carefully. This key is required only if your iOS app uses APIs that access the user’s location information at all times, even if the app isn't running.
+NSLocationAlwaysAndWhenInUseUsageDescription
 ```
 
 ## Usage
