@@ -40,7 +40,7 @@ Remember that the user has to accept the location permission to `always allow` t
 And to use it in iOS, you have to add this permission in Info.plist :
 
 ```
-// The is likely the only one you need. Background location is supported
+// This is probably the only one you need. Background location is supported
 // by this -- the caveat is that a blue badge is shown in the status bar
 // when the app is using location service while in the background.
 NSLocationWhenInUseUsageDescription
