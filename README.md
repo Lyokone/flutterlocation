@@ -27,7 +27,6 @@ With Flutter 1.12, all the dependencies are automatically added to your project.
 If your project was created before Flutter 1.12, you might need to follow [this](https://github.com/flutter/flutter/wiki/Upgrading-pre-1.12-Android-projects).
 
 To use location background mode on Android, you have to use the enableBackgroundMode({bool enable}) API before accessing location in the background and adding necessary permissions. You should place the required permissions in your applications <your-app>/android/app/src/main/AndroidManifest.xml:
-To use location background mode on Android you have to use the `enableBackgroundMode({bool enable})` API before trying to access location in the background and add nescessary permissions. You should place the required permissions in your applications `<your-app>/android/app/src/main/AndroidManifest.xml`:
 
 ```xml
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
