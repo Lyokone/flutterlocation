@@ -53,7 +53,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware {
     }
 
     private void detachActivity() {
-        deinitialize();
+        dispose();
 
         activityBinding.getActivity().unbindService(serviceConnection);
         activityBinding = null;
@@ -108,7 +108,7 @@ public class LocationPlugin implements FlutterPlugin, ActivityAware {
         streamHandlerImpl.setLocation(locationService.getLocation());
     }
 
-    private void deinitialize() {
+    private void dispose() {
         streamHandlerImpl.setLocation(null);
 
         methodCallHandler.setLocationService(null);

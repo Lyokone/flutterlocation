@@ -26,7 +26,6 @@ class _ListenLocationState extends State<ListenLocationWidget> {
           _error = err.code;
         });
       }
-      print(err);
       _locationSubscription.cancel();
     }).listen((LocationData currentLocation) {
       setState(() {
