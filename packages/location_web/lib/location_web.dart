@@ -99,7 +99,7 @@ class LocationWebPlugin extends LocationPlatform {
   }
 
   LocationData _toLocationData(js.Geoposition result) {
-    return LocationData.fromMap(<String, double>{
+    return LocationData.fromMap(<String, dynamic>{
       'latitude': result.coords!.latitude!.toDouble(),
       'longitude': result.coords!.longitude!.toDouble(),
       'accuracy': 0,

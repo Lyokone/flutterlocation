@@ -6,20 +6,44 @@ part of location_platform_interface;
 
 /// The response object of [Location.getLocation] and [Location.onLocationChanged]
 class LocationData {
-  LocationData._(this.latitude, this.longitude, this.accuracy, this.altitude,
-      this.speed, this.speedAccuracy, this.heading, this.time, this.isMock);
+  LocationData._(
+      this.latitude,
+      this.longitude,
+      this.accuracy,
+      this.altitude,
+      this.speed,
+      this.speedAccuracy,
+      this.heading,
+      this.time,
+      this.isMock,
+      this.verticalAccuracy,
+      this.headingAccuracy,
+      this.elapsedRealtimeNanos,
+      this.elapsedRealtimeUncertaintyNanos,
+      this.satelliteNumber,
+      this.provider);
 
-  factory LocationData.fromMap(Map<String, double> dataMap) {
+  factory LocationData.fromMap(Map<String, dynamic> dataMap) {
+    print(dataMap);
     return LocationData._(
-        dataMap['latitude'],
-        dataMap['longitude'],
-        dataMap['accuracy'],
-        dataMap['altitude'],
-        dataMap['speed'],
-        dataMap['speed_accuracy'],
-        dataMap['heading'],
-        dataMap['time'],
-        dataMap['isMock'] == 1);
+      dataMap['latitude'],
+      dataMap['longitude'],
+      dataMap['accuracy'],
+      dataMap['altitude'],
+      dataMap['speed'],
+      dataMap['speed_accuracy'],
+      dataMap['heading'],
+      dataMap['time'],
+      dataMap['isMock'] == 1,
+      dataMap['verticalAccuracy'],
+      dataMap['headingAccuracy'],
+      dataMap['elapsedRealtimeNanos'],
+      dataMap['elapsedRealtimeUncertaintyNanos'],
+      dataMap['satelliteNumber'] != null
+          ? int.parse(dataMap['satelliteNumber'])
+          : null,
+      dataMap['provider'],
+    );
   }
 
   /// Latitude in degrees
@@ -33,6 +57,9 @@ class LocationData {
   /// Always 0 on Web
   final double? accuracy;
 
+  /// Estimated vertical accuracy of this location, in meters.
+  final double? verticalAccuracy;
+
   /// In meters above the WGS 84 reference ellipsoid. Derived from GPS informations.
   ///
   /// Always 0 on Web
@@ -45,7 +72,7 @@ class LocationData {
 
   /// In meters/second
   ///
-  /// Always 0 on Web and iOS
+  /// Always 0 on Web
   final double? speedAccuracy;
 
   /// Heading is the horizontal direction of travel of this device, in degrees
@@ -59,11 +86,36 @@ class LocationData {
   /// Is the location currently mocked
   ///
   /// Always false on iOS
-  final bool isMock;
+  final bool? isMock;
+
+  /// Get the estimated bearing accuracy of this location, in degrees.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getBearingAccuracyDegrees()
+  final double? headingAccuracy;
+
+  /// Return the time of this fix, in elapsed real-time since system boot.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getElapsedRealtimeNanos()
+  final double? elapsedRealtimeNanos;
+
+  /// Get estimate of the relative precision of the alignment of the ElapsedRealtimeNanos timestamp.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getElapsedRealtimeUncertaintyNanos()
+  final double? elapsedRealtimeUncertaintyNanos;
+
+  /// The number of satellites used to derive the fix.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getExtras()
+  final int? satelliteNumber;
+
+  /// The name of the provider that generated this fix.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getProvider()
+  final String? provider;
 
   @override
   String toString() =>
-      'LocationData<lat: $latitude, long: $longitude${isMock ? ', mocked' : ''}>';
+      'LocationData<lat: $latitude, long: $longitude${isMock == true ? ', mocked' : ''}>';
 
   @override
   bool operator ==(Object other) =>

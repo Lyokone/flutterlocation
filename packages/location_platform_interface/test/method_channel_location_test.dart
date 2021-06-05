@@ -33,7 +33,7 @@ void main() {
       log.add(methodCall);
       switch (methodCall.method) {
         case 'getLocation':
-          return <String, double>{
+          return <String, dynamic>{
             'latitude': 48.8534,
             'longitude': 2.3488,
           };
@@ -135,10 +135,10 @@ void main() {
   });
 
   group('Location Updates', () {
-    late StreamController<Map<String, double>> controller;
+    late StreamController<Map<String, dynamic>> controller;
 
     setUp(() {
-      controller = StreamController<Map<String, double>>();
+      controller = StreamController<Map<String, dynamic>>();
       when(eventChannel!.receiveBroadcastStream())
           .thenAnswer((Invocation invoke) => controller.stream);
     });
@@ -158,7 +158,7 @@ void main() {
       final StreamQueue<LocationData> queue =
           StreamQueue<LocationData>(location.onLocationChanged);
 
-      controller.add(<String, double>{
+      controller.add(<String, dynamic>{
         'latitude': 48.8534,
         'longitude': 2.3488,
       });
@@ -166,7 +166,7 @@ void main() {
       expect(data.latitude, 48.8534);
       expect(data.longitude, 2.3488);
 
-      controller.add(<String, double>{
+      controller.add(<String, dynamic>{
         'latitude': 42.8534,
         'longitude': 23.3488,
       });

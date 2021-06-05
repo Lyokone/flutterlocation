@@ -223,12 +223,24 @@ public class FlutterLocation
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
                 Location location = locationResult.getLastLocation();
-                HashMap<String, Double> loc = new HashMap<>();
+                HashMap<String, Object> loc = new HashMap<>();
                 loc.put("latitude", location.getLatitude());
                 loc.put("longitude", location.getLongitude());
                 loc.put("accuracy", (double) location.getAccuracy());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    loc.put("verticalAccuracy", (double) location.getVerticalAccuracyMeters());
+                    loc.put("headingAccuracy", (double) location.getBearingAccuracyDegrees());
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    loc.put("elapsedRealtimeUncertaintyNanos", (double) location.getElapsedRealtimeUncertaintyNanos());
+                }
+
+                loc.put("provider", location.getProvider());
+                loc.put("satelliteNumber", location.getExtras().get("satellites"));
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                    loc.put("elapsedRealtimeNanos", (double) location.getElapsedRealtimeNanos());
+
                     if (location.isFromMockProvider()) {
                         loc.put("isMock", (double) 1);
                     }
