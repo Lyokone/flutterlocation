@@ -62,12 +62,17 @@
     [self initLocation];
     if ([call.method isEqualToString:@"changeSettings"]) {
         if ([CLLocationManager locationServicesEnabled]) {
+            CLLocationAccuracy reducedAccuracy = kCLLocationAccuracyHundredMeters;
+            if (@available(iOS 14, *)) {
+                reducedAccuracy = kCLLocationAccuracyReduced;
+            }
             NSDictionary *dictionary = @{
                 @"0" : @(kCLLocationAccuracyKilometer),
                 @"1" : @(kCLLocationAccuracyHundredMeters),
                 @"2" : @(kCLLocationAccuracyNearestTenMeters),
                 @"3" : @(kCLLocationAccuracyBest),
-                @"4" : @(kCLLocationAccuracyBestForNavigation)
+                @"4" : @(kCLLocationAccuracyBestForNavigation),
+                @"5" : @(reducedAccuracy)
             };
 
             self.clLocationManager.desiredAccuracy =
