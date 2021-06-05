@@ -15,7 +15,7 @@ class _ListenLocationState extends State<ListenLocationWidget> {
   final Location location = Location();
 
   LocationData? _location;
-  late StreamSubscription<LocationData> _locationSubscription;
+  StreamSubscription<LocationData>? _locationSubscription;
   String? _error;
 
   Future<void> _listenLocation() async {
@@ -26,7 +26,10 @@ class _ListenLocationState extends State<ListenLocationWidget> {
           _error = err.code;
         });
       }
-      _locationSubscription.cancel();
+      _locationSubscription?.cancel();
+      setState(() {
+        _locationSubscription = null;
+      });
     }).listen((LocationData currentLocation) {
       setState(() {
         _error = null;
@@ -34,10 +37,23 @@ class _ListenLocationState extends State<ListenLocationWidget> {
         _location = currentLocation;
       });
     });
+    setState(() {});
   }
 
   Future<void> _stopListen() async {
-    _locationSubscription.cancel();
+    _locationSubscription?.cancel();
+    setState(() {
+      _locationSubscription = null;
+    });
+  }
+
+  @override
+  void dispose() {
+    _locationSubscription?.cancel();
+    setState(() {
+      _locationSubscription = null;
+    });
+    super.dispose();
   }
 
   @override
@@ -55,12 +71,13 @@ class _ListenLocationState extends State<ListenLocationWidget> {
               margin: const EdgeInsets.only(right: 42),
               child: ElevatedButton(
                 child: const Text('Listen'),
-                onPressed: _listenLocation,
+                onPressed:
+                    _locationSubscription == null ? _listenLocation : null,
               ),
             ),
             ElevatedButton(
               child: const Text('Stop'),
-              onPressed: _stopListen,
+              onPressed: _locationSubscription != null ? _stopListen : null,
             )
           ],
         ),
