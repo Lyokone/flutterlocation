@@ -25,7 +25,7 @@ task:
         - melos run lint:all
     - name: test
       env:
-        CODECOV_TOKEN: ENCRYPTED[9ba9d1e58de2fc81556d89154383b44d9360408c6e7f40f5f7940d42b6c5bbac1cfb9c773ddcc20db6eba85622a3db38]
+        CODECOV_TOKEN: ENCRYPTED[ac3e49abb66606b10e1bacc05c45c5f6325e3677770fba1c935a71a8854ec73017b61492ab167a7bedd96a4cc9e1e644]
         matrix:
           CHANNEL: "master"
           CHANNEL: "stable"
@@ -33,7 +33,7 @@ task:
         - export PATH="$PATH":"$HOME/.pub-cache/bin"
         - flutter channel $CHANNEL
         - melos bootstrap
-        - melos run lint:all
+        - melos run test --no-select
         - cd packages/location
         - if [ $CHANNEL = "stable" ]; then bash <(curl -s https://codecov.io/bash); fi
         - cd ../location_platform_interface
