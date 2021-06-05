@@ -86,15 +86,20 @@
         }
     } else if ([call.method isEqualToString:@"isBackgroundModeEnabled"]) {
         if (self.applicationHasLocationBackgroundMode) {
-            result(self.clLocationManager.allowsBackgroundLocationUpdates ? @1 : @0);
-        } else {
+            if (@available(iOS 9.0, *)) {
+                result(self.clLocationManager.allowsBackgroundLocationUpdates ? @1 : @0);
+            }
             result(@0);
         }
     } else if ([call.method isEqualToString:@"enableBackgroundMode"]) {
         BOOL enable = [call.arguments[@"enable"] boolValue];
         if (self.applicationHasLocationBackgroundMode) {
-            self.clLocationManager.allowsBackgroundLocationUpdates = enable;
-            self.clLocationManager.showsBackgroundLocationIndicator = enable;
+            if (@available(iOS 9.0, *)) {
+                self.clLocationManager.allowsBackgroundLocationUpdates = enable;
+            }
+            if (@available(iOS 11.0, *)) {
+                self.clLocationManager.showsBackgroundLocationIndicator = enable;
+            }
             result(enable ? @1 : @0);
         } else {
             result(@0);
