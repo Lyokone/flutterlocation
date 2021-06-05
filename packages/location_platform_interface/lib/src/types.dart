@@ -107,6 +107,12 @@ enum LocationAccuracy {
 
   /// To request location for navigation usage (affect only iOS)
   navigation,
+
+  /// On iOS 14.0+, this is mapped to kCLLocationAccuracyReduced.
+  /// See https://developer.apple.com/documentation/corelocation/kcllocationaccuracyreduced
+  ///
+  /// On iOS < 14.0 and Android, this is equivalent to LocationAccuracy.low.
+  reduced,
 }
 
 // Status of a permission request to use location services.

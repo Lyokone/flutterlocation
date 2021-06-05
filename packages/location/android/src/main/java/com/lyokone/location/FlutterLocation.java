@@ -86,6 +86,7 @@ public class FlutterLocation
             put(2, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
             put(3, LocationRequest.PRIORITY_HIGH_ACCURACY);
             put(4, LocationRequest.PRIORITY_HIGH_ACCURACY);
+            put(5, LocationRequest.PRIORITY_LOW_POWER);
         }
     };
 
