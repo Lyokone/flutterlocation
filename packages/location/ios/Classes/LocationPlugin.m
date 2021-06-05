@@ -281,18 +281,20 @@
     didUpdateLocations:(NSArray<CLLocation*>*)locations {
     CLLocation *location = locations.firstObject;
     NSTimeInterval timeInSeconds = [location.timestamp timeIntervalSince1970];
+    BOOL superiorToIos10 = [UIDevice currentDevice].systemVersion.floatValue >= 10;
     NSDictionary<NSString*,NSNumber*>* coordinatesDict =
-        @{
-          @"latitude": @(location.coordinate.latitude),
-          @"longitude": @(location.coordinate.longitude),
-          @"accuracy": @(location.horizontalAccuracy),
-          @"altitude": @(location.altitude),
-          @"speed": @(location.speed),
-          @"speed_accuracy": @0.0,
-          @"heading": @(location.course),
-          @"time": @(((double) timeInSeconds) * 1000.0)  // in milliseconds since the epoch
-        };
-
+    @{
+        @"latitude": @(location.coordinate.latitude),
+        @"longitude": @(location.coordinate.longitude),
+        @"accuracy": @(location.horizontalAccuracy),
+        @"verticalAccuracy": @(location.verticalAccuracy),
+        @"altitude": @(location.altitude),
+        @"speed": @(location.speed),
+        @"speed_accuracy": superiorToIos10 ? @(location.speedAccuracy) : @0.0,
+        @"heading": @(location.course),
+        @"time": @(((double) timeInSeconds) * 1000.0)  // in milliseconds since the epoch
+    };
+    
     if (self.locationWanted) {
         self.locationWanted = NO;
         self.flutterResult(coordinatesDict);
