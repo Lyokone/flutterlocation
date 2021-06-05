@@ -418,7 +418,7 @@ public class FlutterLocation
         mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
                 .addOnSuccessListener(activity, locationSettingsResponse -> {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        locationManager.addNmeaListener(mMessageListener);
+                        locationManager.addNmeaListener(mMessageListener, null);
                     }
 
                     if (mFusedLocationClient != null) {
@@ -443,7 +443,7 @@ public class FlutterLocation
                         int statusCode = ae.getStatusCode();
                         if (statusCode == LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE) {// This error code happens during AirPlane mode.
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                locationManager.addNmeaListener(mMessageListener);
+                                locationManager.addNmeaListener(mMessageListener, null);
                             }
                             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
                                     Looper.myLooper());

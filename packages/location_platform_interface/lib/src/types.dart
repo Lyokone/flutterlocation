@@ -24,7 +24,6 @@ class LocationData {
       this.provider);
 
   factory LocationData.fromMap(Map<String, dynamic> dataMap) {
-    print(dataMap);
     return LocationData._(
       dataMap['latitude'],
       dataMap['longitude'],
