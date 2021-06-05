@@ -11,6 +11,8 @@
 @property (copy, nonatomic)   FlutterResult      flutterResult;
 @property (assign, nonatomic) BOOL               locationWanted;
 @property (assign, nonatomic) BOOL               permissionWanted;
+// Needed to prevent instant firing of the previous known location
+@property (assign, nonatomic) int                waitNextLocation;
 
 @property (copy, nonatomic)   FlutterEventSink   flutterEventSink;
 @property (assign, nonatomic) BOOL               flutterListening;
@@ -40,6 +42,7 @@
         self.locationWanted = NO;
         self.permissionWanted = NO;
         self.flutterListening = NO;
+        self.waitNextLocation = 2;
         self.hasInit = NO;
     }
     return self;
@@ -279,7 +282,14 @@
 
 -(void)locationManager:(CLLocationManager*)manager
     didUpdateLocations:(NSArray<CLLocation*>*)locations {
-    CLLocation *location = locations.firstObject;
+    if (self.waitNextLocation > 0) {
+        self.waitNextLocation -= 1;
+        return;
+    }
+    CLLocation *location = locations.lastObject;
+    
+    NSLog(@"currentLocation is %@", location);
+
     NSTimeInterval timeInSeconds = [location.timestamp timeIntervalSince1970];
     BOOL superiorToIos10 = [UIDevice currentDevice].systemVersion.floatValue >= 10;
     NSDictionary<NSString*,NSNumber*>* coordinatesDict =
@@ -303,6 +313,7 @@
         self.flutterEventSink(coordinatesDict);
     } else {
         [self.clLocationManager stopUpdatingLocation];
+        self.waitNextLocation = 2;
     }
 }
 
