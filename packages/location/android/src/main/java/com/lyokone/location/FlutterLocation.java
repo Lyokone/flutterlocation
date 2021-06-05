@@ -221,6 +221,12 @@ public class FlutterLocation
                 loc.put("longitude", location.getLongitude());
                 loc.put("accuracy", (double) location.getAccuracy());
 
+                if (location.isFromMockProvider()) {
+                    loc.put("isMock", (double) 1);
+                } else {
+                    loc.put("isMock", (double) 0);
+                }
+
                 // Using NMEA Data to get MSL level altitude
                 if (mLastMslAltitude == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                     loc.put("altitude", location.getAltitude());
