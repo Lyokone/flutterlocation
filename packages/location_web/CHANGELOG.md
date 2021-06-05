@@ -1,3 +1,7 @@
+## 3.1.0
+
+ - **FEAT**: add several information to resolve #552.
+
 ## 3.0.0
 
 > Note: This release has breaking changes.

@@ -1,3 +1,32 @@
+## 4.2.0
+
+ - **REFACTOR**: remove Android strings.
+ - **REFACTOR**: extract background notification logic to separate class.
+ - **FIX**: wait 2 location updates to make sure that the last knwown position isn't returned instantly #549.
+ - **FIX**: fix the depreciation warning on android #550.
+ - **FIX**: improve changeSettings to be applied immediatly.
+ - **FEAT**: add several information to resolve #552.
+ - **FEAT**: add several information to resolve #552.
+ - **FEAT**: better listen example to prevent infinite location request.
+ - **FEAT**: fix typos.
+ - **FEAT**: add ios requirements.
+ - **FEAT**: improve example app.
+ - **FEAT**: separate result variables to prevent result override.
+ - **FEAT**: add isMock information on LocationData.
+ - **FEAT**: add fallback for LocationAccuracy.reduced on Android.
+ - **FEAT**: add option to reopen app from notification.
+ - **FEAT**: allow for customizing Android notification text, subtext and color.
+ - **FEAT**: update example app to showcase Android notification options.
+ - **FEAT**: allow for customizing Android background notification from dart.
+ - **FEAT**: handle notification changes in Android MethodCallHandler.
+ - **FEAT**: return notification and channel id when changing options.
+ - **DOCS**: update readme web.
+ - **CHORE**: publish packages.
+ - **CHORE**: publish packages.
+ - **CHORE**: publish packages.
+ - **CHORE**: publish packages.
+ - **CHORE**: publish packages.
+
 ## 4.1.1
 
  - **FIX**: fix crash on build.
