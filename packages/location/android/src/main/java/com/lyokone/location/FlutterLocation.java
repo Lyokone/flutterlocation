@@ -196,6 +196,7 @@ public class FlutterLocation
         createLocationCallback();
         createLocationRequest();
         buildLocationSettingsRequest();
+        startRequestingLocation();
     }
 
     private void sendError(String errorCode, String errorMessage, Object errorDetails) {
@@ -213,6 +214,10 @@ public class FlutterLocation
      * Creates a callback for receiving location events.
      */
     private void createLocationCallback() {
+        if (mLocationCallback != null) {
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+            mLocationCallback = null;
+        }
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
