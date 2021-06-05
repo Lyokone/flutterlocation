@@ -5,8 +5,6 @@
 part of location_platform_interface;
 
 /// The response object of [Location.getLocation] and [Location.onLocationChanged]
-///
-/// speedAccuracy cannot be provided on iOS and thus is always 0.
 class LocationData {
   LocationData._(this.latitude, this.longitude, this.accuracy, this.altitude,
       this.speed, this.speedAccuracy, this.heading, this.time, this.isMock);
@@ -35,7 +33,7 @@ class LocationData {
   /// Always 0 on Web
   final double? accuracy;
 
-  /// In meters above the WGS 84 reference ellipsoid
+  /// In meters above the WGS 84 reference ellipsoid. Derived from GPS informations.
   ///
   /// Always 0 on Web
   final double? altitude;
