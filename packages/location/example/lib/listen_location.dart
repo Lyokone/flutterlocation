@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:location/location.dart';
 
 class ListenLocationWidget extends StatefulWidget {
@@ -20,9 +21,12 @@ class _ListenLocationState extends State<ListenLocationWidget> {
   Future<void> _listenLocation() async {
     _locationSubscription =
         location.onLocationChanged.handleError((dynamic err) {
-      setState(() {
-        _error = err.code;
-      });
+      if (err is PlatformException) {
+        setState(() {
+          _error = err.code;
+        });
+      }
+      print(err);
       _locationSubscription.cancel();
     }).listen((LocationData currentLocation) {
       setState(() {

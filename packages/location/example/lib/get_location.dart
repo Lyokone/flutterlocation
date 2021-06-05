@@ -12,21 +12,26 @@ class GetLocationWidget extends StatefulWidget {
 class _GetLocationState extends State<GetLocationWidget> {
   final Location location = Location();
 
+  bool _loading = false;
+
   LocationData? _location;
   String? _error;
 
   Future<void> _getLocation() async {
     setState(() {
       _error = null;
+      _loading = true;
     });
     try {
       final LocationData _locationResult = await location.getLocation();
       setState(() {
         _location = _locationResult;
+        _loading = false;
       });
     } on PlatformException catch (err) {
       setState(() {
         _error = err.code;
+        _loading = false;
       });
     }
   }
@@ -43,7 +48,11 @@ class _GetLocationState extends State<GetLocationWidget> {
         Row(
           children: <Widget>[
             ElevatedButton(
-              child: const Text('Get'),
+              child: _loading
+                  ? const CircularProgressIndicator(
+                      color: Colors.white,
+                    )
+                  : const Text('Get'),
               onPressed: _getLocation,
             )
           ],
