@@ -21,7 +21,7 @@ class LocationData {
         dataMap['speed_accuracy'],
         dataMap['heading'],
         dataMap['time'],
-        dataMap['isMock'] != null && dataMap['isMock'] == 1);
+        dataMap['isMock'] == 1);
   }
 
   /// Latitude in degrees
@@ -58,13 +58,14 @@ class LocationData {
   /// timestamp of the LocationData
   final double? time;
 
-  /// true if the location is currently mocked
+  /// Is the location currently mocked
   ///
   /// Always false on iOS
   final bool isMock;
 
   @override
-  String toString() => 'LocationData<lat: $latitude, long: $longitude>';
+  String toString() =>
+      'LocationData<lat: $latitude, long: $longitude${isMock ? ', mocked' : ''}>';
 
   @override
   bool operator ==(Object other) =>

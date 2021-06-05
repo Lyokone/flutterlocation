@@ -123,8 +123,9 @@ class LocationData {
   final double altitude; // In meters above the WGS 84 reference ellipsoid
   final double speed; // In meters/second
   final double speedAccuracy; // In meters/second, always 0 on iOS
-  final double heading; //Heading is the horizontal direction of travel of this device, in degrees
-  final double time; //timestamp of the LocationData
+  final double heading; // Heading is the horizontal direction of travel of this device, in degrees
+  final double time; // timestamp of the LocationData
+  final bool isMock; // Is the location currently mocked
 }
 
 
