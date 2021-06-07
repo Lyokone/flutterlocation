@@ -1,3 +1,7 @@
+## 4.2.1
+
+ - **FIX**: add compatibility version to target Java 8.
+
 ## 4.2.0
 
  - **REFACTOR**: remove Android strings.
