@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
@@ -50,6 +51,10 @@ class _EnableInBackgroundState extends State<EnableInBackgroundWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return const Text('Enable in background not available on the web');
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[

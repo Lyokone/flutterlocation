@@ -12,6 +12,8 @@ handles getting a location on Android and iOS. It also provides callbacks when t
   </a>
 </p>
 
+[Web demo](https://lyokone.github.io/flutterlocation) (more features available on Android/iOS)
+
 ## Getting Started
 
 Add this to your package's `pubspec.yaml` file:

@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
@@ -31,17 +30,13 @@ class _ChangeSettingsState extends State<ChangeSettings> {
 
   @override
   Widget build(BuildContext context) {
-    if (!Platform.isAndroid) {
-      return const SizedBox();
-    }
-
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            'Android Notification Settings',
+            'Change settings',
             style: Theme.of(context).textTheme.bodyText1,
           ),
           const SizedBox(height: 4),
