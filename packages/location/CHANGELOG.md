@@ -1,3 +1,7 @@
+## 4.2.2
+
+ - **FIX**: fix android crash on Android API 27, #5798.
+
 ## 4.2.1
 
  - **FIX**: add compatibility version to target Java 8.
