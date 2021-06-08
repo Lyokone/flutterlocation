@@ -12,6 +12,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.util.SparseArray;
@@ -236,7 +237,10 @@ public class FlutterLocation
                 }
 
                 loc.put("provider", location.getProvider());
-                loc.put("satelliteNumber", location.getExtras().get("satellites"));
+                final Bundle extras = location.getExtras();
+                if (extras != null) {
+                    loc.put("satelliteNumber", location.getExtras().get("satellites"));
+                }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                     loc.put("elapsedRealtimeNanos", (double) location.getElapsedRealtimeNanos());
