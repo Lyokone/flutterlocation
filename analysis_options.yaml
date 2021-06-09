@@ -1,6 +1,4 @@
 analyzer:
-  strong-mode:
-    implicit-dynamic: false
   exclude:
     - "build/**"
     - "**/*.mocks.dart" # Mockito @GenerateMocks
