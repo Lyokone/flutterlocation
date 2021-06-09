@@ -1,6 +1,10 @@
+## 4.2.3
+
+ - **FIX**: fix macos build, fixing #544.
+
 ## 4.2.2
 
- - **FIX**: fix android crash on Android API 27, #5798.
+ - **FIX**: fix android crash on Android API 27, #579.
 
 ## 4.2.1
 
