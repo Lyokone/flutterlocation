@@ -1,3 +1,19 @@
+## 2.2.0
+
+ - **FIX**: fix the depreciation warning on android #550.
+ - **FEAT**: add several information to resolve #552.
+ - **FEAT**: improve LocationData doc.
+ - **FEAT**: improve example app.
+ - **FEAT**: add isMock information on LocationData.
+ - **FEAT**: add fallback for LocationAccuracy.reduced on Android.
+ - **FEAT**: add option to reopen app from notification.
+ - **FEAT**: allow for customizing Android notification text, subtext and color.
+ - **FEAT**: allow for customizing Android background notification from dart.
+ - **DOCS**: update readme web.
+ - **CHORE**: publish packages.
+ - **CHORE**: publish packages.
+ - **CHORE**: publish packages.
+
 ## 2.1.0
 
  - **FEAT**: add option to reopen app from notification.

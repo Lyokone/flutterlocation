@@ -9,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:4.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -18,18 +18,15 @@ rootProject.allprojects {
     repositories {
         google()
         jcenter()
-
+        mavenCentral()
     }
 }
-
-
-
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
 
     defaultConfig {
         minSdkVersion 16
@@ -41,9 +38,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
-    }
-    lintOptions {
-        disable 'InvalidPackage'
     }
 }
 
@@ -57,7 +51,4 @@ dependencies {
     api 'com.google.android.gms:play-services-location:16.+'
     implementation "androidx.core:core-ktx:1.3.2"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}
-repositories {
-    mavenCentral()
 }

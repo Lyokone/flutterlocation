@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
@@ -32,8 +33,9 @@ class _ChangeNotificationWidgetState extends State<ChangeNotificationWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (!Platform.isAndroid) {
-      return const SizedBox();
+    if (kIsWeb || !Platform.isAndroid) {
+      return const Text(
+          'Change notification settings not available on this platform');
     }
 
     return Form(

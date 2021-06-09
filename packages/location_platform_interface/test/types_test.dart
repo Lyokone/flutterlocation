@@ -5,13 +5,13 @@ void main() {
   group('LocationData', () {
     test('LocationData should be correctly converted to string', () {
       final LocationData locationData = LocationData.fromMap(
-          <String, double>{'latitude': 42, 'longitude': 2});
+          <String, dynamic>{'latitude': 42, 'longitude': 2});
       expect(locationData.toString(),
           'LocationData<lat: ${locationData.latitude}, long: ${locationData.longitude}>');
     });
 
     test('LocationData should be equal if all parameters are equals', () {
-      final LocationData locationData = LocationData.fromMap(<String, double>{
+      final LocationData locationData = LocationData.fromMap(<String, dynamic>{
         'latitude': 42,
         'longitude': 2,
         'accuracy': 2,
@@ -22,7 +22,7 @@ void main() {
         'time': 2
       });
       final LocationData otherLocationData =
-          LocationData.fromMap(<String, double>{
+          LocationData.fromMap(<String, dynamic>{
         'latitude': 42,
         'longitude': 2,
         'accuracy': 2,
@@ -38,7 +38,7 @@ void main() {
     });
 
     test('LocationData should be different if one parameters is different', () {
-      final LocationData locationData = LocationData.fromMap(<String, double>{
+      final LocationData locationData = LocationData.fromMap(<String, dynamic>{
         'latitude': 42,
         'longitude': 2,
         'accuracy': 2,
@@ -49,7 +49,7 @@ void main() {
         'time': 2
       });
       final LocationData otherLocationData =
-          LocationData.fromMap(<String, double>{
+          LocationData.fromMap(<String, dynamic>{
         'latitude': 42,
         'longitude': 2,
         'accuracy': 2,

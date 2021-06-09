@@ -83,8 +83,8 @@ class MethodChannelLocation extends LocationPlatform {
   /// Returns a [LocationData] object.
   @override
   Future<LocationData> getLocation() async {
-    final Map<String, double>? resultMap =
-        await _methodChannel!.invokeMapMethod<String, double>('getLocation');
+    final Map<String, dynamic>? resultMap =
+        await _methodChannel!.invokeMapMethod<String, dynamic>('getLocation');
     if (resultMap == null) {
       throw PlatformException(
         code: 'NULL_RESULT',
@@ -146,8 +146,8 @@ class MethodChannelLocation extends LocationPlatform {
   Stream<LocationData> get onLocationChanged {
     return _onLocationChanged ??= _eventChannel!
         .receiveBroadcastStream()
-        .map<LocationData>((dynamic element) =>
-            LocationData.fromMap(Map<String, double>.from(element)));
+        .map<LocationData>((dynamic event) => LocationData.fromMap(
+            Map<String, dynamic>.of(event.cast<String, dynamic>())));
   }
 
   /// Change options of sticky background notification on Android.

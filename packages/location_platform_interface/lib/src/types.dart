@@ -5,13 +5,25 @@
 part of location_platform_interface;
 
 /// The response object of [Location.getLocation] and [Location.onLocationChanged]
-///
-/// speedAccuracy cannot be provided on iOS and thus is always 0.
 class LocationData {
-  LocationData._(this.latitude, this.longitude, this.accuracy, this.altitude,
-      this.speed, this.speedAccuracy, this.heading, this.time);
+  LocationData._(
+      this.latitude,
+      this.longitude,
+      this.accuracy,
+      this.altitude,
+      this.speed,
+      this.speedAccuracy,
+      this.heading,
+      this.time,
+      this.isMock,
+      this.verticalAccuracy,
+      this.headingAccuracy,
+      this.elapsedRealtimeNanos,
+      this.elapsedRealtimeUncertaintyNanos,
+      this.satelliteNumber,
+      this.provider);
 
-  factory LocationData.fromMap(Map<String, double> dataMap) {
+  factory LocationData.fromMap(Map<String, dynamic> dataMap) {
     return LocationData._(
       dataMap['latitude'],
       dataMap['longitude'],
@@ -21,6 +33,15 @@ class LocationData {
       dataMap['speed_accuracy'],
       dataMap['heading'],
       dataMap['time'],
+      dataMap['isMock'] == 1,
+      dataMap['verticalAccuracy'],
+      dataMap['headingAccuracy'],
+      dataMap['elapsedRealtimeNanos'],
+      dataMap['elapsedRealtimeUncertaintyNanos'],
+      dataMap['satelliteNumber'] != null
+          ? int.parse(dataMap['satelliteNumber'])
+          : null,
+      dataMap['provider'],
     );
   }
 
@@ -35,7 +56,10 @@ class LocationData {
   /// Always 0 on Web
   final double? accuracy;
 
-  /// In meters above the WGS 84 reference ellipsoid
+  /// Estimated vertical accuracy of this location, in meters.
+  final double? verticalAccuracy;
+
+  /// In meters above the WGS 84 reference ellipsoid. Derived from GPS informations.
   ///
   /// Always 0 on Web
   final double? altitude;
@@ -47,7 +71,7 @@ class LocationData {
 
   /// In meters/second
   ///
-  /// Always 0 on Web and iOS
+  /// Always 0 on Web
   final double? speedAccuracy;
 
   /// Heading is the horizontal direction of travel of this device, in degrees
@@ -58,8 +82,39 @@ class LocationData {
   /// timestamp of the LocationData
   final double? time;
 
+  /// Is the location currently mocked
+  ///
+  /// Always false on iOS
+  final bool? isMock;
+
+  /// Get the estimated bearing accuracy of this location, in degrees.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getBearingAccuracyDegrees()
+  final double? headingAccuracy;
+
+  /// Return the time of this fix, in elapsed real-time since system boot.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getElapsedRealtimeNanos()
+  final double? elapsedRealtimeNanos;
+
+  /// Get estimate of the relative precision of the alignment of the ElapsedRealtimeNanos timestamp.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getElapsedRealtimeUncertaintyNanos()
+  final double? elapsedRealtimeUncertaintyNanos;
+
+  /// The number of satellites used to derive the fix.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getExtras()
+  final int? satelliteNumber;
+
+  /// The name of the provider that generated this fix.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getProvider()
+  final String? provider;
+
   @override
-  String toString() => 'LocationData<lat: $latitude, long: $longitude>';
+  String toString() =>
+      'LocationData<lat: $latitude, long: $longitude${isMock == true ? ', mocked' : ''}>';
 
   @override
   bool operator ==(Object other) =>
@@ -73,7 +128,8 @@ class LocationData {
           speed == other.speed &&
           speedAccuracy == other.speedAccuracy &&
           heading == other.heading &&
-          time == other.time;
+          time == other.time &&
+          isMock == other.isMock;
 
   @override
   int get hashCode =>
@@ -84,7 +140,8 @@ class LocationData {
       speed.hashCode ^
       speedAccuracy.hashCode ^
       heading.hashCode ^
-      time.hashCode;
+      time.hashCode ^
+      isMock.hashCode;
 }
 
 /// Precision of the Location. A lower precision will provide a greater battery
@@ -107,6 +164,12 @@ enum LocationAccuracy {
 
   /// To request location for navigation usage (affect only iOS)
   navigation,
+
+  /// On iOS 14.0+, this is mapped to kCLLocationAccuracyReduced.
+  /// See https://developer.apple.com/documentation/corelocation/kcllocationaccuracyreduced
+  ///
+  /// On iOS < 14.0 and Android, this is equivalent to LocationAccuracy.low.
+  reduced,
 }
 
 // Status of a permission request to use location services.

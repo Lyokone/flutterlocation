@@ -20,7 +20,7 @@ void main() {
 
   group('getLocation', () {
     when(location.getLocation()).thenAnswer((_) async {
-      return LocationData.fromMap(<String, double>{
+      return LocationData.fromMap(<String, dynamic>{
         'latitude': 48.8534,
         'longitude': 2.3488,
       });
@@ -97,11 +97,11 @@ void main() {
     tearDown(() => controller.close());
 
     test('should receive values', () async {
-      controller.add(LocationData.fromMap(<String, double>{
+      controller.add(LocationData.fromMap(<String, dynamic>{
         'latitude': 48.8534,
         'longitude': 2.3488,
       }));
-      controller.add(LocationData.fromMap(<String, double>{
+      controller.add(LocationData.fromMap(<String, dynamic>{
         'latitude': 42.8534,
         'longitude': 23.3488,
       }));
@@ -111,11 +111,11 @@ void main() {
         location.onLocationChanged,
         emitsInOrder(
           <dynamic>[
-            LocationData.fromMap(<String, double>{
+            LocationData.fromMap(<String, dynamic>{
               'latitude': 48.8534,
               'longitude': 2.3488,
             }),
-            LocationData.fromMap(<String, double>{
+            LocationData.fromMap(<String, dynamic>{
               'latitude': 42.8534,
               'longitude': 23.3488,
             }),

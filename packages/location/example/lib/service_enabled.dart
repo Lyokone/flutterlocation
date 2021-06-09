@@ -21,15 +21,13 @@ class _ServiceEnabledState extends State<ServiceEnabledWidget> {
   }
 
   Future<void> _requestService() async {
-    if (_serviceEnabled == null || !_serviceEnabled!) {
-      final bool serviceRequestedResult = await location.requestService();
-      setState(() {
-        _serviceEnabled = serviceRequestedResult;
-      });
-      if (!serviceRequestedResult) {
-        return;
-      }
+    if (_serviceEnabled == true) {
+      return;
     }
+    final bool serviceRequestedResult = await location.requestService();
+    setState(() {
+      _serviceEnabled = serviceRequestedResult;
+    });
   }
 
   @override

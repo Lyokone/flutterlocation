@@ -11,6 +11,8 @@
 @property (copy, nonatomic)   FlutterResult      flutterResult;
 @property (assign, nonatomic) BOOL               locationWanted;
 @property (assign, nonatomic) BOOL               permissionWanted;
+// Needed to prevent instant firing of the previous known location
+@property (assign, nonatomic) int                waitNextLocation;
 
 @property (copy, nonatomic)   FlutterEventSink   flutterEventSink;
 @property (assign, nonatomic) BOOL               flutterListening;
@@ -40,6 +42,7 @@
         self.locationWanted = NO;
         self.permissionWanted = NO;
         self.flutterListening = NO;
+        self.waitNextLocation = 2;
         self.hasInit = NO;
     }
     return self;
@@ -62,12 +65,17 @@
     [self initLocation];
     if ([call.method isEqualToString:@"changeSettings"]) {
         if ([CLLocationManager locationServicesEnabled]) {
+            CLLocationAccuracy reducedAccuracy = kCLLocationAccuracyHundredMeters;
+            if (@available(iOS 14, *)) {
+                reducedAccuracy = kCLLocationAccuracyReduced;
+            }
             NSDictionary *dictionary = @{
                 @"0" : @(kCLLocationAccuracyKilometer),
                 @"1" : @(kCLLocationAccuracyHundredMeters),
                 @"2" : @(kCLLocationAccuracyNearestTenMeters),
                 @"3" : @(kCLLocationAccuracyBest),
-                @"4" : @(kCLLocationAccuracyBestForNavigation)
+                @"4" : @(kCLLocationAccuracyBestForNavigation),
+                @"5" : @(reducedAccuracy)
             };
 
             self.clLocationManager.desiredAccuracy =
@@ -81,15 +89,20 @@
         }
     } else if ([call.method isEqualToString:@"isBackgroundModeEnabled"]) {
         if (self.applicationHasLocationBackgroundMode) {
-            result(self.clLocationManager.allowsBackgroundLocationUpdates ? @1 : @0);
-        } else {
+            if (@available(iOS 9.0, *)) {
+                result(self.clLocationManager.allowsBackgroundLocationUpdates ? @1 : @0);
+            }
             result(@0);
         }
     } else if ([call.method isEqualToString:@"enableBackgroundMode"]) {
         BOOL enable = [call.arguments[@"enable"] boolValue];
         if (self.applicationHasLocationBackgroundMode) {
-            self.clLocationManager.allowsBackgroundLocationUpdates = enable;
-            self.clLocationManager.showsBackgroundLocationIndicator = enable;
+            if (@available(iOS 9.0, *)) {
+                self.clLocationManager.allowsBackgroundLocationUpdates = enable;
+            }
+            if (@available(iOS 11.0, *)) {
+                self.clLocationManager.showsBackgroundLocationIndicator = enable;
+            }
             result(enable ? @1 : @0);
         } else {
             result(@0);
@@ -269,20 +282,29 @@
 
 -(void)locationManager:(CLLocationManager*)manager
     didUpdateLocations:(NSArray<CLLocation*>*)locations {
-    CLLocation *location = locations.firstObject;
-    NSTimeInterval timeInSeconds = [location.timestamp timeIntervalSince1970];
-    NSDictionary<NSString*,NSNumber*>* coordinatesDict =
-        @{
-          @"latitude": @(location.coordinate.latitude),
-          @"longitude": @(location.coordinate.longitude),
-          @"accuracy": @(location.horizontalAccuracy),
-          @"altitude": @(location.altitude),
-          @"speed": @(location.speed),
-          @"speed_accuracy": @0.0,
-          @"heading": @(location.course),
-          @"time": @(((double) timeInSeconds) * 1000.0)  // in milliseconds since the epoch
-        };
+    if (self.waitNextLocation > 0) {
+        self.waitNextLocation -= 1;
+        return;
+    }
+    CLLocation *location = locations.lastObject;
+    
+    NSLog(@"currentLocation is %@", location);
 
+    NSTimeInterval timeInSeconds = [location.timestamp timeIntervalSince1970];
+    BOOL superiorToIos10 = [UIDevice currentDevice].systemVersion.floatValue >= 10;
+    NSDictionary<NSString*,NSNumber*>* coordinatesDict =
+    @{
+        @"latitude": @(location.coordinate.latitude),
+        @"longitude": @(location.coordinate.longitude),
+        @"accuracy": @(location.horizontalAccuracy),
+        @"verticalAccuracy": @(location.verticalAccuracy),
+        @"altitude": @(location.altitude),
+        @"speed": @(location.speed),
+        @"speed_accuracy": superiorToIos10 ? @(location.speedAccuracy) : @0.0,
+        @"heading": @(location.course),
+        @"time": @(((double) timeInSeconds) * 1000.0)  // in milliseconds since the epoch
+    };
+    
     if (self.locationWanted) {
         self.locationWanted = NO;
         self.flutterResult(coordinatesDict);
@@ -291,6 +313,7 @@
         self.flutterEventSink(coordinatesDict);
     } else {
         [self.clLocationManager stopUpdatingLocation];
+        self.waitNextLocation = 2;
     }
 }
 

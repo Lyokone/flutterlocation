@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:location_example/change_settings.dart';
 import 'package:location_example/enable_in_background.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -96,6 +98,8 @@ class _MyHomePageState extends State<MyHomePage> {
               GetLocationWidget(),
               Divider(height: 32),
               ListenLocationWidget(),
+              Divider(height: 32),
+              ChangeSettings(),
               Divider(height: 32),
               EnableInBackgroundWidget(),
               Divider(height: 32),

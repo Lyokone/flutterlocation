@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/Lyokone/flutterlocation/branch/master/graph/badge.svg)](https://codecov.io/gh/Lyokone/flutterlocation)
 
 This plugin for [Flutter](https://flutter.io)
-handles getting location on Android and iOS. It also provides callbacks when location is changed.
+handles getting a location on Android and iOS. It also provides callbacks when the location is changed.
 
 <p align="center">
   <a href="http://www.youtube.com/watch?feature=player_embedded&v=65qbtJMltVk" target="_blank">
@@ -12,36 +12,48 @@ handles getting location on Android and iOS. It also provides callbacks when loc
   </a>
 </p>
 
+[Web demo](https://lyokone.github.io/flutterlocation) (more features available on Android/iOS)
+
 ## Getting Started
 
 Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  location: ^4.0.0
+  location: ^4.2.0
 ```
 
 ### Android
 
 With Flutter 1.12, all the dependencies are automatically added to your project.
-If your project was created before Flutter 1.12, you may need to follow [this](https://github.com/flutter/flutter/wiki/Upgrading-pre-1.12-Android-projects).
+If your project was created before Flutter 1.12, you might need to follow [this](https://github.com/flutter/flutter/wiki/Upgrading-pre-1.12-Android-projects).
 
-To use location background mode on Android you have to use the `enableBackgroundMode({bool enable})` API before trying to access location in the background and add nescessary permissions. You should place the required permissions in your applications `<your-app>/android/app/src/main/AndroidManifest.xml`:
+To use location background mode on Android, you have to use the enableBackgroundMode({bool enable}) API before accessing location in the background and adding necessary permissions. You should place the required permissions in your applications <your-app>/android/app/src/main/AndroidManifest.xml:
 
 ```xml
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
 ```
 
-Remember that the user has to accept the location permission to `always allow` to use background location. From Android 11 option to `always allow` is not presented on the location permission dialog prompt. The user has to enable it manually from the app settings and this should be explained to the user on a separate UI that redirects user to app's location settings managed by the operating system. More on that topic can be found on [Android developer](https://developer.android.com/training/location/permissions#request-background-location) pages.
+Remember that the user has to accept the location permission to `always allow` to use the background location. The Android 11 option to `always allow` is not presented on the location permission dialog prompt. The user has to enable it manually from the app settings. This should be explained to the user on a separate UI that redirects the user to the app's location settings managed by the operating system. More on that topic can be found on [Android developer](https://developer.android.com/training/location/permissions#request-background-location) pages.
 
 ### iOS
 
 And to use it in iOS, you have to add this permission in Info.plist :
 
-```xml
+```
+// This is probably the only one you need. Background location is supported
+// by this -- the caveat is that a blue badge is shown in the status bar
+// when the app is using location service while in the background.
 NSLocationWhenInUseUsageDescription
+
+// Deprecated, use NSLocationAlwaysAndWhenInUseUsageDescription instead.
 NSLocationAlwaysUsageDescription
+
+// Use this very carefully. This key is required only if your iOS app
+// uses APIs that access the user’s location information at all times,
+// even if the app isn't running.
+NSLocationAlwaysAndWhenInUseUsageDescription
 ```
 
 To receive location when application is in background, to Info.plist you have to add property list key :
@@ -65,7 +77,7 @@ Nothing to do, the plugin works directly out of box.
 Ensure that the application is properly "sandboxed" and that the location is enabled. You can do this in Xcode with the following steps:
 
 1. In the project navigator, click on your application's target. This should bring up a view with tabs such as "General", "Capabilities", "Resource Tags", etc.
-1. Click on the "Capabilities" tab. This will give you a list of items such as "App Groups", "App Sandbox" and so on. Each item will have an "On/Off" button.
+1. Click on the "Capabilities" tab. This will give you a list of items such as "App Groups", "App Sandbox", and so on. Each item will have an "On/Off" button.
 1. Turn on the "App Sandbox" item and press the ">" button on the left to show the sandbox stuff.
 1. In the "App Data" section, select "Location".
 
@@ -84,7 +96,7 @@ Then you just have to import the package with
 import 'package:location/location.dart';
 ```
 
-In order to request location, you should always check manually Location Service status and Permission status.
+In order to request location, you should always check Location Service status and Permission status manually
 
 ```dart
 Location location = new Location();
@@ -128,9 +140,9 @@ location.enableBackgroundMode(enable: true)
 
 Be sure to check the example project to get other code samples.
 
-On Android a foreground notification is displayed with information that location service is running in the background.
+On Android, a foreground notification is displayed with information that location service is running in the background.
 
-On iOS while app is in the background and gets location, blue system bar notifies User about updates. Tapping on this bar moves User back to the app.
+On iOS, while the app is in the background and gets the location, the blue system bar notifies users about updates. Tapping on this bar moves the User back to the app.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/location/src/background_location_android.png" alt="Androig background location"  width="343" height="686">
@@ -162,8 +174,9 @@ class LocationData {
   final double altitude; // In meters above the WGS 84 reference ellipsoid
   final double speed; // In meters/second
   final double speedAccuracy; // In meters/second, always 0 on iOS
-  final double heading; //Heading is the horizontal direction of travel of this device, in degrees
-  final double time; //timestamp of the LocationData
+  final double heading; // Heading is the horizontal direction of travel of this device, in degrees
+  final double time; // timestamp of the LocationData
+  final bool isMock; // Is the location currently mocked
 }
 
 
