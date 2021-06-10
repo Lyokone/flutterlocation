@@ -12,6 +12,12 @@ void main() {
 
   group('$LocationPlatform', () {
     final LocationPlatform defaultInstance = LocationPlatform.instance;
+    late ExtendsLocationPlatform locationPlatform;
+
+    setUp(() {
+      locationPlatform = ExtendsLocationPlatform();
+    });
+
     tearDown(() {
       LocationPlatform.instance = defaultInstance;
     });
@@ -33,6 +39,96 @@ void main() {
     test('Can be mocked with `implements`', () {
       final MockLocationPlatform mock = MockLocationPlatform();
       LocationPlatform.instance = mock;
+    });
+
+    test(
+        'Default implementation of changeSettings should throw unimplemented error',
+        () {
+      expect(
+        () => locationPlatform.changeSettings(),
+        throwsUnimplementedError,
+      );
+    });
+
+    test(
+        'Default implementation of isBackgroundModeEnabled should throw unimplemented error',
+        () {
+      expect(
+        () => locationPlatform.isBackgroundModeEnabled(),
+        throwsUnimplementedError,
+      );
+    });
+
+    test(
+        'Default implementation of enableBackgroundMode should throw unimplemented error',
+        () {
+      expect(
+        () => locationPlatform.enableBackgroundMode(),
+        throwsUnimplementedError,
+      );
+    });
+
+    test(
+        'Default implementation of getLocation should throw unimplemented error',
+        () {
+      expect(
+        () => locationPlatform.getLocation(),
+        throwsUnimplementedError,
+      );
+    });
+
+    test(
+        'Default implementation of hasPermission should throw unimplemented error',
+        () {
+      expect(
+        () => locationPlatform.hasPermission(),
+        throwsUnimplementedError,
+      );
+    });
+
+    test(
+        'Default implementation of requestPermission should throw unimplemented error',
+        () {
+      expect(
+        () => locationPlatform.requestPermission(),
+        throwsUnimplementedError,
+      );
+    });
+
+    test(
+        'Default implementation of serviceEnabled should throw unimplemented error',
+        () {
+      expect(
+        () => locationPlatform.serviceEnabled(),
+        throwsUnimplementedError,
+      );
+    });
+
+    test(
+        'Default implementation of requestService should throw unimplemented error',
+        () {
+      expect(
+        () => locationPlatform.requestService(),
+        throwsUnimplementedError,
+      );
+    });
+
+    test(
+        'Default implementation of onLocationChanged should throw unimplemented error',
+        () {
+      expect(
+        () => locationPlatform.onLocationChanged,
+        throwsUnimplementedError,
+      );
+    });
+
+    test(
+        'Default implementation of changeNotificationOptions should throw unimplemented error',
+        () {
+      expect(
+        () => locationPlatform.changeNotificationOptions(),
+        throwsUnimplementedError,
+      );
     });
   });
 }

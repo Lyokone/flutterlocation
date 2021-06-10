@@ -1,3 +1,6 @@
+// Ignored since there is a bug in the coverage report tool
+// https://github.com/dart-lang/coverage/issues/339
+// coverage:ignore-file
 import 'dart:ui';
 
 import 'package:location_platform_interface/location_platform_interface.dart';
@@ -5,13 +8,13 @@ import 'package:location_platform_interface/location_platform_interface.dart';
 export 'package:location_platform_interface/location_platform_interface.dart'
     show PermissionStatus, LocationAccuracy, LocationData;
 
-class Location {
+class Location implements LocationPlatform {
   /// Initializes the plugin and starts listening for potential platform events.
   factory Location() => instance;
 
   Location._();
 
-  static final Location instance = Location._();
+  static Location instance = Location._();
 
   /// Change settings of the location request.
   ///
@@ -20,10 +23,11 @@ class Location {
   /// often a new location is sent through [onLocationChanged].
   ///
   /// [interval] and [distanceFilter] are not used on web.
+  @override
   Future<bool> changeSettings({
-    LocationAccuracy accuracy = LocationAccuracy.high,
-    int interval = 1000,
-    double distanceFilter = 0,
+    LocationAccuracy? accuracy = LocationAccuracy.high,
+    int? interval = 1000,
+    double? distanceFilter = 0,
   }) {
     return LocationPlatform.instance.changeSettings(
       accuracy: accuracy,
@@ -33,12 +37,14 @@ class Location {
   }
 
   /// Checks if service is enabled in the background mode.
+  @override
   Future<bool> isBackgroundModeEnabled() {
     return LocationPlatform.instance.isBackgroundModeEnabled();
   }
 
   /// Enables or disables service in the background mode.
-  Future<bool> enableBackgroundMode({required bool enable}) {
+  @override
+  Future<bool> enableBackgroundMode({bool? enable = true}) {
     return LocationPlatform.instance.enableBackgroundMode(enable: enable);
   }
 
@@ -46,6 +52,7 @@ class Location {
   ///
   /// Throws an error if the app has no permission to access location.
   /// Returns a [LocationData] object.
+  @override
   Future<LocationData> getLocation() async {
     return LocationPlatform.instance.getLocation();
   }
@@ -55,6 +62,7 @@ class Location {
   /// If the result is [PermissionStatus.deniedForever], no dialog will be
   /// shown on [requestPermission].
   /// Returns a [PermissionStatus] object.
+  @override
   Future<PermissionStatus> hasPermission() {
     return LocationPlatform.instance.hasPermission();
   }
@@ -64,16 +72,19 @@ class Location {
   /// If the result is [PermissionStatus.deniedForever], no dialog will be
   /// shown on [requestPermission].
   /// Returns a [PermissionStatus] object.
+  @override
   Future<PermissionStatus> requestPermission() {
     return LocationPlatform.instance.requestPermission();
   }
 
   /// Checks if the location service is enabled.
+  @override
   Future<bool> serviceEnabled() {
     return LocationPlatform.instance.serviceEnabled();
   }
 
   /// Request the activation of the location service.
+  @override
   Future<bool> requestService() {
     return LocationPlatform.instance.requestService();
   }
@@ -83,6 +94,7 @@ class Location {
   /// [changeSettings]
   ///
   /// Throws an error if the app has no permission to access location.
+  @override
   Stream<LocationData> get onLocationChanged {
     return LocationPlatform.instance.onLocationChanged;
   }
@@ -110,6 +122,7 @@ class Location {
   ///
   /// For Android SDK versions above 25, uses [channelName] for the
   /// [NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel).
+  @override
   Future<AndroidNotificationData?> changeNotificationOptions({
     String? channelName,
     String? title,

@@ -239,7 +239,7 @@ public class FlutterLocation
                 loc.put("provider", location.getProvider());
                 final Bundle extras = location.getExtras();
                 if (extras != null) {
-                    loc.put("satelliteNumber", location.getExtras().get("satellites"));
+                    loc.put("satelliteNumber", location.getExtras().getInt("satellites"));
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {

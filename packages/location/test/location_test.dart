@@ -5,7 +5,6 @@ import 'package:location/location.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'location_test.mocks.dart';
 
@@ -14,75 +13,82 @@ import 'location_test.mocks.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final Location location = MockLocation();
+  final mockLocation = MockLocation();
+  Location.instance = mockLocation;
+  final Location location = Location();
 
   tearDown(resetMockitoState);
 
-  group('getLocation', () {
-    when(location.getLocation()).thenAnswer((_) async {
-      return LocationData.fromMap(<String, dynamic>{
-        'latitude': 48.8534,
-        'longitude': 2.3488,
-      });
-    });
-
-    test('getLocation should convert results correctly', () async {
-      final LocationData receivedLocation = await location.getLocation();
-      expect(receivedLocation.latitude, 48.8534);
-      expect(receivedLocation.longitude, 2.3488);
-    });
-
-    test('getLocation should convert to string correctly', () async {
-      final LocationData receivedLocation = await location.getLocation();
-
-      expect(receivedLocation.toString(),
-          'LocationData<lat: ${receivedLocation.latitude}, long: ${receivedLocation.longitude}>');
-    });
-  });
-
-  test('changeSettings', () async {
-    when(location.changeSettings(
-      accuracy: LocationAccuracy.high,
-      interval: 1000,
-      distanceFilter: 0,
-    )).thenAnswer((_) async => true);
+  test('changeSettings should call the correct underlying instance', () async {
+    when(location.changeSettings()).thenAnswer((_) => Future.value(true));
 
     await location.changeSettings();
-    final VerificationResult result = verify(location.changeSettings(
-      accuracy: LocationAccuracy.high,
-      interval: 1000,
-      distanceFilter: 0,
-    ));
-
-    expect(result.callCount, 1);
+    verify(mockLocation.changeSettings()).called(1);
   });
 
-  group('serviceEnabled-requestService', () {
-    when(location.serviceEnabled()).thenAnswer((_) async => true);
-    when(location.requestService()).thenAnswer((_) async => true);
+  test('isBackgroundModeEnabled should call the correct underlying instance',
+      () async {
+    when(location.isBackgroundModeEnabled())
+        .thenAnswer((_) => Future.value(true));
 
-    test('serviceEnabled', () async {
-      final bool result = await location.serviceEnabled();
-      expect(result, isTrue);
-    });
-
-    test('requestService', () async {
-      final bool result = await location.requestService();
-      expect(result, isTrue);
-    });
+    await location.isBackgroundModeEnabled();
+    verify(mockLocation.isBackgroundModeEnabled()).called(1);
   });
 
-  test('hasPermission', () async {
+  test('enableBackgroundMode should call the correct underlying instance',
+      () async {
+    when(location.enableBackgroundMode()).thenAnswer((_) => Future.value(true));
+
+    await location.enableBackgroundMode();
+    verify(mockLocation.enableBackgroundMode()).called(1);
+  });
+
+  test('getLocation should call the correct underlying instance', () async {
+    when(location.getLocation())
+        .thenAnswer((_) => Future.value(LocationData.fromMap({})));
+
+    await location.getLocation();
+    verify(mockLocation.getLocation()).called(1);
+  });
+
+  test('hasPermission should call the correct underlying instance', () async {
     when(location.hasPermission())
-        .thenAnswer((_) async => PermissionStatus.denied);
+        .thenAnswer((_) => Future.value(PermissionStatus.granted));
+
+    await location.hasPermission();
+    verify(mockLocation.hasPermission()).called(1);
+  });
+
+  test('requestPermission should call the correct underlying instance',
+      () async {
     when(location.requestPermission())
-        .thenAnswer((_) async => PermissionStatus.denied);
+        .thenAnswer((_) => Future.value(PermissionStatus.granted));
 
-    PermissionStatus receivedPermission = await location.hasPermission();
-    expect(receivedPermission, PermissionStatus.denied);
+    await location.requestPermission();
+    verify(mockLocation.requestPermission()).called(1);
+  });
 
-    receivedPermission = await location.requestPermission();
-    expect(receivedPermission, PermissionStatus.denied);
+  test('serviceEnabled should call the correct underlying instance', () async {
+    when(location.serviceEnabled()).thenAnswer((_) => Future.value(true));
+
+    await location.serviceEnabled();
+    verify(mockLocation.serviceEnabled()).called(1);
+  });
+
+  test('requestService should call the correct underlying instance', () async {
+    when(location.requestService()).thenAnswer((_) => Future.value(true));
+
+    await location.requestService();
+    verify(mockLocation.requestService()).called(1);
+  });
+
+  test('changeNotificationOptions should call the correct underlying instance',
+      () async {
+    when(location.changeNotificationOptions())
+        .thenAnswer((_) => Future.value(null));
+
+    await location.changeNotificationOptions();
+    verify(mockLocation.changeNotificationOptions()).called(1);
   });
 
   group('onLocationChanged', () {
@@ -126,7 +132,3 @@ void main() {
     });
   });
 }
-
-class LocationPlatformMock extends Mock
-    with MockPlatformInterfaceMixin
-    implements LocationPlatform {}

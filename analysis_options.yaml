@@ -1,6 +1,4 @@
 analyzer:
-  strong-mode:
-    implicit-dynamic: false
   exclude:
     - "build/**"
     - "**/*.mocks.dart" # Mockito @GenerateMocks
@@ -18,7 +16,6 @@ linter:
     - always_put_control_body_on_new_line
     - always_require_non_null_named_parameters
     - annotate_overrides
-    - avoid_as
     - avoid_bool_literals_in_conditional_expressions
     - avoid_classes_with_only_static_members
     - avoid_empty_else
