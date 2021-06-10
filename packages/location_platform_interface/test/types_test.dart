@@ -4,8 +4,10 @@ import 'package:location_platform_interface/location_platform_interface.dart';
 void main() {
   group('LocationData', () {
     test('LocationData should be correctly converted to string', () {
-      final LocationData locationData = LocationData.fromMap(
-          <String, dynamic>{'latitude': 42.0, 'longitude': 2.0});
+      final LocationData locationData = LocationData.fromMap(<String, dynamic>{
+        'latitude': 42.0,
+        'longitude': 2.0,
+      });
       expect(locationData.toString(),
           'LocationData<lat: ${locationData.latitude}, long: ${locationData.longitude}>');
     });
@@ -62,6 +64,57 @@ void main() {
 
       expect(otherLocationData == locationData, false);
       expect(otherLocationData.hashCode == locationData.hashCode, false);
+    });
+  });
+
+  group('$AndroidNotificationData', () {
+    test('AndroidNotificationData should be correctly converted to string', () {
+      final AndroidNotificationData androidNotificationData =
+          AndroidNotificationData.fromMap(<String, dynamic>{
+        'channelId': 'test-id',
+        'notificationId': 2,
+      });
+      expect(androidNotificationData.toString(),
+          'AndroidNotificationData<channelId: test-id, notificationId: 2>');
+    });
+
+    test('AndroidNotificationData should be equal if all parameters are equals',
+        () {
+      final AndroidNotificationData androidNotificationData =
+          AndroidNotificationData.fromMap(<String, dynamic>{
+        'channelId': 'test-id',
+        'notificationId': 2,
+      });
+      final AndroidNotificationData otherAndroidNotificationData =
+          AndroidNotificationData.fromMap(<String, dynamic>{
+        'channelId': 'test-id',
+        'notificationId': 2,
+      });
+
+      expect(otherAndroidNotificationData == androidNotificationData, true);
+      expect(
+          otherAndroidNotificationData.hashCode ==
+              androidNotificationData.hashCode,
+          true);
+    });
+
+    test('LocationData should be different if one parameters is different', () {
+      final AndroidNotificationData androidNotificationData =
+          AndroidNotificationData.fromMap(<String, dynamic>{
+        'channelId': 'test-id',
+        'notificationId': 2,
+      });
+      final AndroidNotificationData otherAndroidNotificationData =
+          AndroidNotificationData.fromMap(<String, dynamic>{
+        'channelId': 'test-id',
+        'notificationId': 3,
+      });
+
+      expect(otherAndroidNotificationData == androidNotificationData, false);
+      expect(
+          otherAndroidNotificationData.hashCode ==
+              androidNotificationData.hashCode,
+          false);
     });
   });
 }

@@ -38,9 +38,7 @@ class LocationData {
       dataMap['headingAccuracy'],
       dataMap['elapsedRealtimeNanos'],
       dataMap['elapsedRealtimeUncertaintyNanos'],
-      dataMap['satelliteNumber'] != null
-          ? int.parse(dataMap['satelliteNumber'])
-          : null,
+      dataMap['satelliteNumber'],
       dataMap['provider'],
     );
   }
