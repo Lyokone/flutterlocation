@@ -1,3 +1,9 @@
+## 2.3.0
+
+ - **FIX**: add platform tests.
+ - **FIX**: fix tests.
+ - **FEAT**: improve coverage.
+
 ## 2.2.0
 
  - **FIX**: fix the depreciation warning on android #550.

@@ -1,3 +1,8 @@
+## 4.3.0
+
+ - **FIX**: fix location package test.
+ - **FEAT**: improve coverage.
+
 ## 4.2.3
 
  - **FIX**: fix macos build, fixing #544.
