@@ -2,6 +2,7 @@
 // https://github.com/dart-lang/coverage/issues/339
 // coverage:ignore-file
 import 'dart:ui';
+import 'dart:math';
 
 import 'package:location_platform_interface/location_platform_interface.dart';
 
@@ -40,6 +41,13 @@ class Location implements LocationPlatform {
   @override
   Future<bool> isBackgroundModeEnabled() {
     return LocationPlatform.instance.isBackgroundModeEnabled();
+  }
+  
+  //This will calculate direct distance between two locations.
+  Future<double> calculateDistance(latitude1, longitude1, latitude2, longitude2) {
+    var p = pi / 180;
+    var a = 0.5 - cos((latitude2 - latitude1) * p) / 2 + cos(latitude1 * p) * cos(latitude2 * p) * (1 - cos((longitude2 - longitude1) * p)) / 2;
+    return 12742 * asin(sqrt(a)) * 1000;
   }
 
   /// Enables or disables service in the background mode.
