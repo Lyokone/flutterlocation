@@ -25,6 +25,7 @@ class LocationData {
       this.extras);
 
   factory LocationData.fromMap(Map<String, dynamic> dataMap) {
+    final extras = dataMap['extras'];
     return LocationData._(
       dataMap['latitude'],
       dataMap['longitude'],
@@ -41,7 +42,7 @@ class LocationData {
       dataMap['elapsedRealtimeUncertaintyNanos'],
       dataMap['satelliteNumber'],
       dataMap['provider'],
-      dataMap['extras'].cast<String, dynamic>(),
+      extras != null ? extras.cast<String, dynamic>() : {},
     );
   }
 
@@ -114,7 +115,7 @@ class LocationData {
 
   /// All the values contained in the extras bundle of an Android Location object.
   /// Only available on Android
-  /// https://developer.android.com/reference/android/location/Location#getProvider()
+  /// https://developer.android.com/reference/android/location/Location#getExtras()
   final Map<String, dynamic>? extras;
 
   @override
