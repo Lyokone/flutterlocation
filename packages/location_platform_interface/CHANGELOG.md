@@ -1,3 +1,7 @@
+## 2.4.0
+
+ - **FEAT**: add extras map to LocationData object
+
 ## 2.3.0
 
  - **FIX**: add platform tests.

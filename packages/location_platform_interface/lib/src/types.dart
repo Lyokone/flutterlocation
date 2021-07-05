@@ -21,7 +21,8 @@ class LocationData {
       this.elapsedRealtimeNanos,
       this.elapsedRealtimeUncertaintyNanos,
       this.satelliteNumber,
-      this.provider);
+      this.provider,
+      this.extras);
 
   factory LocationData.fromMap(Map<String, dynamic> dataMap) {
     return LocationData._(
@@ -40,10 +41,11 @@ class LocationData {
       dataMap['elapsedRealtimeUncertaintyNanos'],
       dataMap['satelliteNumber'],
       dataMap['provider'],
+      dataMap['extras'].cast<String, dynamic>(),
     );
   }
 
-  /// Latitude in degrees
+  /// Latitude, in degrees
   final double? latitude;
 
   /// Longitude, in degrees
@@ -109,6 +111,11 @@ class LocationData {
   /// Only available on Android
   /// https://developer.android.com/reference/android/location/Location#getProvider()
   final String? provider;
+
+  /// All the values contained in the extras bundle of an Android Location object.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getProvider()
+  final Map<String, dynamic>? extras;
 
   @override
   String toString() =>
