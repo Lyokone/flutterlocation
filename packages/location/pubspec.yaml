@@ -1,6 +1,6 @@
 name: location
 description: A Flutter plugin to easily handle realtime location in iOS and Android. Provides settings for optimizing performance or battery.
-version: 4.3.0
+version: 4.4.0
 homepage: https://github.com/Lyokone/flutterlocation
 
 environment:

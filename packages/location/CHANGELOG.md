@@ -1,3 +1,7 @@
+## 4.4.0
+
+ - **FEAT**: add extras map to LocationData object
+
 ## 4.3.0
 
  - **FIX**: fix location package test.
