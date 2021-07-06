@@ -37,8 +37,6 @@ import io.flutter.plugin.common.PluginRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class FlutterLocation
         implements PluginRegistry.RequestPermissionsResultListener, PluginRegistry.ActivityResultListener {
@@ -269,17 +267,19 @@ public class FlutterLocation
                 loc.put("heading", (double) location.getBearing());
                 loc.put("time", (double) location.getTime());
 
-                final Map<String, Object> data = new HashMap<>(extras.size());
-                for (String key : extras.keySet()) {
-                    final Object value = extras.get(key);
-                    if (value == null || value instanceof Boolean
-                        || value instanceof Integer || value instanceof Long
-                        || value instanceof Double || value instanceof String
-                        || value instanceof byte[] || value instanceof int[]
-                        || value instanceof long[] || value instanceof double[]) {
-                        data.put(key, value);
-                    } else if (value instanceof Float) {
-                        data.put(key, ((Float)value).doubleValue());
+                final Map<String, Object> data = new HashMap<>();
+                if (extras != null) {
+                    for (String key : extras.keySet()) {
+                        final Object value = extras.get(key);
+                        if (value == null || value instanceof Boolean
+                            || value instanceof Integer || value instanceof Long
+                            || value instanceof Double || value instanceof String
+                            || value instanceof byte[] || value instanceof int[]
+                            || value instanceof long[] || value instanceof double[]) {
+                            data.put(key, value);
+                        } else if (value instanceof Float) {
+                            data.put(key, ((Float)value).doubleValue());
+                        }
                     }
                 }
                 loc.put("extras", data);
