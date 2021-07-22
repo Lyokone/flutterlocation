@@ -12,7 +12,7 @@
 @property (assign, nonatomic) BOOL               locationWanted;
 @property (assign, nonatomic) BOOL               permissionWanted;
 // Needed to prevent instant firing of the previous known location
-@property (assign, nonatomic) int                waitNextLocation;
+@property (assign, nonatomic) BOOL               waitNextLocation;
 
 @property (copy, nonatomic)   FlutterEventSink   flutterEventSink;
 @property (assign, nonatomic) BOOL               flutterListening;
@@ -42,7 +42,7 @@
         self.locationWanted = NO;
         self.permissionWanted = NO;
         self.flutterListening = NO;
-        self.waitNextLocation = 2;
+        self.waitNextLocation = YES;
         self.hasInit = NO;
     }
     return self;
@@ -275,6 +275,9 @@
 -(FlutterError*)onCancelWithArguments:(id)arguments {
     self.flutterListening = NO;
     [self.clLocationManager stopUpdatingLocation];
+    if (!self.locationWanted) {
+        self.waitNextLocation = YES;
+    }
     return nil;
 }
 
@@ -282,12 +285,8 @@
 
 -(void)locationManager:(CLLocationManager*)manager
     didUpdateLocations:(NSArray<CLLocation*>*)locations {
-    if (self.waitNextLocation > 0) {
-        self.waitNextLocation -= 1;
-        return;
-    }
+
     CLLocation *location = locations.lastObject;
-    
     NSLog(@"currentLocation is %@", location);
 
     NSTimeInterval timeInSeconds = [location.timestamp timeIntervalSince1970];
@@ -304,16 +303,21 @@
         @"heading": @(location.course),
         @"time": @(((double) timeInSeconds) * 1000.0)  // in milliseconds since the epoch
     };
-    
-    if (self.locationWanted) {
+
+    if (self.locationWanted && self.waitNextLocation == NO) {
         self.locationWanted = NO;
         self.flutterResult(coordinatesDict);
     }
+
+    if (self.waitNextLocation == YES) {
+        self.waitNextLocation = NO;
+    }
+
     if (self.flutterListening) {
         self.flutterEventSink(coordinatesDict);
-    } else {
+    } else if (!self.locationWanted) {
         [self.clLocationManager stopUpdatingLocation];
-        self.waitNextLocation = 2;
+        self.waitNextLocation = YES;
     }
 }
 
