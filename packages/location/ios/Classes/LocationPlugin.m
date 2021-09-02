@@ -126,7 +126,12 @@
         self.locationWanted = YES;
 
         if ([self isPermissionGranted]) {
+          if (self.flutterListening && [self.clLocationManager location] != NULL) {
+            CLLocation* latestLocation = [self.clLocationManager location];
+            [self locationManager:self.clLocationManager didUpdateLocations:@[latestLocation]];
+          } else {
             [self.clLocationManager startUpdatingLocation];
+          }
         } else {
             [self requestPermission];
             if ([self isPermissionGranted]) {
