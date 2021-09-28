@@ -54,7 +54,7 @@ class BackgroundNotification(
                 ?.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
 
         return if (intent != null) {
-            PendingIntent.getActivity(context, 0, intent, 0)
+            PendingIntent.getActivity(context, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         } else {
             null
         }

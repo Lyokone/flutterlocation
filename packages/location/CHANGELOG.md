@@ -1,3 +1,8 @@
+## 4.3.1
+
+- **FEAT**: build Android on SDK 31, #639
+- **FIX**: use `FLAG_IMMUTABLE` for `PendingIntent` (Android), #639
+
 ## 4.3.0
 
  - **FIX**: fix location package test.
