@@ -145,8 +145,8 @@ On Android, a foreground notification is displayed with information that locatio
 On iOS, while the app is in the background and gets the location, the blue system bar notifies users about updates. Tapping on this bar moves the User back to the app.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/location/src/background_location_android.png" alt="Androig background location"  width="343" height="686">
-  <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/location/src/background_location_ios.png" alt="iOS background location"  width="386" height="686">
+  <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/packages/location/src/background_location_android.png" alt="Androig background location"  width="343" height="686">
+  <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/packages/location/src/background_location_ios.png" alt="iOS background location"  width="386" height="686">
 </p>
 
 ## Public Methods Summary
