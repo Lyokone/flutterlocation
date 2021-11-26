@@ -1,3 +1,6 @@
+## 4.3.1
+- **FIX**: Revert #549 and use time of location to determine if location is cached/old
+
 ## 4.3.0
 
  - **FIX**: fix location package test.

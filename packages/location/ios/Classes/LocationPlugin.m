@@ -11,8 +11,6 @@
 @property (copy, nonatomic)   FlutterResult      flutterResult;
 @property (assign, nonatomic) BOOL               locationWanted;
 @property (assign, nonatomic) BOOL               permissionWanted;
-// Needed to prevent instant firing of the previous known location
-@property (assign, nonatomic) int                waitNextLocation;
 
 @property (copy, nonatomic)   FlutterEventSink   flutterEventSink;
 @property (assign, nonatomic) BOOL               flutterListening;
@@ -42,7 +40,6 @@
         self.locationWanted = NO;
         self.permissionWanted = NO;
         self.flutterListening = NO;
-        self.waitNextLocation = 2;
         self.hasInit = NO;
     }
     return self;
@@ -226,7 +223,7 @@
 -(BOOL) isPermissionGranted {
     BOOL isPermissionGranted = NO;
     CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-    
+
 #if TARGET_OS_OSX
     if (status == kCLAuthorizationStatusAuthorized) {
         // Location services are available
@@ -255,7 +252,7 @@
     } else {
         isPermissionGranted = NO;
     }
-    
+
     return isPermissionGranted;
 }
 
@@ -282,29 +279,40 @@
 
 -(void)locationManager:(CLLocationManager*)manager
     didUpdateLocations:(NSArray<CLLocation*>*)locations {
-    if (self.waitNextLocation > 0) {
-        self.waitNextLocation -= 1;
+
+    // sort locations ascending by timestamp
+    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO];
+    NSArray *locationsSortedDescendingByTimestamp = [locations sortedArrayUsingDescriptors:@[sortDescriptor]];
+
+    // filter locations which are older than 10 seconds to only get "latest" non-cached locations.
+    NSTimeInterval dateTimestamp = [[NSDate date] timeIntervalSince1970];
+    NSArray *recentLocations = [locationsSortedDescendingByTimestamp filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(CLLocation *location, NSDictionary *bindings) {
+        NSTimeInterval locationTimestamp = [location.timestamp timeIntervalSince1970];
+        NSTimeInterval difference = dateTimestamp - locationTimestamp;
+        return difference < 10;
+    }]];
+    CLLocation *latestLocation = recentLocations.firstObject;
+
+    // If there are no locations, return early.
+    if (latestLocation == nil) {
         return;
     }
-    CLLocation *location = locations.lastObject;
-    
-    NSLog(@"currentLocation is %@", location);
+    NSLog(@"currentLocation is %@", latestLocation);
 
-    NSTimeInterval timeInSeconds = [location.timestamp timeIntervalSince1970];
     BOOL superiorToIos10 = [UIDevice currentDevice].systemVersion.floatValue >= 10;
     NSDictionary<NSString*,NSNumber*>* coordinatesDict =
     @{
-        @"latitude": @(location.coordinate.latitude),
-        @"longitude": @(location.coordinate.longitude),
-        @"accuracy": @(location.horizontalAccuracy),
-        @"verticalAccuracy": @(location.verticalAccuracy),
-        @"altitude": @(location.altitude),
-        @"speed": @(location.speed),
-        @"speed_accuracy": superiorToIos10 ? @(location.speedAccuracy) : @0.0,
-        @"heading": @(location.course),
-        @"time": @(((double) timeInSeconds) * 1000.0)  // in milliseconds since the epoch
+        @"latitude": @(latestLocation.coordinate.latitude),
+        @"longitude": @(latestLocation.coordinate.longitude),
+        @"accuracy": @(latestLocation.horizontalAccuracy),
+        @"verticalAccuracy": @(latestLocation.verticalAccuracy),
+        @"altitude": @(latestLocation.altitude),
+        @"speed": @(latestLocation.speed),
+        @"speed_accuracy": superiorToIos10 ? @(latestLocation.speedAccuracy) : @0.0,
+        @"heading": @(latestLocation.course),
+        @"time": @(((double)[latestLocation.timestamp timeIntervalSince1970]) * 1000.0)  // in milliseconds since the epoch
     };
-    
+
     if (self.locationWanted) {
         self.locationWanted = NO;
         self.flutterResult(coordinatesDict);
@@ -313,7 +321,6 @@
         self.flutterEventSink(coordinatesDict);
     } else {
         [self.clLocationManager stopUpdatingLocation];
-        self.waitNextLocation = 2;
     }
 }
 
