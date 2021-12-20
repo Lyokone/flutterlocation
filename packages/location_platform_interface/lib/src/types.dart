@@ -42,10 +42,10 @@ class LocationData {
   }
 
   /// Latitude in degrees
-  final double? latitude;
+  final double latitude;
 
   /// Longitude, in degrees
-  final double? longitude;
+  final double longitude;
 
   /// Estimated horizontal accuracy of this location, radial, in meters
   ///
