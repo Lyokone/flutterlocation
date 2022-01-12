@@ -5,10 +5,6 @@ task:
   container:
     dockerfile: .ci/Dockerfile
   upgrade_script:
-    - flutter channel stable
-    - flutter upgrade
-    - flutter channel master
-    - flutter upgrade
     - git fetch origin master
     - pub global activate melos
   allow_failures: $CHANNEL == "master"
@@ -16,22 +12,18 @@ task:
     - name: analyze
       env:
         matrix:
-          CHANNEL: "master"
           CHANNEL: "stable"
       test_script: 
         - export PATH="$PATH":"$HOME/.pub-cache/bin"
-        - flutter channel $CHANNEL
         - melos bootstrap
         - melos run lint:all
     - name: test
       env:
         CODECOV_TOKEN: ENCRYPTED[ac3e49abb66606b10e1bacc05c45c5f6325e3677770fba1c935a71a8854ec73017b61492ab167a7bedd96a4cc9e1e644]
         matrix:
-          CHANNEL: "master"
           CHANNEL: "stable"
       test_script:
         - export PATH="$PATH":"$HOME/.pub-cache/bin"
-        - flutter channel $CHANNEL
         - melos bootstrap
         - melos run test --no-select
         - cd packages/location
