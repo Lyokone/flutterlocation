@@ -67,12 +67,15 @@ class MethodChannelLocation extends LocationPlatform {
   }
 
   /// Enables or disables service in the background mode.
+  /// isForeground option is only using in Android 10 and above.
   @override
-  Future<bool> enableBackgroundMode({bool? enable}) async {
+  Future<bool> enableBackgroundMode(
+      {bool? enable, bool? isForeground = false}) async {
     final int? result = await _methodChannel!.invokeMethod(
-      'enableBackgroundMode',
-      <String, dynamic>{'enable': enable},
-    );
+        'enableBackgroundMode',
+        !Platform.isAndroid
+            ? <String, dynamic>{'enable': enable}
+            : <String, bool?>{'enable': enable, 'foreground': isForeground});
 
     return result == 1;
   }
