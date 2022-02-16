@@ -414,6 +414,26 @@ public class FlutterLocation
                 });
     }
 
+    private void addNmealListener() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            try {
+                if (mMessageListener == null) {
+                    Log.i(TAG, "Message Listener is NULL.");
+                }
+                locationManager.addNmeaListener(mMessageListener, null);
+            } catch (SecurityException e) {
+                Log.i(TAG, "ACCESS_FINE_LOCATION permission is not present");
+            }
+        }
+    }
+
+    private void requestLocationUpdates () {
+        if (mFusedLocationClient != null) {
+            mFusedLocationClient
+                    .requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+        }
+    }
+
     public void startRequestingLocation() {
         if (this.activity == null) {
             result.error("MISSING_ACTIVITY", "You should not requestLocation activation outside of an activity.", null);
@@ -421,14 +441,9 @@ public class FlutterLocation
         }
         mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
                 .addOnSuccessListener(activity, locationSettingsResponse -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        locationManager.addNmeaListener(mMessageListener, null);
-                    }
-
-                    if (mFusedLocationClient != null) {
-                        mFusedLocationClient
-                                .requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-                    }
+                    addNmeaListener();
+                    requestLocationUpdates();
+                    
                 }).addOnFailureListener(activity, e -> {
                     if (e instanceof ResolvableApiException) {
                         ResolvableApiException rae = (ResolvableApiException) e;
@@ -446,11 +461,8 @@ public class FlutterLocation
                         ApiException ae = (ApiException) e;
                         int statusCode = ae.getStatusCode();
                         if (statusCode == LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE) {// This error code happens during AirPlane mode.
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                locationManager.addNmeaListener(mMessageListener, null);
-                            }
-                            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
-                                    Looper.myLooper());
+                            addNmeaListener();
+                            requestLocationUpdates();
                         } else {// This should not happen according to Android documentation but it has been
                             // observed on some phones.
                             sendError("UNEXPECTED_ERROR", e.getMessage(), null);
