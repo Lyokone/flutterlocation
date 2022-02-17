@@ -414,7 +414,7 @@ public class FlutterLocation
                 });
     }
 
-    private void addNmealListener() {
+    private void addNmeaListener() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             try {
                 if (mMessageListener == null) {
