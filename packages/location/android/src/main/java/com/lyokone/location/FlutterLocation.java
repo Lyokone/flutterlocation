@@ -12,7 +12,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.util.SparseArray;
@@ -31,6 +30,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
 
+import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.plugin.common.EventChannel.EventSink;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
