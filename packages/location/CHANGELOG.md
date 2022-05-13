@@ -1,3 +1,7 @@
+## 4.4.0
+
+ - **FEAT**: support android 12 in example app.
+
 ## 4.3.0
 
  - **FIX**: fix location package test.
