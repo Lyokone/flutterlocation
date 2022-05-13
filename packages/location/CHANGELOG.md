@@ -1,6 +1,7 @@
 ## 4.4.0
 
  - **FEAT**: support android 12 in example app.
+ - **FIX**: Fix for Flutter 3
 
 ## 4.3.0
 
