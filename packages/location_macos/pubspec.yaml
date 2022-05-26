@@ -1,0 +1,27 @@
+name: location_macos
+description: MacOS implementation of the location plugin
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+  flutter: ">=3.0.0"
+
+flutter:
+  plugin:
+    implements: location
+    platforms:
+      macos:
+        pluginClass: LocationPlugin
+        dartPluginClass: LocationMacOS
+
+dependencies:
+  flutter:
+    sdk: flutter
+  location_platform_interface:
+    path: ../location_platform_interface
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: ^3.0.0

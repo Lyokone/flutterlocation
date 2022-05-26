@@ -5,22 +5,19 @@ import 'package:flutter/services.dart';
 import 'package:location/location.dart';
 
 class ListenLocationWidget extends StatefulWidget {
-  const ListenLocationWidget({Key? key}) : super(key: key);
+  const ListenLocationWidget({super.key});
 
   @override
-  _ListenLocationState createState() => _ListenLocationState();
+  State<ListenLocationWidget> createState() => _ListenLocationWidgetState();
 }
 
-class _ListenLocationState extends State<ListenLocationWidget> {
-  final Location location = Location();
-
+class _ListenLocationWidgetState extends State<ListenLocationWidget> {
   LocationData? _location;
   StreamSubscription<LocationData>? _locationSubscription;
   String? _error;
 
   Future<void> _listenLocation() async {
-    _locationSubscription =
-        location.onLocationChanged.handleError((dynamic err) {
+    _locationSubscription = onLocationChanged.handleError((dynamic err) {
       if (err is PlatformException) {
         setState(() {
           _error = err.code;
@@ -41,7 +38,7 @@ class _ListenLocationState extends State<ListenLocationWidget> {
   }
 
   Future<void> _stopListen() async {
-    _locationSubscription?.cancel();
+    await _locationSubscription?.cancel();
     setState(() {
       _locationSubscription = null;
     });
@@ -62,7 +59,7 @@ class _ListenLocationState extends State<ListenLocationWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          'Listen location: ' + (_error ?? '${_location ?? "unknown"}'),
+          'Listen location: ${_error ?? '${_location ?? "unknown"}'}',
           style: Theme.of(context).textTheme.bodyText1,
         ),
         Row(
@@ -70,14 +67,14 @@ class _ListenLocationState extends State<ListenLocationWidget> {
             Container(
               margin: const EdgeInsets.only(right: 42),
               child: ElevatedButton(
-                child: const Text('Listen'),
                 onPressed:
                     _locationSubscription == null ? _listenLocation : null,
+                child: const Text('Listen'),
               ),
             ),
             ElevatedButton(
-              child: const Text('Stop'),
               onPressed: _locationSubscription != null ? _stopListen : null,
+              child: const Text('Stop'),
             )
           ],
         ),

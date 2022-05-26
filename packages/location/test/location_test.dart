@@ -1,134 +1,44 @@
-import 'dart:async';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:location/location.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'location_test.mocks.dart';
+class MockLocationPlatform extends Mock
+    with MockPlatformInterfaceMixin
+    implements LocationPlatform {}
 
-// ignore: always_specify_types
-@GenerateMocks([Location])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final mockLocation = MockLocation();
-  Location.instance = mockLocation;
-  final Location location = Location();
-
-  tearDown(resetMockitoState);
-
-  test('changeSettings should call the correct underlying instance', () async {
-    when(location.changeSettings()).thenAnswer((_) => Future.value(true));
-
-    await location.changeSettings();
-    verify(mockLocation.changeSettings()).called(1);
-  });
-
-  test('isBackgroundModeEnabled should call the correct underlying instance',
-      () async {
-    when(location.isBackgroundModeEnabled())
-        .thenAnswer((_) => Future.value(true));
-
-    await location.isBackgroundModeEnabled();
-    verify(mockLocation.isBackgroundModeEnabled()).called(1);
-  });
-
-  test('enableBackgroundMode should call the correct underlying instance',
-      () async {
-    when(location.enableBackgroundMode()).thenAnswer((_) => Future.value(true));
-
-    await location.enableBackgroundMode();
-    verify(mockLocation.enableBackgroundMode()).called(1);
-  });
-
-  test('getLocation should call the correct underlying instance', () async {
-    when(location.getLocation())
-        .thenAnswer((_) => Future.value(LocationData.fromMap({})));
-
-    await location.getLocation();
-    verify(mockLocation.getLocation()).called(1);
-  });
-
-  test('hasPermission should call the correct underlying instance', () async {
-    when(location.hasPermission())
-        .thenAnswer((_) => Future.value(PermissionStatus.granted));
-
-    await location.hasPermission();
-    verify(mockLocation.hasPermission()).called(1);
-  });
-
-  test('requestPermission should call the correct underlying instance',
-      () async {
-    when(location.requestPermission())
-        .thenAnswer((_) => Future.value(PermissionStatus.granted));
-
-    await location.requestPermission();
-    verify(mockLocation.requestPermission()).called(1);
-  });
-
-  test('serviceEnabled should call the correct underlying instance', () async {
-    when(location.serviceEnabled()).thenAnswer((_) => Future.value(true));
-
-    await location.serviceEnabled();
-    verify(mockLocation.serviceEnabled()).called(1);
-  });
-
-  test('requestService should call the correct underlying instance', () async {
-    when(location.requestService()).thenAnswer((_) => Future.value(true));
-
-    await location.requestService();
-    verify(mockLocation.requestService()).called(1);
-  });
-
-  test('changeNotificationOptions should call the correct underlying instance',
-      () async {
-    when(location.changeNotificationOptions())
-        .thenAnswer((_) => Future.value(null));
-
-    await location.changeNotificationOptions();
-    verify(mockLocation.changeNotificationOptions()).called(1);
-  });
-
-  group('onLocationChanged', () {
-    late StreamController<LocationData> controller;
+  group('Location', () {
+    late LocationPlatform locationPlatform;
 
     setUp(() {
-      controller = StreamController<LocationData>();
-      when(location.onLocationChanged)
-          .thenAnswer((Invocation invoke) => controller.stream);
+      locationPlatform = MockLocationPlatform();
+      LocationPlatform.instance = locationPlatform;
     });
 
-    tearDown(() => controller.close());
+    group('getPlatformName', () {
+      test('returns correct name when platform implementation exists',
+          () async {
+        const platformName = '__test_platform__';
+        when(
+          () => locationPlatform.getPlatformName(),
+        ).thenAnswer((_) async => platformName);
 
-    test('should receive values', () async {
-      controller.add(LocationData.fromMap(<String, dynamic>{
-        'latitude': 48.8534,
-        'longitude': 2.3488,
-      }));
-      controller.add(LocationData.fromMap(<String, dynamic>{
-        'latitude': 42.8534,
-        'longitude': 23.3488,
-      }));
-      controller.close();
+        final actualPlatformName = await getLocation();
+        expect(actualPlatformName, equals(platformName));
+      });
 
-      await expectLater(
-        location.onLocationChanged,
-        emitsInOrder(
-          <dynamic>[
-            LocationData.fromMap(<String, dynamic>{
-              'latitude': 48.8534,
-              'longitude': 2.3488,
-            }),
-            LocationData.fromMap(<String, dynamic>{
-              'latitude': 42.8534,
-              'longitude': 23.3488,
-            }),
-            emitsDone,
-          ],
-        ),
-      );
+      test('throws exception when platform implementation is missing',
+          () async {
+        when(
+          () => locationPlatform.getPlatformName(),
+        ).thenAnswer((_) async => null);
+
+        expect(getLocation, throwsException);
+      });
     });
   });
 }
