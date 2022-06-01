@@ -112,7 +112,7 @@
             result([FlutterError errorWithCode:@"SERVICE_STATUS_DISABLED" message:@"Failed to get location. Location services disabled" details:nil]);
             return;
         }
-        if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
+        if ([self.clLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
             // Location services are requested but user has denied
             NSString *message = @"The user explicitly denied the use of location services for this "
                 "app or location services are currently disabled in Settings.";
@@ -142,7 +142,7 @@
     } else if ([call.method isEqualToString:@"requestPermission"]) {
         if ([self isPermissionGranted]) {
             result([self isHighAccuracyPermitted] ? @1 : @3);
-        } else if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
+        } else if ([self.clLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
             self.flutterResult = result;
             self.permissionWanted = YES;
             [self requestPermission];
@@ -225,8 +225,8 @@
 
 -(BOOL) isPermissionGranted {
     BOOL isPermissionGranted = NO;
-    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-    
+    CLAuthorizationStatus status = [self.clLocationManager authorizationStatus];
+
 #if TARGET_OS_OSX
     if (status == kCLAuthorizationStatusAuthorized) {
         // Location services are available
@@ -255,7 +255,7 @@
     } else {
         isPermissionGranted = NO;
     }
-    
+
     return isPermissionGranted;
 }
 
@@ -287,7 +287,7 @@
         return;
     }
     CLLocation *location = locations.lastObject;
-    
+
     NSTimeInterval timeInSeconds = [location.timestamp timeIntervalSince1970];
     BOOL superiorToIos10 = [UIDevice currentDevice].systemVersion.floatValue >= 10;
     NSDictionary<NSString*,NSNumber*>* coordinatesDict =
@@ -302,7 +302,7 @@
         @"heading": @(location.course),
         @"time": @(((double) timeInSeconds) * 1000.0)  // in milliseconds since the epoch
     };
-    
+
     if (self.locationWanted) {
         self.locationWanted = NO;
         self.flutterResult(coordinatesDict);
@@ -315,16 +315,15 @@
     }
 }
 
-- (void)locationManager:(CLLocationManager *)manager
-    didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
-    if (status == kCLAuthorizationStatusDenied) {
+- (void)locationManagerDidChangeAuthorization:(CLLocationManager *)manager {
+    if (manager.authorizationStatus == kCLAuthorizationStatusDenied) {
         if (self.permissionWanted) {
             self.permissionWanted = NO;
             self.flutterResult(@0);
         }
     }
 #if TARGET_OS_OSX
-    else if (status == kCLAuthorizationStatusAuthorized) {
+    else if (manager.authorizationStatus == kCLAuthorizationStatusAuthorized) {
         if (self.permissionWanted) {
             self.permissionWanted = NO;
             self.flutterResult(@1);
@@ -334,7 +333,7 @@
             [self.clLocationManager startUpdatingLocation];
         }
     } else if (@available(macOS 10.12, *)) {
-        if (status == kCLAuthorizationStatusAuthorizedAlways) {
+        if (manager.authorizationStatus == kCLAuthorizationStatusAuthorizedAlways) {
             if (self.permissionWanted) {
                 self.permissionWanted = NO;
                 self.flutterResult(@1);
@@ -346,8 +345,8 @@
         }
     }
 #else //if TARGET_OS_IOS
-    else if (status == kCLAuthorizationStatusAuthorizedWhenInUse ||
-        status == kCLAuthorizationStatusAuthorizedAlways) {
+    else if (manager.authorizationStatus == kCLAuthorizationStatusAuthorizedWhenInUse ||
+             manager.authorizationStatus == kCLAuthorizationStatusAuthorizedAlways) {
         if (self.permissionWanted) {
             self.permissionWanted = NO;
             self.flutterResult([self isHighAccuracyPermitted] ? @1 : @3);
