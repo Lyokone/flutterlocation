@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
 import 'package:location_platform_interface/messages.pigeon.dart';
 
+///
 class MethodChannelLocation extends LocationPlatform {
   ///
   factory MethodChannelLocation() {
@@ -37,5 +38,10 @@ class MethodChannelLocation extends LocationPlatform {
         _eventChannel.receiveBroadcastStream().map<LocationData>(
               (dynamic event) => LocationData.decode(event as Object),
             );
+  }
+
+  @override
+  Future<bool?> setLocationSettings(LocationSettings settings) {
+    return _api.setLocationSettings(settings);
   }
 }

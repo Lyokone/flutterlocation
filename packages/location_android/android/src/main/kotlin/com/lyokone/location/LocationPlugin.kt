@@ -184,7 +184,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         }
     }
 
-    override fun setLocationSettings(settings: GeneratedAndroidLocation.LocationSettings) {
+    override fun setLocationSettings(settings: GeneratedAndroidLocation.LocationSettings): Boolean {
         val locationConfiguration = LocationConfiguration.Builder()
 
         if (settings.askForPermission) {
@@ -229,6 +229,9 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         }
 
         globalLocationConfigurationBuilder = locationConfiguration
+
+
+        return true
     }
 
 

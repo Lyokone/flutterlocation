@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:location_example/change_settings.dart';
 import 'package:location_example/get_location.dart';
 import 'package:location_example/listen_location.dart';
 
@@ -42,8 +43,8 @@ class MyHomePage extends StatelessWidget {
             Divider(height: 32),
             ListenLocationWidget(),
             Divider(height: 32),
-            // ChangeSettings(),
-            // Divider(height: 32),
+            ChangeSettings(),
+            Divider(height: 32),
             // EnableInBackgroundWidget(),
             // Divider(height: 32),
             // ChangeNotificationWidget()

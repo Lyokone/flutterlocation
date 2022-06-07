@@ -80,5 +80,5 @@ abstract class LocationHostApi {
   @async
   LocationData getLocation();
 
-  void setLocationSettings(LocationSettings settings);
+  bool setLocationSettings(LocationSettings settings);
 }

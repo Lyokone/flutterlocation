@@ -34,4 +34,7 @@ abstract class LocationPlatform extends PlatformInterface {
 
   /// Return a stream of the user's location.
   Stream<LocationData?> get onLocationChanged;
+
+  /// Set new global location settings for the app
+  Future<bool?> setLocationSettings(LocationSettings settings);
 }

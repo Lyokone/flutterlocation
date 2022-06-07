@@ -192,7 +192,7 @@ class LocationHostApi {
     }
   }
 
-  Future<void> setLocationSettings(LocationSettings arg_settings) async {
+  Future<bool> setLocationSettings(LocationSettings arg_settings) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.LocationHostApi.setLocationSettings', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
@@ -209,8 +209,13 @@ class LocationHostApi {
         message: error['message'] as String?,
         details: error['details'],
       );
+    } else if (replyMap['result'] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
     } else {
-      return;
+      return (replyMap['result'] as bool?)!;
     }
   }
 }

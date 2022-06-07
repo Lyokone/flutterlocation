@@ -32,40 +32,41 @@ enum LocationAccuracy {
 
 class LocationSettings {
   LocationSettings({
-    this.askForPermission,
-    this.rationaleMessageForPermissionRequest,
-    this.useGooglePlayServices,
-    this.askForGooglePlayServices,
-    this.askForGPS,
-    this.fallbackToGPS,
-    this.ignoreLastKnownPosition,
+    this.askForPermission = true,
+    this.rationaleMessageForPermissionRequest =
+        'The app needs to access your location',
+    this.useGooglePlayServices = true,
+    this.askForGooglePlayServices = false,
+    this.askForGPS = true,
+    this.fallbackToGPS = true,
+    this.ignoreLastKnownPosition = false,
     this.expirationDuration,
-    this.setExpirationTime,
-    this.setFastestInterval,
-    this.setInterval,
-    this.setMaxWaitTime,
-    this.setNumUpdates,
-    this.setAccuracy,
-    this.setSmallestDisplacement,
-    this.setWaitForAccurateLocation,
+    this.expirationTime,
+    this.fastestInterval = 500,
+    this.interval = 1000,
+    this.maxWaitTime,
+    this.numUpdates,
+    this.accuracy = LocationAccuracy.high,
+    this.smallestDisplacement = 0,
+    this.waitForAccurateLocation = true,
   });
 
-  bool? askForPermission;
-  String? rationaleMessageForPermissionRequest;
-  bool? useGooglePlayServices;
-  bool? askForGooglePlayServices;
-  bool? askForGPS;
-  bool? fallbackToGPS;
-  bool? ignoreLastKnownPosition;
+  bool askForPermission;
+  String rationaleMessageForPermissionRequest;
+  bool useGooglePlayServices;
+  bool askForGooglePlayServices;
+  bool askForGPS;
+  bool fallbackToGPS;
+  bool ignoreLastKnownPosition;
   double? expirationDuration;
-  double? setExpirationTime;
-  double? setFastestInterval;
-  double? setInterval;
-  double? setMaxWaitTime;
-  int? setNumUpdates;
-  LocationAccuracy? setAccuracy;
-  double? setSmallestDisplacement;
-  bool? setWaitForAccurateLocation;
+  double? expirationTime;
+  double fastestInterval;
+  double interval;
+  double? maxWaitTime;
+  int? numUpdates;
+  LocationAccuracy accuracy;
+  double smallestDisplacement;
+  bool waitForAccurateLocation;
 }
 
 @HostApi()

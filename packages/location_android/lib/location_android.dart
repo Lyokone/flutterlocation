@@ -31,4 +31,9 @@ class LocationAndroid extends LocationPlatform {
         .receiveBroadcastStream()
         .map<LocationData>((dynamic event) => LocationData.decode(event));
   }
+
+  @override
+  Future<bool?> setLocationSettings(LocationSettings settings) {
+    return api.setLocationSettings(settings);
+  }
 }

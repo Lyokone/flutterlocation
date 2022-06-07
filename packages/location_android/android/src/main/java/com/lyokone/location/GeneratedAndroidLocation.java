@@ -427,7 +427,7 @@ public class GeneratedAndroidLocation {
   /** Generated interface from Pigeon that represents a handler of messages from Flutter.*/
   public interface LocationHostApi {
     void getLocation(Result<LocationData> result);
-    void setLocationSettings(@NonNull LocationSettings settings);
+    @NonNull Boolean setLocationSettings(@NonNull LocationSettings settings);
 
     /** The codec used by LocationHostApi. */
     static MessageCodec<Object> getCodec() {
@@ -477,8 +477,8 @@ public class GeneratedAndroidLocation {
               if (settingsArg == null) {
                 throw new NullPointerException("settingsArg unexpectedly null.");
               }
-              api.setLocationSettings(settingsArg);
-              wrapped.put("result", null);
+              Boolean output = api.setLocationSettings(settingsArg);
+              wrapped.put("result", output);
             }
             catch (Error | RuntimeException exception) {
               wrapped.put("error", wrapError(exception));
