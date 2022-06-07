@@ -55,30 +55,34 @@ class _ListenLocationWidgetState extends State<ListenLocationWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          'Listen location: ${_error ?? '${_location ?? "unknown"}'}',
-          style: Theme.of(context).textTheme.bodyText1,
-        ),
-        Row(
-          children: <Widget>[
-            Container(
-              margin: const EdgeInsets.only(right: 42),
-              child: ElevatedButton(
-                onPressed:
-                    _locationSubscription == null ? _listenLocation : null,
-                child: const Text('Listen'),
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            _error ??
+                'Listen location: ${_location?.latitude}, ${_location?.longitude}',
+            style: Theme.of(context).textTheme.bodyText1,
+          ),
+          Row(
+            children: <Widget>[
+              Container(
+                margin: const EdgeInsets.only(right: 42),
+                child: ElevatedButton(
+                  onPressed:
+                      _locationSubscription == null ? _listenLocation : null,
+                  child: const Text('Listen'),
+                ),
               ),
-            ),
-            ElevatedButton(
-              onPressed: _locationSubscription != null ? _stopListen : null,
-              child: const Text('Stop'),
-            )
-          ],
-        ),
-      ],
+              ElevatedButton(
+                onPressed: _locationSubscription != null ? _stopListen : null,
+                child: const Text('Stop'),
+              )
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

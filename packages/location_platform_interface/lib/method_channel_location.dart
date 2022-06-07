@@ -7,7 +7,7 @@ class MethodChannelLocation extends LocationPlatform {
   ///
   factory MethodChannelLocation() {
     if (_instance == null) {
-      const eventChannel = EventChannel('lyokone/locationstream');
+      const eventChannel = EventChannel('lyokone/location_stream');
       _instance = MethodChannelLocation.private(eventChannel);
     }
     return _instance!;

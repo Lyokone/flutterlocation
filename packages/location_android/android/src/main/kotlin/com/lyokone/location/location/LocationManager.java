@@ -22,10 +22,10 @@ import com.lyokone.location.location.view.ContextProcessor;
 
 public class LocationManager implements PermissionListener {
 
-    private LocationListener listener;
-    private LocationConfiguration configuration;
-    private LocationProvider activeProvider;
-    private PermissionProvider permissionProvider;
+    private final LocationListener listener;
+    private final LocationConfiguration configuration;
+    private final LocationProvider activeProvider;
+    private final PermissionProvider permissionProvider;
 
     /**
      * Library tries to log as much as possible in order to make it transparent to see what is actually going on
@@ -60,7 +60,7 @@ public class LocationManager implements PermissionListener {
 
     public static class Builder {
 
-        private ContextProcessor contextProcessor;
+        private final ContextProcessor contextProcessor;
         private LocationListener listener;
         private LocationConfiguration configuration;
         private LocationProvider activeProvider;

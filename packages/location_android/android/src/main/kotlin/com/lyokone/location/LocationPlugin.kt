@@ -8,25 +8,33 @@ import android.os.Bundle
 import android.util.Log
 import androidx.annotation.NonNull
 import com.google.android.gms.location.LocationRequest
+import io.flutter.plugin.common.EventChannel.StreamHandler
 import com.lyokone.location.location.LocationManager
 import com.lyokone.location.location.configuration.*
+import com.lyokone.location.location.configuration.Configurations.defaultConfiguration
 import com.lyokone.location.location.constants.ProcessType
 import com.lyokone.location.location.listener.LocationListener
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.PluginRegistry
 
 
 class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
     PluginRegistry.RequestPermissionsResultListener,
-    PluginRegistry.ActivityResultListener, GeneratedAndroidLocation.LocationHostApi {
+    PluginRegistry.ActivityResultListener, GeneratedAndroidLocation.LocationHostApi, StreamHandler {
     private var context: Context? = null
     private var activity: Activity? = null
     private var activityBinding: ActivityPluginBinding? = null
 
-    private var globalLocationConfigurationBuilder: LocationConfiguration.Builder? = null
+    private var globalLocationConfigurationBuilder: LocationConfiguration.Builder =
+        defaultConfiguration("The location is needed", "The GPS is needed")
     private var locationManager: LocationManager? = null
+    private var streamLocationManager: LocationManager? = null
+
+    private var eventChannel: EventChannel? = null
+    private var eventSink: EventChannel.EventSink? = null
 
     private var resultsNeedingLocation: MutableList<GeneratedAndroidLocation.Result<GeneratedAndroidLocation.LocationData>?> =
         mutableListOf()
@@ -34,13 +42,15 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         GeneratedAndroidLocation.LocationHostApi.setup(flutterPluginBinding.binaryMessenger, this)
         context = flutterPluginBinding.applicationContext
-
+        eventChannel = EventChannel(flutterPluginBinding.binaryMessenger, STREAM_CHANNEL_NAME)
+        eventChannel?.setStreamHandler(this)
     }
 
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         GeneratedAndroidLocation.LocationHostApi.setup(binding.binaryMessenger, null)
         context = null
+        eventChannel = null
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -91,15 +101,22 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
 
     override fun onLocationChanged(location: Location?) {
         Log.d("LOCATION", location?.latitude.toString() + " " + location?.longitude.toString())
+
+        val locationData =
+            GeneratedAndroidLocation.LocationData.Builder().setLatitude(location!!.latitude)
+                .setLongitude(location.longitude).build()
+
         for (result in resultsNeedingLocation) {
             if (result == null) {
                 return
             }
             result.success(
-                GeneratedAndroidLocation.LocationData.Builder().setLatitude(location!!.latitude)
-                    .setLongitude(location.longitude).build()
+                locationData
             )
         }
+
+        eventSink?.success(locationData.toMap())
+
         resultsNeedingLocation = mutableListOf()
     }
 
@@ -144,26 +161,17 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
 
         Defaults.createDefaultLocationRequest()
 
+        val isListening = streamLocationManager != null
 
-        globalLocationConfigurationBuilder = LocationConfiguration.Builder()
-            .keepTracking(false)
-            .askForPermission(PermissionConfiguration.Builder().rationaleMessage("Hey").build())
-            .useGooglePlayServices(
-                GooglePlayServicesConfiguration.Builder().build()
-            )
-            .useDefaultProviders(
-                DefaultProviderConfiguration.Builder().requiredTimeInterval(2 * 1000)
-                    .gpsMessage("Gimme").build()
-            )
+        if (!isListening) {
+            locationManager = LocationManager.Builder(context!!)
+                .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
+                .configuration(globalLocationConfigurationBuilder.build())
+                .notify(this)
+                .build()
 
-        locationManager = LocationManager.Builder(context!!)
-            .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
-            .configuration(globalLocationConfigurationBuilder!!.build())
-            .notify(this)
-            .build()
-
-        locationManager?.get()
-
+            locationManager?.get()
+        }
     }
 
     private fun getPriorityFromAccuracy(accuracy: GeneratedAndroidLocation.LocationAccuracy): Int {
@@ -222,4 +230,28 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
 
         globalLocationConfigurationBuilder = locationConfiguration
     }
+
+
+    override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+        eventSink = events
+        streamLocationManager = LocationManager.Builder(context!!)
+            .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
+            .configuration(globalLocationConfigurationBuilder.keepTracking(true).build())
+            .notify(this)
+            .build()
+
+        streamLocationManager?.get()
+    }
+
+    override fun onCancel(arguments: Any?) {
+        eventSink = null
+        streamLocationManager?.cancel()
+        streamLocationManager = null
+    }
+
+    companion object {
+        private const val STREAM_CHANNEL_NAME = "lyokone/location_stream"
+    }
+
+
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
 import 'package:location_platform_interface/messages.pigeon.dart';
 
@@ -7,6 +8,12 @@ class LocationAndroid extends LocationPlatform {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
   final api = LocationHostApi();
+
+  /// The  channel used to interact with the native platform.
+  @visibleForTesting
+  final EventChannel eventChannel = EventChannel('lyokone/location_stream');
+
+  Stream<LocationData>? _onLocationChanged;
 
   /// Registers this class as the default instance of [LocationPlatform]
   static void registerWith() {
@@ -20,6 +27,8 @@ class LocationAndroid extends LocationPlatform {
 
   @override
   Stream<LocationData?> get onLocationChanged {
-    return LocationPlatform.instance.onLocationChanged;
+    return _onLocationChanged ??= eventChannel
+        .receiveBroadcastStream()
+        .map<LocationData>((dynamic event) => LocationData.decode(event));
   }
 }
