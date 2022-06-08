@@ -57,4 +57,14 @@ class MethodChannelLocation extends LocationPlatform {
     final permission = await _api.requestPermission();
     return permissionStatusFromInt(permission);
   }
+
+  @override
+  Future<bool?> isGPSEnabled() {
+    return _api.isGPSEnabled();
+  }
+
+  @override
+  Future<bool?> isNetworkEnabled() {
+    return _api.isNetworkEnabled();
+  }
 }

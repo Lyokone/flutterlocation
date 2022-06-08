@@ -122,15 +122,9 @@ public abstract class LocationProvider {
         return contextProcessor.getActivity();
     }
 
-    @Nullable
-    protected Activity getFragment() {
-        return contextProcessor.getFragment().getActivity();
-    }
 
     protected boolean startActivityForResult(Intent intent) {
-        if (getFragment() != null) {
-            getFragment().startActivityForResult(intent, com.lyokone.location.location.constants.RequestCode.GPS_ENABLE);
-        } else if (getActivity() != null) {
+        if (getActivity() != null) {
             getActivity().startActivityForResult(intent, com.lyokone.location.location.constants.RequestCode.GPS_ENABLE);
         } else {
             LogUtils.logE("Cannot startActivityForResult because host is neither Activity nor Fragment.");

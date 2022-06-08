@@ -20,7 +20,7 @@ import com.lyokone.location.location.providers.dialogprovider.DialogProvider;
 
 @SuppressWarnings("ResourceType")
 public class DefaultLocationProvider extends LocationProvider
-      implements ContinuousTaskRunner, LocationListener, DialogListener {
+        implements ContinuousTaskRunner, LocationListener, DialogListener {
 
     private com.lyokone.location.location.providers.locationprovider.DefaultLocationSource defaultLocationSource;
 
@@ -155,8 +155,8 @@ public class DefaultLocationProvider extends LocationProvider
         Location lastKnownLocation = getSourceProvider().getLastKnownLocation(provider);
 
         if (getSourceProvider().isLocationSufficient(lastKnownLocation,
-              getConfiguration().defaultProviderConfiguration().acceptableTimePeriod(),
-              getConfiguration().defaultProviderConfiguration().acceptableAccuracy())) {
+                getConfiguration().defaultProviderConfiguration().acceptableTimePeriod(),
+                getConfiguration().defaultProviderConfiguration().acceptableAccuracy())) {
             LogUtils.logI("LastKnowLocation is usable.");
             onLocationReceived(lastKnownLocation);
             return true;
@@ -174,8 +174,8 @@ public class DefaultLocationProvider extends LocationProvider
     void notifyProcessChange() {
         if (getListener() != null) {
             getListener().onProcessTypeChanged(LocationManager.GPS_PROVIDER.equals(provider)
-                  ? ProcessType.GETTING_LOCATION_FROM_GPS_PROVIDER
-                  : ProcessType.GETTING_LOCATION_FROM_NETWORK_PROVIDER);
+                    ? ProcessType.GETTING_LOCATION_FROM_GPS_PROVIDER
+                    : ProcessType.GETTING_LOCATION_FROM_NETWORK_PROVIDER);
         }
     }
 
@@ -187,15 +187,15 @@ public class DefaultLocationProvider extends LocationProvider
 
     long getWaitPeriod() {
         return LocationManager.GPS_PROVIDER.equals(provider)
-              ? getConfiguration().defaultProviderConfiguration().gpsWaitPeriod()
-              : getConfiguration().defaultProviderConfiguration().networkWaitPeriod();
+                ? getConfiguration().defaultProviderConfiguration().gpsWaitPeriod()
+                : getConfiguration().defaultProviderConfiguration().networkWaitPeriod();
     }
 
-    private boolean isNetworkProviderEnabled() {
+    public boolean isNetworkProviderEnabled() {
         return getSourceProvider().isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
-    private boolean isGPSProviderEnabled() {
+    public boolean isGPSProviderEnabled() {
         return getSourceProvider().isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
@@ -291,7 +291,7 @@ public class DefaultLocationProvider extends LocationProvider
     }
 
     // For test purposes
-    void setDefaultLocationSource(com.lyokone.location.location.providers.locationprovider.DefaultLocationSource defaultLocationSource) {
+    public void setDefaultLocationSource(com.lyokone.location.location.providers.locationprovider.DefaultLocationSource defaultLocationSource) {
         this.defaultLocationSource = defaultLocationSource;
     }
 

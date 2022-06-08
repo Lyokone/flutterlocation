@@ -3,6 +3,7 @@ import 'package:location_example/change_settings.dart';
 import 'package:location_example/get_location.dart';
 import 'package:location_example/listen_location.dart';
 import 'package:location_example/permission_status.dart';
+import 'package:location_example/service_enabled.dart';
 
 void main() => runApp(const MyApp());
 
@@ -37,8 +38,8 @@ class MyHomePage extends StatelessWidget {
           children: const <Widget>[
             PermissionStatusWidget(),
             Divider(height: 32),
-            // ServiceEnabledWidget(),
-            // Divider(height: 32),
+            ServiceEnabledWidget(),
+            Divider(height: 32),
             GetLocationWidget(),
             Divider(height: 32),
             ListenLocationWidget(),

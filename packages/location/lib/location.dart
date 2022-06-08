@@ -84,3 +84,21 @@ Future<PermissionStatus> requestPermission() async {
   }
   return response;
 }
+
+/// Is GPS provider enabled
+Future<bool> isGPSEnabled() async {
+  final response = await _platform.isGPSEnabled();
+  if (response == null) {
+    throw Exception('Error while getting GPS status');
+  }
+  return response;
+}
+
+/// Is GPS provider enabled
+Future<bool> isNetworkEnabled() async {
+  final response = await _platform.isNetworkEnabled();
+  if (response == null) {
+    throw Exception('Error while getting Network status');
+  }
+  return response;
+}

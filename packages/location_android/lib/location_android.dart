@@ -60,4 +60,14 @@ class LocationAndroid extends LocationPlatform {
     final permission = await api.requestPermission();
     return permissionStatusFromInt(permission);
   }
+
+  @override
+  Future<bool?> isGPSEnabled() {
+    return api.isGPSEnabled();
+  }
+
+  @override
+  Future<bool?> isNetworkEnabled() {
+    return api.isNetworkEnabled();
+  }
 }

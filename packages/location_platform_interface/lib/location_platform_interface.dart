@@ -43,4 +43,10 @@ abstract class LocationPlatform extends PlatformInterface {
 
   /// Request location permission for the app
   Future<PermissionStatus?> requestPermission();
+
+  /// Return true if GPS is enabled on the device
+  Future<bool?> isGPSEnabled();
+
+  /// Return true if Network is enabled on the device
+  Future<bool?> isNetworkEnabled();
 }

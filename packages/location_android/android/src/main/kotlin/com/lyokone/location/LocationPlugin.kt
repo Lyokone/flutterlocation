@@ -18,6 +18,7 @@ import com.lyokone.location.location.constants.ProcessType
 import com.lyokone.location.location.constants.RequestCode
 import com.lyokone.location.location.helper.LogUtils
 import com.lyokone.location.location.listener.LocationListener
+import com.lyokone.location.location.providers.locationprovider.DefaultLocationProvider
 import com.lyokone.location.location.providers.permissionprovider.DefaultPermissionProvider
 import com.lyokone.location.location.view.ContextProcessor
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -416,6 +417,30 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         } else {
             resultPermissionRequest = result
         }
+    }
+
+    override fun isGPSEnabled(): Boolean {
+        val locationProvider = DefaultLocationProvider()
+        val contextProcessor = ContextProcessor(activity?.application)
+        contextProcessor.activity = activity
+
+        locationProvider.configure(
+            contextProcessor, globalLocationConfigurationBuilder.build(),
+            this
+        )
+        return locationProvider.isGPSProviderEnabled
+    }
+
+    override fun isNetworkEnabled(): Boolean {
+        val locationProvider = DefaultLocationProvider()
+        val contextProcessor = ContextProcessor(activity?.application)
+        contextProcessor.activity = activity
+
+        locationProvider.configure(
+            contextProcessor, globalLocationConfigurationBuilder.build(),
+            this
+        )
+        return locationProvider.isNetworkProviderEnabled
     }
 
 

@@ -482,6 +482,8 @@ public class GeneratedAndroidLocation {
     @NonNull Boolean setLocationSettings(@NonNull LocationSettings settings);
     @NonNull Long getPermissionStatus();
     void requestPermission(Result<Long> result);
+    @NonNull Boolean isGPSEnabled();
+    @NonNull Boolean isNetworkEnabled();
 
     /** The codec used by LocationHostApi. */
     static MessageCodec<Object> getCodec() {
@@ -588,6 +590,44 @@ public class GeneratedAndroidLocation {
               wrapped.put("error", wrapError(exception));
               reply.reply(wrapped);
             }
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.LocationHostApi.isGPSEnabled", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              Boolean output = api.isGPSEnabled();
+              wrapped.put("result", output);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.LocationHostApi.isNetworkEnabled", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              Boolean output = api.isNetworkEnabled();
+              wrapped.put("result", output);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
           });
         } else {
           channel.setMessageHandler(null);

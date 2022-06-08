@@ -64,6 +64,10 @@ Sets whether the client wants the locations services to wait a few seconds for a
 
 ## requestPermission
 
+## isGPSEnabled
+
+## isNetworkEnabled
+
 # Yayaa Location Manager
 
 ## Ask for permissions

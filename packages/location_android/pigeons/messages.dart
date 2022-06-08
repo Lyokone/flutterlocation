@@ -108,4 +108,8 @@ abstract class LocationHostApi {
 
   @async
   int requestPermission();
+
+  bool isGPSEnabled();
+
+  bool isNetworkEnabled();
 }
