@@ -2,7 +2,7 @@ import 'package:location_platform_interface/location_platform_interface.dart';
 import 'package:location_platform_interface/messages.pigeon.dart';
 
 export 'package:location_platform_interface/messages.pigeon.dart'
-    show LocationData, LocationAccuracy, LocationSettings;
+    show LocationData, LocationAccuracy, LocationSettings, PermissionStatus;
 
 LocationPlatform get _platform => LocationPlatform.instance;
 
@@ -65,4 +65,13 @@ Future<void> setLocationSettings({
     ),
   );
   if (response != true) throw Exception('Unable to set new location settings');
+}
+
+/// Get permission status.
+Future<PermissionStatus> getPermissionStatus() async {
+  final response = await _platform.getPermissionStatus();
+  if (response == null) {
+    throw Exception('Error while getting permission status');
+  }
+  return response;
 }

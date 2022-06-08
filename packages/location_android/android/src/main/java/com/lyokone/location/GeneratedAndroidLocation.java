@@ -35,6 +35,18 @@ public class GeneratedAndroidLocation {
     }
   }
 
+  public enum PermissionStatus {
+    granted(0),
+    grantedLimited(1),
+    denied(2),
+    deniedForever(3);
+
+    private int index;
+    private PermissionStatus(final int index) {
+      this.index = index;
+    }
+  }
+
   /** Generated class from Pigeon that represents data sent in messages. */
   public static class LocationData {
     private @NonNull Double latitude;
@@ -468,6 +480,7 @@ public class GeneratedAndroidLocation {
   public interface LocationHostApi {
     void getLocation(@Nullable LocationSettings settings, Result<LocationData> result);
     @NonNull Boolean setLocationSettings(@NonNull LocationSettings settings);
+    @NonNull Long getPermissionStatus();
 
     /** The codec used by LocationHostApi. */
     static MessageCodec<Object> getCodec() {
@@ -520,6 +533,25 @@ public class GeneratedAndroidLocation {
                 throw new NullPointerException("settingsArg unexpectedly null.");
               }
               Boolean output = api.setLocationSettings(settingsArg);
+              wrapped.put("result", output);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.LocationHostApi.getPermissionStatus", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              Long output = api.getPermissionStatus();
               wrapped.put("result", output);
             }
             catch (Error | RuntimeException exception) {

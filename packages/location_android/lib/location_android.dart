@@ -36,4 +36,21 @@ class LocationAndroid extends LocationPlatform {
   Future<bool?> setLocationSettings(LocationSettings settings) {
     return api.setLocationSettings(settings);
   }
+
+  @override
+  Future<PermissionStatus?> getPermissionStatus() async {
+    final permission = await api.getPermissionStatus();
+    switch (permission) {
+      case 0:
+        return PermissionStatus.granted;
+      case 1:
+        return PermissionStatus.grantedLimited;
+      case 2:
+        return PermissionStatus.denied;
+      case 3:
+        return PermissionStatus.deniedForever;
+      default:
+        throw Exception('Unknown permission status: $permission');
+    }
+  }
 }

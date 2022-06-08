@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:location_example/change_settings.dart';
 import 'package:location_example/get_location.dart';
 import 'package:location_example/listen_location.dart';
+import 'package:location_example/permission_status.dart';
 
 void main() => runApp(const MyApp());
 
@@ -26,7 +27,6 @@ class MyHomePage extends StatelessWidget {
   final String? title;
 
   @override
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -35,10 +35,10 @@ class MyHomePage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: const <Widget>[
-            // PermissionStatusWidget(),
-            // Divider(height: 32),
-            // ServiceEnabledWidget(),
+            PermissionStatusWidget(),
             Divider(height: 32),
+            // ServiceEnabledWidget(),
+            // Divider(height: 32),
             GetLocationWidget(),
             Divider(height: 32),
             ListenLocationWidget(),

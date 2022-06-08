@@ -8,16 +8,19 @@ import android.os.Bundle
 import android.util.Log
 import androidx.annotation.NonNull
 import com.google.android.gms.location.LocationRequest
-import io.flutter.plugin.common.EventChannel.StreamHandler
 import com.lyokone.location.location.LocationManager
 import com.lyokone.location.location.configuration.*
 import com.lyokone.location.location.configuration.Configurations.defaultConfiguration
+import com.lyokone.location.location.configuration.Defaults.LOCATION_PERMISSIONS
 import com.lyokone.location.location.constants.ProcessType
 import com.lyokone.location.location.listener.LocationListener
+import com.lyokone.location.location.providers.permissionprovider.DefaultPermissionProvider
+import com.lyokone.location.location.view.ContextProcessor
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.EventChannel.StreamHandler
 import io.flutter.plugin.common.PluginRegistry
 
 
@@ -248,16 +251,15 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         if (settings.fallbackToGPS) {
             val defaultProvider = DefaultProviderConfiguration.Builder()
 
-            if (settings.rationaleMessageForGPSRequest != null) {
-                defaultProvider.gpsMessage(settings.rationaleMessageForGPSRequest)
-            }
+            defaultProvider.gpsMessage(settings.rationaleMessageForGPSRequest)
+
 
             defaultProvider.requiredTimeInterval(settings.interval.toLong())
             if (settings.acceptableAccuracy != null) {
                 defaultProvider.acceptableAccuracy(settings.acceptableAccuracy!!.toFloat())
             }
 
-            locationConfiguration.useDefaultProviders(defaultProvider.build());
+            locationConfiguration.useDefaultProviders(defaultProvider.build())
         }
 
         return locationConfiguration
@@ -310,16 +312,14 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         if (settings.fallbackToGPS) {
             val defaultProvider = DefaultProviderConfiguration.Builder()
 
-            if (settings.rationaleMessageForGPSRequest != null) {
-                defaultProvider.gpsMessage(settings.rationaleMessageForGPSRequest)
-            }
+            defaultProvider.gpsMessage(settings.rationaleMessageForGPSRequest)
 
             defaultProvider.requiredTimeInterval(settings.interval.toLong())
             if (settings.acceptableAccuracy != null) {
                 defaultProvider.acceptableAccuracy(settings.acceptableAccuracy!!.toFloat())
             }
 
-            locationConfiguration.useDefaultProviders(defaultProvider.build());
+            locationConfiguration.useDefaultProviders(defaultProvider.build())
         }
 
         globalLocationConfigurationBuilder = locationConfiguration
@@ -336,6 +336,18 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         }
 
         return true
+    }
+
+    override fun getPermissionStatus(): Long {
+        val permissionProvider = DefaultPermissionProvider(LOCATION_PERMISSIONS, null)
+        permissionProvider.setContextProcessor(ContextProcessor(activity?.application))
+        val hasPermission = permissionProvider.hasPermission()
+
+        if (hasPermission) {
+            return 0
+        }
+
+        return 2
     }
 
 

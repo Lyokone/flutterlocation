@@ -37,4 +37,7 @@ abstract class LocationPlatform extends PlatformInterface {
 
   /// Set new global location settings for the app
   Future<bool?> setLocationSettings(LocationSettings settings);
+
+  /// Get the permission status of the app
+  Future<PermissionStatus?> getPermissionStatus();
 }
