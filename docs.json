@@ -2,5 +2,8 @@
   "name": "Flutter Location",
   "twitter": "BeGuillaume",
   "theme": "#FFA03F",
-  "sidebar": [["Overview", "/"]]
+  "sidebar": [
+    ["Overview", "/"],
+    ["Get Location", "/get-location"]
+  ]
 }
