@@ -436,6 +436,9 @@ public class GeneratedAndroidLocation {
         case (byte)129:         
           return LocationSettings.fromMap((Map<String, Object>) readValue(buffer));
         
+        case (byte)130:         
+          return LocationSettings.fromMap((Map<String, Object>) readValue(buffer));
+        
         default:        
           return super.readValueOfType(type, buffer);
         
@@ -451,6 +454,10 @@ public class GeneratedAndroidLocation {
         stream.write(129);
         writeValue(stream, ((LocationSettings) value).toMap());
       } else 
+      if (value instanceof LocationSettings) {
+        stream.write(130);
+        writeValue(stream, ((LocationSettings) value).toMap());
+      } else 
 {
         super.writeValue(stream, value);
       }
@@ -459,7 +466,7 @@ public class GeneratedAndroidLocation {
 
   /** Generated interface from Pigeon that represents a handler of messages from Flutter.*/
   public interface LocationHostApi {
-    void getLocation(Result<LocationData> result);
+    void getLocation(@Nullable LocationSettings settings, Result<LocationData> result);
     @NonNull Boolean setLocationSettings(@NonNull LocationSettings settings);
 
     /** The codec used by LocationHostApi. */
@@ -476,6 +483,8 @@ public class GeneratedAndroidLocation {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              LocationSettings settingsArg = (LocationSettings)args.get(0);
               Result<LocationData> resultCallback = new Result<LocationData>() {
                 public void success(LocationData result) {
                   wrapped.put("result", result);
@@ -487,7 +496,7 @@ public class GeneratedAndroidLocation {
                 }
               };
 
-              api.getLocation(resultCallback);
+              api.getLocation(settingsArg, resultCallback);
             }
             catch (Error | RuntimeException exception) {
               wrapped.put("error", wrapError(exception));

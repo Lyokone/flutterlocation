@@ -143,6 +143,10 @@ class _LocationHostApiCodec extends StandardMessageCodec {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
     } else 
+    if (value is LocationSettings) {
+      buffer.putUint8(130);
+      writeValue(buffer, value.encode());
+    } else 
 {
       super.writeValue(buffer, value);
     }
@@ -154,6 +158,9 @@ class _LocationHostApiCodec extends StandardMessageCodec {
         return LocationData.decode(readValue(buffer)!);
       
       case 129:       
+        return LocationSettings.decode(readValue(buffer)!);
+      
+      case 130:       
         return LocationSettings.decode(readValue(buffer)!);
       
       default:      
@@ -173,11 +180,11 @@ class LocationHostApi {
 
   static const MessageCodec<Object?> codec = _LocationHostApiCodec();
 
-  Future<LocationData> getLocation() async {
+  Future<LocationData> getLocation(LocationSettings? arg_settings) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.LocationHostApi.getLocation', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
-        await channel.send(null) as Map<Object?, Object?>?;
+        await channel.send(<Object?>[arg_settings]) as Map<Object?, Object?>?;
     if (replyMap == null) {
       throw PlatformException(
         code: 'channel-error',

@@ -83,7 +83,7 @@ class LocationSettings {
 @HostApi()
 abstract class LocationHostApi {
   @async
-  LocationData getLocation();
+  LocationData getLocation(LocationSettings? settings);
 
   bool setLocationSettings(LocationSettings settings);
 }

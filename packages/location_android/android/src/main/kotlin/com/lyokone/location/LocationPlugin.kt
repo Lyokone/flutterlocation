@@ -156,22 +156,38 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         return true
     }
 
-    override fun getLocation(result: GeneratedAndroidLocation.Result<GeneratedAndroidLocation.LocationData>?) {
+    override fun getLocation(
+        settings: GeneratedAndroidLocation.LocationSettings?,
+        result: GeneratedAndroidLocation.Result<GeneratedAndroidLocation.LocationData>?
+    ) {
         resultsNeedingLocation.add(result)
 
         Defaults.createDefaultLocationRequest()
 
         val isListening = streamLocationManager != null
 
-        if (!isListening) {
+        if (settings != null) {
+            val locationConfiguration = getLocationConfigurationFromSettings(settings)
             locationManager = LocationManager.Builder(context!!)
                 .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
-                .configuration(globalLocationConfigurationBuilder.build())
+                .configuration(locationConfiguration.build())
                 .notify(this)
                 .build()
 
             locationManager?.get()
+        } else {
+            if (!isListening) {
+                locationManager = LocationManager.Builder(context!!)
+                    .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
+                    .configuration(globalLocationConfigurationBuilder.build())
+                    .notify(this)
+                    .build()
+
+                locationManager?.get()
+            }
+
         }
+
     }
 
     private fun getPriorityFromAccuracy(accuracy: GeneratedAndroidLocation.LocationAccuracy): Int {
@@ -184,8 +200,71 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         }
     }
 
-    override fun setLocationSettings(settings: GeneratedAndroidLocation.LocationSettings): Boolean {
+
+    private fun getLocationConfigurationFromSettings(settings: GeneratedAndroidLocation.LocationSettings): LocationConfiguration.Builder {
         val locationConfiguration = LocationConfiguration.Builder()
+
+        if (settings.askForPermission) {
+            val permissionConfiguration = PermissionConfiguration.Builder()
+                .rationaleMessage(settings.rationaleMessageForPermissionRequest)
+
+            locationConfiguration.askForPermission(permissionConfiguration.build())
+        }
+
+        if (settings.useGooglePlayServices) {
+            val googlePlayServices = GooglePlayServicesConfiguration.Builder()
+            googlePlayServices.askForGooglePlayServices(settings.askForGooglePlayServices)
+                .askForSettingsApi(settings.askForGPS)
+                .fallbackToDefault(settings.fallbackToGPS)
+                .ignoreLastKnowLocation(settings.ignoreLastKnownPosition)
+
+
+            val locationRequest = LocationRequest.create()
+
+            if (settings.expirationDuration != null) {
+                locationRequest.setExpirationDuration(settings.expirationDuration!!.toLong())
+            }
+            if (settings.expirationTime != null) {
+                locationRequest.expirationTime = settings.expirationTime!!.toLong()
+            }
+            locationRequest.fastestInterval = (settings.fastestInterval.toLong())
+            locationRequest.interval = settings.interval.toLong()
+            locationRequest.priority = getPriorityFromAccuracy(settings.accuracy)
+
+            if (settings.maxWaitTime != null) {
+                locationRequest.maxWaitTime = settings.maxWaitTime!!.toLong()
+            }
+            if (settings.numUpdates != null) {
+                locationRequest.numUpdates = settings.numUpdates!!.toInt()
+            }
+            locationRequest.smallestDisplacement = settings.smallestDisplacement.toFloat()
+            locationRequest.isWaitForAccurateLocation = settings.waitForAccurateLocation
+
+            googlePlayServices.locationRequest(locationRequest)
+
+            locationConfiguration.useGooglePlayServices(googlePlayServices.build())
+        }
+
+        if (settings.fallbackToGPS) {
+            val defaultProvider = DefaultProviderConfiguration.Builder()
+
+            if (settings.rationaleMessageForGPSRequest != null) {
+                defaultProvider.gpsMessage(settings.rationaleMessageForGPSRequest)
+            }
+
+            defaultProvider.requiredTimeInterval(settings.interval.toLong())
+            if (settings.acceptableAccuracy != null) {
+                defaultProvider.acceptableAccuracy(settings.acceptableAccuracy!!.toFloat())
+            }
+
+            locationConfiguration.useDefaultProviders(defaultProvider.build());
+        }
+
+        return locationConfiguration
+    }
+
+    override fun setLocationSettings(settings: GeneratedAndroidLocation.LocationSettings): Boolean {
+        val locationConfiguration = getLocationConfigurationFromSettings(settings)
 
         if (settings.askForPermission) {
             val permissionConfiguration = PermissionConfiguration.Builder()

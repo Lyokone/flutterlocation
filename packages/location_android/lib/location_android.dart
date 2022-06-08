@@ -21,8 +21,8 @@ class LocationAndroid extends LocationPlatform {
   }
 
   @override
-  Future<LocationData?> getLocation() {
-    return api.getLocation();
+  Future<LocationData?> getLocation({LocationSettings? settings}) {
+    return api.getLocation(settings);
   }
 
   @override

@@ -25,8 +25,8 @@ class MethodChannelLocation extends LocationPlatform {
   late final EventChannel _eventChannel;
 
   @override
-  Future<LocationData?> getLocation() {
-    return _api.getLocation();
+  Future<LocationData?> getLocation({LocationSettings? settings}) {
+    return _api.getLocation(settings);
   }
 
   /// Current opened stream of location

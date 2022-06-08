@@ -30,7 +30,7 @@ abstract class LocationPlatform extends PlatformInterface {
   }
 
   /// Return the current location.
-  Future<LocationData?> getLocation();
+  Future<LocationData?> getLocation({LocationSettings? settings});
 
   /// Return a stream of the user's location.
   Stream<LocationData?> get onLocationChanged;
