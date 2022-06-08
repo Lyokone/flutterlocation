@@ -6,9 +6,11 @@
 
 ## onLocationChanged
 
-- Settings? (update settings of all other onLocationChanged)
+- Uses the global location settings
 
 ## setLocationSettings
+
+Will update the location settings of the current onLocationChanged
 
 - askForPermission
 

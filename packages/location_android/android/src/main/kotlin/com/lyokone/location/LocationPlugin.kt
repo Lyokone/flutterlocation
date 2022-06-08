@@ -245,6 +245,17 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
 
         globalLocationConfigurationBuilder = locationConfiguration
 
+        if (streamLocationManager != null) {
+            streamLocationManager?.cancel()
+            streamLocationManager = LocationManager.Builder(context!!)
+                .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
+                .configuration(globalLocationConfigurationBuilder.keepTracking(true).build())
+                .notify(this)
+                .build()
+
+            streamLocationManager?.get()
+        }
+
         return true
     }
 
