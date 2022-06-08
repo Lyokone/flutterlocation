@@ -228,8 +228,22 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
             locationConfiguration.useGooglePlayServices(googlePlayServices.build())
         }
 
-        globalLocationConfigurationBuilder = locationConfiguration
+        if (settings.fallbackToGPS) {
+            val defaultProvider = DefaultProviderConfiguration.Builder()
 
+            if (settings.rationaleMessageForGPSRequest != null) {
+                defaultProvider.gpsMessage(settings.rationaleMessageForGPSRequest)
+            }
+
+            defaultProvider.requiredTimeInterval(settings.interval.toLong())
+            if (settings.acceptableAccuracy != null) {
+                defaultProvider.acceptableAccuracy(settings.acceptableAccuracy!!.toFloat())
+            }
+
+            locationConfiguration.useDefaultProviders(defaultProvider.build());
+        }
+
+        globalLocationConfigurationBuilder = locationConfiguration
 
         return true
     }

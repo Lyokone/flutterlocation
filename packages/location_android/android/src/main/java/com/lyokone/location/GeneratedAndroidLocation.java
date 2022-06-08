@@ -111,6 +111,15 @@ public class GeneratedAndroidLocation {
       this.rationaleMessageForPermissionRequest = setterArg;
     }
 
+    private @NonNull String rationaleMessageForGPSRequest;
+    public @NonNull String getRationaleMessageForGPSRequest() { return rationaleMessageForGPSRequest; }
+    public void setRationaleMessageForGPSRequest(@NonNull String setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"rationaleMessageForGPSRequest\" is null.");
+      }
+      this.rationaleMessageForGPSRequest = setterArg;
+    }
+
     private @NonNull Boolean useGooglePlayServices;
     public @NonNull Boolean getUseGooglePlayServices() { return useGooglePlayServices; }
     public void setUseGooglePlayServices(@NonNull Boolean setterArg) {
@@ -225,6 +234,12 @@ public class GeneratedAndroidLocation {
       this.waitForAccurateLocation = setterArg;
     }
 
+    private @Nullable Double acceptableAccuracy;
+    public @Nullable Double getAcceptableAccuracy() { return acceptableAccuracy; }
+    public void setAcceptableAccuracy(@Nullable Double setterArg) {
+      this.acceptableAccuracy = setterArg;
+    }
+
     /** Constructor is private to enforce null safety; use Builder. */
     private LocationSettings() {}
     public static final class Builder {
@@ -236,6 +251,11 @@ public class GeneratedAndroidLocation {
       private @Nullable String rationaleMessageForPermissionRequest;
       public @NonNull Builder setRationaleMessageForPermissionRequest(@NonNull String setterArg) {
         this.rationaleMessageForPermissionRequest = setterArg;
+        return this;
+      }
+      private @Nullable String rationaleMessageForGPSRequest;
+      public @NonNull Builder setRationaleMessageForGPSRequest(@NonNull String setterArg) {
+        this.rationaleMessageForGPSRequest = setterArg;
         return this;
       }
       private @Nullable Boolean useGooglePlayServices;
@@ -308,10 +328,16 @@ public class GeneratedAndroidLocation {
         this.waitForAccurateLocation = setterArg;
         return this;
       }
+      private @Nullable Double acceptableAccuracy;
+      public @NonNull Builder setAcceptableAccuracy(@Nullable Double setterArg) {
+        this.acceptableAccuracy = setterArg;
+        return this;
+      }
       public @NonNull LocationSettings build() {
         LocationSettings pigeonReturn = new LocationSettings();
         pigeonReturn.setAskForPermission(askForPermission);
         pigeonReturn.setRationaleMessageForPermissionRequest(rationaleMessageForPermissionRequest);
+        pigeonReturn.setRationaleMessageForGPSRequest(rationaleMessageForGPSRequest);
         pigeonReturn.setUseGooglePlayServices(useGooglePlayServices);
         pigeonReturn.setAskForGooglePlayServices(askForGooglePlayServices);
         pigeonReturn.setAskForGPS(askForGPS);
@@ -326,6 +352,7 @@ public class GeneratedAndroidLocation {
         pigeonReturn.setAccuracy(accuracy);
         pigeonReturn.setSmallestDisplacement(smallestDisplacement);
         pigeonReturn.setWaitForAccurateLocation(waitForAccurateLocation);
+        pigeonReturn.setAcceptableAccuracy(acceptableAccuracy);
         return pigeonReturn;
       }
     }
@@ -333,6 +360,7 @@ public class GeneratedAndroidLocation {
       Map<String, Object> toMapResult = new HashMap<>();
       toMapResult.put("askForPermission", askForPermission);
       toMapResult.put("rationaleMessageForPermissionRequest", rationaleMessageForPermissionRequest);
+      toMapResult.put("rationaleMessageForGPSRequest", rationaleMessageForGPSRequest);
       toMapResult.put("useGooglePlayServices", useGooglePlayServices);
       toMapResult.put("askForGooglePlayServices", askForGooglePlayServices);
       toMapResult.put("askForGPS", askForGPS);
@@ -347,6 +375,7 @@ public class GeneratedAndroidLocation {
       toMapResult.put("accuracy", accuracy == null ? null : accuracy.index);
       toMapResult.put("smallestDisplacement", smallestDisplacement);
       toMapResult.put("waitForAccurateLocation", waitForAccurateLocation);
+      toMapResult.put("acceptableAccuracy", acceptableAccuracy);
       return toMapResult;
     }
     static @NonNull LocationSettings fromMap(@NonNull Map<String, Object> map) {
@@ -355,6 +384,8 @@ public class GeneratedAndroidLocation {
       pigeonResult.setAskForPermission((Boolean)askForPermission);
       Object rationaleMessageForPermissionRequest = map.get("rationaleMessageForPermissionRequest");
       pigeonResult.setRationaleMessageForPermissionRequest((String)rationaleMessageForPermissionRequest);
+      Object rationaleMessageForGPSRequest = map.get("rationaleMessageForGPSRequest");
+      pigeonResult.setRationaleMessageForGPSRequest((String)rationaleMessageForGPSRequest);
       Object useGooglePlayServices = map.get("useGooglePlayServices");
       pigeonResult.setUseGooglePlayServices((Boolean)useGooglePlayServices);
       Object askForGooglePlayServices = map.get("askForGooglePlayServices");
@@ -383,6 +414,8 @@ public class GeneratedAndroidLocation {
       pigeonResult.setSmallestDisplacement((Double)smallestDisplacement);
       Object waitForAccurateLocation = map.get("waitForAccurateLocation");
       pigeonResult.setWaitForAccurateLocation((Boolean)waitForAccurateLocation);
+      Object acceptableAccuracy = map.get("acceptableAccuracy");
+      pigeonResult.setAcceptableAccuracy((Double)acceptableAccuracy);
       return pigeonResult;
     }
   }

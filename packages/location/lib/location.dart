@@ -25,6 +25,8 @@ Future<void> setLocationSettings({
   bool askForPermission = true,
   String rationaleMessageForPermissionRequest =
       'The app needs to access your location',
+  String rationaleMessageForGPSRequest =
+      'The app needs to access your location',
   bool useGooglePlayServices = true,
   bool askForGooglePlayServices = false,
   bool askForGPS = true,
@@ -45,6 +47,7 @@ Future<void> setLocationSettings({
       askForPermission: askForPermission,
       rationaleMessageForPermissionRequest:
           rationaleMessageForPermissionRequest,
+      rationaleMessageForGPSRequest: rationaleMessageForGPSRequest,
       useGooglePlayServices: useGooglePlayServices,
       askForGooglePlayServices: askForGooglePlayServices,
       askForGPS: askForGPS,

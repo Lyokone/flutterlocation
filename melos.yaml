@@ -2,3 +2,9 @@ name: location
 
 packages:
   - packages/**
+
+scripts:
+  generate:pigeon:
+    run: melos exec -- "flutter pub run pigeon --input ./pigeons/messages.dart"
+    select-package:
+      file-exists: "pigeons/messages.dart"

@@ -45,6 +45,7 @@ public final class Configurations {
     public static LocationConfiguration.Builder defaultConfiguration(@NonNull String rationalMessage, @NonNull String gpsMessage) {
         return new LocationConfiguration.Builder()
                 .askForPermission(new PermissionConfiguration.Builder().rationaleMessage(rationalMessage).build())
+                .useGooglePlayServices(new GooglePlayServicesConfiguration.Builder().build())
                 .useDefaultProviders(new DefaultProviderConfiguration.Builder().requiredTimeInterval(2 * 1000).gpsMessage(gpsMessage).build());
     }
 }

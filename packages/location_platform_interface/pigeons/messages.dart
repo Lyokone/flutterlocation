@@ -35,6 +35,8 @@ class LocationSettings {
     this.askForPermission = true,
     this.rationaleMessageForPermissionRequest =
         'The app needs to access your location',
+    this.rationaleMessageForGPSRequest =
+        'The app needs to access your location',
     this.useGooglePlayServices = true,
     this.askForGooglePlayServices = false,
     this.askForGPS = true,
@@ -46,6 +48,7 @@ class LocationSettings {
     this.interval = 1000,
     this.maxWaitTime,
     this.numUpdates,
+    this.acceptableAccuracy,
     this.accuracy = LocationAccuracy.high,
     this.smallestDisplacement = 0,
     this.waitForAccurateLocation = true,
@@ -53,6 +56,7 @@ class LocationSettings {
 
   bool askForPermission;
   String rationaleMessageForPermissionRequest;
+  String rationaleMessageForGPSRequest;
   bool useGooglePlayServices;
   bool askForGooglePlayServices;
   bool askForGPS;
@@ -67,6 +71,7 @@ class LocationSettings {
   LocationAccuracy accuracy;
   double smallestDisplacement;
   bool waitForAccurateLocation;
+  double? acceptableAccuracy;
 }
 
 @HostApi()

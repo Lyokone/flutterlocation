@@ -45,6 +45,7 @@ class LocationSettings {
   LocationSettings({
     required this.askForPermission,
     required this.rationaleMessageForPermissionRequest,
+    required this.rationaleMessageForGPSRequest,
     required this.useGooglePlayServices,
     required this.askForGooglePlayServices,
     required this.askForGPS,
@@ -59,10 +60,12 @@ class LocationSettings {
     required this.accuracy,
     required this.smallestDisplacement,
     required this.waitForAccurateLocation,
+    this.acceptableAccuracy,
   });
 
   bool askForPermission;
   String rationaleMessageForPermissionRequest;
+  String rationaleMessageForGPSRequest;
   bool useGooglePlayServices;
   bool askForGooglePlayServices;
   bool askForGPS;
@@ -77,11 +80,13 @@ class LocationSettings {
   LocationAccuracy accuracy;
   double smallestDisplacement;
   bool waitForAccurateLocation;
+  double? acceptableAccuracy;
 
   Object encode() {
     final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
     pigeonMap['askForPermission'] = askForPermission;
     pigeonMap['rationaleMessageForPermissionRequest'] = rationaleMessageForPermissionRequest;
+    pigeonMap['rationaleMessageForGPSRequest'] = rationaleMessageForGPSRequest;
     pigeonMap['useGooglePlayServices'] = useGooglePlayServices;
     pigeonMap['askForGooglePlayServices'] = askForGooglePlayServices;
     pigeonMap['askForGPS'] = askForGPS;
@@ -96,6 +101,7 @@ class LocationSettings {
     pigeonMap['accuracy'] = accuracy.index;
     pigeonMap['smallestDisplacement'] = smallestDisplacement;
     pigeonMap['waitForAccurateLocation'] = waitForAccurateLocation;
+    pigeonMap['acceptableAccuracy'] = acceptableAccuracy;
     return pigeonMap;
   }
 
@@ -104,6 +110,7 @@ class LocationSettings {
     return LocationSettings(
       askForPermission: pigeonMap['askForPermission']! as bool,
       rationaleMessageForPermissionRequest: pigeonMap['rationaleMessageForPermissionRequest']! as String,
+      rationaleMessageForGPSRequest: pigeonMap['rationaleMessageForGPSRequest']! as String,
       useGooglePlayServices: pigeonMap['useGooglePlayServices']! as bool,
       askForGooglePlayServices: pigeonMap['askForGooglePlayServices']! as bool,
       askForGPS: pigeonMap['askForGPS']! as bool,
@@ -119,6 +126,7 @@ class LocationSettings {
 ,
       smallestDisplacement: pigeonMap['smallestDisplacement']! as double,
       waitForAccurateLocation: pigeonMap['waitForAccurateLocation']! as bool,
+      acceptableAccuracy: pigeonMap['acceptableAccuracy'] as double?,
     );
   }
 }
