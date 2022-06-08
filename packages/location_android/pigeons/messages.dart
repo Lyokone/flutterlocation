@@ -105,4 +105,7 @@ abstract class LocationHostApi {
   bool setLocationSettings(LocationSettings settings);
 
   int getPermissionStatus();
+
+  @async
+  int requestPermission();
 }

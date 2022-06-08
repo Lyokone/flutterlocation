@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:location_platform_interface/helpers/mapper.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
 import 'package:location_platform_interface/messages.pigeon.dart';
 
@@ -48,17 +49,12 @@ class MethodChannelLocation extends LocationPlatform {
   @override
   Future<PermissionStatus?> getPermissionStatus() async {
     final permission = await _api.getPermissionStatus();
-    switch (permission) {
-      case 0:
-        return PermissionStatus.granted;
-      case 1:
-        return PermissionStatus.grantedLimited;
-      case 2:
-        return PermissionStatus.denied;
-      case 3:
-        return PermissionStatus.deniedForever;
-      default:
-        throw Exception('Unknown permission status: $permission');
-    }
+    return permissionStatusFromInt(permission);
+  }
+
+  @override
+  Future<PermissionStatus?> requestPermission() async {
+    final permission = await _api.requestPermission();
+    return permissionStatusFromInt(permission);
   }
 }

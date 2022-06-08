@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:location_platform_interface/helpers/mapper.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
 import 'package:location_platform_interface/messages.pigeon.dart';
 
@@ -52,5 +53,11 @@ class LocationAndroid extends LocationPlatform {
       default:
         throw Exception('Unknown permission status: $permission');
     }
+  }
+
+  @override
+  Future<PermissionStatus?> requestPermission() async {
+    final permission = await api.requestPermission();
+    return permissionStatusFromInt(permission);
   }
 }

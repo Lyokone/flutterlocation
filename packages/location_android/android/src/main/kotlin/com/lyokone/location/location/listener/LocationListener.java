@@ -33,7 +33,7 @@ public interface LocationListener {
      * You can determine if permission is just granted or
      * did the application already have it by checking boolean input of this method.
      */
-    void onPermissionGranted(boolean alreadyHadPermission);
+    void onPermissionGranted(boolean alreadyHadPermission, boolean limitedPermission);
 
     /**
      * This method will be invoked if only you use android.location.LocationManager

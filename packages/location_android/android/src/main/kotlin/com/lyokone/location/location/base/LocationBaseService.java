@@ -46,7 +46,7 @@ public abstract class LocationBaseService extends Service implements LocationLis
     }
 
     @Override
-    public void onPermissionGranted(boolean alreadyHadPermission) {
+    public void onPermissionGranted(boolean alreadyHadPermission, boolean limitedPermission) {
         // override if needed
     }
 

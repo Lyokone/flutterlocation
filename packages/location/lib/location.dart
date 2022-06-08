@@ -75,3 +75,12 @@ Future<PermissionStatus> getPermissionStatus() async {
   }
   return response;
 }
+
+/// Get permission status.
+Future<PermissionStatus> requestPermission() async {
+  final response = await _platform.requestPermission();
+  if (response == null) {
+    throw Exception('Error while getting permission status');
+  }
+  return response;
+}

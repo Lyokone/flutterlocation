@@ -3,6 +3,7 @@ package com.lyokone.location
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -12,7 +13,10 @@ import com.lyokone.location.location.LocationManager
 import com.lyokone.location.location.configuration.*
 import com.lyokone.location.location.configuration.Configurations.defaultConfiguration
 import com.lyokone.location.location.configuration.Defaults.LOCATION_PERMISSIONS
+import com.lyokone.location.location.constants.FailType
 import com.lyokone.location.location.constants.ProcessType
+import com.lyokone.location.location.constants.RequestCode
+import com.lyokone.location.location.helper.LogUtils
 import com.lyokone.location.location.listener.LocationListener
 import com.lyokone.location.location.providers.permissionprovider.DefaultPermissionProvider
 import com.lyokone.location.location.view.ContextProcessor
@@ -41,6 +45,8 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
 
     private var resultsNeedingLocation: MutableList<GeneratedAndroidLocation.Result<GeneratedAndroidLocation.LocationData>?> =
         mutableListOf()
+
+    private var resultPermissionRequest: GeneratedAndroidLocation.Result<Long>? = null
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         GeneratedAndroidLocation.LocationHostApi.setup(flutterPluginBinding.binaryMessenger, this)
@@ -125,10 +131,34 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
 
     override fun onLocationFailed(type: Int) {
         Log.d("Location", "onLocationFailed")
+        when (type) {
+            FailType.PERMISSION_DENIED -> {
+                resultPermissionRequest?.success(3)
+                resultPermissionRequest = null
+            }
+            FailType.GOOGLE_PLAY_SERVICES_NOT_AVAILABLE -> {
+            }
+            FailType.GOOGLE_PLAY_SERVICES_SETTINGS_DENIED -> {
+            }
+            FailType.GOOGLE_PLAY_SERVICES_SETTINGS_DIALOG -> {
+            }
+            FailType.NETWORK_NOT_AVAILABLE -> {
+            }
+            FailType.TIMEOUT -> {
+            }
+            FailType.UNKNOWN -> {
+            }
+            FailType.VIEW_DETACHED -> {
+            }
+            FailType.VIEW_NOT_REQUIRED_TYPE -> {
+            }
+        }
     }
 
-    override fun onPermissionGranted(alreadyHadPermission: Boolean) {
+    override fun onPermissionGranted(alreadyHadPermission: Boolean, limitedPermission: Boolean) {
         Log.d("Location", "onPermissionGranted")
+        resultPermissionRequest?.success(if (limitedPermission) 1 else 0)
+        resultPermissionRequest = null
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
@@ -149,6 +179,27 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         grantResults: IntArray
     ): Boolean {
         Log.d("Location", "onRequestPermissionsResult")
+        if (locationManager == null) {
+            if (requestCode == RequestCode.RUNTIME_PERMISSION) {
+                // Check if any of required permissions are denied.
+                var isDenied = 0
+                var i = 0
+                val size = permissions.size
+                while (i < size) {
+                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                        isDenied++
+                    }
+                    i++
+                }
+                if (isDenied == size) {
+                    LogUtils.logI("User denied all of required permissions, task will be aborted!")
+                    this.onLocationFailed(FailType.PERMISSION_DENIED)
+                } else {
+                    LogUtils.logI("We got all required permission!")
+                    this.onPermissionGranted(false, isDenied > 0)
+                }
+            }
+        }
         locationManager?.onRequestPermissionsResult(requestCode, permissions, grantResults)
         return true
     }
@@ -340,7 +391,9 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
 
     override fun getPermissionStatus(): Long {
         val permissionProvider = DefaultPermissionProvider(LOCATION_PERMISSIONS, null)
-        permissionProvider.setContextProcessor(ContextProcessor(activity?.application))
+        val contextProcessor = ContextProcessor(activity?.application)
+        contextProcessor.activity = activity
+        permissionProvider.setContextProcessor(contextProcessor)
         val hasPermission = permissionProvider.hasPermission()
 
         if (hasPermission) {
@@ -348,6 +401,21 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         }
 
         return 2
+    }
+
+    override fun requestPermission(result: GeneratedAndroidLocation.Result<Long>?) {
+        val permissionProvider = DefaultPermissionProvider(LOCATION_PERMISSIONS, null)
+        val contextProcessor = ContextProcessor(activity?.application)
+        contextProcessor.activity = activity
+        permissionProvider.setContextProcessor(contextProcessor)
+        val hasPermission = permissionProvider.requestPermissions()
+
+        if (!hasPermission) {
+            // Denied Forever
+            result?.success(3)
+        } else {
+            resultPermissionRequest = result
+        }
     }
 
 

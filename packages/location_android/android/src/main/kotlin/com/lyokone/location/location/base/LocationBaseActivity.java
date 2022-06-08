@@ -83,7 +83,7 @@ public abstract class LocationBaseActivity extends AppCompatActivity implements 
     }
 
     @Override
-    public void onPermissionGranted(boolean alreadyHadPermission) {
+    public void onPermissionGranted(boolean alreadyHadPermission, boolean limitedPermission) {
         // override if needed
     }
 

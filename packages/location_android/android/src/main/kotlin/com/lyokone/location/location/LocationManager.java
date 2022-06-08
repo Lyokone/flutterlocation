@@ -249,7 +249,7 @@ public class LocationManager implements PermissionListener {
         LogUtils.logI("We got permission!");
 
         if (listener != null) {
-            listener.onPermissionGranted(alreadyHadPermission);
+            listener.onPermissionGranted(alreadyHadPermission, false);
         }
 
         activeProvider.get();

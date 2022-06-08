@@ -481,6 +481,7 @@ public class GeneratedAndroidLocation {
     void getLocation(@Nullable LocationSettings settings, Result<LocationData> result);
     @NonNull Boolean setLocationSettings(@NonNull LocationSettings settings);
     @NonNull Long getPermissionStatus();
+    void requestPermission(Result<Long> result);
 
     /** The codec used by LocationHostApi. */
     static MessageCodec<Object> getCodec() {
@@ -558,6 +559,35 @@ public class GeneratedAndroidLocation {
               wrapped.put("error", wrapError(exception));
             }
             reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.LocationHostApi.requestPermission", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              Result<Long> resultCallback = new Result<Long>() {
+                public void success(Long result) {
+                  wrapped.put("result", result);
+                  reply.reply(wrapped);
+                }
+                public void error(Throwable error) {
+                  wrapped.put("error", wrapError(error));
+                  reply.reply(wrapped);
+                }
+              };
+
+              api.requestPermission(resultCallback);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+              reply.reply(wrapped);
+            }
           });
         } else {
           channel.setMessageHandler(null);

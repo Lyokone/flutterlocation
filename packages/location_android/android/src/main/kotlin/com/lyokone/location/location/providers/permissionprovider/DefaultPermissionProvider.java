@@ -41,15 +41,15 @@ public class DefaultPermissionProvider extends PermissionProvider implements Dia
         if (requestCode == RequestCode.RUNTIME_PERMISSION) {
 
             // Check if any of required permissions are denied.
-            boolean isDenied = false;
+            int isDenied = 0;
             for (int i = 0, size = permissions.length; i < size; i++) {
                 if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                    isDenied = true;
+                    isDenied ++;
                 }
             }
 
-            if (isDenied) {
-                LogUtils.logI("User denied some of required permissions, task will be aborted!");
+            if (isDenied == permissions.length) {
+                LogUtils.logI("User denied all of required permissions, task will be aborted!");
                 if (getPermissionListener() != null) getPermissionListener().onPermissionsDenied();
             } else {
                 LogUtils.logI("We got all required permission!");
@@ -81,9 +81,7 @@ public class DefaultPermissionProvider extends PermissionProvider implements Dia
     }
 
     boolean checkRationaleForPermission(String permission) {
-        if (getFragment() != null) {
-            return getPermissionCompatSource().shouldShowRequestPermissionRationale(getFragment(), permission);
-        } else if (getActivity() != null) {
+        if (getActivity() != null) {
             return getPermissionCompatSource().shouldShowRequestPermissionRationale(getActivity(), permission);
         } else {
             return false;

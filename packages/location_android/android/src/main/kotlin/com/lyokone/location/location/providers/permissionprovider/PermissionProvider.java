@@ -73,7 +73,7 @@ public abstract class PermissionProvider {
     }
 
     @Nullable protected Activity getFragment() {
-        return weakContextProcessor.get() == null ? null : weakContextProcessor.get().getFragment().getActivity();
+        return weakContextProcessor.get() == null ? null : weakContextProcessor.get().getActivity();
     }
 
     /**

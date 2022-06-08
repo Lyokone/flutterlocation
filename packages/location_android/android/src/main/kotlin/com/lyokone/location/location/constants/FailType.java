@@ -21,5 +21,4 @@ public @interface FailType {
     int GOOGLE_PLAY_SERVICES_SETTINGS_DENIED = 7;
     int VIEW_DETACHED = 8;
     int VIEW_NOT_REQUIRED_TYPE = 9;
-
 }

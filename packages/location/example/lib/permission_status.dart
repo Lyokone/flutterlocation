@@ -19,13 +19,12 @@ class _PermissionStatusState extends State<PermissionStatusWidget> {
   }
 
   Future<void> _requestPermission() async {
-    // if (_permissionGranted != PermissionStatus.granted) {
-    //   final PermissionStatus permissionRequestedResult =
-    //       await location.requestPermission();
-    //   setState(() {
-    //     _permissionGranted = permissionRequestedResult;
-    //   });
-    // }
+    if (_permissionGranted != PermissionStatus.granted) {
+      final permissionRequestedResult = await requestPermission();
+      setState(() {
+        _permissionGranted = permissionRequestedResult;
+      });
+    }
   }
 
   @override

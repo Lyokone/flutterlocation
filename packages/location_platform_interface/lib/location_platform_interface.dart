@@ -23,7 +23,7 @@ abstract class LocationPlatform extends PlatformInterface {
   static LocationPlatform get instance => _instance;
 
   /// Platform-specific plugins should set this with their own platform-specific
-  /// class that extends [LocationPlatform] when they register themselves.
+  /// class that extends [LocationPlatform] when they  themselves.
   static set instance(LocationPlatform instance) {
     PlatformInterface.verify(instance, _token);
     _instance = instance;
@@ -40,4 +40,7 @@ abstract class LocationPlatform extends PlatformInterface {
 
   /// Get the permission status of the app
   Future<PermissionStatus?> getPermissionStatus();
+
+  /// Request location permission for the app
+  Future<PermissionStatus?> requestPermission();
 }
