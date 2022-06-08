@@ -7,8 +7,8 @@ export 'package:location_platform_interface/messages.pigeon.dart'
 LocationPlatform get _platform => LocationPlatform.instance;
 
 /// Returns the current location.
-Future<LocationData> getLocation() async {
-  final location = await _platform.getLocation();
+Future<LocationData> getLocation({LocationSettings? settings}) async {
+  final location = await _platform.getLocation(settings: settings);
   if (location == null) throw Exception('Unable to get location');
   return location;
 }

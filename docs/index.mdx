@@ -2,3 +2,45 @@
 
 This librarie aims at providing you a simple way to get the user location without thinking about permission.
 It's also heavily configurable so you can easily get **better performance** or **better battery**.
+
+<YouTube id="65qbtJMltVk" />
+
+It currently supports Android, iOS, macOS and Web. Support for remaining platforms is incoming.
+
+## Installation
+
+In order to install the plugin, just add the latest version from [pub.dev](https://pub.dev/packages/location) in your `pubspec.yaml`.
+
+```yaml
+location: ^5.0.0
+```
+
+### Android
+
+In order to display dialogs for asking the user to activate the GPS automatically and redirect to the Settings page,
+you need to change the default theme of your app to `Theme.AppCompat.Light.NoActionBar` in `android/app/src/main/res/values/styles.xml`
+
+```xml
+...
+    <style name="NormalTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style
+...
+```
+
+# Get Location
+
+To get the location of the user, you can simply use
+
+```dart
+Future<LocationData> getLocation({LocationSettings? settings})
+```
+
+To see all the settings, see [the settings](/settings) page.
+
+By default, the call will try to request permission if needed, activate GPS and return the location without anything needed from your part.
+If something goes wrong the call will throw.
+
+If you have set global settings, it will use those settings instead of the default ones.
+
+If you are currently listening for location with `onLocationChanged`, it will use the settings from this call.
