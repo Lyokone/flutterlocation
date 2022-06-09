@@ -27,20 +27,3 @@ you need to change the default theme of your app to `Theme.AppCompat.Light.NoAct
     </style
 ...
 ```
-
-# Get Location
-
-To get the location of the user, you can simply use
-
-```dart
-Future<LocationData> getLocation({LocationSettings? settings})
-```
-
-To see all the settings, see [the settings](/settings) page.
-
-By default, the call will try to request permission if needed, activate GPS and return the location without anything needed from your part.
-If something goes wrong the call will throw.
-
-If you have set global settings, it will use those settings instead of the default ones.
-
-If you are currently listening for location with `onLocationChanged`, it will use the settings from this call.
