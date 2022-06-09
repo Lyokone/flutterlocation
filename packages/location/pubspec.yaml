@@ -12,8 +12,8 @@ flutter:
     platforms:
       android:
         default_package: location_android
-      # ios:
-      #   default_package: location_ios
+      ios:
+        default_package: location_ios
       # linux:
       #   default_package: location_linux
       # macos:
@@ -28,8 +28,8 @@ dependencies:
     sdk: flutter
   location_android:
     path: ../location_android
-  # location_ios:
-  #   path: ../location_ios
+  location_ios:
+    path: ../location_ios
   # location_linux:
   #   path: ../location_linux
   # location_macos:
