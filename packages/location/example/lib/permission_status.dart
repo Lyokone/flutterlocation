@@ -5,10 +5,10 @@ class PermissionStatusWidget extends StatefulWidget {
   const PermissionStatusWidget({super.key});
 
   @override
-  _PermissionStatusState createState() => _PermissionStatusState();
+  State<PermissionStatusWidget> createState() => _PermissionStatusWidgetState();
 }
 
-class _PermissionStatusState extends State<PermissionStatusWidget> {
+class _PermissionStatusWidgetState extends State<PermissionStatusWidget> {
   PermissionStatus? _permissionGranted;
 
   Future<void> _checkPermissions() async {

@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
-import 'package:location_platform_interface/messages.pigeon.dart';
 
 /// The Linux implementation of [LocationPlatform].
 class LocationLinux extends LocationPlatform {

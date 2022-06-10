@@ -1,12 +1,16 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 part of location_platform_interface;
 
 /// Those types are often a direct reflect of the Pigeon implementation
 /// but since Pigeon does not support comments
 /// there is a passthrough to the user facing types.
 
-/// Test
+/// {@template location_data}
+/// The response object of [LocationPlatform.getLocation] and [LocationPlatform.onLocationChanged].
+/// {@endtemplate}
 class LocationData {
-  /// Default constructor.
+  /// {@macro location_data}
   LocationData({
     this.latitude,
     this.longitude,
@@ -16,7 +20,7 @@ class LocationData {
     this.bearingAccuracyDegrees,
     this.elaspedRealTimeNanos,
     this.elaspedRealTimeUncertaintyNanos,
-    this.sattelites,
+    this.satellites,
     this.speed,
     this.speedAccuracy,
     this.time,
@@ -36,7 +40,7 @@ class LocationData {
       elaspedRealTimeNanos: pigeonData.elaspedRealTimeNanos,
       elaspedRealTimeUncertaintyNanos:
           pigeonData.elaspedRealTimeUncertaintyNanos,
-      sattelites: pigeonData.sattelites,
+      satellites: pigeonData.satellites,
       speed: pigeonData.speed,
       speedAccuracy: pigeonData.speedAccuracy,
       time: pigeonData.time,
@@ -45,24 +49,67 @@ class LocationData {
     );
   }
 
-  /// Latitude of the location.
-  double? latitude;
+  /// Latitude in degrees
+  final double? latitude;
 
-  /// Longitude of the location.
-  double? longitude;
+  /// Longitude, in degrees
+  final double? longitude;
 
-  double? accuracy;
-  double? altitude;
-  double? bearing;
-  double? bearingAccuracyDegrees;
-  double? elaspedRealTimeNanos;
-  double? elaspedRealTimeUncertaintyNanos;
-  int? sattelites;
-  double? speed;
-  double? speedAccuracy;
-  double? time;
-  double? verticalAccuracy;
-  bool? isMock;
+  /// Estimated horizontal accuracy of this location, radial, in meters
+  ///
+  /// Always 0 on Web
+  final double? accuracy;
+
+  /// Estimated vertical accuracy of this location, in meters.
+  final double? verticalAccuracy;
+
+  /// In meters above the WGS 84 reference ellipsoid. Derived from GPS informations.
+  ///
+  /// Always 0 on Web
+  final double? altitude;
+
+  /// In meters/second
+  ///
+  /// Always 0 on Web
+  final double? speed;
+
+  /// In meters/second
+  ///
+  /// Always 0 on Web
+  final double? speedAccuracy;
+
+  /// Bearing is the horizontal direction of travel of this device, in degrees
+  ///
+  /// Always 0 on Web
+  final double? bearing;
+
+  /// Get the estimated bearing accuracy of this location, in degrees.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getBearingAccuracyDegrees()
+  final double? bearingAccuracyDegrees;
+
+  /// timestamp of the LocationData
+  final double? time;
+
+  /// Is the location currently mocked
+  ///
+  /// Always false on iOS
+  final bool? isMock;
+
+  /// Return the time of this fix, in elapsed real-time since system boot.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getElapsedRealtimeNanos()
+  final double? elaspedRealTimeNanos;
+
+  /// Get estimate of the relative precision of the alignment of the ElapsedRealtimeNanos timestamp.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getElapsedRealtimeUncertaintyNanos()
+  final double? elaspedRealTimeUncertaintyNanos;
+
+  /// The number of satellites used to derive the fix.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getExtras()
+  final int? satellites;
 }
 
 /// Precision of the Location. A lower precision will provide a greater battery
@@ -123,7 +170,12 @@ enum PermissionStatus {
   deniedForever
 }
 
+/// {@template location_settings}
+/// [LocationSettings] is used to change the settings of the next location
+/// request.
+/// {@endtemplate}
 class LocationSettings {
+  /// {@macro location_settings}
   LocationSettings({
     this.askForPermission = true,
     this.rationaleMessageForPermissionRequest =
@@ -147,25 +199,81 @@ class LocationSettings {
     this.waitForAccurateLocation = true,
   });
 
+  /// If set to true, the user will be prompted to grant permission to use location
+  /// if not already granted.
   bool askForPermission;
+
+  /// The message to display to the user when asking for permission to use location.
+  /// Only valid on Android.
+  /// For iOS, you have to change the permission in the Info.plist file.
   String rationaleMessageForPermissionRequest;
+
+  /// The message to display to the user when asking for permission to use GPS.
+  /// Only valid on Android.
   String rationaleMessageForGPSRequest;
+
+  /// If set to true, the app will use Google Play Services to request location.
+  /// If not available on the device, the app will fallback to GPS.
+  /// Only valid on Android.
   bool useGooglePlayServices;
+
+  /// If set to true, the app will request Google Play Services to request location.
+  /// If not available on the device, the app will fallback to GPS.
   bool askForGooglePlayServices;
+
+  /// If set to true, the app will request GPS to request location.
+  /// Only valid on Android.
   bool askForGPS;
+
+  /// If set to true, the app will fallback to GPS if Google Play Services is not
+  /// available on the device.
+  /// Only valid on Android.
   bool fallbackToGPS;
+
+  /// If set to true, the app will ignore the last known position
+  /// and request a fresh one
   bool ignoreLastKnownPosition;
+
+  /// The duration of the location request.
+  /// Only valid on Android.
   double? expirationDuration;
+
+  /// The expiration time of the location request.
+  /// Only valid on Android.
   double? expirationTime;
+
+  /// The fastest interval between location updates.
+  /// In milliseconds.
+  /// Only valid on Android.
   double fastestInterval;
+
+  /// The interval between location updates.
+  /// In milliseconds.
   double interval;
+
+  /// The maximum amount of time the app will wait for a location.
+  /// In milliseconds.
   double? maxWaitTime;
+
+  /// The number of location updates to request.
+  /// Only valid on Android.
   int? numUpdates;
+
+  /// The accuracy of the location request.
   LocationAccuracy accuracy;
+
+  /// The smallest displacement between location updates.
   double smallestDisplacement;
+
+  /// If set to true, the app will wait for an accurate location.
+  /// Only valid on Android.
   bool waitForAccurateLocation;
+
+  /// The accptable accuracy of the location request.
+  /// Only valid on Android.
   double? acceptableAccuracy;
 
+  /// Converts to the Pigeon equivalent.
   PigeonLocationSettings toPigeon() {
     return PigeonLocationSettings(
       askForPermission: askForPermission,

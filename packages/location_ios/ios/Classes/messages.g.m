@@ -51,7 +51,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
     bearingAccuracyDegrees:(nullable NSNumber *)bearingAccuracyDegrees
     elaspedRealTimeNanos:(nullable NSNumber *)elaspedRealTimeNanos
     elaspedRealTimeUncertaintyNanos:(nullable NSNumber *)elaspedRealTimeUncertaintyNanos
-    sattelites:(nullable NSNumber *)sattelites
+    satellites:(nullable NSNumber *)satellites
     speed:(nullable NSNumber *)speed
     speedAccuracy:(nullable NSNumber *)speedAccuracy
     time:(nullable NSNumber *)time
@@ -66,7 +66,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
   pigeonResult.bearingAccuracyDegrees = bearingAccuracyDegrees;
   pigeonResult.elaspedRealTimeNanos = elaspedRealTimeNanos;
   pigeonResult.elaspedRealTimeUncertaintyNanos = elaspedRealTimeUncertaintyNanos;
-  pigeonResult.sattelites = sattelites;
+  pigeonResult.satellites = satellites;
   pigeonResult.speed = speed;
   pigeonResult.speedAccuracy = speedAccuracy;
   pigeonResult.time = time;
@@ -84,7 +84,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
   pigeonResult.bearingAccuracyDegrees = GetNullableObject(dict, @"bearingAccuracyDegrees");
   pigeonResult.elaspedRealTimeNanos = GetNullableObject(dict, @"elaspedRealTimeNanos");
   pigeonResult.elaspedRealTimeUncertaintyNanos = GetNullableObject(dict, @"elaspedRealTimeUncertaintyNanos");
-  pigeonResult.sattelites = GetNullableObject(dict, @"sattelites");
+  pigeonResult.satellites = GetNullableObject(dict, @"satellites");
   pigeonResult.speed = GetNullableObject(dict, @"speed");
   pigeonResult.speedAccuracy = GetNullableObject(dict, @"speedAccuracy");
   pigeonResult.time = GetNullableObject(dict, @"time");
@@ -103,7 +103,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
     @"bearingAccuracyDegrees" : (self.bearingAccuracyDegrees ?: [NSNull null]),
     @"elaspedRealTimeNanos" : (self.elaspedRealTimeNanos ?: [NSNull null]),
     @"elaspedRealTimeUncertaintyNanos" : (self.elaspedRealTimeUncertaintyNanos ?: [NSNull null]),
-    @"sattelites" : (self.sattelites ?: [NSNull null]),
+    @"satellites" : (self.satellites ?: [NSNull null]),
     @"speed" : (self.speed ?: [NSNull null]),
     @"speedAccuracy" : (self.speedAccuracy ?: [NSNull null]),
     @"time" : (self.time ?: [NSNull null]),

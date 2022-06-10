@@ -5,11 +5,12 @@ class ServiceEnabledWidget extends StatefulWidget {
   const ServiceEnabledWidget({super.key});
 
   @override
-  _ServiceEnabledState createState() => _ServiceEnabledState();
+  State<ServiceEnabledWidget> createState() => _ServiceEnabledWidgetState();
 }
 
-class _ServiceEnabledState extends State<ServiceEnabledWidget> {
+class _ServiceEnabledWidgetState extends State<ServiceEnabledWidget> {
   bool? _serviceEnabled;
+
   bool? _networkEnabled;
 
   Future<void> _checkService() async {
@@ -24,16 +25,6 @@ class _ServiceEnabledState extends State<ServiceEnabledWidget> {
     setState(() {
       _networkEnabled = serviceEnabledResult;
     });
-  }
-
-  Future<void> _requestService() async {
-    // if (_serviceEnabled == true) {
-    //   return;
-    // }
-    // final bool serviceRequestedResult = await location.requestService();
-    // setState(() {
-    //   _serviceEnabled = serviceRequestedResult;
-    // });
   }
 
   @override

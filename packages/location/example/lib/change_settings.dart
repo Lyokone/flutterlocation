@@ -5,14 +5,16 @@ class ChangeSettings extends StatefulWidget {
   const ChangeSettings({super.key});
 
   @override
-  _ChangeSettingsState createState() => _ChangeSettingsState();
+  State<ChangeSettings> createState() => _ChangeSettingsState();
 }
 
 class _ChangeSettingsState extends State<ChangeSettings> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   final TextEditingController _intervalController = TextEditingController(
     text: '5000',
   );
+
   final TextEditingController _distanceFilterController = TextEditingController(
     text: '0',
   );

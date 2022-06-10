@@ -121,7 +121,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
                 .setBearing(location.bearing.toDouble())
                 .setElaspedRealTimeNanos(location.elapsedRealtimeNanos.toDouble())
                 .setIsMock(location.isFromMockProvider)
-                .setSattelites(location.extras.getInt("satellites").toLong())
+                .setSatellites(location.extras.getInt("satellites").toLong())
                 .setSpeed(location.speed.toDouble())
 
 

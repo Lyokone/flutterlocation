@@ -81,15 +81,15 @@ class LocationWeb extends LocationPlatform {
   }
 
   LocationData _toLocationData(Geoposition result) {
-    return LocationData.decode(<String, dynamic>{
-      'latitude': result.coords?.latitude?.toDouble(),
-      'longitude': result.coords?.longitude?.toDouble(),
-      'heading': result.coords?.heading?.toDouble(),
-      'altitude': result.coords?.altitude?.toDouble(),
-      'speed': result.coords?.speed?.toDouble(),
-      'accuracy': result.coords?.accuracy?.toDouble(),
-      'verticalAccuracy': result.coords?.altitudeAccuracy?.toDouble(),
-      'time': result.timestamp?.toDouble(),
-    });
+    return LocationData(
+      latitude: result.coords?.latitude?.toDouble(),
+      longitude: result.coords?.longitude?.toDouble(),
+      bearing: result.coords?.heading?.toDouble(),
+      altitude: result.coords?.altitude?.toDouble(),
+      speed: result.coords?.speed?.toDouble(),
+      accuracy: result.coords?.accuracy?.toDouble(),
+      verticalAccuracy: result.coords?.altitudeAccuracy?.toDouble(),
+      time: result.timestamp?.toDouble(),
+    );
   }
 }

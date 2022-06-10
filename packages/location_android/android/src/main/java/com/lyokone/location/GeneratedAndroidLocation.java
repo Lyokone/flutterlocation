@@ -85,10 +85,10 @@ public class GeneratedAndroidLocation {
       this.elaspedRealTimeUncertaintyNanos = setterArg;
     }
 
-    private @Nullable Long sattelites;
-    public @Nullable Long getSattelites() { return sattelites; }
-    public void setSattelites(@Nullable Long setterArg) {
-      this.sattelites = setterArg;
+    private @Nullable Long satellites;
+    public @Nullable Long getSatellites() { return satellites; }
+    public void setSatellites(@Nullable Long setterArg) {
+      this.satellites = setterArg;
     }
 
     private @Nullable Double speed;
@@ -162,9 +162,9 @@ public class GeneratedAndroidLocation {
         this.elaspedRealTimeUncertaintyNanos = setterArg;
         return this;
       }
-      private @Nullable Long sattelites;
-      public @NonNull Builder setSattelites(@Nullable Long setterArg) {
-        this.sattelites = setterArg;
+      private @Nullable Long satellites;
+      public @NonNull Builder setSatellites(@Nullable Long setterArg) {
+        this.satellites = setterArg;
         return this;
       }
       private @Nullable Double speed;
@@ -202,7 +202,7 @@ public class GeneratedAndroidLocation {
         pigeonReturn.setBearingAccuracyDegrees(bearingAccuracyDegrees);
         pigeonReturn.setElaspedRealTimeNanos(elaspedRealTimeNanos);
         pigeonReturn.setElaspedRealTimeUncertaintyNanos(elaspedRealTimeUncertaintyNanos);
-        pigeonReturn.setSattelites(sattelites);
+        pigeonReturn.setSatellites(satellites);
         pigeonReturn.setSpeed(speed);
         pigeonReturn.setSpeedAccuracy(speedAccuracy);
         pigeonReturn.setTime(time);
@@ -221,7 +221,7 @@ public class GeneratedAndroidLocation {
       toMapResult.put("bearingAccuracyDegrees", bearingAccuracyDegrees);
       toMapResult.put("elaspedRealTimeNanos", elaspedRealTimeNanos);
       toMapResult.put("elaspedRealTimeUncertaintyNanos", elaspedRealTimeUncertaintyNanos);
-      toMapResult.put("sattelites", sattelites);
+      toMapResult.put("satellites", satellites);
       toMapResult.put("speed", speed);
       toMapResult.put("speedAccuracy", speedAccuracy);
       toMapResult.put("time", time);
@@ -247,8 +247,8 @@ public class GeneratedAndroidLocation {
       pigeonResult.setElaspedRealTimeNanos((Double)elaspedRealTimeNanos);
       Object elaspedRealTimeUncertaintyNanos = map.get("elaspedRealTimeUncertaintyNanos");
       pigeonResult.setElaspedRealTimeUncertaintyNanos((Double)elaspedRealTimeUncertaintyNanos);
-      Object sattelites = map.get("sattelites");
-      pigeonResult.setSattelites((sattelites == null) ? null : ((sattelites instanceof Integer) ? (Integer)sattelites : (Long)sattelites));
+      Object satellites = map.get("satellites");
+      pigeonResult.setSatellites((satellites == null) ? null : ((satellites instanceof Integer) ? (Integer)satellites : (Long)satellites));
       Object speed = map.get("speed");
       pigeonResult.setSpeed((Double)speed);
       Object speedAccuracy = map.get("speedAccuracy");

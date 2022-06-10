@@ -28,7 +28,7 @@ typedef NS_ENUM(NSUInteger, PigeonLocationAccuracy) {
     bearingAccuracyDegrees:(nullable NSNumber *)bearingAccuracyDegrees
     elaspedRealTimeNanos:(nullable NSNumber *)elaspedRealTimeNanos
     elaspedRealTimeUncertaintyNanos:(nullable NSNumber *)elaspedRealTimeUncertaintyNanos
-    sattelites:(nullable NSNumber *)sattelites
+    satellites:(nullable NSNumber *)satellites
     speed:(nullable NSNumber *)speed
     speedAccuracy:(nullable NSNumber *)speedAccuracy
     time:(nullable NSNumber *)time
@@ -42,7 +42,7 @@ typedef NS_ENUM(NSUInteger, PigeonLocationAccuracy) {
 @property(nonatomic, strong, nullable) NSNumber * bearingAccuracyDegrees;
 @property(nonatomic, strong, nullable) NSNumber * elaspedRealTimeNanos;
 @property(nonatomic, strong, nullable) NSNumber * elaspedRealTimeUncertaintyNanos;
-@property(nonatomic, strong, nullable) NSNumber * sattelites;
+@property(nonatomic, strong, nullable) NSNumber * satellites;
 @property(nonatomic, strong, nullable) NSNumber * speed;
 @property(nonatomic, strong, nullable) NSNumber * speedAccuracy;
 @property(nonatomic, strong, nullable) NSNumber * time;

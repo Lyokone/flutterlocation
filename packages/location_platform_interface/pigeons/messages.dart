@@ -23,7 +23,7 @@ class PigeonLocationData {
   double? bearingAccuracyDegrees;
   double? elaspedRealTimeNanos;
   double? elaspedRealTimeUncertaintyNanos;
-  int? sattelites;
+  int? satellites;
   double? speed;
   double? speedAccuracy;
   double? time;
