@@ -2,11 +2,19 @@ import Flutter
 import UIKit
 import CoreLocation
 
-public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, CLLocationManagerDelegate {
-    var someInts: [Int] = []
+@UIApplicationMain
+public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, CLLocationManagerDelegate, UIApplicationDelegate {
+    var locationResults: [(LocationData?, FlutterError?) -> Void] = []
+    
+    var locationManager: CLLocationManager?
 
     public func getLocationSettings(_ settings: LocationSettings?, completion: @escaping (LocationData?, FlutterError?) -> Void) {
-        completion(LocationData.make(withLatitude: 42.0, longitude: 2.0), nil)
+        locationResults.append(completion)
+        
+        print(self.locationManager != nil)
+        
+        self.locationManager?.requestWhenInUseAuthorization()
+        self.locationManager?.requestLocation()
     }
     
     public func setLocationSettingsSettings(_ settings: LocationSettings?) async -> (LocationData?, FlutterError?) {
@@ -41,7 +49,8 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, CLLo
     public func locationManager(_ manager: CLLocationManager,  didUpdateLocations locations: [CLLocation]) {
         let lastLocation = locations.last!
         
-        // Do something with the location.
+        print(lastLocation.coordinate.latitude)
+        
     }
     
     
@@ -50,12 +59,14 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, CLLo
         let api : LocationHostApi & NSObjectProtocol = SwiftLocationPlugin.init()
         LocationHostApiSetup(messenger, api);
         
-        
     }
     
-    public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable : Any] = [:]) -> Bool {
+    @nonobjc public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable : Any] = [:]) -> Bool {
+        print("coucou")
         let locationManager = CLLocationManager()
         locationManager.delegate = self
+        
+        self.locationManager = locationManager
         
         return true
     }
