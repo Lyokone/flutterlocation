@@ -5,6 +5,21 @@ import CoreLocation
 
 @UIApplicationMain
 public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIApplicationDelegate {
+    var globalLocationSettings: LocationSettings?
+    var streamHandler: StreamHandler?
+    
+    
+    init(_ messenger: FlutterBinaryMessenger, _ registrar: FlutterPluginRegistrar) {
+        super.init()
+        let eventChannel = FlutterEventChannel(name: "lyokone/location_stream", binaryMessenger: messenger)
+        self.streamHandler = StreamHandler()
+        eventChannel.setStreamHandler(self.streamHandler)
+        
+        registrar.addApplicationDelegate(self)
+    }
+    
+    
+    
     public func getLocationSettings(_ settings: LocationSettings?, completion: @escaping (LocationData?, FlutterError?) -> Void) {
         if !CLLocationManager.locationServicesEnabled() {
             UIApplication.shared.open(URL(string:UIApplication.openSettingsURLString)!)
@@ -13,10 +28,26 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
                                                 details: nil))
         }
         
-        SwiftLocation.gpsLocation().then { result in // you can attach one or more subscriptions via `then`.
+        if (Int(truncating: SwiftLocationPlugin.getPermissionNumber()) > 1) {
+            return completion(nil, FlutterError(code: "PERMISSION_DENIED",
+                                                message: "The user has denied the permission",
+                                                details: nil))
+        }
+        
+        let currentSettings = SwiftLocationPlugin.locationSettingsToGPSLocationOptions(settings ?? globalLocationSettings)
+        
+        if globalLocationSettings?.ignoreLastKnownPosition == false {
+            let lastKnownPosition = SwiftLocation.lastKnownGPSLocation
+            if (lastKnownPosition != nil) {
+                completion(SwiftLocationPlugin.locationToData(lastKnownPosition!), nil)
+                return;
+            }
+        }
+        
+        SwiftLocation.gpsLocationWith(currentSettings ?? getDefaultGPSLocationOptions()).then { result in // you can attach one or more subscriptions via `then`.
             switch result {
             case .success(let location):
-                completion(LocationData.make(withLatitude: location.coordinate.latitude as NSNumber, longitude: location.coordinate.longitude as NSNumber), nil)
+                completion(SwiftLocationPlugin.locationToData(location), nil)
             case .failure(let error):
                 completion(nil, FlutterError(code: "LOCATION_ERROR",
                                              message: error.localizedDescription,
@@ -26,12 +57,81 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     }
     
     
-    public func setLocationSettingsSettings(_ settings: LocationSettings, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) -> NSNumber? {
-        return NSNumber(1)
-        
+    static public func locationToData(_ location: CLLocation) -> LocationData {
+        return LocationData.make(withLatitude: location.coordinate.latitude as NSNumber, longitude: location.coordinate.longitude as NSNumber)
     }
     
-    public func getPermissionStatusWithError(_ error: AutoreleasingUnsafeMutablePointer<FlutterError?>) -> NSNumber? {
+    
+    public func getDefaultGPSLocationOptions() -> GPSLocationOptions {
+        let defaultOption = GPSLocationOptions()
+        defaultOption.minTimeInterval = 2
+        defaultOption.subscription = .single
+        
+        return defaultOption
+    }
+    
+    static private func mapAccuracy (_ accuracy: LocationAccuracy) -> GPSLocationOptions.Accuracy {
+        switch (accuracy) {
+            
+        case .powerSave:
+            return GPSLocationOptions.Accuracy.city
+        case .low:
+            return GPSLocationOptions.Accuracy.block
+        case .balanced:
+            return GPSLocationOptions.Accuracy.house
+        case .high:
+            return GPSLocationOptions.Accuracy.room
+        case .navigation:
+            return GPSLocationOptions.Accuracy.room
+        @unknown default:
+            return GPSLocationOptions.Accuracy.room
+        }
+    }
+    
+    
+    static public func locationSettingsToGPSLocationOptions(_ settings: LocationSettings?) -> GPSLocationOptions? {
+        if (settings == nil) {
+            return nil
+        }
+        let options = GPSLocationOptions()
+        
+        let minTimeInterval = settings?.interval
+        let accuracy = settings?.accuracy
+        let askForPermission = settings?.askForPermission
+        let minDistance = settings?.smallestDisplacement
+        
+        
+        options.activityType = .automotiveNavigation
+        options.subscription = .single
+        
+        if (minTimeInterval != nil) {
+            options.minTimeInterval = Double(Int(truncating: minTimeInterval!) / 1000)
+        }
+        
+        
+        if (accuracy != nil) {
+            options.accuracy = mapAccuracy(accuracy!)
+        }
+        
+        if (askForPermission == false) {
+            options.avoidRequestAuthorization = true
+        }
+        if (minDistance != nil) {
+            options.minDistance = Double(truncating: minDistance!)
+        }
+        
+        
+        return options
+    }
+    
+    
+    public func setLocationSettingsSettings(_ settings: LocationSettings, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) -> NSNumber? {
+        globalLocationSettings = settings;
+        
+        return NSNumber(1)
+    }
+    
+    static public func getPermissionNumber() -> NSNumber {
         let currentStatus = SwiftLocation.authorizationStatus
         
         switch currentStatus {
@@ -50,6 +150,10 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
         @unknown default:
             return 4
         }
+    }
+    
+    public func getPermissionStatusWithError(_ error: AutoreleasingUnsafeMutablePointer<FlutterError?>) -> NSNumber? {
+        return SwiftLocationPlugin.getPermissionNumber()
     }
     
     public func requestPermission(completion: @escaping (NSNumber?, FlutterError?) -> Void) {
@@ -91,17 +195,10 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let messenger : FlutterBinaryMessenger = registrar.messenger()
-        let api : LocationHostApi & NSObjectProtocol = SwiftLocationPlugin.init()
+        let api : LocationHostApi & NSObjectProtocol = SwiftLocationPlugin.init(messenger, registrar)
         
-        let instance = SwiftLocationPlugin()
-        registrar.addApplicationDelegate(instance)
         
         LocationHostApiSetup(messenger, api);
-        
-        let eventChannel = FlutterEventChannel(name: "lyokone/location_stream", binaryMessenger: messenger)
-        eventChannel.setStreamHandler(StreamHandler())
-        
-        
     }
     
     @nonobjc public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable : Any] = [:]) -> Bool {

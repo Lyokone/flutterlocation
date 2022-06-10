@@ -31,7 +31,7 @@ Future<void> setLocationSettings({
   bool askForGooglePlayServices = false,
   bool askForGPS = true,
   bool fallbackToGPS = true,
-  bool ignoreLastKnownPosition = false,
+  bool ignoreLastKnownPosition = true,
   double? expirationDuration,
   double? expirationTime,
   double fastestInterval = 500,

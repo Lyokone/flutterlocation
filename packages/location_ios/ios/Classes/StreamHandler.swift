@@ -11,6 +11,8 @@ import CoreLocation
 
 class StreamHandler: NSObject, FlutterStreamHandler {
     var locationRequest: GPSLocationRequest?
+    var locationSettings: LocationSettings?
+    var events: FlutterEventSink?
     
     public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         if !CLLocationManager.locationServicesEnabled() {
@@ -19,11 +21,43 @@ class StreamHandler: NSObject, FlutterStreamHandler {
                                 message: "The user have deactivated the location service, the settings page has been opened",
                                 details: nil)
         }
+        if (Int(truncating: SwiftLocationPlugin.getPermissionNumber()) > 1) {
+            return FlutterError(code: "PERMISSION_DENIED",
+                                                message: "The user has denied the permission",
+                                                details: nil)
+        }
         
-        locationRequest = SwiftLocation.gpsLocationWith {
-            $0.subscription = .continous // continous updated until you stop it
+        self.events = events
+        startListening()
+        
+        return nil
+    }
+    
+    public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        locationRequest?.cancelRequest()
+        events = nil
+        return nil
+    }
+    
+    public func setLocationSettings(_ settings: LocationSettings) {
+        self.locationSettings = settings
+        locationRequest?.cancelRequest()
+        startListening()
+    }
+    
+    private func startListening() {
+        if (events == nil) {
+            return
+        }
+
+        let options = SwiftLocationPlugin.locationSettingsToGPSLocationOptions(locationSettings)
+        options?.subscription = .continous
+        
+        
+        locationRequest = options != nil ? SwiftLocation.gpsLocationWith (options!) :  SwiftLocation.gpsLocationWith {
+            $0.subscription = .continous
             $0.accuracy = .house
-            $0.minTimeInterval = 1 // updated each 30 seconds or more
+            $0.minTimeInterval = 2
             $0.activityType = .automotiveNavigation
         }
         
@@ -32,21 +66,15 @@ class StreamHandler: NSObject, FlutterStreamHandler {
             switch result {
             case .success(let newData):
                 print("New location: \(newData)")
-                events(LocationData.make(withLatitude: newData.coordinate.latitude as NSNumber,longitude:newData.coordinate.longitude as NSNumber).toMap())
+                self.events!(SwiftLocationPlugin.locationToData(newData).toMap())
                 
             case .failure(let error):
                 print("An error has occurred: \(error.localizedDescription)")
-                events(FlutterError(code: "LOCATION_ERROR",
+                self.events!(FlutterError(code: "LOCATION_ERROR",
                                     message: error.localizedDescription,
                                     details: error.recoverySuggestion))
             }
         }
-        
-        return nil
-    }
-    
-    public func onCancel(withArguments arguments: Any?) -> FlutterError? {
-        locationRequest?.cancelRequest()
-        return nil
+
     }
 }
