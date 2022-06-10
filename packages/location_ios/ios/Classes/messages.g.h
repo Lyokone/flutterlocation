@@ -31,6 +31,7 @@ typedef NS_ENUM(NSUInteger, PermissionStatus) {
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)makeWithLatitude:(NSNumber *)latitude
     longitude:(NSNumber *)longitude;
+- (NSDictionary *)toMap;
 @property(nonatomic, strong) NSNumber * latitude;
 @property(nonatomic, strong) NSNumber * longitude;
 @end
