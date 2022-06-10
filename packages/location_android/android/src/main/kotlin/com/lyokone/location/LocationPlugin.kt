@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.NonNull
@@ -112,9 +113,30 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
     override fun onLocationChanged(location: Location?) {
         Log.d("LOCATION", location?.latitude.toString() + " " + location?.longitude.toString())
 
-        val locationData =
+        val locationBuilder =
             GeneratedAndroidLocation.LocationData.Builder().setLatitude(location!!.latitude)
-                .setLongitude(location.longitude).build()
+                .setLongitude(location.longitude)
+                .setAccuracy(location.accuracy.toDouble())
+                .setAltitude(location.altitude)
+                .setBearing(location.bearing.toDouble())
+                .setElaspedRealTimeNanos(location.elapsedRealtimeNanos.toDouble())
+                .setIsMock(location.isFromMockProvider)
+                .setSattelites(location.extras.getInt("satellites").toLong())
+                .setSpeed(location.speed.toDouble())
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            locationBuilder.setBearingAccuracyDegrees(location.bearingAccuracyDegrees.toDouble())
+                .setSpeedAccuracy(location.speedAccuracyMetersPerSecond.toDouble())
+                .setVerticalAccuracy(location.verticalAccuracyMeters.toDouble())
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            locationBuilder.setElaspedRealTimeUncertaintyNanos(location.elapsedRealtimeUncertaintyNanos)
+        }
+
+
+        val locationData = locationBuilder.build()
 
         for (result in resultsNeedingLocation) {
             if (result == null) {

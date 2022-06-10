@@ -13,10 +13,21 @@ import 'package:pigeon/pigeon.dart';
   ),
 )
 class LocationData {
-  LocationData(this.latitude, this.longitude);
-
-  double latitude;
-  double longitude;
+  /// Latitude of the location.
+  double? latitude;
+  double? longitude;
+  double? accuracy;
+  double? altitude;
+  double? bearing;
+  double? bearingAccuracyDegrees;
+  double? elaspedRealTimeNanos;
+  double? elaspedRealTimeUncertaintyNanos;
+  int? sattelites;
+  double? speed;
+  double? speedAccuracy;
+  double? time;
+  double? verticalAccuracy;
+  bool? isMock;
 }
 
 enum LocationAccuracy {

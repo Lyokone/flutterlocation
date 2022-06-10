@@ -6,11 +6,24 @@ import 'package:pigeon/pigeon.dart';
     dartTestOut: 'test/test.pigeon.dart',
   ),
 )
-class LocationData {
-  LocationData(this.latitude, this.longitude);
 
-  double latitude;
-  double longitude;
+/// Test
+class LocationData {
+  /// Latitude of the location.
+  double? latitude;
+  double? longitude;
+  double? accuracy;
+  double? altitude;
+  double? bearing;
+  double? bearingAccuracyDegrees;
+  double? elaspedRealTimeNanos;
+  double? elaspedRealTimeUncertaintyNanos;
+  int? sattelites;
+  double? speed;
+  double? speedAccuracy;
+  double? time;
+  double? verticalAccuracy;
+  bool? isMock;
 }
 
 enum LocationAccuracy {

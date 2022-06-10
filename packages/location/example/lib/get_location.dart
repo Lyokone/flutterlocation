@@ -22,6 +22,7 @@ class _GetLocationWidgetState extends State<GetLocationWidget> {
     });
     try {
       final _locationResult = await getLocation();
+
       setState(() {
         _location = _locationResult;
         _loading = false;

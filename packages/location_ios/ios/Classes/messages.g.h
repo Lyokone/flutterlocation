@@ -27,13 +27,35 @@ typedef NS_ENUM(NSUInteger, PermissionStatus) {
 @class LocationSettings;
 
 @interface LocationData : NSObject
-/// `init` unavailable to enforce nonnull fields, see the `make` class method.
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)makeWithLatitude:(NSNumber *)latitude
-    longitude:(NSNumber *)longitude;
++ (instancetype)makeWithLatitude:(nullable NSNumber *)latitude
+    longitude:(nullable NSNumber *)longitude
+    accuracy:(nullable NSNumber *)accuracy
+    altitude:(nullable NSNumber *)altitude
+    bearing:(nullable NSNumber *)bearing
+    bearingAccuracyDegrees:(nullable NSNumber *)bearingAccuracyDegrees
+    elaspedRealTimeNanos:(nullable NSNumber *)elaspedRealTimeNanos
+    elaspedRealTimeUncertaintyNanos:(nullable NSNumber *)elaspedRealTimeUncertaintyNanos
+    sattelites:(nullable NSNumber *)sattelites
+    speed:(nullable NSNumber *)speed
+    speedAccuracy:(nullable NSNumber *)speedAccuracy
+    time:(nullable NSNumber *)time
+    verticalAccuracy:(nullable NSNumber *)verticalAccuracy
+    isMock:(nullable NSNumber *)isMock;
+@property(nonatomic, strong, nullable) NSNumber * latitude;
+@property(nonatomic, strong, nullable) NSNumber * longitude;
+@property(nonatomic, strong, nullable) NSNumber * accuracy;
+@property(nonatomic, strong, nullable) NSNumber * altitude;
+@property(nonatomic, strong, nullable) NSNumber * bearing;
+@property(nonatomic, strong, nullable) NSNumber * bearingAccuracyDegrees;
+@property(nonatomic, strong, nullable) NSNumber * elaspedRealTimeNanos;
+@property(nonatomic, strong, nullable) NSNumber * elaspedRealTimeUncertaintyNanos;
+@property(nonatomic, strong, nullable) NSNumber * sattelites;
+@property(nonatomic, strong, nullable) NSNumber * speed;
+@property(nonatomic, strong, nullable) NSNumber * speedAccuracy;
+@property(nonatomic, strong, nullable) NSNumber * time;
+@property(nonatomic, strong, nullable) NSNumber * verticalAccuracy;
+@property(nonatomic, strong, nullable) NSNumber * isMock;
 - (NSDictionary *)toMap;
-@property(nonatomic, strong) NSNumber * latitude;
-@property(nonatomic, strong) NSNumber * longitude;
 @end
 
 @interface LocationSettings : NSObject

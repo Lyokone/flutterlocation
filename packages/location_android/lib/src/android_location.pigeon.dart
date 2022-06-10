@@ -25,25 +25,73 @@ enum PermissionStatus {
 
 class LocationData {
   LocationData({
-    required this.latitude,
-    required this.longitude,
+    this.latitude,
+    this.longitude,
+    this.accuracy,
+    this.altitude,
+    this.bearing,
+    this.bearingAccuracyDegrees,
+    this.elaspedRealTimeNanos,
+    this.elaspedRealTimeUncertaintyNanos,
+    this.sattelites,
+    this.speed,
+    this.speedAccuracy,
+    this.time,
+    this.verticalAccuracy,
+    this.isMock,
   });
 
-  double latitude;
-  double longitude;
+  double? latitude;
+  double? longitude;
+  double? accuracy;
+  double? altitude;
+  double? bearing;
+  double? bearingAccuracyDegrees;
+  double? elaspedRealTimeNanos;
+  double? elaspedRealTimeUncertaintyNanos;
+  int? sattelites;
+  double? speed;
+  double? speedAccuracy;
+  double? time;
+  double? verticalAccuracy;
+  bool? isMock;
 
   Object encode() {
     final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
     pigeonMap['latitude'] = latitude;
     pigeonMap['longitude'] = longitude;
+    pigeonMap['accuracy'] = accuracy;
+    pigeonMap['altitude'] = altitude;
+    pigeonMap['bearing'] = bearing;
+    pigeonMap['bearingAccuracyDegrees'] = bearingAccuracyDegrees;
+    pigeonMap['elaspedRealTimeNanos'] = elaspedRealTimeNanos;
+    pigeonMap['elaspedRealTimeUncertaintyNanos'] = elaspedRealTimeUncertaintyNanos;
+    pigeonMap['sattelites'] = sattelites;
+    pigeonMap['speed'] = speed;
+    pigeonMap['speedAccuracy'] = speedAccuracy;
+    pigeonMap['time'] = time;
+    pigeonMap['verticalAccuracy'] = verticalAccuracy;
+    pigeonMap['isMock'] = isMock;
     return pigeonMap;
   }
 
   static LocationData decode(Object message) {
     final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
     return LocationData(
-      latitude: pigeonMap['latitude']! as double,
-      longitude: pigeonMap['longitude']! as double,
+      latitude: pigeonMap['latitude'] as double?,
+      longitude: pigeonMap['longitude'] as double?,
+      accuracy: pigeonMap['accuracy'] as double?,
+      altitude: pigeonMap['altitude'] as double?,
+      bearing: pigeonMap['bearing'] as double?,
+      bearingAccuracyDegrees: pigeonMap['bearingAccuracyDegrees'] as double?,
+      elaspedRealTimeNanos: pigeonMap['elaspedRealTimeNanos'] as double?,
+      elaspedRealTimeUncertaintyNanos: pigeonMap['elaspedRealTimeUncertaintyNanos'] as double?,
+      sattelites: pigeonMap['sattelites'] as int?,
+      speed: pigeonMap['speed'] as double?,
+      speedAccuracy: pigeonMap['speedAccuracy'] as double?,
+      time: pigeonMap['time'] as double?,
+      verticalAccuracy: pigeonMap['verticalAccuracy'] as double?,
+      isMock: pigeonMap['isMock'] as bool?,
     );
   }
 }

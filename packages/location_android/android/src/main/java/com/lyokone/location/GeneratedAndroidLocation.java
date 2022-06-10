@@ -49,41 +49,177 @@ public class GeneratedAndroidLocation {
 
   /** Generated class from Pigeon that represents data sent in messages. */
   public static class LocationData {
-    private @NonNull Double latitude;
-    public @NonNull Double getLatitude() { return latitude; }
-    public void setLatitude(@NonNull Double setterArg) {
-      if (setterArg == null) {
-        throw new IllegalStateException("Nonnull field \"latitude\" is null.");
-      }
+    private @Nullable Double latitude;
+    public @Nullable Double getLatitude() { return latitude; }
+    public void setLatitude(@Nullable Double setterArg) {
       this.latitude = setterArg;
     }
 
-    private @NonNull Double longitude;
-    public @NonNull Double getLongitude() { return longitude; }
-    public void setLongitude(@NonNull Double setterArg) {
-      if (setterArg == null) {
-        throw new IllegalStateException("Nonnull field \"longitude\" is null.");
-      }
+    private @Nullable Double longitude;
+    public @Nullable Double getLongitude() { return longitude; }
+    public void setLongitude(@Nullable Double setterArg) {
       this.longitude = setterArg;
     }
 
-    /** Constructor is private to enforce null safety; use Builder. */
-    private LocationData() {}
+    private @Nullable Double accuracy;
+    public @Nullable Double getAccuracy() { return accuracy; }
+    public void setAccuracy(@Nullable Double setterArg) {
+      this.accuracy = setterArg;
+    }
+
+    private @Nullable Double altitude;
+    public @Nullable Double getAltitude() { return altitude; }
+    public void setAltitude(@Nullable Double setterArg) {
+      this.altitude = setterArg;
+    }
+
+    private @Nullable Double bearing;
+    public @Nullable Double getBearing() { return bearing; }
+    public void setBearing(@Nullable Double setterArg) {
+      this.bearing = setterArg;
+    }
+
+    private @Nullable Double bearingAccuracyDegrees;
+    public @Nullable Double getBearingAccuracyDegrees() { return bearingAccuracyDegrees; }
+    public void setBearingAccuracyDegrees(@Nullable Double setterArg) {
+      this.bearingAccuracyDegrees = setterArg;
+    }
+
+    private @Nullable Double elaspedRealTimeNanos;
+    public @Nullable Double getElaspedRealTimeNanos() { return elaspedRealTimeNanos; }
+    public void setElaspedRealTimeNanos(@Nullable Double setterArg) {
+      this.elaspedRealTimeNanos = setterArg;
+    }
+
+    private @Nullable Double elaspedRealTimeUncertaintyNanos;
+    public @Nullable Double getElaspedRealTimeUncertaintyNanos() { return elaspedRealTimeUncertaintyNanos; }
+    public void setElaspedRealTimeUncertaintyNanos(@Nullable Double setterArg) {
+      this.elaspedRealTimeUncertaintyNanos = setterArg;
+    }
+
+    private @Nullable Long sattelites;
+    public @Nullable Long getSattelites() { return sattelites; }
+    public void setSattelites(@Nullable Long setterArg) {
+      this.sattelites = setterArg;
+    }
+
+    private @Nullable Double speed;
+    public @Nullable Double getSpeed() { return speed; }
+    public void setSpeed(@Nullable Double setterArg) {
+      this.speed = setterArg;
+    }
+
+    private @Nullable Double speedAccuracy;
+    public @Nullable Double getSpeedAccuracy() { return speedAccuracy; }
+    public void setSpeedAccuracy(@Nullable Double setterArg) {
+      this.speedAccuracy = setterArg;
+    }
+
+    private @Nullable Double time;
+    public @Nullable Double getTime() { return time; }
+    public void setTime(@Nullable Double setterArg) {
+      this.time = setterArg;
+    }
+
+    private @Nullable Double verticalAccuracy;
+    public @Nullable Double getVerticalAccuracy() { return verticalAccuracy; }
+    public void setVerticalAccuracy(@Nullable Double setterArg) {
+      this.verticalAccuracy = setterArg;
+    }
+
+    private @Nullable Boolean isMock;
+    public @Nullable Boolean getIsMock() { return isMock; }
+    public void setIsMock(@Nullable Boolean setterArg) {
+      this.isMock = setterArg;
+    }
+
     public static final class Builder {
       private @Nullable Double latitude;
-      public @NonNull Builder setLatitude(@NonNull Double setterArg) {
+      public @NonNull Builder setLatitude(@Nullable Double setterArg) {
         this.latitude = setterArg;
         return this;
       }
       private @Nullable Double longitude;
-      public @NonNull Builder setLongitude(@NonNull Double setterArg) {
+      public @NonNull Builder setLongitude(@Nullable Double setterArg) {
         this.longitude = setterArg;
+        return this;
+      }
+      private @Nullable Double accuracy;
+      public @NonNull Builder setAccuracy(@Nullable Double setterArg) {
+        this.accuracy = setterArg;
+        return this;
+      }
+      private @Nullable Double altitude;
+      public @NonNull Builder setAltitude(@Nullable Double setterArg) {
+        this.altitude = setterArg;
+        return this;
+      }
+      private @Nullable Double bearing;
+      public @NonNull Builder setBearing(@Nullable Double setterArg) {
+        this.bearing = setterArg;
+        return this;
+      }
+      private @Nullable Double bearingAccuracyDegrees;
+      public @NonNull Builder setBearingAccuracyDegrees(@Nullable Double setterArg) {
+        this.bearingAccuracyDegrees = setterArg;
+        return this;
+      }
+      private @Nullable Double elaspedRealTimeNanos;
+      public @NonNull Builder setElaspedRealTimeNanos(@Nullable Double setterArg) {
+        this.elaspedRealTimeNanos = setterArg;
+        return this;
+      }
+      private @Nullable Double elaspedRealTimeUncertaintyNanos;
+      public @NonNull Builder setElaspedRealTimeUncertaintyNanos(@Nullable Double setterArg) {
+        this.elaspedRealTimeUncertaintyNanos = setterArg;
+        return this;
+      }
+      private @Nullable Long sattelites;
+      public @NonNull Builder setSattelites(@Nullable Long setterArg) {
+        this.sattelites = setterArg;
+        return this;
+      }
+      private @Nullable Double speed;
+      public @NonNull Builder setSpeed(@Nullable Double setterArg) {
+        this.speed = setterArg;
+        return this;
+      }
+      private @Nullable Double speedAccuracy;
+      public @NonNull Builder setSpeedAccuracy(@Nullable Double setterArg) {
+        this.speedAccuracy = setterArg;
+        return this;
+      }
+      private @Nullable Double time;
+      public @NonNull Builder setTime(@Nullable Double setterArg) {
+        this.time = setterArg;
+        return this;
+      }
+      private @Nullable Double verticalAccuracy;
+      public @NonNull Builder setVerticalAccuracy(@Nullable Double setterArg) {
+        this.verticalAccuracy = setterArg;
+        return this;
+      }
+      private @Nullable Boolean isMock;
+      public @NonNull Builder setIsMock(@Nullable Boolean setterArg) {
+        this.isMock = setterArg;
         return this;
       }
       public @NonNull LocationData build() {
         LocationData pigeonReturn = new LocationData();
         pigeonReturn.setLatitude(latitude);
         pigeonReturn.setLongitude(longitude);
+        pigeonReturn.setAccuracy(accuracy);
+        pigeonReturn.setAltitude(altitude);
+        pigeonReturn.setBearing(bearing);
+        pigeonReturn.setBearingAccuracyDegrees(bearingAccuracyDegrees);
+        pigeonReturn.setElaspedRealTimeNanos(elaspedRealTimeNanos);
+        pigeonReturn.setElaspedRealTimeUncertaintyNanos(elaspedRealTimeUncertaintyNanos);
+        pigeonReturn.setSattelites(sattelites);
+        pigeonReturn.setSpeed(speed);
+        pigeonReturn.setSpeedAccuracy(speedAccuracy);
+        pigeonReturn.setTime(time);
+        pigeonReturn.setVerticalAccuracy(verticalAccuracy);
+        pigeonReturn.setIsMock(isMock);
         return pigeonReturn;
       }
     }
@@ -91,6 +227,18 @@ public class GeneratedAndroidLocation {
       Map<String, Object> toMapResult = new HashMap<>();
       toMapResult.put("latitude", latitude);
       toMapResult.put("longitude", longitude);
+      toMapResult.put("accuracy", accuracy);
+      toMapResult.put("altitude", altitude);
+      toMapResult.put("bearing", bearing);
+      toMapResult.put("bearingAccuracyDegrees", bearingAccuracyDegrees);
+      toMapResult.put("elaspedRealTimeNanos", elaspedRealTimeNanos);
+      toMapResult.put("elaspedRealTimeUncertaintyNanos", elaspedRealTimeUncertaintyNanos);
+      toMapResult.put("sattelites", sattelites);
+      toMapResult.put("speed", speed);
+      toMapResult.put("speedAccuracy", speedAccuracy);
+      toMapResult.put("time", time);
+      toMapResult.put("verticalAccuracy", verticalAccuracy);
+      toMapResult.put("isMock", isMock);
       return toMapResult;
     }
     static @NonNull LocationData fromMap(@NonNull Map<String, Object> map) {
@@ -99,6 +247,30 @@ public class GeneratedAndroidLocation {
       pigeonResult.setLatitude((Double)latitude);
       Object longitude = map.get("longitude");
       pigeonResult.setLongitude((Double)longitude);
+      Object accuracy = map.get("accuracy");
+      pigeonResult.setAccuracy((Double)accuracy);
+      Object altitude = map.get("altitude");
+      pigeonResult.setAltitude((Double)altitude);
+      Object bearing = map.get("bearing");
+      pigeonResult.setBearing((Double)bearing);
+      Object bearingAccuracyDegrees = map.get("bearingAccuracyDegrees");
+      pigeonResult.setBearingAccuracyDegrees((Double)bearingAccuracyDegrees);
+      Object elaspedRealTimeNanos = map.get("elaspedRealTimeNanos");
+      pigeonResult.setElaspedRealTimeNanos((Double)elaspedRealTimeNanos);
+      Object elaspedRealTimeUncertaintyNanos = map.get("elaspedRealTimeUncertaintyNanos");
+      pigeonResult.setElaspedRealTimeUncertaintyNanos((Double)elaspedRealTimeUncertaintyNanos);
+      Object sattelites = map.get("sattelites");
+      pigeonResult.setSattelites((sattelites == null) ? null : ((sattelites instanceof Integer) ? (Integer)sattelites : (Long)sattelites));
+      Object speed = map.get("speed");
+      pigeonResult.setSpeed((Double)speed);
+      Object speedAccuracy = map.get("speedAccuracy");
+      pigeonResult.setSpeedAccuracy((Double)speedAccuracy);
+      Object time = map.get("time");
+      pigeonResult.setTime((Double)time);
+      Object verticalAccuracy = map.get("verticalAccuracy");
+      pigeonResult.setVerticalAccuracy((Double)verticalAccuracy);
+      Object isMock = map.get("isMock");
+      pigeonResult.setIsMock((Boolean)isMock);
       return pigeonResult;
     }
   }

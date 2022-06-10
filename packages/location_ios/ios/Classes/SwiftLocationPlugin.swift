@@ -58,7 +58,38 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     
     
     static public func locationToData(_ location: CLLocation) -> LocationData {
-        return LocationData.make(withLatitude: location.coordinate.latitude as NSNumber, longitude: location.coordinate.longitude as NSNumber)
+        if #available(iOS 13.4, *) {
+            return LocationData.make(
+                withLatitude: NSNumber(value: location.coordinate.latitude),
+                longitude: NSNumber(value: location.coordinate.longitude),
+                accuracy: NSNumber(value: location.horizontalAccuracy),
+                altitude: NSNumber(value: location.altitude),
+                bearing: NSNumber(value: location.course),
+                bearingAccuracyDegrees: NSNumber(value: location.courseAccuracy),
+                elaspedRealTimeNanos: nil,
+                elaspedRealTimeUncertaintyNanos: nil,
+                sattelites: nil,
+                speed: NSNumber(value: location.speed),
+                speedAccuracy: NSNumber(value: location.speedAccuracy),
+                time: NSNumber(value: location.timestamp.timeIntervalSince1970),
+                verticalAccuracy: NSNumber(value: location.verticalAccuracy),
+                isMock: false)
+        }
+        return LocationData.make(
+                withLatitude: NSNumber(value: location.coordinate.latitude),
+                longitude: NSNumber(value: location.coordinate.longitude),
+                accuracy: NSNumber(value: location.horizontalAccuracy),
+                altitude: NSNumber(value: location.altitude),
+                bearing: NSNumber(value: location.course),
+                bearingAccuracyDegrees: nil,
+                elaspedRealTimeNanos: nil,
+                elaspedRealTimeUncertaintyNanos: nil,
+                sattelites: nil,
+                speed: NSNumber(value: location.speed),
+                speedAccuracy: NSNumber(value: location.speedAccuracy),
+                time: NSNumber(value: location.timestamp.timeIntervalSince1970),
+                verticalAccuracy: NSNumber(value: location.verticalAccuracy),
+                isMock: false)
     }
     
     
