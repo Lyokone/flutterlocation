@@ -1,4 +1,4 @@
-package com.example.location_example
+package com.lyokone.location_example
 
 import io.flutter.embedding.android.FlutterActivity
 
