@@ -1,50 +1,96 @@
+import 'dart:html'
+    show Geolocation, Geoposition, Navigator, Permissions, window;
+
 import 'package:location_platform_interface/location_platform_interface.dart';
 import 'package:location_platform_interface/messages.pigeon.dart';
 
 /// The Web implementation of [LocationPlatform].
 class LocationWeb extends LocationPlatform {
+  /// The Web implementation of [LocationPlatform].
+  LocationWeb(Navigator navigator)
+      : _geolocation = navigator.geolocation,
+        _permissions = navigator.permissions;
+
   /// Registers this class as the default instance of [LocationPlatform]
   static void registerWith([Object? registrar]) {
-    LocationPlatform.instance = LocationWeb();
+    LocationPlatform.instance = LocationWeb(window.navigator);
+  }
+
+  final Geolocation _geolocation;
+  final Permissions? _permissions;
+
+  LocationAccuracy _accuracy = LocationAccuracy.high;
+
+  @override
+  Future<LocationData?> getLocation({LocationSettings? settings}) async {
+    final result = await _geolocation.getCurrentPosition(
+      enableHighAccuracy: (settings?.accuracy.index ?? _accuracy.index) >=
+          LocationAccuracy.high.index,
+    );
+
+    return _toLocationData(result);
   }
 
   @override
-  Future<LocationData?> getLocation({LocationSettings? settings}) {
-    // TODO: implement getLocation
-    throw UnimplementedError();
+  Stream<LocationData?> get onLocationChanged => _geolocation
+      .watchPosition(
+        enableHighAccuracy: _accuracy.index >= LocationAccuracy.high.index,
+      )
+      .map(_toLocationData);
+
+  @override
+  Future<PermissionStatus?> getPermissionStatus() async {
+    final result =
+        await _permissions!.query(<String, String>{'name': 'geolocation'});
+
+    switch (result.state) {
+      case 'granted':
+        return PermissionStatus.granted;
+      case 'prompt':
+        return PermissionStatus.denied;
+      case 'denied':
+        return PermissionStatus.deniedForever;
+      default:
+        throw ArgumentError('Unknown permission ${result.state}.');
+    }
   }
 
   @override
-  // TODO: implement onLocationChanged
-  Stream<LocationData?> get onLocationChanged => throw UnimplementedError();
-
-  @override
-  Future<PermissionStatus?> getPermissionStatus() {
-    // TODO: implement getPermissionStatus
-    throw UnimplementedError();
+  Future<bool?> isGPSEnabled() async {
+    return true;
   }
 
   @override
-  Future<bool?> isGPSEnabled() {
-    // TODO: implement isGPSEnabled
-    throw UnimplementedError();
+  Future<bool?> isNetworkEnabled() async {
+    return true;
   }
 
   @override
-  Future<bool?> isNetworkEnabled() {
-    // TODO: implement isNetworkEnabled
-    throw UnimplementedError();
+  Future<PermissionStatus?> requestPermission() async {
+    try {
+      await _geolocation.getCurrentPosition();
+      return PermissionStatus.granted;
+    } catch (e) {
+      return PermissionStatus.deniedForever;
+    }
   }
 
   @override
-  Future<PermissionStatus?> requestPermission() {
-    // TODO: implement requestPermission
-    throw UnimplementedError();
+  Future<bool?> setLocationSettings(LocationSettings settings) async {
+    _accuracy = settings.accuracy;
+    return true;
   }
 
-  @override
-  Future<bool?> setLocationSettings(LocationSettings settings) {
-    // TODO: implement setLocationSettings
-    throw UnimplementedError();
+  LocationData _toLocationData(Geoposition result) {
+    return LocationData.decode(<String, dynamic>{
+      'latitude': result.coords!.latitude!.toDouble(),
+      'longitude': result.coords!.longitude!.toDouble(),
+      'accuracy': 0,
+      'altitude': 0,
+      'speed': 0,
+      'speed_accuracy': 0,
+      'heading': 0,
+      'time': result.timestamp!.toDouble(),
+    });
   }
 }
