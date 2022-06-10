@@ -15,12 +15,42 @@ class LocationWindows extends LocationPlatform {
   }
 
   @override
-  Future<LocationData?> getLocation() {
+  Future<LocationData?> getLocation({LocationSettings? settings}) {
     // TODO: implement getLocation
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<PermissionStatus?> getPermissionStatus() {
+    // TODO: implement getPermissionStatus
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool?> isGPSEnabled() {
+    // TODO: implement isGPSEnabled
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool?> isNetworkEnabled() {
+    // TODO: implement isNetworkEnabled
     throw UnimplementedError();
   }
 
   @override
   // TODO: implement onLocationChanged
   Stream<LocationData?> get onLocationChanged => throw UnimplementedError();
+
+  @override
+  Future<PermissionStatus?> requestPermission() {
+    // TODO: implement requestPermission
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool?> setLocationSettings(LocationSettings settings) {
+    // TODO: implement setLocationSettings
+    throw UnimplementedError();
+  }
 }
