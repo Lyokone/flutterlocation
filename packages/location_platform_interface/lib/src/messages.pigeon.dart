@@ -8,7 +8,7 @@ import 'dart:typed_data' show Uint8List, Int32List, Int64List, Float64List;
 import 'package:flutter/foundation.dart' show WriteBuffer, ReadBuffer;
 import 'package:flutter/services.dart';
 
-enum LocationAccuracy {
+enum PigeonLocationAccuracy {
   powerSave,
   low,
   balanced,
@@ -16,15 +16,8 @@ enum LocationAccuracy {
   navigation,
 }
 
-enum PermissionStatus {
-  granted,
-  grantedLimited,
-  denied,
-  deniedForever,
-}
-
-class LocationData {
-  LocationData({
+class PigeonLocationData {
+  PigeonLocationData({
     this.latitude,
     this.longitude,
     this.accuracy,
@@ -75,9 +68,9 @@ class LocationData {
     return pigeonMap;
   }
 
-  static LocationData decode(Object message) {
+  static PigeonLocationData decode(Object message) {
     final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
-    return LocationData(
+    return PigeonLocationData(
       latitude: pigeonMap['latitude'] as double?,
       longitude: pigeonMap['longitude'] as double?,
       accuracy: pigeonMap['accuracy'] as double?,
@@ -96,8 +89,8 @@ class LocationData {
   }
 }
 
-class LocationSettings {
-  LocationSettings({
+class PigeonLocationSettings {
+  PigeonLocationSettings({
     required this.askForPermission,
     required this.rationaleMessageForPermissionRequest,
     required this.rationaleMessageForGPSRequest,
@@ -132,7 +125,7 @@ class LocationSettings {
   double interval;
   double? maxWaitTime;
   int? numUpdates;
-  LocationAccuracy accuracy;
+  PigeonLocationAccuracy accuracy;
   double smallestDisplacement;
   bool waitForAccurateLocation;
   double? acceptableAccuracy;
@@ -160,9 +153,9 @@ class LocationSettings {
     return pigeonMap;
   }
 
-  static LocationSettings decode(Object message) {
+  static PigeonLocationSettings decode(Object message) {
     final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
-    return LocationSettings(
+    return PigeonLocationSettings(
       askForPermission: pigeonMap['askForPermission']! as bool,
       rationaleMessageForPermissionRequest: pigeonMap['rationaleMessageForPermissionRequest']! as String,
       rationaleMessageForGPSRequest: pigeonMap['rationaleMessageForGPSRequest']! as String,
@@ -177,7 +170,7 @@ class LocationSettings {
       interval: pigeonMap['interval']! as double,
       maxWaitTime: pigeonMap['maxWaitTime'] as double?,
       numUpdates: pigeonMap['numUpdates'] as int?,
-      accuracy: LocationAccuracy.values[pigeonMap['accuracy']! as int]
+      accuracy: PigeonLocationAccuracy.values[pigeonMap['accuracy']! as int]
 ,
       smallestDisplacement: pigeonMap['smallestDisplacement']! as double,
       waitForAccurateLocation: pigeonMap['waitForAccurateLocation']! as bool,
@@ -190,15 +183,15 @@ class _LocationHostApiCodec extends StandardMessageCodec {
   const _LocationHostApiCodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
-    if (value is LocationData) {
+    if (value is PigeonLocationData) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
     } else 
-    if (value is LocationSettings) {
+    if (value is PigeonLocationSettings) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
     } else 
-    if (value is LocationSettings) {
+    if (value is PigeonLocationSettings) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
     } else 
@@ -210,13 +203,13 @@ class _LocationHostApiCodec extends StandardMessageCodec {
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
       case 128:       
-        return LocationData.decode(readValue(buffer)!);
+        return PigeonLocationData.decode(readValue(buffer)!);
       
       case 129:       
-        return LocationSettings.decode(readValue(buffer)!);
+        return PigeonLocationSettings.decode(readValue(buffer)!);
       
       case 130:       
-        return LocationSettings.decode(readValue(buffer)!);
+        return PigeonLocationSettings.decode(readValue(buffer)!);
       
       default:      
         return super.readValueOfType(type, buffer);
@@ -235,7 +228,7 @@ class LocationHostApi {
 
   static const MessageCodec<Object?> codec = _LocationHostApiCodec();
 
-  Future<LocationData> getLocation(LocationSettings? arg_settings) async {
+  Future<PigeonLocationData> getLocation(PigeonLocationSettings? arg_settings) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.LocationHostApi.getLocation', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
@@ -258,11 +251,11 @@ class LocationHostApi {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (replyMap['result'] as LocationData?)!;
+      return (replyMap['result'] as PigeonLocationData?)!;
     }
   }
 
-  Future<bool> setLocationSettings(LocationSettings arg_settings) async {
+  Future<bool> setLocationSettings(PigeonLocationSettings arg_settings) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.LocationHostApi.setLocationSettings', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =

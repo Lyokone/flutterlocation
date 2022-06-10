@@ -1,8 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:location_platform_interface/helpers/mapper.dart';
-import 'package:location_platform_interface/location_platform_interface.dart';
-import 'package:location_platform_interface/messages.pigeon.dart';
+part of location_platform_interface;
 
 ///
 class MethodChannelLocation extends LocationPlatform {
@@ -26,8 +22,9 @@ class MethodChannelLocation extends LocationPlatform {
   late final EventChannel _eventChannel;
 
   @override
-  Future<LocationData?> getLocation({LocationSettings? settings}) {
-    return _api.getLocation(settings);
+  Future<LocationData?> getLocation({LocationSettings? settings}) async {
+    final pigeonData = await _api.getLocation(settings?.toPigeon());
+    return LocationData.fromPigeon(pigeonData);
   }
 
   /// Current opened stream of location
@@ -37,13 +34,15 @@ class MethodChannelLocation extends LocationPlatform {
   Stream<LocationData?> get onLocationChanged {
     return _onLocationChanged ??=
         _eventChannel.receiveBroadcastStream().map<LocationData>(
-              (dynamic event) => LocationData.decode(event as Object),
+              (dynamic event) => LocationData.fromPigeon(
+                PigeonLocationData.decode(event as Object),
+              ),
             );
   }
 
   @override
   Future<bool?> setLocationSettings(LocationSettings settings) {
-    return _api.setLocationSettings(settings);
+    return _api.setLocationSettings(settings.toPigeon());
   }
 
   @override

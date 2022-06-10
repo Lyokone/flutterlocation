@@ -22,7 +22,7 @@ import java.util.HashMap;
 @SuppressWarnings({"unused", "unchecked", "CodeBlock2Expr", "RedundantSuppression"})
 public class GeneratedAndroidLocation {
 
-  public enum LocationAccuracy {
+  public enum PigeonLocationAccuracy {
     powerSave(0),
     low(1),
     balanced(2),
@@ -30,25 +30,13 @@ public class GeneratedAndroidLocation {
     navigation(4);
 
     private int index;
-    private LocationAccuracy(final int index) {
-      this.index = index;
-    }
-  }
-
-  public enum PermissionStatus {
-    granted(0),
-    grantedLimited(1),
-    denied(2),
-    deniedForever(3);
-
-    private int index;
-    private PermissionStatus(final int index) {
+    private PigeonLocationAccuracy(final int index) {
       this.index = index;
     }
   }
 
   /** Generated class from Pigeon that represents data sent in messages. */
-  public static class LocationData {
+  public static class PigeonLocationData {
     private @Nullable Double latitude;
     public @Nullable Double getLatitude() { return latitude; }
     public void setLatitude(@Nullable Double setterArg) {
@@ -204,8 +192,8 @@ public class GeneratedAndroidLocation {
         this.isMock = setterArg;
         return this;
       }
-      public @NonNull LocationData build() {
-        LocationData pigeonReturn = new LocationData();
+      public @NonNull PigeonLocationData build() {
+        PigeonLocationData pigeonReturn = new PigeonLocationData();
         pigeonReturn.setLatitude(latitude);
         pigeonReturn.setLongitude(longitude);
         pigeonReturn.setAccuracy(accuracy);
@@ -241,8 +229,8 @@ public class GeneratedAndroidLocation {
       toMapResult.put("isMock", isMock);
       return toMapResult;
     }
-    static @NonNull LocationData fromMap(@NonNull Map<String, Object> map) {
-      LocationData pigeonResult = new LocationData();
+    static @NonNull PigeonLocationData fromMap(@NonNull Map<String, Object> map) {
+      PigeonLocationData pigeonResult = new PigeonLocationData();
       Object latitude = map.get("latitude");
       pigeonResult.setLatitude((Double)latitude);
       Object longitude = map.get("longitude");
@@ -276,7 +264,7 @@ public class GeneratedAndroidLocation {
   }
 
   /** Generated class from Pigeon that represents data sent in messages. */
-  public static class LocationSettings {
+  public static class PigeonLocationSettings {
     private @NonNull Boolean askForPermission;
     public @NonNull Boolean getAskForPermission() { return askForPermission; }
     public void setAskForPermission(@NonNull Boolean setterArg) {
@@ -391,9 +379,9 @@ public class GeneratedAndroidLocation {
       this.numUpdates = setterArg;
     }
 
-    private @NonNull LocationAccuracy accuracy;
-    public @NonNull LocationAccuracy getAccuracy() { return accuracy; }
-    public void setAccuracy(@NonNull LocationAccuracy setterArg) {
+    private @NonNull PigeonLocationAccuracy accuracy;
+    public @NonNull PigeonLocationAccuracy getAccuracy() { return accuracy; }
+    public void setAccuracy(@NonNull PigeonLocationAccuracy setterArg) {
       if (setterArg == null) {
         throw new IllegalStateException("Nonnull field \"accuracy\" is null.");
       }
@@ -425,7 +413,7 @@ public class GeneratedAndroidLocation {
     }
 
     /** Constructor is private to enforce null safety; use Builder. */
-    private LocationSettings() {}
+    private PigeonLocationSettings() {}
     public static final class Builder {
       private @Nullable Boolean askForPermission;
       public @NonNull Builder setAskForPermission(@NonNull Boolean setterArg) {
@@ -497,8 +485,8 @@ public class GeneratedAndroidLocation {
         this.numUpdates = setterArg;
         return this;
       }
-      private @Nullable LocationAccuracy accuracy;
-      public @NonNull Builder setAccuracy(@NonNull LocationAccuracy setterArg) {
+      private @Nullable PigeonLocationAccuracy accuracy;
+      public @NonNull Builder setAccuracy(@NonNull PigeonLocationAccuracy setterArg) {
         this.accuracy = setterArg;
         return this;
       }
@@ -517,8 +505,8 @@ public class GeneratedAndroidLocation {
         this.acceptableAccuracy = setterArg;
         return this;
       }
-      public @NonNull LocationSettings build() {
-        LocationSettings pigeonReturn = new LocationSettings();
+      public @NonNull PigeonLocationSettings build() {
+        PigeonLocationSettings pigeonReturn = new PigeonLocationSettings();
         pigeonReturn.setAskForPermission(askForPermission);
         pigeonReturn.setRationaleMessageForPermissionRequest(rationaleMessageForPermissionRequest);
         pigeonReturn.setRationaleMessageForGPSRequest(rationaleMessageForGPSRequest);
@@ -562,8 +550,8 @@ public class GeneratedAndroidLocation {
       toMapResult.put("acceptableAccuracy", acceptableAccuracy);
       return toMapResult;
     }
-    static @NonNull LocationSettings fromMap(@NonNull Map<String, Object> map) {
-      LocationSettings pigeonResult = new LocationSettings();
+    static @NonNull PigeonLocationSettings fromMap(@NonNull Map<String, Object> map) {
+      PigeonLocationSettings pigeonResult = new PigeonLocationSettings();
       Object askForPermission = map.get("askForPermission");
       pigeonResult.setAskForPermission((Boolean)askForPermission);
       Object rationaleMessageForPermissionRequest = map.get("rationaleMessageForPermissionRequest");
@@ -593,7 +581,7 @@ public class GeneratedAndroidLocation {
       Object numUpdates = map.get("numUpdates");
       pigeonResult.setNumUpdates((numUpdates == null) ? null : ((numUpdates instanceof Integer) ? (Integer)numUpdates : (Long)numUpdates));
       Object accuracy = map.get("accuracy");
-      pigeonResult.setAccuracy(accuracy == null ? null : LocationAccuracy.values()[(int)accuracy]);
+      pigeonResult.setAccuracy(accuracy == null ? null : PigeonLocationAccuracy.values()[(int)accuracy]);
       Object smallestDisplacement = map.get("smallestDisplacement");
       pigeonResult.setSmallestDisplacement((Double)smallestDisplacement);
       Object waitForAccurateLocation = map.get("waitForAccurateLocation");
@@ -615,13 +603,13 @@ public class GeneratedAndroidLocation {
     protected Object readValueOfType(byte type, ByteBuffer buffer) {
       switch (type) {
         case (byte)128:         
-          return LocationData.fromMap((Map<String, Object>) readValue(buffer));
+          return PigeonLocationData.fromMap((Map<String, Object>) readValue(buffer));
         
         case (byte)129:         
-          return LocationSettings.fromMap((Map<String, Object>) readValue(buffer));
+          return PigeonLocationSettings.fromMap((Map<String, Object>) readValue(buffer));
         
         case (byte)130:         
-          return LocationSettings.fromMap((Map<String, Object>) readValue(buffer));
+          return PigeonLocationSettings.fromMap((Map<String, Object>) readValue(buffer));
         
         default:        
           return super.readValueOfType(type, buffer);
@@ -630,17 +618,17 @@ public class GeneratedAndroidLocation {
     }
     @Override
     protected void writeValue(ByteArrayOutputStream stream, Object value)     {
-      if (value instanceof LocationData) {
+      if (value instanceof PigeonLocationData) {
         stream.write(128);
-        writeValue(stream, ((LocationData) value).toMap());
+        writeValue(stream, ((PigeonLocationData) value).toMap());
       } else 
-      if (value instanceof LocationSettings) {
+      if (value instanceof PigeonLocationSettings) {
         stream.write(129);
-        writeValue(stream, ((LocationSettings) value).toMap());
+        writeValue(stream, ((PigeonLocationSettings) value).toMap());
       } else 
-      if (value instanceof LocationSettings) {
+      if (value instanceof PigeonLocationSettings) {
         stream.write(130);
-        writeValue(stream, ((LocationSettings) value).toMap());
+        writeValue(stream, ((PigeonLocationSettings) value).toMap());
       } else 
 {
         super.writeValue(stream, value);
@@ -650,8 +638,8 @@ public class GeneratedAndroidLocation {
 
   /** Generated interface from Pigeon that represents a handler of messages from Flutter.*/
   public interface LocationHostApi {
-    void getLocation(@Nullable LocationSettings settings, Result<LocationData> result);
-    @NonNull Boolean setLocationSettings(@NonNull LocationSettings settings);
+    void getLocation(@Nullable PigeonLocationSettings settings, Result<PigeonLocationData> result);
+    @NonNull Boolean setLocationSettings(@NonNull PigeonLocationSettings settings);
     @NonNull Long getPermissionStatus();
     void requestPermission(Result<Long> result);
     @NonNull Boolean isGPSEnabled();
@@ -672,9 +660,9 @@ public class GeneratedAndroidLocation {
             Map<String, Object> wrapped = new HashMap<>();
             try {
               ArrayList<Object> args = (ArrayList<Object>)message;
-              LocationSettings settingsArg = (LocationSettings)args.get(0);
-              Result<LocationData> resultCallback = new Result<LocationData>() {
-                public void success(LocationData result) {
+              PigeonLocationSettings settingsArg = (PigeonLocationSettings)args.get(0);
+              Result<PigeonLocationData> resultCallback = new Result<PigeonLocationData>() {
+                public void success(PigeonLocationData result) {
                   wrapped.put("result", result);
                   reply.reply(wrapped);
                 }
@@ -703,7 +691,7 @@ public class GeneratedAndroidLocation {
             Map<String, Object> wrapped = new HashMap<>();
             try {
               ArrayList<Object> args = (ArrayList<Object>)message;
-              LocationSettings settingsArg = (LocationSettings)args.get(0);
+              PigeonLocationSettings settingsArg = (PigeonLocationSettings)args.get(0);
               if (settingsArg == null) {
                 throw new NullPointerException("settingsArg unexpectedly null.");
               }

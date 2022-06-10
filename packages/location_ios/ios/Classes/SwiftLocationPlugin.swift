@@ -5,7 +5,7 @@ import CoreLocation
 
 @UIApplicationMain
 public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIApplicationDelegate {
-    var globalLocationSettings: LocationSettings?
+    var globalPigeonLocationSettings: PigeonLocationSettings?
     var streamHandler: StreamHandler?
     
     
@@ -20,7 +20,7 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     
     
     
-    public func getLocationSettings(_ settings: LocationSettings?, completion: @escaping (LocationData?, FlutterError?) -> Void) {
+    public func getLocationSettings(_ settings: PigeonLocationSettings?, completion: @escaping (PigeonLocationData?, FlutterError?) -> Void) {
         if !CLLocationManager.locationServicesEnabled() {
             UIApplication.shared.open(URL(string:UIApplication.openSettingsURLString)!)
             return completion(nil, FlutterError(code: "LOCATION_SERVICE_DISABLED",
@@ -34,9 +34,9 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
                                                 details: nil))
         }
         
-        let currentSettings = SwiftLocationPlugin.locationSettingsToGPSLocationOptions(settings ?? globalLocationSettings)
+        let currentSettings = SwiftLocationPlugin.locationSettingsToGPSLocationOptions(settings ?? globalPigeonLocationSettings)
         
-        if globalLocationSettings?.ignoreLastKnownPosition == false {
+        if globalPigeonLocationSettings?.ignoreLastKnownPosition == false {
             let lastKnownPosition = SwiftLocation.lastKnownGPSLocation
             if (lastKnownPosition != nil) {
                 completion(SwiftLocationPlugin.locationToData(lastKnownPosition!), nil)
@@ -57,9 +57,9 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     }
     
     
-    static public func locationToData(_ location: CLLocation) -> LocationData {
+    static public func locationToData(_ location: CLLocation) -> PigeonLocationData {
         if #available(iOS 13.4, *) {
-            return LocationData.make(
+            return PigeonLocationData.make(
                 withLatitude: NSNumber(value: location.coordinate.latitude),
                 longitude: NSNumber(value: location.coordinate.longitude),
                 accuracy: NSNumber(value: location.horizontalAccuracy),
@@ -75,7 +75,7 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
                 verticalAccuracy: NSNumber(value: location.verticalAccuracy),
                 isMock: false)
         }
-        return LocationData.make(
+        return PigeonLocationData.make(
                 withLatitude: NSNumber(value: location.coordinate.latitude),
                 longitude: NSNumber(value: location.coordinate.longitude),
                 accuracy: NSNumber(value: location.horizontalAccuracy),
@@ -101,7 +101,7 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
         return defaultOption
     }
     
-    static private func mapAccuracy (_ accuracy: LocationAccuracy) -> GPSLocationOptions.Accuracy {
+    static private func mapAccuracy (_ accuracy: PigeonLocationAccuracy) -> GPSLocationOptions.Accuracy {
         switch (accuracy) {
             
         case .powerSave:
@@ -120,7 +120,7 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     }
     
     
-    static public func locationSettingsToGPSLocationOptions(_ settings: LocationSettings?) -> GPSLocationOptions? {
+    static public func locationSettingsToGPSLocationOptions(_ settings: PigeonLocationSettings?) -> GPSLocationOptions? {
         if (settings == nil) {
             return nil
         }
@@ -156,8 +156,8 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     }
     
     
-    public func setLocationSettingsSettings(_ settings: LocationSettings, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) -> NSNumber? {
-        globalLocationSettings = settings;
+    public func setLocationSettingsSettings(_ settings: PigeonLocationSettings, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) -> NSNumber? {
+        globalPigeonLocationSettings = settings;
         
         return NSNumber(1)
     }

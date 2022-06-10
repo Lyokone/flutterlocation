@@ -2,7 +2,6 @@ import 'dart:html'
     show Geolocation, Geoposition, Navigator, Permissions, window;
 
 import 'package:location_platform_interface/location_platform_interface.dart';
-import 'package:location_platform_interface/messages.pigeon.dart';
 
 /// The Web implementation of [LocationPlatform].
 class LocationWeb extends LocationPlatform {

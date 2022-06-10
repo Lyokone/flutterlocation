@@ -1,6 +1,13 @@
-import 'package:location_platform_interface/messages.pigeon.dart';
-import 'package:location_platform_interface/method_channel_location.dart';
+library location_platform_interface;
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:location_platform_interface/src/messages.pigeon.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
+part 'src/mapper.dart';
+part 'src/method_channel_location.dart';
+part 'src/types.dart';
 
 /// The interface that implementations of location must implement.
 ///

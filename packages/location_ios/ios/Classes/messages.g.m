@@ -31,18 +31,18 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 }
 
 
-@interface LocationData ()
-+ (LocationData *)fromMap:(NSDictionary *)dict;
-+ (nullable LocationData *)nullableFromMap:(NSDictionary *)dict;
+@interface PigeonLocationData ()
++ (PigeonLocationData *)fromMap:(NSDictionary *)dict;
++ (nullable PigeonLocationData *)nullableFromMap:(NSDictionary *)dict;
 - (NSDictionary *)toMap;
 @end
-@interface LocationSettings ()
-+ (LocationSettings *)fromMap:(NSDictionary *)dict;
-+ (nullable LocationSettings *)nullableFromMap:(NSDictionary *)dict;
+@interface PigeonLocationSettings ()
++ (PigeonLocationSettings *)fromMap:(NSDictionary *)dict;
++ (nullable PigeonLocationSettings *)nullableFromMap:(NSDictionary *)dict;
 - (NSDictionary *)toMap;
 @end
 
-@implementation LocationData
+@implementation PigeonLocationData
 + (instancetype)makeWithLatitude:(nullable NSNumber *)latitude
     longitude:(nullable NSNumber *)longitude
     accuracy:(nullable NSNumber *)accuracy
@@ -57,7 +57,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
     time:(nullable NSNumber *)time
     verticalAccuracy:(nullable NSNumber *)verticalAccuracy
     isMock:(nullable NSNumber *)isMock {
-  LocationData* pigeonResult = [[LocationData alloc] init];
+  PigeonLocationData* pigeonResult = [[PigeonLocationData alloc] init];
   pigeonResult.latitude = latitude;
   pigeonResult.longitude = longitude;
   pigeonResult.accuracy = accuracy;
@@ -74,8 +74,8 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
   pigeonResult.isMock = isMock;
   return pigeonResult;
 }
-+ (LocationData *)fromMap:(NSDictionary *)dict {
-  LocationData *pigeonResult = [[LocationData alloc] init];
++ (PigeonLocationData *)fromMap:(NSDictionary *)dict {
+  PigeonLocationData *pigeonResult = [[PigeonLocationData alloc] init];
   pigeonResult.latitude = GetNullableObject(dict, @"latitude");
   pigeonResult.longitude = GetNullableObject(dict, @"longitude");
   pigeonResult.accuracy = GetNullableObject(dict, @"accuracy");
@@ -92,7 +92,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
   pigeonResult.isMock = GetNullableObject(dict, @"isMock");
   return pigeonResult;
 }
-+ (nullable LocationData *)nullableFromMap:(NSDictionary *)dict { return (dict) ? [LocationData fromMap:dict] : nil; }
++ (nullable PigeonLocationData *)nullableFromMap:(NSDictionary *)dict { return (dict) ? [PigeonLocationData fromMap:dict] : nil; }
 - (NSDictionary *)toMap {
   return @{
     @"latitude" : (self.latitude ?: [NSNull null]),
@@ -113,7 +113,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 }
 @end
 
-@implementation LocationSettings
+@implementation PigeonLocationSettings
 + (instancetype)makeWithAskForPermission:(NSNumber *)askForPermission
     rationaleMessageForPermissionRequest:(NSString *)rationaleMessageForPermissionRequest
     rationaleMessageForGPSRequest:(NSString *)rationaleMessageForGPSRequest
@@ -128,11 +128,11 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
     interval:(NSNumber *)interval
     maxWaitTime:(nullable NSNumber *)maxWaitTime
     numUpdates:(nullable NSNumber *)numUpdates
-    accuracy:(LocationAccuracy)accuracy
+    accuracy:(PigeonLocationAccuracy)accuracy
     smallestDisplacement:(NSNumber *)smallestDisplacement
     waitForAccurateLocation:(NSNumber *)waitForAccurateLocation
     acceptableAccuracy:(nullable NSNumber *)acceptableAccuracy {
-  LocationSettings* pigeonResult = [[LocationSettings alloc] init];
+  PigeonLocationSettings* pigeonResult = [[PigeonLocationSettings alloc] init];
   pigeonResult.askForPermission = askForPermission;
   pigeonResult.rationaleMessageForPermissionRequest = rationaleMessageForPermissionRequest;
   pigeonResult.rationaleMessageForGPSRequest = rationaleMessageForGPSRequest;
@@ -153,8 +153,8 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
   pigeonResult.acceptableAccuracy = acceptableAccuracy;
   return pigeonResult;
 }
-+ (LocationSettings *)fromMap:(NSDictionary *)dict {
-  LocationSettings *pigeonResult = [[LocationSettings alloc] init];
++ (PigeonLocationSettings *)fromMap:(NSDictionary *)dict {
+  PigeonLocationSettings *pigeonResult = [[PigeonLocationSettings alloc] init];
   pigeonResult.askForPermission = GetNullableObject(dict, @"askForPermission");
   NSAssert(pigeonResult.askForPermission != nil, @"");
   pigeonResult.rationaleMessageForPermissionRequest = GetNullableObject(dict, @"rationaleMessageForPermissionRequest");
@@ -187,7 +187,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
   pigeonResult.acceptableAccuracy = GetNullableObject(dict, @"acceptableAccuracy");
   return pigeonResult;
 }
-+ (nullable LocationSettings *)nullableFromMap:(NSDictionary *)dict { return (dict) ? [LocationSettings fromMap:dict] : nil; }
++ (nullable PigeonLocationSettings *)nullableFromMap:(NSDictionary *)dict { return (dict) ? [PigeonLocationSettings fromMap:dict] : nil; }
 - (NSDictionary *)toMap {
   return @{
     @"askForPermission" : (self.askForPermission ?: [NSNull null]),
@@ -219,13 +219,13 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 {
   switch (type) {
     case 128:     
-      return [LocationData fromMap:[self readValue]];
+      return [PigeonLocationData fromMap:[self readValue]];
     
     case 129:     
-      return [LocationSettings fromMap:[self readValue]];
+      return [PigeonLocationSettings fromMap:[self readValue]];
     
     case 130:     
-      return [LocationSettings fromMap:[self readValue]];
+      return [PigeonLocationSettings fromMap:[self readValue]];
     
     default:    
       return [super readValueOfType:type];
@@ -239,15 +239,15 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 @implementation LocationHostApiCodecWriter
 - (void)writeValue:(id)value 
 {
-  if ([value isKindOfClass:[LocationData class]]) {
+  if ([value isKindOfClass:[PigeonLocationData class]]) {
     [self writeByte:128];
     [self writeValue:[value toMap]];
   } else 
-  if ([value isKindOfClass:[LocationSettings class]]) {
+  if ([value isKindOfClass:[PigeonLocationSettings class]]) {
     [self writeByte:129];
     [self writeValue:[value toMap]];
   } else 
-  if ([value isKindOfClass:[LocationSettings class]]) {
+  if ([value isKindOfClass:[PigeonLocationSettings class]]) {
     [self writeByte:130];
     [self writeValue:[value toMap]];
   } else 
@@ -290,8 +290,8 @@ void LocationHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<L
       NSCAssert([api respondsToSelector:@selector(getLocationSettings:completion:)], @"LocationHostApi api (%@) doesn't respond to @selector(getLocationSettings:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        LocationSettings *arg_settings = GetNullableObjectAtIndex(args, 0);
-        [api getLocationSettings:arg_settings completion:^(LocationData *_Nullable output, FlutterError *_Nullable error) {
+        PigeonLocationSettings *arg_settings = GetNullableObjectAtIndex(args, 0);
+        [api getLocationSettings:arg_settings completion:^(PigeonLocationData *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];
@@ -310,7 +310,7 @@ void LocationHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<L
       NSCAssert([api respondsToSelector:@selector(setLocationSettingsSettings:error:)], @"LocationHostApi api (%@) doesn't respond to @selector(setLocationSettingsSettings:error:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        LocationSettings *arg_settings = GetNullableObjectAtIndex(args, 0);
+        PigeonLocationSettings *arg_settings = GetNullableObjectAtIndex(args, 0);
         FlutterError *error;
         NSNumber *output = [api setLocationSettingsSettings:arg_settings error:&error];
         callback(wrapResult(output, error));

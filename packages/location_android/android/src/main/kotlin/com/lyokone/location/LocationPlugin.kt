@@ -45,7 +45,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
     private var eventChannel: EventChannel? = null
     private var eventSink: EventChannel.EventSink? = null
 
-    private var resultsNeedingLocation: MutableList<GeneratedAndroidLocation.Result<GeneratedAndroidLocation.LocationData>?> =
+    private var resultsNeedingLocation: MutableList<GeneratedAndroidLocation.Result<GeneratedAndroidLocation.PigeonLocationData>?> =
         mutableListOf()
 
     private var resultPermissionRequest: GeneratedAndroidLocation.Result<Long>? = null
@@ -114,7 +114,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         Log.d("LOCATION", location?.latitude.toString() + " " + location?.longitude.toString())
 
         val locationBuilder =
-            GeneratedAndroidLocation.LocationData.Builder().setLatitude(location!!.latitude)
+            GeneratedAndroidLocation.PigeonLocationData.Builder().setLatitude(location!!.latitude)
                 .setLongitude(location.longitude)
                 .setAccuracy(location.accuracy.toDouble())
                 .setAltitude(location.altitude)
@@ -136,18 +136,18 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         }
 
 
-        val locationData = locationBuilder.build()
+        val pigeonLocationData = locationBuilder.build()
 
         for (result in resultsNeedingLocation) {
             if (result == null) {
                 return
             }
             result.success(
-                locationData
+                pigeonLocationData
             )
         }
 
-        eventSink?.success(locationData.toMap())
+        eventSink?.success(pigeonLocationData.toMap())
 
         resultsNeedingLocation = mutableListOf()
     }
@@ -234,8 +234,8 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
     }
 
     override fun getLocation(
-        settings: GeneratedAndroidLocation.LocationSettings?,
-        result: GeneratedAndroidLocation.Result<GeneratedAndroidLocation.LocationData>?
+        settings: GeneratedAndroidLocation.PigeonLocationSettings?,
+        result: GeneratedAndroidLocation.Result<GeneratedAndroidLocation.PigeonLocationData>?
     ) {
         resultsNeedingLocation.add(result)
 
@@ -267,18 +267,18 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
 
     }
 
-    private fun getPriorityFromAccuracy(accuracy: GeneratedAndroidLocation.LocationAccuracy): Int {
+    private fun getPriorityFromAccuracy(accuracy: GeneratedAndroidLocation.PigeonLocationAccuracy): Int {
         return when (accuracy) {
-            GeneratedAndroidLocation.LocationAccuracy.powerSave -> LocationRequest.PRIORITY_NO_POWER
-            GeneratedAndroidLocation.LocationAccuracy.low -> LocationRequest.PRIORITY_LOW_POWER
-            GeneratedAndroidLocation.LocationAccuracy.balanced -> LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-            GeneratedAndroidLocation.LocationAccuracy.high -> LocationRequest.PRIORITY_HIGH_ACCURACY
-            GeneratedAndroidLocation.LocationAccuracy.navigation -> LocationRequest.PRIORITY_HIGH_ACCURACY
+            GeneratedAndroidLocation.PigeonLocationAccuracy.powerSave -> LocationRequest.PRIORITY_NO_POWER
+            GeneratedAndroidLocation.PigeonLocationAccuracy.low -> LocationRequest.PRIORITY_LOW_POWER
+            GeneratedAndroidLocation.PigeonLocationAccuracy.balanced -> LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+            GeneratedAndroidLocation.PigeonLocationAccuracy.high -> LocationRequest.PRIORITY_HIGH_ACCURACY
+            GeneratedAndroidLocation.PigeonLocationAccuracy.navigation -> LocationRequest.PRIORITY_HIGH_ACCURACY
         }
     }
 
 
-    private fun getLocationConfigurationFromSettings(settings: GeneratedAndroidLocation.LocationSettings): LocationConfiguration.Builder {
+    private fun getLocationConfigurationFromSettings(settings: GeneratedAndroidLocation.PigeonLocationSettings): LocationConfiguration.Builder {
         val locationConfiguration = LocationConfiguration.Builder()
 
         if (settings.askForPermission) {
@@ -339,7 +339,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         return locationConfiguration
     }
 
-    override fun setLocationSettings(settings: GeneratedAndroidLocation.LocationSettings): Boolean {
+    override fun setLocationSettings(settings: GeneratedAndroidLocation.PigeonLocationSettings): Boolean {
         val locationConfiguration = getLocationConfigurationFromSettings(settings)
 
         if (settings.askForPermission) {

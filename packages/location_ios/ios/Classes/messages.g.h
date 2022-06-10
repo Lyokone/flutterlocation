@@ -8,25 +8,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSUInteger, LocationAccuracy) {
-  LocationAccuracyPowerSave = 0,
-  LocationAccuracyLow = 1,
-  LocationAccuracyBalanced = 2,
-  LocationAccuracyHigh = 3,
-  LocationAccuracyNavigation = 4,
+typedef NS_ENUM(NSUInteger, PigeonLocationAccuracy) {
+  PigeonLocationAccuracyPowerSave = 0,
+  PigeonLocationAccuracyLow = 1,
+  PigeonLocationAccuracyBalanced = 2,
+  PigeonLocationAccuracyHigh = 3,
+  PigeonLocationAccuracyNavigation = 4,
 };
 
-typedef NS_ENUM(NSUInteger, PermissionStatus) {
-  PermissionStatusGranted = 0,
-  PermissionStatusGrantedLimited = 1,
-  PermissionStatusDenied = 2,
-  PermissionStatusDeniedForever = 3,
-};
+@class PigeonLocationData;
+@class PigeonLocationSettings;
 
-@class LocationData;
-@class LocationSettings;
-
-@interface LocationData : NSObject
+@interface PigeonLocationData : NSObject
 + (instancetype)makeWithLatitude:(nullable NSNumber *)latitude
     longitude:(nullable NSNumber *)longitude
     accuracy:(nullable NSNumber *)accuracy
@@ -58,7 +51,7 @@ typedef NS_ENUM(NSUInteger, PermissionStatus) {
 - (NSDictionary *)toMap;
 @end
 
-@interface LocationSettings : NSObject
+@interface PigeonLocationSettings : NSObject
 /// `init` unavailable to enforce nonnull fields, see the `make` class method.
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)makeWithAskForPermission:(NSNumber *)askForPermission
@@ -75,7 +68,7 @@ typedef NS_ENUM(NSUInteger, PermissionStatus) {
     interval:(NSNumber *)interval
     maxWaitTime:(nullable NSNumber *)maxWaitTime
     numUpdates:(nullable NSNumber *)numUpdates
-    accuracy:(LocationAccuracy)accuracy
+    accuracy:(PigeonLocationAccuracy)accuracy
     smallestDisplacement:(NSNumber *)smallestDisplacement
     waitForAccurateLocation:(NSNumber *)waitForAccurateLocation
     acceptableAccuracy:(nullable NSNumber *)acceptableAccuracy;
@@ -93,7 +86,7 @@ typedef NS_ENUM(NSUInteger, PermissionStatus) {
 @property(nonatomic, strong) NSNumber * interval;
 @property(nonatomic, strong, nullable) NSNumber * maxWaitTime;
 @property(nonatomic, strong, nullable) NSNumber * numUpdates;
-@property(nonatomic, assign) LocationAccuracy accuracy;
+@property(nonatomic, assign) PigeonLocationAccuracy accuracy;
 @property(nonatomic, strong) NSNumber * smallestDisplacement;
 @property(nonatomic, strong) NSNumber * waitForAccurateLocation;
 @property(nonatomic, strong, nullable) NSNumber * acceptableAccuracy;
@@ -103,9 +96,9 @@ typedef NS_ENUM(NSUInteger, PermissionStatus) {
 NSObject<FlutterMessageCodec> *LocationHostApiGetCodec(void);
 
 @protocol LocationHostApi
-- (void)getLocationSettings:(nullable LocationSettings *)settings completion:(void(^)(LocationData *_Nullable, FlutterError *_Nullable))completion;
+- (void)getLocationSettings:(nullable PigeonLocationSettings *)settings completion:(void(^)(PigeonLocationData *_Nullable, FlutterError *_Nullable))completion;
 /// @return `nil` only when `error != nil`.
-- (nullable NSNumber *)setLocationSettingsSettings:(LocationSettings *)settings error:(FlutterError *_Nullable *_Nonnull)error;
+- (nullable NSNumber *)setLocationSettingsSettings:(PigeonLocationSettings *)settings error:(FlutterError *_Nullable *_Nonnull)error;
 /// @return `nil` only when `error != nil`.
 - (nullable NSNumber *)getPermissionStatusWithError:(FlutterError *_Nullable *_Nonnull)error;
 - (void)requestPermissionWithCompletion:(void(^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;

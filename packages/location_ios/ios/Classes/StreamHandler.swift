@@ -11,7 +11,7 @@ import CoreLocation
 
 class StreamHandler: NSObject, FlutterStreamHandler {
     var locationRequest: GPSLocationRequest?
-    var locationSettings: LocationSettings?
+    var locationSettings: PigeonLocationSettings?
     var events: FlutterEventSink?
     
     public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
@@ -39,7 +39,7 @@ class StreamHandler: NSObject, FlutterStreamHandler {
         return nil
     }
     
-    public func setLocationSettings(_ settings: LocationSettings) {
+    public func setPigeonLocationSettings(_ settings: PigeonLocationSettings) {
         self.locationSettings = settings
         locationRequest?.cancelRequest()
         startListening()

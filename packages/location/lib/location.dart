@@ -1,7 +1,6 @@
 import 'package:location_platform_interface/location_platform_interface.dart';
-import 'package:location_platform_interface/messages.pigeon.dart';
 
-export 'package:location_platform_interface/messages.pigeon.dart'
+export 'package:location_platform_interface/location_platform_interface.dart'
     show LocationData, LocationAccuracy, LocationSettings, PermissionStatus;
 
 LocationPlatform get _platform => LocationPlatform.instance;

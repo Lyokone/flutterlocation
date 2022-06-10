@@ -2,14 +2,19 @@ import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
   PigeonOptions(
-    dartOut: 'lib/messages.pigeon.dart',
+    dartOut: 'lib/src/messages.pigeon.dart',
     dartTestOut: 'test/test.pigeon.dart',
+    javaOut:
+        '../location_android/android/src/main/java/com/lyokone/location/GeneratedAndroidLocation.java',
+    javaOptions: JavaOptions(
+      package: 'com.lyokone.location',
+      className: 'GeneratedAndroidLocation',
+    ),
+    objcHeaderOut: '../location_ios/ios/Classes/messages.g.h',
+    objcSourceOut: '../location_ios/ios/Classes/messages.g.m',
   ),
 )
-
-/// Test
-class LocationData {
-  /// Latitude of the location.
+class PigeonLocationData {
   double? latitude;
   double? longitude;
   double? accuracy;
@@ -26,42 +31,10 @@ class LocationData {
   bool? isMock;
 }
 
-enum LocationAccuracy {
-  /// To request best accuracy possible with zero additional power consumption,
-  powerSave,
+enum PigeonLocationAccuracy { powerSave, low, balanced, high, navigation }
 
-  /// To request "city" level accuracy
-  low,
-
-  ///  To request "block" level accuracy
-  balanced,
-
-  /// To request the most accurate locations available
-  high,
-
-  /// To request location for navigation usage (affect only iOS)
-  navigation
-}
-
-/// Status of a permission request to use location services.
-enum PermissionStatus {
-  /// The permission to use location services has been granted for high accuracy.
-  granted,
-
-  /// The permission has been granted but for low accuracy. Only valid on iOS 14+.
-  grantedLimited,
-
-  /// The permission to use location services has been denied by the user. May
-  /// have been denied forever on iOS.
-  denied,
-
-  /// The permission to use location services has been denied forever by the
-  /// user. No dialog will be displayed on permission request.
-  deniedForever
-}
-
-class LocationSettings {
-  LocationSettings({
+class PigeonLocationSettings {
+  PigeonLocationSettings({
     this.askForPermission = true,
     this.rationaleMessageForPermissionRequest =
         'The app needs to access your location',
@@ -79,7 +52,7 @@ class LocationSettings {
     this.maxWaitTime,
     this.numUpdates,
     this.acceptableAccuracy,
-    this.accuracy = LocationAccuracy.high,
+    this.accuracy = PigeonLocationAccuracy.high,
     this.smallestDisplacement = 0,
     this.waitForAccurateLocation = true,
   });
@@ -98,7 +71,7 @@ class LocationSettings {
   double interval;
   double? maxWaitTime;
   int? numUpdates;
-  LocationAccuracy accuracy;
+  PigeonLocationAccuracy accuracy;
   double smallestDisplacement;
   bool waitForAccurateLocation;
   double? acceptableAccuracy;
@@ -107,9 +80,9 @@ class LocationSettings {
 @HostApi()
 abstract class LocationHostApi {
   @async
-  LocationData getLocation(LocationSettings? settings);
+  PigeonLocationData getLocation(PigeonLocationSettings? settings);
 
-  bool setLocationSettings(LocationSettings settings);
+  bool setLocationSettings(PigeonLocationSettings settings);
 
   int getPermissionStatus();
 
