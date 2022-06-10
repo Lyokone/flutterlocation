@@ -1,7 +1,6 @@
 name: location
 description: Get the location of your user
-version: 0.1.0+1
-publish_to: none
+version: 5.0.0-dev.0
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
@@ -26,18 +25,15 @@ flutter:
 dependencies:
   flutter:
     sdk: flutter
-  location_android:
-    path: ../location_android
-  location_ios:
-    path: ../location_ios
+  location_android: 5.0.0-dev.0
+  location_ios: 5.0.0-dev.0
   # location_linux:
   #   path: ../location_linux
   # location_macos:
   #   path: ../location_macos
   # location_platform_interface:
   #   path: ../location_platform_interface
-  location_web:
-    path: ../location_web
+  location_web: 5.0.0-dev.0
   # location_windows:
   #   path: ../location_windows
 

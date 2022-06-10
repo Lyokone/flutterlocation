@@ -1,6 +1,6 @@
 name: location_windows
 description: Windows implementation of the location plugin
-version: 0.1.0+1
+version: 5.0.0-dev.0
 publish_to: none
 
 environment:

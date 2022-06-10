@@ -3,7 +3,13 @@
   "twitter": "BeGuillaume",
   "theme": "#FFA03F",
   "sidebar": [
-    ["Overview", "/"],
+    [
+      "Overview",
+      [
+        ["Features", "/"],
+        ["Installation", "/#installation"]
+      ]
+    ],
     ["Get Location", "/get-location"]
   ]
 }
