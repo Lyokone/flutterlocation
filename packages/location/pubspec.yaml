@@ -1,5 +1,5 @@
 name: location
-description: Get the location of your user
+description: This librarie aims at providing you a simple way to get the user location without thinking about permission.
 homepage: https://docs.page/Lyokone/flutterlocation
 repository: https://github.com/Lyokone/flutterlocation
 version: 5.0.0-dev.3
