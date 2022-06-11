@@ -15,7 +15,7 @@
   <a href="https://location.bernos.dev">Web Demo</a>
 </p>
 
-### About
+### About Flutter Location
 
 This librarie aims at providing you a simple way to get the user location without thinking about permission.
 It's also heavily configurable so you can easily get **better performance** or **better battery**.
