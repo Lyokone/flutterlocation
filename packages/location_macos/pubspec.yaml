@@ -1,9 +1,8 @@
 name: location_macos
 description: MacOS implementation of the location plugin
-homepage: https://docs.page/Lyokone/flutterlocation~version-5
+homepage: https://docs.page/Lyokone/flutterlocation
 repository: https://github.com/Lyokone/flutterlocation
-version: 5.0.0-dev.0
-publish_to: none
+version: 5.0.0-dev.1
 
 environment:
   sdk: ">=2.17.0 <3.0.0"

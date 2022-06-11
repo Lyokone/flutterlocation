@@ -1,3 +1,7 @@
+## 5.0.0-dev.2
+
+ - **FEAT**: ready version macos.
+
 ## 5.0.0-dev.1
 
  - **FEAT**: unify into one pigeon file.

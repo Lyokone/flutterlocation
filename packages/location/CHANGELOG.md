@@ -1,3 +1,8 @@
+## 5.0.0-dev.2
+
+ - **FEAT**: ready version macos.
+ - **FEAT**: update readme.
+
 ## 5.0.0-dev.1
 
  - **REFACTOR**: remove Android strings.
