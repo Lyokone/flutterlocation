@@ -1,0 +1,27 @@
+name: location_linux
+description: Linux implementation of the location plugin
+homepage: https://docs.page/Lyokone/flutterlocation
+repository: https://github.com/Lyokone/flutterlocation
+version: 5.0.0-dev.0
+publish_to: none
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+  flutter: ">=3.0.0"
+
+flutter:
+  plugin:
+    implements: location
+    platforms:
+      linux:
+        pluginClass: LocationPlugin
+        dartPluginClass: LocationLinux
+
+dependencies:
+  flutter:
+    sdk: flutter
+  location_platform_interface: ^5.0.0-dev.2
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: ^3.0.0

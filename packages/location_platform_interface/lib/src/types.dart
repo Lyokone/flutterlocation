@@ -1,45 +1,51 @@
-// File created by
-// Lung Razvan <long1eu>
-// on 23/03/2020
+// ignore_for_file: lines_longer_than_80_chars
 
 part of location_platform_interface;
 
-/// The response object of [Location.getLocation] and [Location.onLocationChanged]
-class LocationData {
-  LocationData._(
-      this.latitude,
-      this.longitude,
-      this.accuracy,
-      this.altitude,
-      this.speed,
-      this.speedAccuracy,
-      this.heading,
-      this.time,
-      this.isMock,
-      this.verticalAccuracy,
-      this.headingAccuracy,
-      this.elapsedRealtimeNanos,
-      this.elapsedRealtimeUncertaintyNanos,
-      this.satelliteNumber,
-      this.provider);
+// Those types are often a direct reflect of the Pigeon implementation
+// but since Pigeon does not support comments
+// there is a passthrough to the user facing types.
 
-  factory LocationData.fromMap(Map<String, dynamic> dataMap) {
-    return LocationData._(
-      dataMap['latitude'],
-      dataMap['longitude'],
-      dataMap['accuracy'],
-      dataMap['altitude'],
-      dataMap['speed'],
-      dataMap['speed_accuracy'],
-      dataMap['heading'],
-      dataMap['time'],
-      dataMap['isMock'] == 1,
-      dataMap['verticalAccuracy'],
-      dataMap['headingAccuracy'],
-      dataMap['elapsedRealtimeNanos'],
-      dataMap['elapsedRealtimeUncertaintyNanos'],
-      dataMap['satelliteNumber'],
-      dataMap['provider'],
+/// {@template location_data}
+/// The response object of [LocationPlatform.getLocation] and [LocationPlatform.onLocationChanged].
+/// {@endtemplate}
+class LocationData {
+  /// {@macro location_data}
+  LocationData({
+    this.latitude,
+    this.longitude,
+    this.accuracy,
+    this.altitude,
+    this.bearing,
+    this.bearingAccuracyDegrees,
+    this.elaspedRealTimeNanos,
+    this.elaspedRealTimeUncertaintyNanos,
+    this.satellites,
+    this.speed,
+    this.speedAccuracy,
+    this.time,
+    this.verticalAccuracy,
+    this.isMock,
+  });
+
+  /// Constructor from a Pigeon LocationData.
+  factory LocationData.fromPigeon(PigeonLocationData pigeonData) {
+    return LocationData(
+      latitude: pigeonData.latitude,
+      longitude: pigeonData.longitude,
+      accuracy: pigeonData.accuracy,
+      altitude: pigeonData.altitude,
+      bearing: pigeonData.bearing,
+      bearingAccuracyDegrees: pigeonData.bearingAccuracyDegrees,
+      elaspedRealTimeNanos: pigeonData.elaspedRealTimeNanos,
+      elaspedRealTimeUncertaintyNanos:
+          pigeonData.elaspedRealTimeUncertaintyNanos,
+      satellites: pigeonData.satellites,
+      speed: pigeonData.speed,
+      speedAccuracy: pigeonData.speedAccuracy,
+      time: pigeonData.time,
+      verticalAccuracy: pigeonData.verticalAccuracy,
+      isMock: pigeonData.isMock,
     );
   }
 
@@ -72,10 +78,15 @@ class LocationData {
   /// Always 0 on Web
   final double? speedAccuracy;
 
-  /// Heading is the horizontal direction of travel of this device, in degrees
+  /// Bearing is the horizontal direction of travel of this device, in degrees
   ///
   /// Always 0 on Web
-  final double? heading;
+  final double? bearing;
+
+  /// Get the estimated bearing accuracy of this location, in degrees.
+  /// Only available on Android
+  /// https://developer.android.com/reference/android/location/Location#getBearingAccuracyDegrees()
+  final double? bearingAccuracyDegrees;
 
   /// timestamp of the LocationData
   final double? time;
@@ -85,61 +96,20 @@ class LocationData {
   /// Always false on iOS
   final bool? isMock;
 
-  /// Get the estimated bearing accuracy of this location, in degrees.
-  /// Only available on Android
-  /// https://developer.android.com/reference/android/location/Location#getBearingAccuracyDegrees()
-  final double? headingAccuracy;
-
   /// Return the time of this fix, in elapsed real-time since system boot.
   /// Only available on Android
   /// https://developer.android.com/reference/android/location/Location#getElapsedRealtimeNanos()
-  final double? elapsedRealtimeNanos;
+  final double? elaspedRealTimeNanos;
 
   /// Get estimate of the relative precision of the alignment of the ElapsedRealtimeNanos timestamp.
   /// Only available on Android
   /// https://developer.android.com/reference/android/location/Location#getElapsedRealtimeUncertaintyNanos()
-  final double? elapsedRealtimeUncertaintyNanos;
+  final double? elaspedRealTimeUncertaintyNanos;
 
   /// The number of satellites used to derive the fix.
   /// Only available on Android
   /// https://developer.android.com/reference/android/location/Location#getExtras()
-  final int? satelliteNumber;
-
-  /// The name of the provider that generated this fix.
-  /// Only available on Android
-  /// https://developer.android.com/reference/android/location/Location#getProvider()
-  final String? provider;
-
-  @override
-  String toString() =>
-      'LocationData<lat: $latitude, long: $longitude${isMock == true ? ', mocked' : ''}>';
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is LocationData &&
-          runtimeType == other.runtimeType &&
-          latitude == other.latitude &&
-          longitude == other.longitude &&
-          accuracy == other.accuracy &&
-          altitude == other.altitude &&
-          speed == other.speed &&
-          speedAccuracy == other.speedAccuracy &&
-          heading == other.heading &&
-          time == other.time &&
-          isMock == other.isMock;
-
-  @override
-  int get hashCode =>
-      latitude.hashCode ^
-      longitude.hashCode ^
-      accuracy.hashCode ^
-      altitude.hashCode ^
-      speed.hashCode ^
-      speedAccuracy.hashCode ^
-      heading.hashCode ^
-      time.hashCode ^
-      isMock.hashCode;
+  final int? satellites;
 }
 
 /// Precision of the Location. A lower precision will provide a greater battery
@@ -148,29 +118,42 @@ class LocationData {
 /// https://developers.google.com/android/reference/com/google/android/gms/location/LocationRequest
 /// https://developer.apple.com/documentation/corelocation/cllocationaccuracy?language=objc
 enum LocationAccuracy {
-  /// To request best accuracy possible with zero additional power consumption
+  /// To request best accuracy possible with zero additional power consumption,
   powerSave,
 
   /// To request "city" level accuracy
   low,
 
-  /// To request "block" level accuracy
+  ///  To request "block" level accuracy
   balanced,
 
   /// To request the most accurate locations available
   high,
 
   /// To request location for navigation usage (affect only iOS)
-  navigation,
-
-  /// On iOS 14.0+, this is mapped to kCLLocationAccuracyReduced.
-  /// See https://developer.apple.com/documentation/corelocation/kcllocationaccuracyreduced
-  ///
-  /// On iOS < 14.0 and Android, this is equivalent to LocationAccuracy.low.
-  reduced,
+  navigation
 }
 
-// Status of a permission request to use location services.
+/// Extended to [LocationAccuracy].
+extension LocationAccuracyExtension on LocationAccuracy {
+  /// Convert the LocationAccuracy to the Pigeon equivalent.
+  PigeonLocationAccuracy toPigeon() {
+    switch (this) {
+      case LocationAccuracy.powerSave:
+        return PigeonLocationAccuracy.powerSave;
+      case LocationAccuracy.low:
+        return PigeonLocationAccuracy.low;
+      case LocationAccuracy.balanced:
+        return PigeonLocationAccuracy.balanced;
+      case LocationAccuracy.high:
+        return PigeonLocationAccuracy.high;
+      case LocationAccuracy.navigation:
+        return PigeonLocationAccuracy.navigation;
+    }
+  }
+}
+
+/// Status of a permission request to use location services.
 enum PermissionStatus {
   /// The permission to use location services has been granted for high accuracy.
   granted,
@@ -187,38 +170,131 @@ enum PermissionStatus {
   deniedForever
 }
 
-/// The response object of [Location.changeNotificationOptions].
-///
-/// Contains native information about the notification shown on Android, when
-/// running in background mode.
-class AndroidNotificationData {
-  const AndroidNotificationData._(this.channelId, this.notificationId);
+/// {@template location_settings}
+/// [LocationSettings] is used to change the settings of the next location
+/// request.
+/// {@endtemplate}
+class LocationSettings {
+  /// {@macro location_settings}
+  LocationSettings({
+    this.askForPermission = true,
+    this.rationaleMessageForPermissionRequest =
+        'The app needs to access your location',
+    this.rationaleMessageForGPSRequest =
+        'The app needs to access your location',
+    this.useGooglePlayServices = true,
+    this.askForGooglePlayServices = false,
+    this.askForGPS = true,
+    this.fallbackToGPS = true,
+    this.ignoreLastKnownPosition = false,
+    this.expirationDuration,
+    this.expirationTime,
+    this.fastestInterval = 500,
+    this.interval = 1000,
+    this.maxWaitTime,
+    this.numUpdates,
+    this.acceptableAccuracy,
+    this.accuracy = LocationAccuracy.high,
+    this.smallestDisplacement = 0,
+    this.waitForAccurateLocation = true,
+  });
 
-  factory AndroidNotificationData.fromMap(Map<dynamic, dynamic> data) {
-    return AndroidNotificationData._(
-      data['channelId'],
-      data['notificationId'],
+  /// If set to true, the user will be prompted to grant permission to use location
+  /// if not already granted.
+  bool askForPermission;
+
+  /// The message to display to the user when asking for permission to use location.
+  /// Only valid on Android.
+  /// For iOS, you have to change the permission in the Info.plist file.
+  String rationaleMessageForPermissionRequest;
+
+  /// The message to display to the user when asking for permission to use GPS.
+  /// Only valid on Android.
+  String rationaleMessageForGPSRequest;
+
+  /// If set to true, the app will use Google Play Services to request location.
+  /// If not available on the device, the app will fallback to GPS.
+  /// Only valid on Android.
+  bool useGooglePlayServices;
+
+  /// If set to true, the app will request Google Play Services to request location.
+  /// If not available on the device, the app will fallback to GPS.
+  bool askForGooglePlayServices;
+
+  /// If set to true, the app will request GPS to request location.
+  /// Only valid on Android.
+  bool askForGPS;
+
+  /// If set to true, the app will fallback to GPS if Google Play Services is not
+  /// available on the device.
+  /// Only valid on Android.
+  bool fallbackToGPS;
+
+  /// If set to true, the app will ignore the last known position
+  /// and request a fresh one
+  bool ignoreLastKnownPosition;
+
+  /// The duration of the location request.
+  /// Only valid on Android.
+  double? expirationDuration;
+
+  /// The expiration time of the location request.
+  /// Only valid on Android.
+  double? expirationTime;
+
+  /// The fastest interval between location updates.
+  /// In milliseconds.
+  /// Only valid on Android.
+  double fastestInterval;
+
+  /// The interval between location updates.
+  /// In milliseconds.
+  double interval;
+
+  /// The maximum amount of time the app will wait for a location.
+  /// In milliseconds.
+  double? maxWaitTime;
+
+  /// The number of location updates to request.
+  /// Only valid on Android.
+  int? numUpdates;
+
+  /// The accuracy of the location request.
+  LocationAccuracy accuracy;
+
+  /// The smallest displacement between location updates.
+  double smallestDisplacement;
+
+  /// If set to true, the app will wait for an accurate location.
+  /// Only valid on Android.
+  bool waitForAccurateLocation;
+
+  /// The accptable accuracy of the location request.
+  /// Only valid on Android.
+  double? acceptableAccuracy;
+
+  /// Converts to the Pigeon equivalent.
+  PigeonLocationSettings toPigeon() {
+    return PigeonLocationSettings(
+      askForPermission: askForPermission,
+      rationaleMessageForPermissionRequest:
+          rationaleMessageForPermissionRequest,
+      rationaleMessageForGPSRequest: rationaleMessageForGPSRequest,
+      useGooglePlayServices: useGooglePlayServices,
+      askForGooglePlayServices: askForGooglePlayServices,
+      askForGPS: askForGPS,
+      fallbackToGPS: fallbackToGPS,
+      ignoreLastKnownPosition: ignoreLastKnownPosition,
+      expirationDuration: expirationDuration,
+      expirationTime: expirationTime,
+      fastestInterval: fastestInterval,
+      interval: interval,
+      maxWaitTime: maxWaitTime,
+      numUpdates: numUpdates,
+      accuracy: accuracy.toPigeon(),
+      smallestDisplacement: smallestDisplacement,
+      waitForAccurateLocation: waitForAccurateLocation,
+      acceptableAccuracy: acceptableAccuracy,
     );
   }
-
-  /// The id of the used Android notification channel.
-  final String channelId;
-
-  /// The id of the shown Android notification.
-  final int notificationId;
-
-  @override
-  String toString() =>
-      'AndroidNotificationData<channelId: $channelId, notificationId: $notificationId>';
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AndroidNotificationData &&
-          runtimeType == other.runtimeType &&
-          channelId == other.channelId &&
-          notificationId == other.notificationId;
-
-  @override
-  int get hashCode => channelId.hashCode ^ notificationId.hashCode;
 }

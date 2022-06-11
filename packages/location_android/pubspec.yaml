@@ -1,0 +1,29 @@
+name: location_android
+description: Android implementation of the location plugin
+homepage: https://docs.page/Lyokone/flutterlocation
+repository: https://github.com/Lyokone/flutterlocation
+version: 5.0.0-dev.2
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+  flutter: ">=3.0.0"
+
+flutter:
+  plugin:
+    implements: location
+    platforms:
+      android:
+        package: com.lyokone.location
+        pluginClass: LocationPlugin
+        dartPluginClass: LocationAndroid
+
+dependencies:
+  flutter:
+    sdk: flutter
+  location_platform_interface: ^5.0.0-dev.2
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  pigeon: ^3.1.5
+  plugin_platform_interface: ^2.0.0
+  very_good_analysis: ^3.0.0

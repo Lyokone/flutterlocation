@@ -1,0 +1,44 @@
+---
+title: Permissions
+description: Manually handle permissions
+---
+
+# Permissions
+
+The package has been designed so you don't need to handle permissions manually.
+The first call to `getLocation` or `onLocationChanged` will automatically request the permissions.
+
+If you need to handle the permissions manually you can still use the `requestPermissions` method.
+
+## Get Permission Status
+
+```dart
+Future<PermissionStatus> getPermissionStatus()
+```
+
+If the status is `PermissionStatus.granted` you can use the `getLocation` method.
+
+If the status is `PermissionStatus.denied` you can use the `requestPermissions` method to get the permission.
+
+If the status is `PermissionStatus.deniedForever` your user will not be shown the permission popup the next time. The next location request will probably fail.
+You should request the user to manually change the settings of the app.
+
+## Request Permissions
+
+```dart
+Future<PermissionStatus> requestPermission()
+```
+
+A dialog will be shown to the user if the location has not been granted yet.
+If a reduced precision permission has been given, the user will be asked to grant the precise permission.
+
+## Examples
+
+### Getting permission status
+
+```dart
+final permission = await getPermissionStatus();
+if (permission == PermissionStatus.deniedForever) {
+    print("The user will not allow you to use the location");
+}
+```

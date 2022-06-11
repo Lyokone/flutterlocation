@@ -1,0 +1,61 @@
+{
+  "name": "Flutter Location",
+  "twitter": "BeGuillaume",
+  "theme": "#FFA03F",
+  "logo": "../assets/Logo.png",
+  "sidebar": [
+    ["Overview", "/"],
+    [
+      "Installation",
+      [
+        ["Getting started", "/getting-started"],
+        ["Android", "/installation/android"],
+        ["iOS", "/installation/ios"],
+        ["macOS", "/installation/macos"],
+        ["Web", "/installation/web"]
+      ]
+    ],
+    [
+      "Features",
+      [
+        ["Get Location", "/features/get-location"],
+        ["Listen to Location", "/features/listen-location"],
+        ["Settings", "/features/settings"],
+        ["Permissions", "/features/permissions"],
+        ["Services", "/features/services"],
+        ["Notification", "/features/notification"]
+      ]
+    ],
+    [
+      "API",
+      [
+        [
+          "LocationData",
+          "https://pub.dev/documentation/location_platform_interface/latest/location_platform_interface/LocationData-class.html"
+        ],
+        [
+          "LocationAccuracy",
+          "https://pub.dev/documentation/location_platform_interface/latest/location_platform_interface/LocationAccuracy-class.html"
+        ],
+
+        [
+          "LocationSettings",
+          "https://pub.dev/documentation/location_platform_interface/latest/location_platform_interface/LocationSettings-class.html"
+        ],
+        [
+          "PermissionStatus",
+          "https://pub.dev/documentation/location_platform_interface/latest/location_platform_interface/PermissionStatus-class.html"
+        ]
+      ]
+    ],
+    [
+      "Examples",
+      [
+        [
+          "Demo App",
+          "https://github.com/Lyokone/flutterlocation/tree/master/packages/location/example"
+        ]
+      ]
+    ]
+  ]
+}

@@ -3,15 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:location/location.dart';
 
 class GetLocationWidget extends StatefulWidget {
-  const GetLocationWidget({Key? key}) : super(key: key);
+  const GetLocationWidget({super.key});
 
   @override
-  _GetLocationState createState() => _GetLocationState();
+  State<GetLocationWidget> createState() => _GetLocationWidgetState();
 }
 
-class _GetLocationState extends State<GetLocationWidget> {
-  final Location location = Location();
-
+class _GetLocationWidgetState extends State<GetLocationWidget> {
   bool _loading = false;
 
   LocationData? _location;
@@ -23,7 +21,10 @@ class _GetLocationState extends State<GetLocationWidget> {
       _loading = true;
     });
     try {
-      final LocationData _locationResult = await location.getLocation();
+      final _locationResult = await getLocation(
+        settings: LocationSettings(ignoreLastKnownPosition: true),
+      );
+
       setState(() {
         _location = _locationResult;
         _loading = false;
@@ -38,26 +39,30 @@ class _GetLocationState extends State<GetLocationWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          'Location: ' + (_error ?? '${_location ?? "unknown"}'),
-          style: Theme.of(context).textTheme.bodyText1,
-        ),
-        Row(
-          children: <Widget>[
-            ElevatedButton(
-              child: _loading
-                  ? const CircularProgressIndicator(
-                      color: Colors.white,
-                    )
-                  : const Text('Get'),
-              onPressed: _getLocation,
-            )
-          ],
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            _error ??
+                'Location: ${_location?.latitude}, ${_location?.longitude}',
+            style: Theme.of(context).textTheme.bodyText1,
+          ),
+          Row(
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: _getLocation,
+                child: _loading
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      )
+                    : const Text('Get'),
+              )
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

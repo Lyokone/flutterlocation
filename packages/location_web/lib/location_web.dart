@@ -1,46 +1,47 @@
-import 'dart:html' as js;
-import 'dart:ui';
+import 'dart:html'
+    show Geolocation, Geoposition, Navigator, Permissions, window;
+import 'dart:ui' show Color;
 
-import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
 
-class LocationWebPlugin extends LocationPlatform {
-  LocationWebPlugin(js.Navigator navigator)
+/// The Web implementation of [LocationPlatform].
+class LocationWeb extends LocationPlatform {
+  /// The Web implementation of [LocationPlatform].
+  LocationWeb(Navigator navigator)
       : _geolocation = navigator.geolocation,
-        _permissions = navigator.permissions,
-        _accuracy = LocationAccuracy.high;
+        _permissions = navigator.permissions;
 
-  final js.Geolocation _geolocation;
-  final js.Permissions? _permissions;
-
-  LocationAccuracy? _accuracy;
-
-  static void registerWith(Registrar registrar) {
-    LocationPlatform.instance = LocationWebPlugin(js.window.navigator);
+  /// Registers this class as the default instance of [LocationPlatform]
+  static void registerWith([Object? registrar]) {
+    LocationPlatform.instance = LocationWeb(window.navigator);
   }
 
-  @override
-  Future<bool> changeSettings({
-    LocationAccuracy? accuracy,
-    int? interval,
-    double? distanceFilter,
-  }) async {
-    _accuracy = accuracy;
-    return true;
-  }
+  final Geolocation _geolocation;
+  final Permissions? _permissions;
+
+  LocationAccuracy _accuracy = LocationAccuracy.high;
 
   @override
-  Future<LocationData> getLocation() async {
-    final js.Geoposition result = await _geolocation.getCurrentPosition(
-      enableHighAccuracy: _accuracy!.index >= LocationAccuracy.high.index,
+  Future<LocationData?> getLocation({LocationSettings? settings}) async {
+    final result = await _geolocation.getCurrentPosition(
+      enableHighAccuracy: (settings?.accuracy.index ?? _accuracy.index) >=
+          LocationAccuracy.high.index,
     );
 
     return _toLocationData(result);
   }
 
   @override
-  Future<PermissionStatus> hasPermission() async {
-    final js.PermissionStatus result =
+  Stream<LocationData?> onLocationChanged({bool inBackground = false}) =>
+      _geolocation
+          .watchPosition(
+            enableHighAccuracy: _accuracy.index >= LocationAccuracy.high.index,
+          )
+          .map(_toLocationData);
+
+  @override
+  Future<PermissionStatus?> getPermissionStatus() async {
+    final result =
         await _permissions!.query(<String, String>{'name': 'geolocation'});
 
     switch (result.state) {
@@ -56,7 +57,17 @@ class LocationWebPlugin extends LocationPlatform {
   }
 
   @override
-  Future<PermissionStatus> requestPermission() async {
+  Future<bool?> isGPSEnabled() async {
+    return true;
+  }
+
+  @override
+  Future<bool?> isNetworkEnabled() async {
+    return true;
+  }
+
+  @override
+  Future<PermissionStatus?> requestPermission() async {
     try {
       await _geolocation.getCurrentPosition();
       return PermissionStatus.granted;
@@ -66,25 +77,26 @@ class LocationWebPlugin extends LocationPlatform {
   }
 
   @override
-  Future<bool> requestService() async {
+  Future<bool?> setLocationSettings(LocationSettings settings) async {
+    _accuracy = settings.accuracy;
     return true;
   }
 
-  @override
-  Future<bool> serviceEnabled() async {
-    return true;
+  LocationData _toLocationData(Geoposition result) {
+    return LocationData(
+      latitude: result.coords?.latitude?.toDouble(),
+      longitude: result.coords?.longitude?.toDouble(),
+      bearing: result.coords?.heading?.toDouble(),
+      altitude: result.coords?.altitude?.toDouble(),
+      speed: result.coords?.speed?.toDouble(),
+      accuracy: result.coords?.accuracy?.toDouble(),
+      verticalAccuracy: result.coords?.altitudeAccuracy?.toDouble(),
+      time: result.timestamp?.toDouble(),
+    );
   }
 
   @override
-  Stream<LocationData> get onLocationChanged {
-    return _geolocation
-        .watchPosition(
-            enableHighAccuracy: _accuracy!.index >= LocationAccuracy.high.index)
-        .map(_toLocationData);
-  }
-
-  @override
-  Future<AndroidNotificationData?> changeNotificationOptions({
+  Future<bool> updateBackgroundNotification({
     String? channelName,
     String? title,
     String? iconName,
@@ -93,21 +105,6 @@ class LocationWebPlugin extends LocationPlatform {
     Color? color,
     bool? onTapBringToFront,
   }) async {
-    // This method only applies to Android.
-    // Do nothing to prevent user from handling a potential UnimplementedError.
-    return null;
-  }
-
-  LocationData _toLocationData(js.Geoposition result) {
-    return LocationData.fromMap(<String, dynamic>{
-      'latitude': result.coords!.latitude!.toDouble(),
-      'longitude': result.coords!.longitude!.toDouble(),
-      'accuracy': 0,
-      'altitude': 0,
-      'speed': 0,
-      'speed_accuracy': 0,
-      'heading': 0,
-      'time': result.timestamp!.toDouble(),
-    });
+    return true;
   }
 }

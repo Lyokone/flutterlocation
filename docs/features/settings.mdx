@@ -1,0 +1,98 @@
+---
+title: Settings
+description: How to change your location settings
+---
+
+# Settings
+
+With Location, there is two ways to change your location settings.
+
+## Individual Requests
+
+You change settings for an individual getLocation request like described in the [`getLocation`](/features/get-location) section.
+
+## Global Settings
+
+```dart
+Future<void> setLocationSettings({
+  /// If set to true, the user will be prompted to grant permission to use location
+  /// if not already granted.
+  bool askForPermission = true,
+
+  /// The message to display to the user when asking for permission to use location.
+  /// Only valid on Android.
+  /// For iOS, you have to change the permission in the Info.plist file.
+  String rationaleMessageForPermissionRequest =
+      'The app needs to access your location',
+
+  /// The message to display to the user when asking for permission to use GPS.
+  /// Only valid on Android.
+  String rationaleMessageForGPSRequest =
+      'The app needs to access your location',
+
+  /// If set to true, the app will use Google Play Services to request location.
+  /// If not available on the device, the app will fallback to GPS.
+  /// Only valid on Android.
+  bool useGooglePlayServices = true,
+
+  /// If set to true, the app will request Google Play Services to request location.
+  /// If not available on the device, the app will fallback to GPS.
+  bool askForGooglePlayServices = false,
+
+  /// If set to true, the app will request GPS to request location.
+  /// Only valid on Android.
+  bool askForGPS = true,
+
+  /// If set to true, the app will fallback to GPS if Google Play Services is not
+  /// available on the device.
+  /// Only valid on Android.
+  bool fallbackToGPS = true,
+
+  /// If set to true, the app will ignore the last known position
+  /// and request a fresh one
+  bool ignoreLastKnownPosition = true,
+
+  /// The duration of the location request.
+  /// Only valid on Android.
+  double? expirationDuration,
+
+  /// The expiration time of the location request.
+  /// Only valid on Android.
+  double? expirationTime,
+
+  /// The fastest interval between location updates.
+  /// In milliseconds.
+  /// Only valid on Android.
+  double fastestInterval = 500,
+
+  /// The interval between location updates.
+  /// In milliseconds.
+  double interval = 1000,
+
+  /// The maximum amount of time the app will wait for a location.
+  /// In milliseconds.
+  double? maxWaitTime,
+
+  /// The number of location updates to request.
+  /// Only valid on Android.
+  int? numUpdates,
+
+  /// The accuracy of the location request.
+  LocationAccuracy accuracy = LocationAccuracy.high,
+
+  /// The smallest displacement between location updates.
+  double smallestDisplacement = 0,
+
+  /// If set to true, the app will wait for an accurate location.
+  /// Only valid on Android.
+  bool waitForAccurateLocation = true,
+
+  /// The accptable accuracy of the location request.
+  /// Only valid on Android.
+  double? acceptableAccuracy,
+})
+```
+
+When you call `setLocationSettings`, the current `onLocationChanged` will be updated with the new settings without being closed.
+
+The next `getLocation` call will also use the new settings.

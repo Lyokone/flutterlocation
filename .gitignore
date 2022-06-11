@@ -8,10 +8,8 @@
 .dart_tool/
 pubspec.lock
 flutter_export_environment.sh
+coverage/
 
-coverage
-
-Podfile
 Podfile.lock
 Pods/
 .symlinks/
@@ -35,11 +33,12 @@ gradle-wrapper.jar
 .flutter-plugins-dependencies
 *.iml
 
+generated_plugin_registrant.cc
+generated_plugin_registrant.h
 generated_plugin_registrant.dart
+GeneratedPluginRegistrant.java
 GeneratedPluginRegistrant.h
 GeneratedPluginRegistrant.m
-generated_plugin_registrant.cc
-GeneratedPluginRegistrant.java
 GeneratedPluginRegistrant.swift
 build/
 .flutter-plugins
@@ -47,6 +46,3 @@ build/
 .project
 .classpath
 .settings
-
-# Downloaded by the plugin tools.
-google-java-format-1.3-all-deps.jar

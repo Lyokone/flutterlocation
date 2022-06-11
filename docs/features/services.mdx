@@ -1,0 +1,24 @@
+---
+title: Services
+description: Check service status
+---
+
+# Services
+
+Services refers to the options available to you in order to get the location of your user.
+
+On **Android** you can have the status of the GPS and Network services.
+The Network service is often less precise.
+
+On **iOS** both the GPS and the Network service are available but cannot be requested individually. Either the Location Service is activated or not.
+
+```dart
+Future<bool> isGPSEnabled()
+```
+
+```dart
+Future<bool> isNetworkEnabled()
+```
+
+If the service are disabled, you can make a call to `getLocation` or `onLocationChanged`.
+The call will automatically try to activate the required location service depending on the precision request for the location.
