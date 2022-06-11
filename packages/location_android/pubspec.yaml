@@ -1,5 +1,7 @@
 name: location_android
 description: Android implementation of the location plugin
+homepage: https://docs.page/Lyokone/flutterlocation~version-5
+repository: https://github.com/Lyokone/flutterlocation
 version: 5.0.0-dev.0
 
 environment:
@@ -18,8 +20,7 @@ flutter:
 dependencies:
   flutter:
     sdk: flutter
-  location_platform_interface:
-    path: ../location_platform_interface
+  location_platform_interface: ^5.0.0-dev.0
 
 dev_dependencies:
   flutter_test:

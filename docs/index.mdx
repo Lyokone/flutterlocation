@@ -7,23 +7,14 @@ It's also heavily configurable so you can easily get **better performance** or *
 
 It currently supports Android, iOS, macOS and Web. Support for remaining platforms is incoming.
 
-## Installation
+## Features
 
-In order to install the plugin, just add the latest version from [pub.dev](https://pub.dev/packages/location) in your `pubspec.yaml`.
+- 👨‍💻️ Easy to use
+- 🛰 Handles requesting permission, enabling GPS automatically
+- 🔋 Highly configurable so you get the best performance / battery ratio for your usecase
+- 🔍 Supports both with and without Google Play Services for Android phones without them
+- ⭐️ [Flutter Favorite](https://docs.flutter.dev/development/packages-and-plugins/favorites)
 
-```yaml
-location: ^5.0.0
-```
+## How to start?
 
-### Android
-
-In order to display dialogs for asking the user to activate the GPS automatically and redirect to the Settings page,
-you need to change the default theme of your app to `Theme.AppCompat.Light.NoActionBar` in `android/app/src/main/res/values/styles.xml`
-
-```xml
-...
-    <style name="NormalTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowBackground">?android:colorBackground</item>
-    </style
-...
-```
+Follow [the guide on](/getting-stated) to get your user location!

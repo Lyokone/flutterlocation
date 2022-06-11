@@ -167,7 +167,7 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
         
         switch currentStatus {
         case .notDetermined:
-            return 2
+            return 1
         case .restricted:
             return 1
         case .denied:

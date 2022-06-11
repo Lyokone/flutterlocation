@@ -2,9 +2,9 @@
 
 part of location_platform_interface;
 
-/// Those types are often a direct reflect of the Pigeon implementation
-/// but since Pigeon does not support comments
-/// there is a passthrough to the user facing types.
+// Those types are often a direct reflect of the Pigeon implementation
+// but since Pigeon does not support comments
+// there is a passthrough to the user facing types.
 
 /// {@template location_data}
 /// The response object of [LocationPlatform.getLocation] and [LocationPlatform.onLocationChanged].

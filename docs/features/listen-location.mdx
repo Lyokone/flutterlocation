@@ -1,0 +1,37 @@
+---
+title: Listen to location
+description: How to listen to your user's location
+---
+
+# Listen to Location
+
+To listen to the location of the user, you can simply use
+
+```dart
+Stream<LocationData> get onLocationChanged
+```
+
+The stream will use the global settings for location tracking.
+You can set the settings with [`setLocationSettings`](/features/settings).
+
+If you change settings while listening to the location, the stream will be updated with the new settings (you can only have onn global settings active at the same time).
+
+Don't forget to **cancel the stream** when you don't need it anymore. Otherwise the location will keep being tracked.
+
+## Examples
+
+### Listening to location location
+
+```dart
+final location = await getLocation();
+print("Location: ${location.latitude}, ${location.longitude}");
+```
+
+### With custom settings
+
+```dart
+final location = await getLocation(
+    settings: LocationSettings(ignoreLastKnownPosition: true),
+);
+print("Location: ${location.latitude}, ${location.longitude}");
+```
