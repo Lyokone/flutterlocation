@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../../assets/Logo.png" alt="Flutter Location" /> <br /><br />
+  <img src="https://raw.githubusercontent.com/Lyokone/flutterlocation/master/assets/Logo.png" alt="Flutter Location" /> <br /><br />
   <span>A simple way to get the user location without thinking about permission.</span>
 </p>
 
