@@ -13,15 +13,6 @@ on:
       - "packages/**"
 
 jobs:
-  verify_commits:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Conventional PRs
-        uses: Namchee/conventional-pr@v0.10.1
-        with:
-          access_token: ${{ secrets.TOKEN_GITHUB }}
-          link_issue: false
-
   analyze:
     runs-on: ubuntu-latest
     steps:
