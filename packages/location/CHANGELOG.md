@@ -1,3 +1,7 @@
+## 5.0.0-dev.6
+
+ - **FEAT**: add the ability to use a mock instance.
+
 ## 5.0.0-dev.5
 
  - **DOCS**: update docs.
