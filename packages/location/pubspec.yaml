@@ -17,8 +17,8 @@ flutter:
         default_package: location_ios
       # linux:
       #   default_package: location_linux
-      # macos:
-      #   default_package: location_macos
+      macos:
+        default_package: location_macos
       web:
         default_package: location_web
       # windows:
@@ -31,8 +31,7 @@ dependencies:
   location_ios: ^5.0.0-dev.1
   # location_linux:
   #   path: ../location_linux
-  # location_macos:
-  #   path: ../location_macos
+  location_macos: ^5.0.0-dev.1
   location_platform_interface: ^5.0.0-dev.1
   location_web: ^5.0.0-dev.1
   # location_windows:

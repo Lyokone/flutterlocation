@@ -1,10 +1,8 @@
-import Flutter
-import UIKit
+import FlutterMacOS
 import SwiftLocation
 import CoreLocation
 
-@UIApplicationMain
-public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIApplicationDelegate {
+public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi {
     var globalPigeonLocationSettings: PigeonLocationSettings?
     var streamHandler: StreamHandler?
     
@@ -14,15 +12,12 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
         let eventChannel = FlutterEventChannel(name: "lyokone/location_stream", binaryMessenger: messenger)
         self.streamHandler = StreamHandler()
         eventChannel.setStreamHandler(self.streamHandler)
-        
-        registrar.addApplicationDelegate(self)
     }
     
     
     
     public func getLocationSettings(_ settings: PigeonLocationSettings?, completion: @escaping (PigeonLocationData?, FlutterError?) -> Void) {
         if !CLLocationManager.locationServicesEnabled() {
-            UIApplication.shared.open(URL(string:UIApplication.openSettingsURLString)!)
             return completion(nil, FlutterError(code: "LOCATION_SERVICE_DISABLED",
                                                 message: "The user have deactivated the location service, the settings page has been opened",
                                                 details: nil))
@@ -96,7 +91,7 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     public func getDefaultGPSLocationOptions() -> GPSLocationOptions {
         let defaultOption = GPSLocationOptions()
         defaultOption.minTimeInterval = 2
-        defaultOption.subscription = .single
+        defaultOption.accuracy = .any
         
         return defaultOption
     }
@@ -127,7 +122,6 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
         let options = GPSLocationOptions()
         
         let minTimeInterval = settings?.interval
-        let accuracy = settings?.accuracy
         let askForPermission = settings?.askForPermission
         let minDistance = settings?.smallestDisplacement
         
@@ -140,9 +134,9 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
         }
         
         
-        if (accuracy != nil) {
-            options.accuracy = mapAccuracy(accuracy!)
-        }
+        // Location is not really accurate on macOS so we take any option
+        options.accuracy = .house
+        
         
         if (askForPermission == false) {
             options.avoidRequestAuthorization = true
@@ -225,15 +219,11 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
     
     
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let messenger : FlutterBinaryMessenger = registrar.messenger()
+        let messenger : FlutterBinaryMessenger = registrar.messenger
         let api : LocationHostApi & NSObjectProtocol = SwiftLocationPlugin.init(messenger, registrar)
         
         
         LocationHostApiSetup(messenger, api);
     }
-    
-    @nonobjc public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable : Any] = [:]) -> Bool {
-        return true
-    }
-    
+        
 }
