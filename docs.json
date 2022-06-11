@@ -22,7 +22,8 @@
         ["Listen to Location", "/features/listen-location"],
         ["Settings", "/features/settings"],
         ["Permissions", "/features/permissions"],
-        ["Services", "/features/services"]
+        ["Services", "/features/services"],
+        ["Notification", "/features/notification"]
       ]
     ],
     [

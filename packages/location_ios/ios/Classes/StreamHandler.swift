@@ -27,6 +27,9 @@ class StreamHandler: NSObject, FlutterStreamHandler {
                                                 details: nil)
         }
         
+        let activated = arguments as! Bool? ?? false
+        SwiftLocation.allowsBackgroundLocationUpdates = activated
+
         self.events = events
         startListening()
         

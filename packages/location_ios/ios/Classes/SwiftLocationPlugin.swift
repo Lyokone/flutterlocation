@@ -5,6 +5,7 @@ import CoreLocation
 
 @UIApplicationMain
 public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIApplicationDelegate {
+    
     var globalPigeonLocationSettings: PigeonLocationSettings?
     var streamHandler: StreamHandler?
     
@@ -223,6 +224,16 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
         return NSNumber(false)
     }
     
+    // Not applicable to iOS
+    public func changeNotificationSettingsSettings(_ settings: PigeonNotificationSettings, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) -> NSNumber? {
+        return NSNumber(true)
+    }
+    
+    public func setBackgroundActivatedActivated(_ activated: NSNumber, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) -> NSNumber? {
+        SwiftLocation.allowsBackgroundLocationUpdates = activated.boolValue        
+        return NSNumber(true)
+    }
+    
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let messenger : FlutterBinaryMessenger = registrar.messenger()
@@ -231,6 +242,7 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
         
         LocationHostApiSetup(messenger, api);
     }
+    
     
     @nonobjc public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable : Any] = [:]) -> Bool {
         return true

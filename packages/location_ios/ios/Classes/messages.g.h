@@ -49,6 +49,7 @@ typedef NS_ENUM(NSUInteger, PigeonLocationAccuracy) {
 @property(nonatomic, strong, nullable) NSNumber * time;
 @property(nonatomic, strong, nullable) NSNumber * verticalAccuracy;
 @property(nonatomic, strong, nullable) NSNumber * isMock;
+- (NSDictionary *)toMap;
 @end
 
 @interface PigeonNotificationSettings : NSObject

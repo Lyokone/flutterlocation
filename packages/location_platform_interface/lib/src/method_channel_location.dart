@@ -80,7 +80,10 @@ class MethodChannelLocation extends LocationPlatform {
     String? description,
     Color? color,
     bool? onTapBringToFront,
-  }) {
+  }) async {
+    if (!Platform.isAndroid) {
+      return true;
+    }
     return _api.changeNotificationSettings(
       PigeonNotificationSettings(
         channelName: channelName,

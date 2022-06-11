@@ -162,7 +162,27 @@ Future<bool> isNetworkEnabled() async {
   return response;
 }
 
-/// Update notification
+/// Change options of sticky background notification on Android.
+///
+/// This method only applies to Android and allows for customizing the
+/// notification, which is shown when [inBackground] is set to true.
+///
+/// Uses [title] as the notification's content title and searches for a
+/// drawable resource with the given [iconName]. If no matching resource is
+/// found, no icon is shown. The content text will be set to [subtitle], while
+/// the sub text will be set to [description]. The notification [color] can
+/// also be customized.
+///
+/// When [onTapBringToFront] is set to true, tapping the notification will
+/// bring the activity back to the front.
+///
+/// Both [title] and [channelName] will be set to defaults, if no values are
+/// provided. All other null arguments will be ignored.
+///
+/// Returns true if the notification is currently has been properly updated
+///
+/// For Android SDK versions above 25, uses [channelName] for the
+/// [NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel).
 Future<bool> updateBackgroundNotification({
   String? channelName,
   String? title,

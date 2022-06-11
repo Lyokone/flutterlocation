@@ -30,3 +30,16 @@ you need to change the default theme of your app to `Theme.AppCompat.Light.NoAct
     </style>
 ...
 ```
+
+## Background location
+
+In order to receive background location, you need to add the following permissions to your manifest:
+
+```
+  ...
+
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+  <application android:label=...
+```

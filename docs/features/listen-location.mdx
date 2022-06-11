@@ -8,7 +8,7 @@ description: How to listen to your user's location
 To listen to the location of the user, you can simply use
 
 ```dart
-Stream<LocationData> get onLocationChanged
+Stream<LocationData> onLocationChanged({bool inBackground = false})
 ```
 
 The stream will use the global settings for location tracking.
@@ -18,20 +18,27 @@ If you change settings while listening to the location, the stream will be updat
 
 Don't forget to **cancel the stream** when you don't need it anymore. Otherwise the location will keep being tracked.
 
+If you set the boolean `inBackground` to true, you will have receive background location notifications. It works only if the app is not killed.
+On Android, listening to background location will trigger a notification that you can control with [`updateBackgroundNotification`](/features/notification).
+
 ## Examples
 
-### Listening to location location
+### Listening to location in the background
+
+The notification will only appear on Android
 
 ```dart
-final location = await getLocation();
-print("Location: ${location.latitude}, ${location.longitude}");
-```
-
-### With custom settings
-
-```dart
-final location = await getLocation(
-    settings: LocationSettings(ignoreLastKnownPosition: true),
+_locationSubscription = onLocationChanged(inBackground: _inBackground)
+    .listen((LocationData currentLocation) async {
+        await updateBackgroundNotification(
+            subtitle:
+                'Location: ${currentLocation.latitude}, ${currentLocation.longitude}',
+            onTapBringToFront: true,
+        );
+    }
 );
-print("Location: ${location.latitude}, ${location.longitude}");
+
+...
+
+_locationSubscription?.cancel();
 ```
