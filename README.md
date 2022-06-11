@@ -39,4 +39,4 @@ It currently supports Android, iOS, macOS and Web. Support for remaining platfor
 
 ## How to start?
 
-Go to the [documentation to start using Location](https://docs.page/Lyokone/getting-started)!
+Go to the [documentation to start using Location](https://docs.page/Lyokone/flutterlocation/getting-started)!
