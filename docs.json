@@ -2,7 +2,7 @@
   "name": "Flutter Location",
   "twitter": "BeGuillaume",
   "theme": "#FFA03F",
-  "logo": "assets/Logo.png",
+  "logo": "../assets/Logo.png",
   "sidebar": [
     ["Overview", "/"],
     [
