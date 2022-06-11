@@ -15,4 +15,4 @@ scripts:
       dir-exists: "test"
 
   format:
-    run: melos exec -- dart format .
+    run: melos exec -- dart format -o write .

@@ -16,8 +16,11 @@ class _ListenLocationWidgetState extends State<ListenLocationWidget> {
   StreamSubscription<LocationData>? _locationSubscription;
   String? _error;
 
+  bool _inBackground = false;
+
   Future<void> _listenLocation() async {
-    _locationSubscription = onLocationChanged.handleError((dynamic err) {
+    _locationSubscription = onLocationChanged(inBackground: _inBackground)
+        .handleError((dynamic err) {
       if (err is PlatformException) {
         setState(() {
           _error = err.code;
@@ -27,12 +30,17 @@ class _ListenLocationWidgetState extends State<ListenLocationWidget> {
       setState(() {
         _locationSubscription = null;
       });
-    }).listen((LocationData currentLocation) {
+    }).listen((LocationData currentLocation) async {
       setState(() {
         _error = null;
 
         _location = currentLocation;
       });
+      await updateBackgroundNotification(
+        subtitle:
+            'Location: ${currentLocation.latitude}, ${currentLocation.longitude}',
+        onTapBringToFront: true,
+      );
     });
     setState(() {});
   }
@@ -56,7 +64,7 @@ class _ListenLocationWidgetState extends State<ListenLocationWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -82,6 +90,15 @@ Listen location: ${_location?.latitude}, ${_location?.longitude}
                 child: const Text('Stop'),
               )
             ],
+          ),
+          SwitchListTile(
+            value: _inBackground,
+            title: const Text('Get location in background'),
+            onChanged: (value) {
+              setState(() {
+                _inBackground = value;
+              });
+            },
           ),
         ],
       ),

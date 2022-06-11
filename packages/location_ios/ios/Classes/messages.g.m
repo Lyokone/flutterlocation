@@ -36,6 +36,11 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 + (nullable PigeonLocationData *)nullableFromMap:(NSDictionary *)dict;
 - (NSDictionary *)toMap;
 @end
+@interface PigeonNotificationSettings ()
++ (PigeonNotificationSettings *)fromMap:(NSDictionary *)dict;
++ (nullable PigeonNotificationSettings *)nullableFromMap:(NSDictionary *)dict;
+- (NSDictionary *)toMap;
+@end
 @interface PigeonLocationSettings ()
 + (PigeonLocationSettings *)fromMap:(NSDictionary *)dict;
 + (nullable PigeonLocationSettings *)nullableFromMap:(NSDictionary *)dict;
@@ -109,6 +114,49 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
     @"time" : (self.time ?: [NSNull null]),
     @"verticalAccuracy" : (self.verticalAccuracy ?: [NSNull null]),
     @"isMock" : (self.isMock ?: [NSNull null]),
+  };
+}
+@end
+
+@implementation PigeonNotificationSettings
++ (instancetype)makeWithChannelName:(nullable NSString *)channelName
+    title:(nullable NSString *)title
+    iconName:(nullable NSString *)iconName
+    subtitle:(nullable NSString *)subtitle
+    description:(nullable NSString *)description
+    color:(nullable NSString *)color
+    onTapBringToFront:(nullable NSNumber *)onTapBringToFront {
+  PigeonNotificationSettings* pigeonResult = [[PigeonNotificationSettings alloc] init];
+  pigeonResult.channelName = channelName;
+  pigeonResult.title = title;
+  pigeonResult.iconName = iconName;
+  pigeonResult.subtitle = subtitle;
+  pigeonResult.description = description;
+  pigeonResult.color = color;
+  pigeonResult.onTapBringToFront = onTapBringToFront;
+  return pigeonResult;
+}
++ (PigeonNotificationSettings *)fromMap:(NSDictionary *)dict {
+  PigeonNotificationSettings *pigeonResult = [[PigeonNotificationSettings alloc] init];
+  pigeonResult.channelName = GetNullableObject(dict, @"channelName");
+  pigeonResult.title = GetNullableObject(dict, @"title");
+  pigeonResult.iconName = GetNullableObject(dict, @"iconName");
+  pigeonResult.subtitle = GetNullableObject(dict, @"subtitle");
+  pigeonResult.description = GetNullableObject(dict, @"description");
+  pigeonResult.color = GetNullableObject(dict, @"color");
+  pigeonResult.onTapBringToFront = GetNullableObject(dict, @"onTapBringToFront");
+  return pigeonResult;
+}
++ (nullable PigeonNotificationSettings *)nullableFromMap:(NSDictionary *)dict { return (dict) ? [PigeonNotificationSettings fromMap:dict] : nil; }
+- (NSDictionary *)toMap {
+  return @{
+    @"channelName" : (self.channelName ?: [NSNull null]),
+    @"title" : (self.title ?: [NSNull null]),
+    @"iconName" : (self.iconName ?: [NSNull null]),
+    @"subtitle" : (self.subtitle ?: [NSNull null]),
+    @"description" : (self.description ?: [NSNull null]),
+    @"color" : (self.color ?: [NSNull null]),
+    @"onTapBringToFront" : (self.onTapBringToFront ?: [NSNull null]),
   };
 }
 @end
@@ -227,6 +275,9 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
     case 130:     
       return [PigeonLocationSettings fromMap:[self readValue]];
     
+    case 131:     
+      return [PigeonNotificationSettings fromMap:[self readValue]];
+    
     default:    
       return [super readValueOfType:type];
     
@@ -249,6 +300,10 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
   } else 
   if ([value isKindOfClass:[PigeonLocationSettings class]]) {
     [self writeByte:130];
+    [self writeValue:[value toMap]];
+  } else 
+  if ([value isKindOfClass:[PigeonNotificationSettings class]]) {
+    [self writeByte:131];
     [self writeValue:[value toMap]];
   } else 
 {
@@ -385,6 +440,46 @@ void LocationHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<L
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         FlutterError *error;
         NSNumber *output = [api isNetworkEnabledWithError:&error];
+        callback(wrapResult(output, error));
+      }];
+    }
+    else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.LocationHostApi.changeNotificationSettings"
+        binaryMessenger:binaryMessenger
+        codec:LocationHostApiGetCodec()        ];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(changeNotificationSettingsSettings:error:)], @"LocationHostApi api (%@) doesn't respond to @selector(changeNotificationSettingsSettings:error:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray *args = message;
+        PigeonNotificationSettings *arg_settings = GetNullableObjectAtIndex(args, 0);
+        FlutterError *error;
+        NSNumber *output = [api changeNotificationSettingsSettings:arg_settings error:&error];
+        callback(wrapResult(output, error));
+      }];
+    }
+    else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.LocationHostApi.setBackgroundActivated"
+        binaryMessenger:binaryMessenger
+        codec:LocationHostApiGetCodec()        ];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(setBackgroundActivatedActivated:error:)], @"LocationHostApi api (%@) doesn't respond to @selector(setBackgroundActivatedActivated:error:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray *args = message;
+        NSNumber *arg_activated = GetNullableObjectAtIndex(args, 0);
+        FlutterError *error;
+        NSNumber *output = [api setBackgroundActivatedActivated:arg_activated error:&error];
         callback(wrapResult(output, error));
       }];
     }

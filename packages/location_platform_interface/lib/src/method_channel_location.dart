@@ -31,9 +31,13 @@ class MethodChannelLocation extends LocationPlatform {
   Stream<LocationData>? _onLocationChanged;
 
   @override
-  Stream<LocationData?> get onLocationChanged {
+  Stream<LocationData?> onLocationChanged({bool inBackground = false}) {
+    if (_onLocationChanged != null) {
+      _api.setBackgroundActivated(inBackground);
+    }
+
     return _onLocationChanged ??=
-        _eventChannel.receiveBroadcastStream().map<LocationData>(
+        _eventChannel.receiveBroadcastStream(inBackground).map<LocationData>(
               (dynamic event) => LocationData.fromPigeon(
                 PigeonLocationData.decode(event as Object),
               ),
@@ -65,5 +69,28 @@ class MethodChannelLocation extends LocationPlatform {
   @override
   Future<bool?> isNetworkEnabled() {
     return _api.isNetworkEnabled();
+  }
+
+  @override
+  Future<bool?> updateBackgroundNotification({
+    String? channelName,
+    String? title,
+    String? iconName,
+    String? subtitle,
+    String? description,
+    Color? color,
+    bool? onTapBringToFront,
+  }) {
+    return _api.changeNotificationSettings(
+      PigeonNotificationSettings(
+        channelName: channelName,
+        title: title,
+        iconName: iconName,
+        subtitle: subtitle,
+        description: description,
+        color: color != null ? '#${color.value.toRadixString(16)}' : null,
+        onTapBringToFront: onTapBringToFront,
+      ),
+    );
   }
 }

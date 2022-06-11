@@ -1,5 +1,6 @@
 import 'dart:html'
     show Geolocation, Geoposition, Navigator, Permissions, window;
+import 'dart:ui' show Color;
 
 import 'package:location_platform_interface/location_platform_interface.dart';
 
@@ -31,11 +32,12 @@ class LocationWeb extends LocationPlatform {
   }
 
   @override
-  Stream<LocationData?> get onLocationChanged => _geolocation
-      .watchPosition(
-        enableHighAccuracy: _accuracy.index >= LocationAccuracy.high.index,
-      )
-      .map(_toLocationData);
+  Stream<LocationData?> onLocationChanged({bool inBackground = false}) =>
+      _geolocation
+          .watchPosition(
+            enableHighAccuracy: _accuracy.index >= LocationAccuracy.high.index,
+          )
+          .map(_toLocationData);
 
   @override
   Future<PermissionStatus?> getPermissionStatus() async {
@@ -91,5 +93,18 @@ class LocationWeb extends LocationPlatform {
       verticalAccuracy: result.coords?.altitudeAccuracy?.toDouble(),
       time: result.timestamp?.toDouble(),
     );
+  }
+
+  @override
+  Future<bool> updateBackgroundNotification({
+    String? channelName,
+    String? title,
+    String? iconName,
+    String? subtitle,
+    String? description,
+    Color? color,
+    bool? onTapBringToFront,
+  }) async {
+    return true;
   }
 }

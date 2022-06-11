@@ -264,6 +264,129 @@ public class GeneratedAndroidLocation {
   }
 
   /** Generated class from Pigeon that represents data sent in messages. */
+  public static class PigeonNotificationSettings {
+    private @Nullable String channelName;
+    public @Nullable String getChannelName() { return channelName; }
+    public void setChannelName(@Nullable String setterArg) {
+      this.channelName = setterArg;
+    }
+
+    private @Nullable String title;
+    public @Nullable String getTitle() { return title; }
+    public void setTitle(@Nullable String setterArg) {
+      this.title = setterArg;
+    }
+
+    private @Nullable String iconName;
+    public @Nullable String getIconName() { return iconName; }
+    public void setIconName(@Nullable String setterArg) {
+      this.iconName = setterArg;
+    }
+
+    private @Nullable String subtitle;
+    public @Nullable String getSubtitle() { return subtitle; }
+    public void setSubtitle(@Nullable String setterArg) {
+      this.subtitle = setterArg;
+    }
+
+    private @Nullable String description;
+    public @Nullable String getDescription() { return description; }
+    public void setDescription(@Nullable String setterArg) {
+      this.description = setterArg;
+    }
+
+    private @Nullable String color;
+    public @Nullable String getColor() { return color; }
+    public void setColor(@Nullable String setterArg) {
+      this.color = setterArg;
+    }
+
+    private @Nullable Boolean onTapBringToFront;
+    public @Nullable Boolean getOnTapBringToFront() { return onTapBringToFront; }
+    public void setOnTapBringToFront(@Nullable Boolean setterArg) {
+      this.onTapBringToFront = setterArg;
+    }
+
+    public static final class Builder {
+      private @Nullable String channelName;
+      public @NonNull Builder setChannelName(@Nullable String setterArg) {
+        this.channelName = setterArg;
+        return this;
+      }
+      private @Nullable String title;
+      public @NonNull Builder setTitle(@Nullable String setterArg) {
+        this.title = setterArg;
+        return this;
+      }
+      private @Nullable String iconName;
+      public @NonNull Builder setIconName(@Nullable String setterArg) {
+        this.iconName = setterArg;
+        return this;
+      }
+      private @Nullable String subtitle;
+      public @NonNull Builder setSubtitle(@Nullable String setterArg) {
+        this.subtitle = setterArg;
+        return this;
+      }
+      private @Nullable String description;
+      public @NonNull Builder setDescription(@Nullable String setterArg) {
+        this.description = setterArg;
+        return this;
+      }
+      private @Nullable String color;
+      public @NonNull Builder setColor(@Nullable String setterArg) {
+        this.color = setterArg;
+        return this;
+      }
+      private @Nullable Boolean onTapBringToFront;
+      public @NonNull Builder setOnTapBringToFront(@Nullable Boolean setterArg) {
+        this.onTapBringToFront = setterArg;
+        return this;
+      }
+      public @NonNull PigeonNotificationSettings build() {
+        PigeonNotificationSettings pigeonReturn = new PigeonNotificationSettings();
+        pigeonReturn.setChannelName(channelName);
+        pigeonReturn.setTitle(title);
+        pigeonReturn.setIconName(iconName);
+        pigeonReturn.setSubtitle(subtitle);
+        pigeonReturn.setDescription(description);
+        pigeonReturn.setColor(color);
+        pigeonReturn.setOnTapBringToFront(onTapBringToFront);
+        return pigeonReturn;
+      }
+    }
+    @NonNull Map<String, Object> toMap() {
+      Map<String, Object> toMapResult = new HashMap<>();
+      toMapResult.put("channelName", channelName);
+      toMapResult.put("title", title);
+      toMapResult.put("iconName", iconName);
+      toMapResult.put("subtitle", subtitle);
+      toMapResult.put("description", description);
+      toMapResult.put("color", color);
+      toMapResult.put("onTapBringToFront", onTapBringToFront);
+      return toMapResult;
+    }
+    static @NonNull PigeonNotificationSettings fromMap(@NonNull Map<String, Object> map) {
+      PigeonNotificationSettings pigeonResult = new PigeonNotificationSettings();
+      Object channelName = map.get("channelName");
+      pigeonResult.setChannelName((String)channelName);
+      Object title = map.get("title");
+      pigeonResult.setTitle((String)title);
+      Object iconName = map.get("iconName");
+      pigeonResult.setIconName((String)iconName);
+      Object subtitle = map.get("subtitle");
+      pigeonResult.setSubtitle((String)subtitle);
+      Object description = map.get("description");
+      pigeonResult.setDescription((String)description);
+      Object color = map.get("color");
+      pigeonResult.setColor((String)color);
+      Object onTapBringToFront = map.get("onTapBringToFront");
+      pigeonResult.setOnTapBringToFront((Boolean)onTapBringToFront);
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
   public static class PigeonLocationSettings {
     private @NonNull Boolean askForPermission;
     public @NonNull Boolean getAskForPermission() { return askForPermission; }
@@ -611,6 +734,9 @@ public class GeneratedAndroidLocation {
         case (byte)130:         
           return PigeonLocationSettings.fromMap((Map<String, Object>) readValue(buffer));
         
+        case (byte)131:         
+          return PigeonNotificationSettings.fromMap((Map<String, Object>) readValue(buffer));
+        
         default:        
           return super.readValueOfType(type, buffer);
         
@@ -630,6 +756,10 @@ public class GeneratedAndroidLocation {
         stream.write(130);
         writeValue(stream, ((PigeonLocationSettings) value).toMap());
       } else 
+      if (value instanceof PigeonNotificationSettings) {
+        stream.write(131);
+        writeValue(stream, ((PigeonNotificationSettings) value).toMap());
+      } else 
 {
         super.writeValue(stream, value);
       }
@@ -644,6 +774,8 @@ public class GeneratedAndroidLocation {
     void requestPermission(Result<Long> result);
     @NonNull Boolean isGPSEnabled();
     @NonNull Boolean isNetworkEnabled();
+    @NonNull Boolean changeNotificationSettings(@NonNull PigeonNotificationSettings settings);
+    @NonNull Boolean setBackgroundActivated(@NonNull Boolean activated);
 
     /** The codec used by LocationHostApi. */
     static MessageCodec<Object> getCodec() {
@@ -782,6 +914,54 @@ public class GeneratedAndroidLocation {
             Map<String, Object> wrapped = new HashMap<>();
             try {
               Boolean output = api.isNetworkEnabled();
+              wrapped.put("result", output);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.LocationHostApi.changeNotificationSettings", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              PigeonNotificationSettings settingsArg = (PigeonNotificationSettings)args.get(0);
+              if (settingsArg == null) {
+                throw new NullPointerException("settingsArg unexpectedly null.");
+              }
+              Boolean output = api.changeNotificationSettings(settingsArg);
+              wrapped.put("result", output);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.LocationHostApi.setBackgroundActivated", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              Boolean activatedArg = (Boolean)args.get(0);
+              if (activatedArg == null) {
+                throw new NullPointerException("activatedArg unexpectedly null.");
+              }
+              Boolean output = api.setBackgroundActivated(activatedArg);
               wrapped.put("result", output);
             }
             catch (Error | RuntimeException exception) {

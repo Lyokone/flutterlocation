@@ -58,8 +58,7 @@ class PigeonLocationData {
     pigeonMap['bearing'] = bearing;
     pigeonMap['bearingAccuracyDegrees'] = bearingAccuracyDegrees;
     pigeonMap['elaspedRealTimeNanos'] = elaspedRealTimeNanos;
-    pigeonMap['elaspedRealTimeUncertaintyNanos'] =
-        elaspedRealTimeUncertaintyNanos;
+    pigeonMap['elaspedRealTimeUncertaintyNanos'] = elaspedRealTimeUncertaintyNanos;
     pigeonMap['satellites'] = satellites;
     pigeonMap['speed'] = speed;
     pigeonMap['speedAccuracy'] = speedAccuracy;
@@ -79,14 +78,58 @@ class PigeonLocationData {
       bearing: pigeonMap['bearing'] as double?,
       bearingAccuracyDegrees: pigeonMap['bearingAccuracyDegrees'] as double?,
       elaspedRealTimeNanos: pigeonMap['elaspedRealTimeNanos'] as double?,
-      elaspedRealTimeUncertaintyNanos:
-          pigeonMap['elaspedRealTimeUncertaintyNanos'] as double?,
+      elaspedRealTimeUncertaintyNanos: pigeonMap['elaspedRealTimeUncertaintyNanos'] as double?,
       satellites: pigeonMap['satellites'] as int?,
       speed: pigeonMap['speed'] as double?,
       speedAccuracy: pigeonMap['speedAccuracy'] as double?,
       time: pigeonMap['time'] as double?,
       verticalAccuracy: pigeonMap['verticalAccuracy'] as double?,
       isMock: pigeonMap['isMock'] as bool?,
+    );
+  }
+}
+
+class PigeonNotificationSettings {
+  PigeonNotificationSettings({
+    this.channelName,
+    this.title,
+    this.iconName,
+    this.subtitle,
+    this.description,
+    this.color,
+    this.onTapBringToFront,
+  });
+
+  String? channelName;
+  String? title;
+  String? iconName;
+  String? subtitle;
+  String? description;
+  String? color;
+  bool? onTapBringToFront;
+
+  Object encode() {
+    final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
+    pigeonMap['channelName'] = channelName;
+    pigeonMap['title'] = title;
+    pigeonMap['iconName'] = iconName;
+    pigeonMap['subtitle'] = subtitle;
+    pigeonMap['description'] = description;
+    pigeonMap['color'] = color;
+    pigeonMap['onTapBringToFront'] = onTapBringToFront;
+    return pigeonMap;
+  }
+
+  static PigeonNotificationSettings decode(Object message) {
+    final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
+    return PigeonNotificationSettings(
+      channelName: pigeonMap['channelName'] as String?,
+      title: pigeonMap['title'] as String?,
+      iconName: pigeonMap['iconName'] as String?,
+      subtitle: pigeonMap['subtitle'] as String?,
+      description: pigeonMap['description'] as String?,
+      color: pigeonMap['color'] as String?,
+      onTapBringToFront: pigeonMap['onTapBringToFront'] as bool?,
     );
   }
 }
@@ -135,8 +178,7 @@ class PigeonLocationSettings {
   Object encode() {
     final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
     pigeonMap['askForPermission'] = askForPermission;
-    pigeonMap['rationaleMessageForPermissionRequest'] =
-        rationaleMessageForPermissionRequest;
+    pigeonMap['rationaleMessageForPermissionRequest'] = rationaleMessageForPermissionRequest;
     pigeonMap['rationaleMessageForGPSRequest'] = rationaleMessageForGPSRequest;
     pigeonMap['useGooglePlayServices'] = useGooglePlayServices;
     pigeonMap['askForGooglePlayServices'] = askForGooglePlayServices;
@@ -160,10 +202,8 @@ class PigeonLocationSettings {
     final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
     return PigeonLocationSettings(
       askForPermission: pigeonMap['askForPermission']! as bool,
-      rationaleMessageForPermissionRequest:
-          pigeonMap['rationaleMessageForPermissionRequest']! as String,
-      rationaleMessageForGPSRequest:
-          pigeonMap['rationaleMessageForGPSRequest']! as String,
+      rationaleMessageForPermissionRequest: pigeonMap['rationaleMessageForPermissionRequest']! as String,
+      rationaleMessageForGPSRequest: pigeonMap['rationaleMessageForGPSRequest']! as String,
       useGooglePlayServices: pigeonMap['useGooglePlayServices']! as bool,
       askForGooglePlayServices: pigeonMap['askForGooglePlayServices']! as bool,
       askForGPS: pigeonMap['askForGPS']! as bool,
@@ -175,7 +215,8 @@ class PigeonLocationSettings {
       interval: pigeonMap['interval']! as double,
       maxWaitTime: pigeonMap['maxWaitTime'] as double?,
       numUpdates: pigeonMap['numUpdates'] as int?,
-      accuracy: PigeonLocationAccuracy.values[pigeonMap['accuracy']! as int],
+      accuracy: PigeonLocationAccuracy.values[pigeonMap['accuracy']! as int]
+,
       smallestDisplacement: pigeonMap['smallestDisplacement']! as double,
       waitForAccurateLocation: pigeonMap['waitForAccurateLocation']! as bool,
       acceptableAccuracy: pigeonMap['acceptableAccuracy'] as double?,
@@ -190,31 +231,41 @@ class _LocationHostApiCodec extends StandardMessageCodec {
     if (value is PigeonLocationData) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is PigeonLocationSettings) {
+    } else 
+    if (value is PigeonLocationSettings) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is PigeonLocationSettings) {
+    } else 
+    if (value is PigeonLocationSettings) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else {
+    } else 
+    if (value is PigeonNotificationSettings) {
+      buffer.putUint8(131);
+      writeValue(buffer, value.encode());
+    } else 
+{
       super.writeValue(buffer, value);
     }
   }
-
   @override
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
-      case 128:
+      case 128:       
         return PigeonLocationData.decode(readValue(buffer)!);
-
-      case 129:
+      
+      case 129:       
         return PigeonLocationSettings.decode(readValue(buffer)!);
-
-      case 130:
+      
+      case 130:       
         return PigeonLocationSettings.decode(readValue(buffer)!);
-
-      default:
+      
+      case 131:       
+        return PigeonNotificationSettings.decode(readValue(buffer)!);
+      
+      default:      
         return super.readValueOfType(type, buffer);
+      
     }
   }
 }
@@ -223,20 +274,15 @@ class LocationHostApi {
   /// Constructor for [LocationHostApi].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  LocationHostApi({BinaryMessenger? binaryMessenger})
-      : _binaryMessenger = binaryMessenger;
+  LocationHostApi({BinaryMessenger? binaryMessenger}) : _binaryMessenger = binaryMessenger;
 
   final BinaryMessenger? _binaryMessenger;
 
   static const MessageCodec<Object?> codec = _LocationHostApiCodec();
 
-  Future<PigeonLocationData> getLocation(
-      PigeonLocationSettings? arg_settings) async {
+  Future<PigeonLocationData> getLocation(PigeonLocationSettings? arg_settings) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-      'dev.flutter.pigeon.LocationHostApi.getLocation',
-      codec,
-      binaryMessenger: _binaryMessenger,
-    );
+        'dev.flutter.pigeon.LocationHostApi.getLocation', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(<Object?>[arg_settings]) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -245,8 +291,7 @@ class LocationHostApi {
         message: 'Unable to establish connection on channel.',
       );
     } else if (replyMap['error'] != null) {
-      final Map<Object?, Object?> error =
-          (replyMap['error'] as Map<Object?, Object?>?)!;
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
       throw PlatformException(
         code: (error['code'] as String?)!,
         message: error['message'] as String?,
@@ -264,10 +309,7 @@ class LocationHostApi {
 
   Future<bool> setLocationSettings(PigeonLocationSettings arg_settings) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-      'dev.flutter.pigeon.LocationHostApi.setLocationSettings',
-      codec,
-      binaryMessenger: _binaryMessenger,
-    );
+        'dev.flutter.pigeon.LocationHostApi.setLocationSettings', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(<Object?>[arg_settings]) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -276,8 +318,7 @@ class LocationHostApi {
         message: 'Unable to establish connection on channel.',
       );
     } else if (replyMap['error'] != null) {
-      final Map<Object?, Object?> error =
-          (replyMap['error'] as Map<Object?, Object?>?)!;
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
       throw PlatformException(
         code: (error['code'] as String?)!,
         message: error['message'] as String?,
@@ -295,10 +336,7 @@ class LocationHostApi {
 
   Future<int> getPermissionStatus() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-      'dev.flutter.pigeon.LocationHostApi.getPermissionStatus',
-      codec,
-      binaryMessenger: _binaryMessenger,
-    );
+        'dev.flutter.pigeon.LocationHostApi.getPermissionStatus', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -307,8 +345,7 @@ class LocationHostApi {
         message: 'Unable to establish connection on channel.',
       );
     } else if (replyMap['error'] != null) {
-      final Map<Object?, Object?> error =
-          (replyMap['error'] as Map<Object?, Object?>?)!;
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
       throw PlatformException(
         code: (error['code'] as String?)!,
         message: error['message'] as String?,
@@ -326,10 +363,7 @@ class LocationHostApi {
 
   Future<int> requestPermission() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-      'dev.flutter.pigeon.LocationHostApi.requestPermission',
-      codec,
-      binaryMessenger: _binaryMessenger,
-    );
+        'dev.flutter.pigeon.LocationHostApi.requestPermission', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -338,8 +372,7 @@ class LocationHostApi {
         message: 'Unable to establish connection on channel.',
       );
     } else if (replyMap['error'] != null) {
-      final Map<Object?, Object?> error =
-          (replyMap['error'] as Map<Object?, Object?>?)!;
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
       throw PlatformException(
         code: (error['code'] as String?)!,
         message: error['message'] as String?,
@@ -357,10 +390,7 @@ class LocationHostApi {
 
   Future<bool> isGPSEnabled() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-      'dev.flutter.pigeon.LocationHostApi.isGPSEnabled',
-      codec,
-      binaryMessenger: _binaryMessenger,
-    );
+        'dev.flutter.pigeon.LocationHostApi.isGPSEnabled', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -369,8 +399,7 @@ class LocationHostApi {
         message: 'Unable to establish connection on channel.',
       );
     } else if (replyMap['error'] != null) {
-      final Map<Object?, Object?> error =
-          (replyMap['error'] as Map<Object?, Object?>?)!;
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
       throw PlatformException(
         code: (error['code'] as String?)!,
         message: error['message'] as String?,
@@ -388,10 +417,7 @@ class LocationHostApi {
 
   Future<bool> isNetworkEnabled() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-      'dev.flutter.pigeon.LocationHostApi.isNetworkEnabled',
-      codec,
-      binaryMessenger: _binaryMessenger,
-    );
+        'dev.flutter.pigeon.LocationHostApi.isNetworkEnabled', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -400,8 +426,61 @@ class LocationHostApi {
         message: 'Unable to establish connection on channel.',
       );
     } else if (replyMap['error'] != null) {
-      final Map<Object?, Object?> error =
-          (replyMap['error'] as Map<Object?, Object?>?)!;
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      throw PlatformException(
+        code: (error['code'] as String?)!,
+        message: error['message'] as String?,
+        details: error['details'],
+      );
+    } else if (replyMap['result'] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (replyMap['result'] as bool?)!;
+    }
+  }
+
+  Future<bool> changeNotificationSettings(PigeonNotificationSettings arg_settings) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.LocationHostApi.changeNotificationSettings', codec, binaryMessenger: _binaryMessenger);
+    final Map<Object?, Object?>? replyMap =
+        await channel.send(<Object?>[arg_settings]) as Map<Object?, Object?>?;
+    if (replyMap == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyMap['error'] != null) {
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      throw PlatformException(
+        code: (error['code'] as String?)!,
+        message: error['message'] as String?,
+        details: error['details'],
+      );
+    } else if (replyMap['result'] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (replyMap['result'] as bool?)!;
+    }
+  }
+
+  Future<bool> setBackgroundActivated(bool arg_activated) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.LocationHostApi.setBackgroundActivated', codec, binaryMessenger: _binaryMessenger);
+    final Map<Object?, Object?>? replyMap =
+        await channel.send(<Object?>[arg_activated]) as Map<Object?, Object?>?;
+    if (replyMap == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyMap['error'] != null) {
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
       throw PlatformException(
         code: (error['code'] as String?)!,
         message: error['message'] as String?,

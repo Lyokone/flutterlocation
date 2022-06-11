@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
 
 export 'package:location_platform_interface/location_platform_interface.dart'
@@ -13,8 +14,9 @@ Future<LocationData> getLocation({LocationSettings? settings}) async {
 }
 
 /// Listen to the current location.
-Stream<LocationData> get onLocationChanged {
-  return _platform.onLocationChanged
+Stream<LocationData> onLocationChanged({bool inBackground = false}) {
+  return _platform
+      .onLocationChanged(inBackground: inBackground)
       .where((event) => event != null)
       .cast<LocationData>();
 }
@@ -154,6 +156,31 @@ Future<bool> isGPSEnabled() async {
 /// Returns true if the Network provider is enabled
 Future<bool> isNetworkEnabled() async {
   final response = await _platform.isNetworkEnabled();
+  if (response == null) {
+    throw Exception('Error while getting Network status');
+  }
+  return response;
+}
+
+/// Update notification
+Future<bool> updateBackgroundNotification({
+  String? channelName,
+  String? title,
+  String? iconName,
+  String? subtitle,
+  String? description,
+  Color? color,
+  bool? onTapBringToFront,
+}) async {
+  final response = await _platform.updateBackgroundNotification(
+    channelName: channelName,
+    title: title,
+    iconName: iconName,
+    subtitle: subtitle,
+    description: description,
+    color: color,
+    onTapBringToFront: onTapBringToFront,
+  );
   if (response == null) {
     throw Exception('Error while getting Network status');
   }

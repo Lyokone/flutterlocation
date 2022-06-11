@@ -1,15 +1,20 @@
 package com.lyokone.location
 
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import androidx.annotation.NonNull
 import com.google.android.gms.location.LocationRequest
+import com.lyokone.location.FlutterLocationService.LocalBinder
 import com.lyokone.location.location.LocationManager
 import com.lyokone.location.location.configuration.*
 import com.lyokone.location.location.configuration.Configurations.defaultConfiguration
@@ -41,6 +46,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         defaultConfiguration("The location is needed", "The GPS is needed")
     private var locationManager: LocationManager? = null
     private var streamLocationManager: LocationManager? = null
+    private var flutterLocationService: FlutterLocationService? = null
 
     private var eventChannel: EventChannel? = null
     private var eventSink: EventChannel.EventSink? = null
@@ -69,24 +75,44 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         activityBinding = binding
         activityBinding?.addActivityResultListener(this)
         activityBinding?.addRequestPermissionsResultListener(this)
-    }
 
-    override fun onDetachedFromActivityForConfigChanges() {
-        activity = null
-        activityBinding?.removeActivityResultListener(this)
-        activityBinding?.removeRequestPermissionsResultListener(this)
-    }
-
-    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-        activity = binding.activity
-        binding.addActivityResultListener(this)
-        binding.addRequestPermissionsResultListener(this)
+        binding.activity.bindService(
+            Intent(
+                binding.activity,
+                FlutterLocationService::class.java
+            ), serviceConnection, Context.BIND_AUTO_CREATE
+        )
     }
 
     override fun onDetachedFromActivity() {
         activity = null
         activityBinding?.removeActivityResultListener(this)
         activityBinding?.removeRequestPermissionsResultListener(this)
+        activityBinding?.activity?.unbindService(serviceConnection)
+        activityBinding = null
+    }
+
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        this.onDetachedFromActivity()
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        this.onAttachedToActivity(binding)
+    }
+
+
+    private val serviceConnection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            Log.d("LOCATION", "Service connected: $name")
+            flutterLocationService = (service as LocalBinder).getService()
+            flutterLocationService!!.activity = activity
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            Log.d("LOCATION", "Service disconnected:$name")
+            flutterLocationService = null
+        }
     }
 
     override fun onProcessTypeChanged(processType: Int) {
@@ -238,8 +264,6 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         result: GeneratedAndroidLocation.Result<GeneratedAndroidLocation.PigeonLocationData>?
     ) {
         resultsNeedingLocation.add(result)
-
-        Defaults.createDefaultLocationRequest()
 
         val isListening = streamLocationManager != null
 
@@ -465,8 +489,33 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         return locationProvider.isNetworkProviderEnabled
     }
 
+    override fun changeNotificationSettings(settings: GeneratedAndroidLocation.PigeonNotificationSettings): Boolean {
+        flutterLocationService?.changeNotificationOptions(
+            NotificationOptions(
+                title = if (settings.title != null) settings.title!! else kDefaultNotificationTitle,
+                iconName = if (settings.iconName != null) settings.iconName!! else kDefaultNotificationIconName,
+                subtitle = settings.subtitle,
+                description = settings.subtitle,
+                color = if (settings.color != null) Color.parseColor(settings.color) else null,
+                onTapBringToFront = if (settings.onTapBringToFront != null) settings.onTapBringToFront!! else false,
+            )
+        )
+
+        return true
+    }
+
+    override fun setBackgroundActivated(activated: Boolean): Boolean {
+        if (activated) {
+            flutterLocationService?.enableBackgroundMode()
+        } else {
+            flutterLocationService?.disableBackgroundMode()
+        }
+        return true
+    }
+
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+        val inBackground = arguments as Boolean
         eventSink = events
         streamLocationManager = LocationManager.Builder(context!!)
             .activity(activity) // Only required to ask permission and/or GoogleApi - SettingsApi
@@ -475,9 +524,14 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
             .build()
 
         streamLocationManager?.get()
+        if (inBackground) {
+            flutterLocationService?.enableBackgroundMode()
+        }
     }
 
     override fun onCancel(arguments: Any?) {
+        flutterLocationService?.disableBackgroundMode()
+
         eventSink = null
         streamLocationManager?.cancel()
         streamLocationManager = null

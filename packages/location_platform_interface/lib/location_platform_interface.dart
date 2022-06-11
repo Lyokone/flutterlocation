@@ -1,5 +1,7 @@
 library location_platform_interface;
 
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:location_platform_interface/src/messages.pigeon.dart';
@@ -40,7 +42,7 @@ abstract class LocationPlatform extends PlatformInterface {
   Future<LocationData?> getLocation({LocationSettings? settings});
 
   /// Return a stream of the user's location.
-  Stream<LocationData?> get onLocationChanged;
+  Stream<LocationData?> onLocationChanged({bool inBackground = false});
 
   /// Set new global location settings for the app
   Future<bool?> setLocationSettings(LocationSettings settings);
@@ -56,4 +58,15 @@ abstract class LocationPlatform extends PlatformInterface {
 
   /// Return true if Network is enabled on the device
   Future<bool?> isNetworkEnabled();
+
+  /// Return true if the notification was properly updated
+  Future<bool?> updateBackgroundNotification({
+    String? channelName,
+    String? title,
+    String? iconName,
+    String? subtitle,
+    String? description,
+    Color? color,
+    bool? onTapBringToFront,
+  });
 }

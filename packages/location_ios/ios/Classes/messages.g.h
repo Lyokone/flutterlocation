@@ -17,6 +17,7 @@ typedef NS_ENUM(NSUInteger, PigeonLocationAccuracy) {
 };
 
 @class PigeonLocationData;
+@class PigeonNotificationSettings;
 @class PigeonLocationSettings;
 
 @interface PigeonLocationData : NSObject
@@ -48,7 +49,23 @@ typedef NS_ENUM(NSUInteger, PigeonLocationAccuracy) {
 @property(nonatomic, strong, nullable) NSNumber * time;
 @property(nonatomic, strong, nullable) NSNumber * verticalAccuracy;
 @property(nonatomic, strong, nullable) NSNumber * isMock;
-- (NSDictionary *)toMap;
+@end
+
+@interface PigeonNotificationSettings : NSObject
++ (instancetype)makeWithChannelName:(nullable NSString *)channelName
+    title:(nullable NSString *)title
+    iconName:(nullable NSString *)iconName
+    subtitle:(nullable NSString *)subtitle
+    description:(nullable NSString *)description
+    color:(nullable NSString *)color
+    onTapBringToFront:(nullable NSNumber *)onTapBringToFront;
+@property(nonatomic, copy, nullable) NSString * channelName;
+@property(nonatomic, copy, nullable) NSString * title;
+@property(nonatomic, copy, nullable) NSString * iconName;
+@property(nonatomic, copy, nullable) NSString * subtitle;
+@property(nonatomic, copy, nullable) NSString * description;
+@property(nonatomic, copy, nullable) NSString * color;
+@property(nonatomic, strong, nullable) NSNumber * onTapBringToFront;
 @end
 
 @interface PigeonLocationSettings : NSObject
@@ -106,6 +123,10 @@ NSObject<FlutterMessageCodec> *LocationHostApiGetCodec(void);
 - (nullable NSNumber *)isGPSEnabledWithError:(FlutterError *_Nullable *_Nonnull)error;
 /// @return `nil` only when `error != nil`.
 - (nullable NSNumber *)isNetworkEnabledWithError:(FlutterError *_Nullable *_Nonnull)error;
+/// @return `nil` only when `error != nil`.
+- (nullable NSNumber *)changeNotificationSettingsSettings:(PigeonNotificationSettings *)settings error:(FlutterError *_Nullable *_Nonnull)error;
+/// @return `nil` only when `error != nil`.
+- (nullable NSNumber *)setBackgroundActivatedActivated:(NSNumber *)activated error:(FlutterError *_Nullable *_Nonnull)error;
 @end
 
 extern void LocationHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<LocationHostApi> *_Nullable api);

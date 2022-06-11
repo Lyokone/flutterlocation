@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:location_example/change_notification.dart';
 import 'package:location_example/change_settings.dart';
 import 'package:location_example/get_location.dart';
 import 'package:location_example/listen_location.dart';
@@ -36,6 +37,7 @@ class MyHomePage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: const <Widget>[
+            SizedBox(height: 16),
             PermissionStatusWidget(),
             Divider(height: 32),
             ServiceEnabledWidget(),
@@ -46,9 +48,7 @@ class MyHomePage extends StatelessWidget {
             Divider(height: 32),
             ChangeSettings(),
             Divider(height: 32),
-            // EnableInBackgroundWidget(),
-            // Divider(height: 32),
-            // ChangeNotificationWidget()
+            ChangeNotificationWidget()
           ],
         ),
       ),

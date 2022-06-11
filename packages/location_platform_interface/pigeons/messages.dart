@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_positional_boolean_parameters
+
 import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
@@ -29,6 +31,16 @@ class PigeonLocationData {
   double? time;
   double? verticalAccuracy;
   bool? isMock;
+}
+
+class PigeonNotificationSettings {
+  String? channelName;
+  String? title;
+  String? iconName;
+  String? subtitle;
+  String? description;
+  String? color;
+  bool? onTapBringToFront;
 }
 
 enum PigeonLocationAccuracy { powerSave, low, balanced, high, navigation }
@@ -92,4 +104,8 @@ abstract class LocationHostApi {
   bool isGPSEnabled();
 
   bool isNetworkEnabled();
+
+  bool changeNotificationSettings(PigeonNotificationSettings settings);
+
+  bool setBackgroundActivated(bool activated);
 }
