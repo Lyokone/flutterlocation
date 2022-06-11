@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://docs.page/Lyokone/flutterlocation">Documentation</a> &bull; 
   <a href="https://github.com/Lyokone/flutterlocation">GitHub</a> &bull; 
-  <a href="https://flutter-location-2c8bf.web.app/">Web Demo</a>
+  <a href="https://location.bernos.dev">Web Demo</a>
 </p>
 
 ### About
