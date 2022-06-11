@@ -17,13 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2.4.0
         with:
           channel: beta
       - name: Activate melos
         run: |
           echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
-          pub global activate melos
+          flutter pub global activate melos
       - name: Bootstrap melos
         run: melos bs
       - name: Analyze package
@@ -34,13 +34,13 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2.4.0
         with:
           channel: beta
       - name: Activate melos
         run: |
           echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
-          pub global activate melos
+          flutter pub global activate melos
       - name: Bootstrap melos
         run: melos bs
       - name: Validate formatting
@@ -51,13 +51,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2.4.0
         with:
           channel: beta
       - name: Activate melos
         run: |
           echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
-          pub global activate melos
+          flutter pub global activate melos
       - name: Bootstrap melos
         run: melos bs
       - name: Run tests
