@@ -1,3 +1,7 @@
+## 5.0.0-dev.2
+
+ - **FEAT**: background mode for android.
+
 ## 5.0.0-dev.1
 
  - **FEAT**: unify into one pigeon file.

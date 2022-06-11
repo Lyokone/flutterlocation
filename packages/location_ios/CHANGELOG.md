@@ -1,3 +1,8 @@
+## 5.0.0-dev.3
+
+ - **FEAT**: background mode for ios.
+ - **FEAT**: background mode for android.
+
 ## 5.0.0-dev.2
 
  - **FEAT**: ready version macos.
