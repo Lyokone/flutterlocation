@@ -6,12 +6,13 @@
 <p align="center">
   <a href="https://github.com/invertase/melos#readme-badge"><img src="https://img.shields.io/badge/maintained%20with-melos-f700ff.svg?style=flat-square" alt="Melos" /></a>
   <a href="https://docs.page"><img src="https://img.shields.io/badge/powered%20by-docs.page-34C4AC.svg?style=flat-square" alt="docs.page" /></a>
+  <a href="https://pub.dartlang.org/packages/location"><img src="https://img.shields.io/pub/v/location.svg?style=flat-square" alt="docs.page" /></a>
 </p>
 
 <p align="center">
   <a href="https://docs.page/Lyokone/flutterlocation">Documentation</a> &bull; 
-  <a href="https://pub.dev/packages/location">Pub.dev</a> &bull; 
-  <a href="https://github.com/Lyokone/flutterlocation">GitHub</a>
+  <a href="https://github.com/Lyokone/flutterlocation">GitHub</a> &bull; 
+  <a href="https://flutter-location-2c8bf.web.app/">Web Demo</a>
 </p>
 
 ### About
