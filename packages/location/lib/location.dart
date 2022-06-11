@@ -2,9 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
 
 export 'package:location_platform_interface/location_platform_interface.dart'
-    show LocationData, LocationAccuracy, LocationSettings, PermissionStatus;
+    show
+        LocationData,
+        LocationAccuracy,
+        LocationSettings,
+        PermissionStatus,
+        LocationPlatform;
 
 LocationPlatform get _platform => LocationPlatform.instance;
+
+/// Allows you to mock the [LocationPlatform] instance for testing.
+@visibleForTesting
+void setLocationInstance(LocationPlatform platform) {
+  LocationPlatform.instance = platform;
+}
 
 /// Returns the current location.
 Future<LocationData> getLocation({LocationSettings? settings}) async {
