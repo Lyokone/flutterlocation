@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../../assets/logo.png" alt="Flutter Location" /> <br /><br />
+  <img src="assets/logo.png" alt="Flutter Location" /> <br /><br />
   <span>A simple way to get the user location without thinking about permission.</span>
 </p>
 

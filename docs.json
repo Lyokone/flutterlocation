@@ -46,6 +46,14 @@
         ]
       ]
     ],
-    ["Examples", [["Google Maps", "/examples/google-maps"]]]
+    [
+      "Examples",
+      [
+        [
+          "Demo App",
+          "https://github.com/Lyokone/flutterlocation/tree/master/packages/location/example"
+        ]
+      ]
+    ]
   ]
 }
