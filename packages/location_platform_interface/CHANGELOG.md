@@ -1,3 +1,35 @@
+## 5.0.0-dev.1
+
+ - **FIX**: add platform tests.
+ - **FIX**: fix tests.
+ - **FIX**: fix the depreciation warning on android #550.
+ - **FEAT**: unify into one pigeon file.
+ - **FEAT**: remove useless tests thanks to Pigeon.
+ - **FEAT**: initialize the ios package.
+ - **FEAT**: dialog with AppCompat.
+ - **FEAT**: support for coarse location.
+ - **FEAT**: get permission status.
+ - **FEAT**: set settings for individual location settings.
+ - **FEAT**: change settings.
+ - **FEAT**: implement setLocationSettings.
+ - **FEAT**: implement onLocationChanged.
+ - **FEAT**: first version 5 commit.
+ - **FEAT**: improve coverage.
+ - **FEAT**: add several information to resolve #552.
+ - **FEAT**: improve LocationData doc.
+ - **FEAT**: improve example app.
+ - **FEAT**: add isMock information on LocationData.
+ - **FEAT**: add fallback for LocationAccuracy.reduced on Android.
+ - **FEAT**: add option to reopen app from notification.
+ - **FEAT**: allow for customizing Android notification text, subtext and color.
+ - **FEAT**: allow for customizing Android background notification from dart.
+ - **FEAT**: Update to null safety.
+ - **DOCS**: writing docs for version 5.
+ - **DOCS**: writing docs for version 5.
+ - **DOCS**: update documentation.
+ - **DOCS**: add documentation to code.
+ - **DOCS**: update readme web.
+
 ## 5.0.0-dev.0
 
 - Update all the location packages to version 5

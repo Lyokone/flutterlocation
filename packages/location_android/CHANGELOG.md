@@ -1,3 +1,24 @@
+## 5.0.0-dev.1
+
+ - **FEAT**: unify into one pigeon file.
+ - **FEAT**: remove useless tests thanks to Pigeon.
+ - **FEAT**: using SwiftLocation.
+ - **FEAT**: initialize the ios package.
+ - **FEAT**: readying docs.
+ - **FEAT**: dialog with AppCompat.
+ - **FEAT**: support for coarse location.
+ - **FEAT**: get permission status.
+ - **FEAT**: set settings for individual location settings.
+ - **FEAT**: change settings of onLocationChanged.
+ - **FEAT**: change settings.
+ - **FEAT**: implement setLocationSettings.
+ - **FEAT**: implement onLocationChanged.
+ - **FEAT**: first version 5 commit.
+ - **DOCS**: writing docs for version 5.
+ - **DOCS**: writing docs for version 5.
+ - **DOCS**: update documentation.
+ - **DOCS**: add documentation to code.
+
 ## 5.0.0-dev.0
 
 - Update all the location packages to version 5

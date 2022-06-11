@@ -2,7 +2,7 @@ name: location
 description: Get the location of your user
 homepage: https://docs.page/Lyokone/flutterlocation~version-5
 repository: https://github.com/Lyokone/flutterlocation
-version: 5.0.0-dev.0
+version: 5.0.0-dev.1
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
@@ -27,14 +27,14 @@ flutter:
 dependencies:
   flutter:
     sdk: flutter
-  location_android: ^5.0.0-dev.0
-  location_ios: ^5.0.0-dev.0
+  location_android: ^5.0.0-dev.1
+  location_ios: ^5.0.0-dev.1
   # location_linux:
   #   path: ../location_linux
   # location_macos:
   #   path: ../location_macos
-  location_platform_interface: ^5.0.0-dev.0
-  location_web: ^5.0.0-dev.0
+  location_platform_interface: ^5.0.0-dev.1
+  location_web: ^5.0.0-dev.1
   # location_windows:
   #   path: ../location_windows
 
