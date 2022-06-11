@@ -9,7 +9,10 @@ scripts:
     select-package:
       file-exists: "pigeons/messages.dart"
 
-  tests:
+  test:
     run: melos exec -- "flutter test"
     select-package:
       dir-exists: "test"
+
+  format:
+    run: melos exec -- dart format .
