@@ -20,8 +20,8 @@ This librarie aims at providing you a simple way to get the user location withou
 It's also heavily configurable so you can easily get **better performance** or **better battery**.
 
 <p align="center">
-  <a href="http://www.youtube.com/watch?feature=player_embedded&v=65qbtJMltVk" target="_blank">
-    <img src="http://img.youtube.com/vi/65qbtJMltVk/0.jpg" alt="Youtube Video" width=480" height="360" border="10" />
+  <a href="https://www.youtube.com/watch?feature=player_embedded&v=65qbtJMltVk" target="_blank">
+    <img src="https://img.youtube.com/vi/65qbtJMltVk/0.jpg" alt="Youtube Video" width=480" height="360" border="10" />
   </a>
 </p>
 
