@@ -8,3 +8,8 @@ scripts:
     run: melos exec -- "flutter pub run pigeon --input ./pigeons/messages.dart"
     select-package:
       file-exists: "pigeons/messages.dart"
+
+  tests:
+    run: melos exec -- "flutter test"
+    select-package:
+      dir-exists: "test"

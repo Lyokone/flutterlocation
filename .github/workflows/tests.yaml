@@ -1,0 +1,73 @@
+name: tests
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/tests.yaml"
+      - "src/location_android/**"
+  push:
+    branches:
+      - master
+    paths:
+      - ".github/workflows/tests.yaml"
+      - "packages/**"
+
+jobs:
+  verify_commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conventional PRs
+        uses: Namchee/conventional-pr@v0.10.1
+        with:
+          access_token: ${{ secrets.TOKEN_GITHUB }}
+          link_issue: false
+
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: beta
+      - name: Activate melos
+        run: |
+          echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
+          pub global activate melos
+      - name: Bootstrap melos
+        run: melos bs
+      - name: Analyze package
+        run: melos exec -- flutter analyze --no-fatal-infos
+
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: beta
+      - name: Activate melos
+        run: |
+          echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
+          pub global activate melos
+      - name: Bootstrap melos
+        run: melos bs
+      - name: Validate formatting
+        run: |
+          melos exec -- dart format -o write .
+          ./.github/workflows/scripts/validate-formatting.sh
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: beta
+      - name: Activate melos
+        run: |
+          echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
+          pub global activate melos
+      - name: Bootstrap melos
+        run: melos bs
+      - name: Run tests
+        run: melos exec --dir-exists=test -- flutter test
