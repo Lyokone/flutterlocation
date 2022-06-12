@@ -37,6 +37,13 @@ It currently supports Android, iOS, macOS and Web. Support for remaining platfor
 - 🏃‍♂️ Supports background location updates
 - ⭐️ [Flutter Favorite](https://docs.flutter.dev/development/packages-and-plugins/favorites)
 
-## How to start?
+## How to use?
 
-Go to the [documentation to start using Location](https://docs.page/Lyokone/getting-started)!
+Go to the [documentation to install Location](https://docs.page/Lyokone/flutterlocation/getting-started)!
+
+Then, to get the location, of your user it's as easy as a simple call.
+
+```dart
+final location = await getLocation();
+print("Location: ${location.latitude}, ${location.longitude}");
+```

@@ -16,6 +16,47 @@ It currently supports Android, iOS, macOS and Web. Support for remaining platfor
 - 🏃‍♂️ Supports background location updates
 - ⭐️ [Flutter Favorite](https://docs.flutter.dev/development/packages-and-plugins/favorites)
 
-## How to start?
+## How to use?
 
-Follow [the guide on](/getting-stated) to get your user's location!
+Start by [installing Location](/getting-stated)!
+
+Then, to get the location, of your user it's as easy as a simple call.
+
+```dart
+final location = await getLocation();
+print("Location: ${location.latitude}, ${location.longitude}");
+```
+
+<nav
+  aria-label="Docs pages navigation"
+  style={{ display: "flex", justifyContent: "space-between", marginTop: "3rem" }}
+>
+  <a
+    
+  >
+
+  </a>
+  <a
+    href="/getting-started"
+    style={{
+      border: "1px solid #ccd0d5",
+      borderRadius: "0.4rem",
+      display: "block",
+      height: "100%",
+      lineHeight: "1.25",
+      padding: "1rem",
+      transition: "border-color 200ms cubic-bezier(0.08,0.52,0.52,1)",
+      textDecoration: "none",
+      textAlign: "end",
+    }}
+>
+    <div  style={{
+        color: "#525860",
+        fontSize: "0.875rem",
+    }}>Next</div>
+    <div  style={{
+        color: "var(--theme-color)",
+    }}>Getting started »</div>
+
+  </a>
+</nav>
