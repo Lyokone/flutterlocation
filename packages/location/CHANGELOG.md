@@ -1,3 +1,8 @@
+## 5.0.0-dev.7
+
+ - **DOCS**: add links.
+ - **DOCS**: add next previous.
+
 ## 5.0.0-dev.6
 
  - **FEAT**: add the ability to use a mock instance.
