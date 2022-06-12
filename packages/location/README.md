@@ -41,7 +41,7 @@ It currently supports Android, iOS, macOS and Web. Support for remaining platfor
 
 Go to the [documentation to install Location](https://docs.page/Lyokone/flutterlocation/getting-started)!
 
-Then, to get the location, of your user it's as easy as a simple call.
+Then, to get the location of your user you can simply do:
 
 ```dart
 final location = await getLocation();
