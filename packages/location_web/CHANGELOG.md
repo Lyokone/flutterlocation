@@ -1,3 +1,7 @@
+## 5.0.0-dev.3
+
+ - **FEAT**: improve PermissionStatus.
+
 ## 5.0.0-dev.2
 
  - **FEAT**: background mode for android.

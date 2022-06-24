@@ -1,3 +1,7 @@
+## 5.0.0-dev.4
+
+ - **FEAT**: improve PermissionStatus.
+
 ## 5.0.0-dev.3
 
  - **FEAT**: background mode for ios.

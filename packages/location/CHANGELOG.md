@@ -1,3 +1,7 @@
+## 5.0.0-dev.8
+
+ - **FEAT**: improve PermissionStatus.
+
 ## 5.0.0-dev.7
 
  - **DOCS**: add links.

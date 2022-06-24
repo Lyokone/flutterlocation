@@ -20,7 +20,7 @@ flutter:
 dependencies:
   flutter:
     sdk: flutter
-  location_platform_interface: ^5.0.0-dev.2
+  location_platform_interface: ^5.0.0-dev.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
