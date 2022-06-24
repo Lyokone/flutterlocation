@@ -46,11 +46,11 @@ class LocationWeb extends LocationPlatform {
 
     switch (result.state) {
       case 'granted':
-        return PermissionStatus.granted;
+        return PermissionStatus.authorizedAlways;
       case 'prompt':
-        return PermissionStatus.denied;
+        return PermissionStatus.notDetermined;
       case 'denied':
-        return PermissionStatus.deniedForever;
+        return PermissionStatus.denied;
       default:
         throw ArgumentError('Unknown permission ${result.state}.');
     }
@@ -70,9 +70,9 @@ class LocationWeb extends LocationPlatform {
   Future<PermissionStatus?> requestPermission() async {
     try {
       await _geolocation.getCurrentPosition();
-      return PermissionStatus.granted;
+      return PermissionStatus.authorizedAlways;
     } catch (e) {
-      return PermissionStatus.deniedForever;
+      return PermissionStatus.denied;
     }
   }
 

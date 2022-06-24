@@ -1,5 +1,6 @@
 package com.lyokone.location
 
+import android.Manifest
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
@@ -55,6 +56,8 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         mutableListOf()
 
     private var resultPermissionRequest: GeneratedAndroidLocation.Result<Long>? = null
+
+    private var alreadyRequestedPermission = false
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         GeneratedAndroidLocation.LocationHostApi.setup(flutterPluginBinding.binaryMessenger, this)
@@ -182,7 +185,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         Log.d("Location", "onLocationFailed")
         when (type) {
             FailType.PERMISSION_DENIED -> {
-                resultPermissionRequest?.success(3)
+                resultPermissionRequest?.success(2)
                 resultPermissionRequest = null
             }
             FailType.GOOGLE_PLAY_SERVICES_NOT_AVAILABLE -> {
@@ -206,7 +209,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
 
     override fun onPermissionGranted(alreadyHadPermission: Boolean, limitedPermission: Boolean) {
         Log.d("Location", "onPermissionGranted")
-        resultPermissionRequest?.success(if (limitedPermission) 1 else 0)
+        resultPermissionRequest?.success(if (limitedPermission) 1 else 4)
         resultPermissionRequest = null
     }
 
@@ -227,6 +230,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         permissions: Array<out String>,
         grantResults: IntArray
     ): Boolean {
+        this.alreadyRequestedPermission = true;
         Log.d("Location", "onRequestPermissionsResult")
         if (locationManager == null) {
             if (requestCode == RequestCode.RUNTIME_PERMISSION) {
@@ -441,13 +445,24 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
         val contextProcessor = ContextProcessor(activity?.application)
         contextProcessor.activity = activity
         permissionProvider.setContextProcessor(contextProcessor)
-        val hasPermission = permissionProvider.hasPermission()
 
-        if (hasPermission) {
-            return 0
+        if (permissionProvider.hasPermission()) {
+            return 4
         }
 
-        return 2
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (activity?.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) == true) {
+                return 0;
+            }
+        } else {
+            return 4
+        };
+
+
+        if (alreadyRequestedPermission) {
+            return 2
+        }
+        return 0;
     }
 
     override fun requestPermission(result: GeneratedAndroidLocation.Result<Long>?) {
@@ -459,7 +474,7 @@ class LocationPlugin : FlutterPlugin, ActivityAware, LocationListener,
 
         if (!hasPermission) {
             // Denied Forever
-            result?.success(3)
+            result?.success(2)
         } else {
             resultPermissionRequest = result
         }

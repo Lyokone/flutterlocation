@@ -69,7 +69,7 @@ public class DefaultPermissionProvider extends PermissionProvider implements Dia
         if (getPermissionListener() != null) getPermissionListener().onPermissionsDenied();
     }
 
-    boolean shouldShowRequestPermissionRationale() {
+    public boolean shouldShowRequestPermissionRationale() {
         boolean shouldShowRationale = false;
         for (String permission : getRequiredPermissions()) {
             shouldShowRationale = shouldShowRationale || checkRationaleForPermission(permission);
@@ -80,7 +80,7 @@ public class DefaultPermissionProvider extends PermissionProvider implements Dia
         return shouldShowRationale && getActivity() != null && getDialogProvider() != null;
     }
 
-    boolean checkRationaleForPermission(String permission) {
+    public boolean checkRationaleForPermission(String permission) {
         if (getActivity() != null) {
             return getPermissionCompatSource().shouldShowRequestPermissionRationale(getActivity(), permission);
         } else {

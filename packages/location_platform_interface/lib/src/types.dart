@@ -155,19 +155,34 @@ extension LocationAccuracyExtension on LocationAccuracy {
 
 /// Status of a permission request to use location services.
 enum PermissionStatus {
-  /// The permission to use location services has been granted for high accuracy.
-  granted,
+  /// User has not yet made a choice with regards to this application
+  notDetermined,
 
-  /// The permission has been granted but for low accuracy. Only valid on iOS 14+.
-  grantedLimited,
+  /// This application is not authorized to use precise
+  restricted,
 
-  /// The permission to use location services has been denied by the user. May
-  /// have been denied forever on iOS.
+  /// User has explicitly denied authorization for this application, or
+  /// location services are disabled in Settings.
   denied,
 
-  /// The permission to use location services has been denied forever by the
-  /// user. No dialog will be displayed on permission request.
-  deniedForever
+  /// User has granted authorization to use their location at any
+  /// time. Your app may be launched into the background by
+  /// monitoring APIs such as visit monitoring, region monitoring,
+  /// and significant location change monitoring.
+  authorizedAlways,
+
+  /// User has granted authorization to use their location only while
+  /// they are using your app.
+  authorizedWhenInUse,
+}
+
+/// Extension to [PermissionStatus].
+
+extension XPermissionStatus on PermissionStatus {
+  /// Returns true if the permission is authorized.
+  bool get authorized =>
+      this == PermissionStatus.authorizedAlways ||
+      this == PermissionStatus.authorizedWhenInUse;
 }
 
 /// {@template location_settings}

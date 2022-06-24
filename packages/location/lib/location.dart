@@ -7,6 +7,7 @@ export 'package:location_platform_interface/location_platform_interface.dart'
         LocationAccuracy,
         LocationSettings,
         PermissionStatus,
+        XPermissionStatus,
         LocationPlatform;
 
 LocationPlatform get _platform => LocationPlatform.instance;

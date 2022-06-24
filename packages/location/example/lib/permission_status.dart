@@ -9,7 +9,7 @@ class PermissionStatusWidget extends StatefulWidget {
 }
 
 class _PermissionStatusWidgetState extends State<PermissionStatusWidget> {
-  PermissionStatus? _permissionGranted;
+  PermissionStatus _permissionGranted = PermissionStatus.notDetermined;
 
   Future<void> _checkPermissions() async {
     final permissionGrantedResult = await getPermissionStatus();
@@ -19,12 +19,10 @@ class _PermissionStatusWidgetState extends State<PermissionStatusWidget> {
   }
 
   Future<void> _requestPermission() async {
-    if (_permissionGranted != PermissionStatus.granted) {
-      final permissionRequestedResult = await requestPermission();
-      setState(() {
-        _permissionGranted = permissionRequestedResult;
-      });
-    }
+    final permissionRequestedResult = await requestPermission();
+    setState(() {
+      _permissionGranted = permissionRequestedResult;
+    });
   }
 
   @override
@@ -35,7 +33,7 @@ class _PermissionStatusWidgetState extends State<PermissionStatusWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            'Permission status: ${_permissionGranted ?? "unknown"}',
+            'Permission status: $_permissionGranted',
             style: Theme.of(context).textTheme.bodyText1,
           ),
           Row(
@@ -48,9 +46,8 @@ class _PermissionStatusWidgetState extends State<PermissionStatusWidget> {
                 ),
               ),
               ElevatedButton(
-                onPressed: _permissionGranted == PermissionStatus.granted
-                    ? null
-                    : _requestPermission,
+                onPressed:
+                    _permissionGranted.authorized ? null : _requestPermission,
                 child: const Text('Request'),
               )
             ],

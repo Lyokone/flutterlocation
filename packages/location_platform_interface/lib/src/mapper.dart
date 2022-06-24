@@ -6,13 +6,15 @@ part of location_platform_interface;
 PermissionStatus permissionStatusFromInt(int permission) {
   switch (permission) {
     case 0:
-      return PermissionStatus.granted;
+      return PermissionStatus.notDetermined;
     case 1:
-      return PermissionStatus.grantedLimited;
+      return PermissionStatus.restricted;
     case 2:
       return PermissionStatus.denied;
     case 3:
-      return PermissionStatus.deniedForever;
+      return PermissionStatus.authorizedAlways;
+    case 4:
+      return PermissionStatus.authorizedWhenInUse;
     default:
       throw Exception('Unknown permission status: $permission');
   }

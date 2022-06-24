@@ -28,13 +28,7 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
                                                 message: "The user have deactivated the location service, the settings page has been opened",
                                                 details: nil))
         }
-        
-        if (Int(truncating: SwiftLocationPlugin.getPermissionNumber()) > 1) {
-            return completion(nil, FlutterError(code: "PERMISSION_DENIED",
-                                                message: "The user has denied the permission",
-                                                details: nil))
-        }
-        
+                
         let currentSettings = SwiftLocationPlugin.locationSettingsToGPSLocationOptions(settings ?? globalPigeonLocationSettings)
         
         if globalPigeonLocationSettings?.ignoreLastKnownPosition == false {
@@ -168,19 +162,19 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
         
         switch currentStatus {
         case .notDetermined:
-            return 1
+            return 0
         case .restricted:
             return 1
         case .denied:
             return 2
         case .authorizedAlways:
-            return 0
+            return 3
         case .authorizedWhenInUse:
-            return 0
-        case .authorized:
-            return 0
-        @unknown default:
             return 4
+        case .authorized:
+            return 3
+        @unknown default:
+            return 5
         }
     }
     
@@ -192,19 +186,19 @@ public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIAp
         SwiftLocation.requestAuthorization(.onlyInUse) { newStatus in
             switch newStatus {
             case .notDetermined:
-                completion(4, nil)
+                completion(0, nil)
             case .restricted:
                 completion(1, nil)
             case .denied:
                 completion(2, nil)
             case .authorizedAlways:
-                completion(0, nil)
+                completion(3, nil)
             case .authorizedWhenInUse:
-                completion(0, nil)
-            case .authorized:
-                completion(0, nil)
-            @unknown default:
                 completion(4, nil)
+            case .authorized:
+                completion(3, nil)
+            @unknown default:
+                completion(5, nil)
             }
         }
     }

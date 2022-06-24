@@ -21,11 +21,6 @@ class StreamHandler: NSObject, FlutterStreamHandler {
                                 message: "The user have deactivated the location service, the settings page has been opened",
                                 details: nil)
         }
-        if (Int(truncating: SwiftLocationPlugin.getPermissionNumber()) > 1) {
-            return FlutterError(code: "PERMISSION_DENIED",
-                                                message: "The user has denied the permission",
-                                                details: nil)
-        }
         
         let activated = arguments as! Bool? ?? false
         SwiftLocation.allowsBackgroundLocationUpdates = activated
