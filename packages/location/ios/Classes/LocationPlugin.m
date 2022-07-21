@@ -58,6 +58,7 @@
         self.clLocationManager = [[CLLocationManager alloc] init];
         self.clLocationManager.delegate = self;
         self.clLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
+        self.clLocationManager.showsBackgroundLocationIndicator = false;
     }
 }
 
@@ -101,7 +102,7 @@
                 self.clLocationManager.allowsBackgroundLocationUpdates = enable;
             }
             if (@available(iOS 11.0, *)) {
-                self.clLocationManager.showsBackgroundLocationIndicator = enable;
+                self.clLocationManager.showsBackgroundLocationIndicator = false;
             }
             result(enable ? @1 : @0);
         } else {
