@@ -20,9 +20,7 @@ import com.lyokone.location.location.constants.ProcessType;
 import com.lyokone.location.location.constants.RequestCode;
 import com.lyokone.location.location.helper.LogUtils;
 import com.lyokone.location.location.listener.FallbackListener;
-import com.lyokone.location.location.providers.locationprovider.GooglePlayServicesLocationSource;
 import com.lyokone.location.location.providers.locationprovider.GooglePlayServicesLocationSource.SourceListener;
-import com.lyokone.location.location.providers.locationprovider.LocationProvider;
 
 import java.lang.ref.WeakReference;
 

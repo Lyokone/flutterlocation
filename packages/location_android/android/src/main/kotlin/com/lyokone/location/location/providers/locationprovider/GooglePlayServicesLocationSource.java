@@ -28,6 +28,7 @@ class GooglePlayServicesLocationSource extends LocationCallback {
     private final FusedLocationProviderClient fusedLocationProviderClient;
     private final LocationRequest locationRequest;
     private final SourceListener sourceListener;
+    private final Context context;
 
     interface SourceListener extends OnSuccessListener<LocationSettingsResponse>, OnFailureListener {
         void onSuccess(LocationSettingsResponse locationSettingsResponse);
@@ -43,10 +44,11 @@ class GooglePlayServicesLocationSource extends LocationCallback {
         this.sourceListener = sourceListener;
         this.locationRequest = locationRequest;
         this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
+        this.context = context;
     }
 
     void checkLocationSettings() {
-        LocationServices.getSettingsClient(fusedLocationProviderClient.getApplicationContext())
+        LocationServices.getSettingsClient(context)
                 .checkLocationSettings(
                         new LocationSettingsRequest.Builder()
                                 .addLocationRequest(locationRequest)
