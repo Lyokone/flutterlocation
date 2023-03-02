@@ -1,3 +1,7 @@
+## 5.0.0-dev.4
+
+ - **FEAT**: update to run on Flutter 3.7.
+
 ## 5.0.0-dev.3
 
  - **FEAT**: improve PermissionStatus.
