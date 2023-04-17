@@ -3,7 +3,6 @@ import UIKit
 import SwiftLocation
 import CoreLocation
 
-@UIApplicationMain
 public class SwiftLocationPlugin: NSObject, FlutterPlugin, LocationHostApi, UIApplicationDelegate {
     
     var globalPigeonLocationSettings: PigeonLocationSettings?
