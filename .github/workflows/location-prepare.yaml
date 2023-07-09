@@ -27,9 +27,10 @@ jobs:
           flutter-version: ${{ matrix.flutter-version }}
 
       - name: Set up Melos
-        run: |
-          dart pub global activate melos ^2.0.0
-          melos bootstrap
+        run: dart pub global activate melos ^2.0.0
+
+      - name: melos bootstrap
+        run: melos bootstrap
 
       - name: Format and lint
         if: success() || failure()
