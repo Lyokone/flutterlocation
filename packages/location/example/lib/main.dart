@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:location_example/change_settings.dart';
@@ -10,6 +9,8 @@ import 'get_location.dart';
 import 'listen_location.dart';
 import 'permission_status.dart';
 import 'service_enabled.dart';
+
+const _url = 'https://github.com/Lyokone/flutterlocation';
 
 void main() => runApp(MyApp());
 
@@ -50,13 +51,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 const Text('Created by Guillaume Bernos'),
                 InkWell(
                   child: const Text(
-                    'https://github.com/Lyokone/flutterlocation',
+                    _url,
                     style: TextStyle(
                       decoration: TextDecoration.underline,
                     ),
                   ),
-                  onTap: () =>
-                      launch('https://github.com/Lyokone/flutterlocation'),
+                  onTap: () => launchUrl(Uri.parse(_url)),
                 ),
               ],
             ),
