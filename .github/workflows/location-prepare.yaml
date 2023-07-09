@@ -8,7 +8,45 @@ on:
     branches: [master, develop]
 
 jobs:
-  prepare:
+  prepare-android:
+    runs-on: ${{ matrix.os }}
+    name: Android on ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    defaults:
+      run:
+        working-directory: packages/location/example/android
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.10.x'
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Generate Gradle wrapper
+        working-directory: packages/patrol/example
+        run: flutter build apk --debug --flavor=does-not-exist || true
+
+      - name: Build example app with Gradle
+        run: ./gradlew :app:assembleDebug
+
+      - name: Build example app with Flutter tool
+        run: flutter build apk --debug
+
+  prepare-flutter:
     name: Flutter ${{ matrix.flutter-version }}
     runs-on: ubuntu-latest
 
