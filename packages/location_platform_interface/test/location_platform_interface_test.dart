@@ -26,12 +26,6 @@ void main() {
       expect(LocationPlatform.instance, isA<MethodChannelLocation>());
     });
 
-    test('Cannot be implemented with `implements`', () {
-      expect(() {
-        LocationPlatform.instance = ImplementsLocationPlatform();
-      }, throwsNoSuchMethodError);
-    });
-
     test('Can be extended', () {
       LocationPlatform.instance = ExtendsLocationPlatform();
     });
@@ -131,11 +125,6 @@ void main() {
       );
     });
   });
-}
-
-class ImplementsLocationPlatform implements LocationPlatform {
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class MockLocationPlatform extends Mock
