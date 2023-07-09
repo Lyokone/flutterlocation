@@ -1,0 +1,40 @@
+name: location prepare
+
+on:
+  push:
+    branches: [master, develop]
+    tags-ignore: ['*']
+  pull_request:
+    branches: [master, develop]
+
+jobs:
+  prepare:
+    name: Flutter ${{ matrix.flutter-version }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        flutter-version: ['3.0.x', '3.3.x', '3.7.x', '3.10.0']
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ matrix.flutter-version }}
+
+      - name: Set up Melos
+        run: |
+          dart pub global activate melos ^2.0.0
+          melos bootstrap
+
+      - name: Format and lint
+        if: success() || failure()
+        run: melos run lint:all
+
+      - name: Run tests
+        if: success() || failure()
+        run: melos run test --no-select
