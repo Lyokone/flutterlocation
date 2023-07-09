@@ -36,7 +36,7 @@ class _ChangeSettingsState extends State<ChangeSettings> {
         children: <Widget>[
           Text(
             'Change settings',
-            style: Theme.of(context).textTheme.bodyText1,
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: 4),
           TextFormField(

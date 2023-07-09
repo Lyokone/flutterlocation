@@ -2,7 +2,7 @@ library location_platform_interface;
 
 import 'dart:async';
 import 'dart:io';
-// This import can be removed when we drop support for Flutter 3.0.
+// FIXME: This import can be removed when we drop support for Flutter 3.0.
 // ignore: unnecessary_import
 import 'dart:ui';
 
