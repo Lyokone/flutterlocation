@@ -12,10 +12,11 @@ import 'service_enabled.dart';
 
 const _url = 'https://github.com/Lyokone/flutterlocation';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, this.title}) : super(key: key);
+  const MyHomePage({super.key, this.title});
   final String? title;
 
   @override
@@ -42,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _showInfoDialog() {
     return showDialog<void>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return AlertDialog(
           title: const Text('Demo Application'),
           content: SingleChildScrollView(

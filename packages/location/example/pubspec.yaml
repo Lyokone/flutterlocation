@@ -12,5 +12,8 @@ dependencies:
     path: ../
   url_launcher: ^6.0.2
 
+dev_dependencies:
+  leancode_lint: ^3.0.0
+
 flutter:
   uses-material-design: true
