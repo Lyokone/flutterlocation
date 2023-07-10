@@ -1,11 +1,11 @@
 name: location_platform_interface
 description: A common platform interface for the location plugin.
-version: 2.3.0
+version: 3.0.0
 homepage: https://github.com/Lyokone/flutterlocation
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
-  flutter: '>=1.12.13+hotfix.4'
+  sdk: '>=2.17.0 <4.0.0'
+  flutter: '>=3.0.0'
 
 dependencies:
   flutter:

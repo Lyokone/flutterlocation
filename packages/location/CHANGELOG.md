@@ -1,82 +1,87 @@
+## 5.0.0
+
+- Fix build errors on Android (#847)
+- Bump minimum Flutter to 3.0 (#847)
+
 ## 4.4.0
 
- - **FEAT**: support android 12 in example app.
+- **FEAT**: support android 12 in example app.
 
 ## 4.3.0
 
- - **FIX**: fix location package test.
- - **FEAT**: improve coverage.
+- **FIX**: fix location package test.
+- **FEAT**: improve coverage.
 
 ## 4.2.3
 
- - **FIX**: fix macos build, fixing #544.
+- **FIX**: fix macos build, fixing #544.
 
 ## 4.2.2
 
- - **FIX**: fix android crash on Android API 27, #579.
+- **FIX**: fix android crash on Android API 27, #579.
 
 ## 4.2.1
 
- - **FIX**: add compatibility version to target Java 8.
+- **FIX**: add compatibility version to target Java 8.
 
 ## 4.2.0
 
- - **REFACTOR**: remove Android strings.
- - **REFACTOR**: extract background notification logic to separate class.
- - **FIX**: wait 2 location updates to make sure that the last knwown position isn't returned instantly #549.
- - **FIX**: fix the depreciation warning on android #550.
- - **FIX**: improve changeSettings to be applied immediatly.
- - **FEAT**: add several information to resolve #552.
- - **FEAT**: add several information to resolve #552.
- - **FEAT**: better listen example to prevent infinite location request.
- - **FEAT**: fix typos.
- - **FEAT**: add ios requirements.
- - **FEAT**: improve example app.
- - **FEAT**: separate result variables to prevent result override.
- - **FEAT**: add isMock information on LocationData.
- - **FEAT**: add fallback for LocationAccuracy.reduced on Android.
- - **FEAT**: add option to reopen app from notification.
- - **FEAT**: allow for customizing Android notification text, subtext and color.
- - **FEAT**: update example app to showcase Android notification options.
- - **FEAT**: allow for customizing Android background notification from dart.
- - **FEAT**: handle notification changes in Android MethodCallHandler.
- - **FEAT**: return notification and channel id when changing options.
- - **DOCS**: update readme web.
- - **CHORE**: publish packages.
- - **CHORE**: publish packages.
- - **CHORE**: publish packages.
- - **CHORE**: publish packages.
- - **CHORE**: publish packages.
+- **REFACTOR**: remove Android strings.
+- **REFACTOR**: extract background notification logic to separate class.
+- **FIX**: wait 2 location updates to make sure that the last knwown position
+  isn't returned instantly #549.
+- **FIX**: fix the depreciation warning on android #550.
+- **FIX**: improve changeSettings to be applied immediatly.
+- **FEAT**: add several information to resolve #552.
+- **FEAT**: add several information to resolve #552.
+- **FEAT**: better listen example to prevent infinite location request.
+- **FEAT**: fix typos.
+- **FEAT**: add ios requirements.
+- **FEAT**: improve example app.
+- **FEAT**: separate result variables to prevent result override.
+- **FEAT**: add isMock information on LocationData.
+- **FEAT**: add fallback for LocationAccuracy.reduced on Android.
+- **FEAT**: add option to reopen app from notification.
+- **FEAT**: allow for customizing Android notification text, subtext and color.
+- **FEAT**: update example app to showcase Android notification options.
+- **FEAT**: allow for customizing Android background notification from dart.
+- **FEAT**: handle notification changes in Android MethodCallHandler.
+- **FEAT**: return notification and channel id when changing options.
+- **DOCS**: update readme web.
+- **CHORE**: publish packages.
+- **CHORE**: publish packages.
+- **CHORE**: publish packages.
+- **CHORE**: publish packages.
+- **CHORE**: publish packages.
 
 ## 4.1.1
 
- - **FIX**: fix crash on build.
-
+- **FIX**: fix crash on build.
 
 ## 4.1.0
 
- - **REFACTOR**: remove Android strings.
- - **REFACTOR**: extract background notification logic to separate class.
- - **FEAT**: add option to reopen app from notification.
- - **FEAT**: allow for customizing Android notification text, subtext and color.
- - **FEAT**: update example app to showcase Android notification options.
- - **FEAT**: allow for customizing Android background notification from dart.
- - **FEAT**: handle notification changes in Android MethodCallHandler.
- - **FEAT**: return notification and channel id when changing options.
- - **DOCS**: update readme web.
- - **CHORE**: publish packages.
- - **CHORE**: publish packages.
- - **CHORE**: publish packages.
- - **CHORE**: publish packages.
+- **REFACTOR**: remove Android strings.
+- **REFACTOR**: extract background notification logic to separate class.
+- **FEAT**: add option to reopen app from notification.
+- **FEAT**: allow for customizing Android notification text, subtext and color.
+- **FEAT**: update example app to showcase Android notification options.
+- **FEAT**: allow for customizing Android background notification from dart.
+- **FEAT**: handle notification changes in Android MethodCallHandler.
+- **FEAT**: return notification and channel id when changing options.
+- **DOCS**: update readme web.
+- **CHORE**: publish packages.
+- **CHORE**: publish packages.
+- **CHORE**: publish packages.
+- **CHORE**: publish packages.
 
 ## 4.0.2
 
- - Bump "location" to `4.0.2`.
+- Bump "location" to `4.0.2`.
 
 ## 4.0.1
 
- - **DOCS**: update readme web.
- - **CHORE**: publish packages.
+- **DOCS**: update readme web.
+- **CHORE**: publish packages.
 
 ## 4.0.0
 
@@ -98,9 +103,12 @@
 
 ## [3.2.0] 23rd December 2020
 
-- Add the ability to launch location notifications when application is in background
-  - on iOS implemented with native background location support by adding required permissions and permission checks
-  - on Android by providing a custom service that wraps existing native location API calls in a foreground service
+- Add the ability to launch location notifications when application is in
+  background
+  - on iOS implemented with native background location support by adding
+    required permissions and permission checks
+  - on Android by providing a custom service that wraps existing native location
+    API calls in a foreground service
 - Update Android SDK to Android 10/Q (API level 29)
 - Updated sample application to include the background mode
 - Various bug fixing
@@ -108,9 +116,10 @@
 ## [3.1.0] 09 October 2020
 
 - Do not throw errors from methods that do not need an activity.
-- [BREAKING] The error thrown is now ActivityNotFoundException which changes the error code
-  returned when activity is not found. It used to be NO_ACTIVITY, now it is just error. We
-  anticipate this error to be rarely experienced in the wild.
+- [BREAKING] The error thrown is now ActivityNotFoundException which changes the
+  error code returned when activity is not found. It used to be NO_ACTIVITY, now
+  it is just error. We anticipate this error to be rarely experienced in the
+  wild.
 
 ## [3.0.3] 25th August 2020
 
@@ -152,8 +161,11 @@
 
 ## [2.5.0] 23rd February 2020
 
-- [BREAKING] The `requestPermission` and `hasPermission` are now returning PermissionStatus enum.
-- Upgrade to Android Embedding V2 (follow https://github.com/flutter/flutter/wiki/Upgrading-pre-1.12-Android-projects if the plugin isn't working after upgrade)
+- [BREAKING] The `requestPermission` and `hasPermission` are now returning
+  PermissionStatus enum.
+- Upgrade to Android Embedding V2 (follow
+  https://github.com/flutter/flutter/wiki/Upgrading-pre-1.12-Android-projects if
+  the plugin isn't working after upgrade)
 - Resolve getLocation when service is disabled thanks to nicowernli
 - Update example app
 - Fix bugs leading to non returning code
@@ -162,15 +174,18 @@
 
 ## [2.4.0] 14th February 2020
 
-- Align timestamp in Android and iOS, previously the iOS timestamp was in seconds instead of milliseconds. Thanks to 781flyingdutchman.
+- Align timestamp in Android and iOS, previously the iOS timestamp was in
+  seconds instead of milliseconds. Thanks to 781flyingdutchman.
 
 ## [2.3.7] 08th January 2020
 
-- Fix bug where requestPermission is called after the user has already denied the system location dialog, then this method call would never return.
+- Fix bug where requestPermission is called after the user has already denied
+  the system location dialog, then this method call would never return.
 
 ## [2.3.6] 07th January 2020
 
-- Fix ClassCastException errors on some Android phones when requesting Location status.
+- Fix ClassCastException errors on some Android phones when requesting Location
+  status.
 
 ## [2.3.5] 10th April 2019
 
@@ -199,12 +214,14 @@
 ## [2.3.0] 22nd March 2019
 
 - Update example App with proper cancel
-- Add possibility to set accuracy, interval and minimum notification ditance of the requests.
+- Add possibility to set accuracy, interval and minimum notification ditance of
+  the requests.
 - Add LocationAccuracy object
 
 ## [2.2.0] 19th March 2019
 
-- Actually updating locatino when using getLocation (not only relying on LastLocation)
+- Actually updating locatino when using getLocation (not only relying on
+  LastLocation)
 - Add timestamp to LocationData
 - Add serviceEnabled method to check whether Location Service is enabled.
 - Add requestService method to ask the user to activate the location service.
@@ -212,7 +229,8 @@
 
 ## [2.1.0] 16th Match 2019
 
-- iOS permission should be closer to Android permission behaviour thanks to PerrchicK
+- iOS permission should be closer to Android permission behaviour thanks to
+  PerrchicK
 - Adding requestPermission(), to manually request permission
 - Several feature fixed for less crash when using the plugin
 - Code Cleanup
@@ -236,17 +254,18 @@
 
 ## [1.3.3] 30th May 2018
 
-- Correct implementation of iOS plugin to match Android behaviour. No need to call getLocation
-  to get permissions for location callbacks.
+- Correct implementation of iOS plugin to match Android behaviour. No need to
+  call getLocation to get permissions for location callbacks.
 
 ## [1.3.2] 30th May 2018
 
-- Change implementation to api in build.gradle in order to solve incompatibilities between
-  GMS versions thanks to luccascorrea
+- Change implementation to api in build.gradle in order to solve
+  incompatibilities between GMS versions thanks to luccascorrea
 
 ## [1.3.1] 29th May 2018
 
-- Added speed and speed_accuracy (only Android truly discover speed accuracy, so its always 0 for now on iOS)
+- Added speed and speed_accuracy (only Android truly discover speed accuracy, so
+  its always 0 for now on iOS)
 - Solved a crash
 
 ## [1.3.0] 27th May 2018
@@ -270,8 +289,8 @@
 
 ## [1.1.0] - 17th July 2017.
 
-- Added permission check for Android 6+ (thanks netdur). Still no callback when permissions granted
-  so aiming SDK 21 is safer.
+- Added permission check for Android 6+ (thanks netdur). Still no callback when
+  permissions granted so aiming SDK 21 is safer.
 
 ## [1.0.0] - 7th July 2017.
 
