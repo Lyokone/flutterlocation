@@ -1,3 +1,7 @@
+## 3.0.0
+
+- Bump minimum Flutter to 3.0 (#847)
+
 ## 2.3.0
 
 - **FIX**: add platform tests.

@@ -1,3 +1,7 @@
+## 4.0.0
+
+- Bump minimum Flutter to 3.0 (#847)
+
 ## 3.1.1
 
 - Update a dependency to the latest release.

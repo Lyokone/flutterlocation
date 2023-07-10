@@ -1,3 +1,8 @@
+## 5.0.0
+
+- Fix build errors on Android (#847)
+- Bump minimum Flutter to 3.0 (#847)
+
 ## 4.4.0
 
 - **FEAT**: support android 12 in example app.
