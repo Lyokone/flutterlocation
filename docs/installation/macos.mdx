@@ -1,40 +1,48 @@
 ---
 title: Install on macOS
-description: Install the location package on iOS
 ---
 
 # Install on macOS
 
 ## Minimum deployment target
 
-In order to use Location, you need to set your minimum deployment target to macOS 11.0 or later.
-Change the first line in your `macos/Podfile` into:
+In order to use the `location` plugin, you need to set your minimum deployment
+target to macOS 11.0 or later:
 
-```
+```ruby name="macos/Podfile"
 platform :osx, '11.0'
 ```
 
 ## Info.plist
 
-In order to request location permissions, you need to add the following to your `ios/Runner/Info.plist`:
+In order to request location permissions, you need to add the following to your
+`macos/Runner/Info.plist`:
 
 ```
 <key>NSLocationWhenInUseUsageDescription</key>
 <string>The app needs the location</string>
 ```
 
-The string will appear in the popup when the user is asked to grant location permissions.
+The string will appear in the popup when the user is asked to grant location
+permissions.
 
 ## Sandboxed application
 
-Ensure that the application is properly "sandboxed" and that the location is enabled. You can do this in Xcode with the following steps:
+Ensure that the application is properly "sandboxed" and that the location is
+enabled. You can do this in Xcode with the following steps:
 
-1. In the project navigator, click on your application's target. This should bring up a view with tabs such as "General", "Capabilities", "Resource Tags", etc.
-2. Click on the "Signing and Capabilities" tab. This will give you a list of items such as "App Groups", "App Sandbox", and so on. Each item will have an "On/Off" button.
-3. Turn on the "App Sandbox" item and press the ">" button on the left to show the sandbox informations.
+1. In the project navigator, click on your application's target. This should
+   bring up a view with tabs such as "General", "Capabilities", "Resource Tags",
+   etc.
+2. Click on the "Signing and Capabilities" tab. This will give you a list of
+   items such as "App Groups", "App Sandbox", and so on. Each item will have an
+   "On/Off" button.
+3. Turn on the "App Sandbox" item and press the ">" button on the left to show
+   the sandbox informations.
 4. In the "App Data" section, select "Location".
 
 ## About macOS
 
-The location is not precise while using macOS since the computers don't have a GPS.
-Some settings will have no effect in order to keep the location as precise as possible.
+The location is not precise while using macOS since the computers don't have a
+GPS. Some settings will have no effect in order to keep the location as precise
+as possible.
