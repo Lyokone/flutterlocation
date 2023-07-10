@@ -1,0 +1,65 @@
+{
+  "name": "Flutter Location",
+  "description": "This library aims at providing you a simple way to get the user location without thinking about permission. It's also heavily configurable so you can easily get better performance or better battery.",
+  "plausibleAnalytics": true,
+  "plausibleAnalyticsScript": "https://analytics.bernos.dev/js/script.js",
+  "twitter": "BeGuillaume",
+  "theme": "#FFA03F",
+  "logo": "../assets/Logo.png",
+  "sidebar": [
+    ["Overview", "/"],
+    [
+      "Installation",
+      [
+        ["Getting started", "/getting-started"],
+        ["Android", "/installation/android"],
+        ["iOS", "/installation/ios"],
+        ["macOS", "/installation/macos"],
+        ["Web", "/installation/web"]
+      ]
+    ],
+    [
+      "Features",
+      [
+        ["Get Location", "/features/get-location"],
+        ["Listen to Location", "/features/listen-location"],
+        ["Settings", "/features/settings"],
+        ["Permissions", "/features/permissions"],
+        ["Services", "/features/services"],
+        ["Notification", "/features/notification"]
+      ]
+    ],
+    ["Testing", "/testing"],
+    [
+      "API",
+      [
+        [
+          "LocationData",
+          "https://pub.dev/documentation/location_platform_interface/latest/location_platform_interface/LocationData-class.html"
+        ],
+        [
+          "LocationAccuracy",
+          "https://pub.dev/documentation/location_platform_interface/latest/location_platform_interface/LocationAccuracy-class.html"
+        ],
+
+        [
+          "LocationSettings",
+          "https://pub.dev/documentation/location_platform_interface/latest/location_platform_interface/LocationSettings-class.html"
+        ],
+        [
+          "PermissionStatus",
+          "https://pub.dev/documentation/location_platform_interface/latest/location_platform_interface/PermissionStatus-class.html"
+        ]
+      ]
+    ],
+    [
+      "Examples",
+      [
+        [
+          "Demo App",
+          "https://github.com/Lyokone/flutterlocation/tree/master/packages/location/example"
+        ]
+      ]
+    ]
+  ]
+}

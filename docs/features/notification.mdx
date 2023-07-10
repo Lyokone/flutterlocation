@@ -1,0 +1,45 @@
+---
+title: Notification
+description: Update the Android notification
+---
+
+# Notification
+
+When you listen for background location, a notification is displayed on Android. This methods allows you to update the notification.
+
+```dart
+Future<bool> updateBackgroundNotification({
+  String? channelName,
+  String? title,
+  String? iconName,
+  String? subtitle,
+  String? description,
+  Color? color,
+  bool? onTapBringToFront,
+})
+```
+
+`iconName` is the name of the icon to display.
+It should be in the `res/drawable` folder with the same name. By default, the library gives you a transparent icon.
+
+## Examples
+
+### Updating the notification with the current location
+
+The notification will only appear on Android
+
+```dart
+_locationSubscription = onLocationChanged(inBackground: _inBackground)
+    .listen((LocationData currentLocation) async {
+        await updateBackgroundNotification(
+            subtitle:
+                'Location: ${currentLocation.latitude}, ${currentLocation.longitude}',
+            onTapBringToFront: true,
+        );
+    }
+);
+
+...
+
+_locationSubscription?.cancel();
+```

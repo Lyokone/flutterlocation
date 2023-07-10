@@ -1,0 +1,28 @@
+# Welcome to Location Documentation
+
+This library aims at providing you a simple way to get the user location without thinking about permission.
+It's also heavily configurable so you can easily get **better performance** or **better battery**.
+
+<YouTube id="65qbtJMltVk" />
+
+It currently supports Android, iOS, macOS and Web. Support for remaining platforms is incoming.
+
+## Features
+
+- 👨‍💻️ Easy to use
+- 🛰 Handles requesting permission and enabling GPS automatically for you
+- 🔋 Highly configurable so you get the best performance / battery ratio for your usecase
+- 🔍 Supports both with and without Google Play Services for Android phones without them
+- 🏃‍♂️ Supports background location updates
+- ⭐️ [Flutter Favorite](https://docs.flutter.dev/development/packages-and-plugins/favorites)
+
+## How to use?
+
+Start by [installing Location](/getting-stated)!
+
+Then, to get the location of your user you can simply do:
+
+```dart
+final location = await getLocation();
+print("Location: ${location.latitude}, ${location.longitude}");
+```

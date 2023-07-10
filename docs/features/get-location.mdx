@@ -1,0 +1,41 @@
+---
+title: Get Location
+description: How to get your user's location
+---
+
+# Get Location
+
+To get the location of the user, you can simply use
+
+```dart
+Future<LocationData> getLocation({LocationSettings? settings})
+```
+
+To see all the settings, see [the settings](/features/settings) page.
+
+By default, the call will try to **request permission** if needed, **activate GPS** and return the location without anything needed from your part.
+If something goes wrong the call will throw.
+
+If you have set global settings, it will use those settings instead of the default ones.
+
+If you are currently listening for location with `onLocationChanged`, it will use the settings from this call.
+
+If you call getLocation multiples times, the requests will be queued and they will receive the same location when available.
+
+## Examples
+
+### Getting location
+
+```dart
+final location = await getLocation();
+print("Location: ${location.latitude}, ${location.longitude}");
+```
+
+### With custom settings
+
+```dart
+final location = await getLocation(
+    settings: LocationSettings(ignoreLastKnownPosition: true),
+);
+print("Location: ${location.latitude}, ${location.longitude}");
+```
