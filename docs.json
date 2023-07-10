@@ -7,7 +7,7 @@
   "theme": "#FFA03F",
   "logo": "assets/logo.png",
   "sidebar": [
-    ["Overview", "/"],
+    ["About", "/"],
     [
       "Installation",
       [

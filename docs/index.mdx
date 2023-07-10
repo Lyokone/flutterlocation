@@ -1,24 +1,31 @@
-# Welcome to Location Documentation
+---
+title: About
+description: Cross-platform Flutter plugin for easy access to device's location in real-time.
+---
 
-This library aims at providing you a simple way to get the user location without thinking about permission.
-It's also heavily configurable so you can easily get **better performance** or **better battery**.
+# Welcome to docs of the location plugin
+
+This library aims at providing you a simple way to get the user location without
+thinking about permission. It's also configurable so you can achieve **better
+performance** or **better battery life**.
 
 <YouTube id="65qbtJMltVk" />
 
-It currently supports Android, iOS, macOS and Web. Support for remaining platforms is incoming.
+It currently supports Android, iOS, macOS and Web.
 
 ## Features
 
 - 👨‍💻️ Easy to use
 - 🛰 Handles requesting permission and enabling GPS automatically for you
-- 🔋 Highly configurable so you get the best performance / battery ratio for your usecase
-- 🔍 Supports both with and without Google Play Services for Android phones without them
-- 🏃‍♂️ Supports background location updates
-- ⭐️ [Flutter Favorite](https://docs.flutter.dev/development/packages-and-plugins/favorites)
+- 🔋 Highly configurable so you get the best performance / battery life for your
+  usecase
+- 🔍 Works either with and without Google Play Services on Android phones
+- 🏃‍♂️ Background location updates
+- ⭐️ [Flutter Favorite]
 
 ## How to use?
 
-Start by [installing Location](/getting-stated)!
+Start by [installing Location](/getting-started)!
 
 Then, to get the location of your user you can simply do:
 
@@ -26,3 +33,5 @@ Then, to get the location of your user you can simply do:
 final location = await getLocation();
 print("Location: ${location.latitude}, ${location.longitude}");
 ```
+
+[flutter favorite]: https://docs.flutter.dev/packages-and-plugins/favorites
