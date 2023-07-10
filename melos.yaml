@@ -1,52 +1,47 @@
-name: location
+name: flutterlocation
+repository: https://github.com/Lyokone/flutterlocation
 packages:
   - packages/**
 
 scripts:
-  lint:all:
-    run: melos run analyze && melos run format
-    description: Run all static analysis checks
+  check:
+    run: |
+      melos run analyze
+      melos run format:dry-run
+      melos run test
+      melos run pub:dry-run
+    description: Run all static analysis checks.
 
   analyze:
-    run: |
-      melos exec -c 5 -- \
-        dart analyze . --fatal-infos
-    description: |
-      Run `dart analyze` in all packages.
-       - Note: you can also rely on your IDEs Dart Analysis / Issues window.
+    run: melos exec -- \
+      dart analyze . --fatal-infos
+    description: Run `dart analyze` in all packages.
   format:
-    run: melos exec -c 5 -- dart format .
-    description: |
-      Format all files.
+    run: melos exec -- \
+      dart format .
+    description: Run `dart format` in all packages.
+  format:dry-run:
+    run: melos exec -- \
+      dart format . --set-exit-if-changed
+    description: Run `dart format` in all packages, but don't make any changes.
+
+  pub:dry-run:
+    run: melos exec -- \
+      dart pub publish --dry-run
+    description: Run `dart pub publish` in all packages in dry run mode.
+    packageFilters:
+      ignore:
+        - 'example'
 
   test:all:
-    run: melos run test --no-select && melos run test:mobile_e2e --no-select
+    run: melos run test --no-select
     description: Run all tests available on stable channel
 
   test:
     run: |
-      melos exec -c 6 --fail-fast -- \
+      melos exec -- \
         "flutter test --no-pub --coverage"
     description: Run `flutter test` for a specific package.
-    select-package:
-      dir-exists:
+    packageFilters:
+      dirExists:
         - test
-      ignore:
-        - "*web*"
-        - "*example*"
-
-  test:mobile_e2e:
-    run: |
-      melos exec -c 1 --fail-fast -- \
-        "flutter drive --target=./test_driver/MELOS_PARENT_PACKAGE_NAME_e2e.dart"
-    description: |
-      Run all Android or iOS test driver e2e tests in a specific example app.
-       - Requires an Android emulator or iOS simulator.
-    select-package:
-      dir-exists:
-        - test_driver
-      scope: "*example*"
-      ignore:
-        - "*firebase_ml_custom*"
-        - "*firebase_ml_vision*"
-        - "*firebase_admob*"
