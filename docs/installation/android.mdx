@@ -1,0 +1,45 @@
+---
+title: Install on Android
+description: Install the location package on Android
+---
+
+# Install on Android
+
+## Minimum SDK version
+
+In order to use Location, you need to set the minimum SDK version to at **least API level 21**.
+You can set it in your `android/app/build.gradle` file.
+
+```
+android {
+   defaultConfig {
+     minSdkVersion 21
+   }
+}
+```
+
+## Theme AppCompat
+
+In order to display dialogs for asking the user to activate the GPS automatically and redirect to the Settings page,
+you need to change the default theme of your app to `Theme.AppCompat.Light.NoActionBar` in `android/app/src/main/res/values/styles.xml`
+
+```xml
+...
+    <style name="NormalTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+...
+```
+
+## Background location
+
+In order to receive background location, you need to add the following permissions to your manifest:
+
+```
+  ...
+
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+  <application android:label=...
+```
