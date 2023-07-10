@@ -1,11 +1,11 @@
 {
-  "name": "Flutter Location",
-  "description": "This library aims at providing you a simple way to get the user location without thinking about permission. It's also heavily configurable so you can easily get better performance or better battery.",
+  "name": "package:location",
+  "description": "Cross-platform Flutter plugin for easy access to device's location in real-time.",
   "plausibleAnalytics": true,
   "plausibleAnalyticsScript": "https://analytics.bernos.dev/js/script.js",
   "twitter": "BeGuillaume",
   "theme": "#FFA03F",
-  "logo": "../assets/Logo.png",
+  "logo": "assets/logo.png",
   "sidebar": [
     ["Overview", "/"],
     [
@@ -21,8 +21,8 @@
     [
       "Features",
       [
-        ["Get Location", "/features/get-location"],
-        ["Listen to Location", "/features/listen-location"],
+        ["Get location", "/features/get-location"],
+        ["Listen location", "/features/listen-location"],
         ["Settings", "/features/settings"],
         ["Permissions", "/features/permissions"],
         ["Services", "/features/services"],
@@ -31,7 +31,7 @@
     ],
     ["Testing", "/testing"],
     [
-      "API",
+      "API reference",
       [
         [
           "LocationData",
@@ -53,13 +53,8 @@
       ]
     ],
     [
-      "Examples",
-      [
-        [
-          "Demo App",
-          "https://github.com/Lyokone/flutterlocation/tree/master/packages/location/example"
-        ]
-      ]
+      "Example app",
+      "https://github.com/Lyokone/flutterlocation/tree/master/packages/location/example"
     ]
   ]
 }
