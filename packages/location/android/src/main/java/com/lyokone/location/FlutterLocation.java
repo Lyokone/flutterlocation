@@ -34,6 +34,7 @@ import com.google.android.gms.location.SettingsClient;
 import io.flutter.plugin.common.EventChannel.EventSink;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
@@ -118,7 +119,7 @@ public class FlutterLocation
     }
 
     @Override
-    public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public boolean onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         return onRequestPermissionsResultHandler(requestCode, permissions, grantResults);
     }
 

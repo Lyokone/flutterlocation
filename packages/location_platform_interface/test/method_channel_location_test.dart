@@ -1,6 +1,5 @@
-// File created by
-// Lung Razvan <long1eu>
-// on 23/03/2020
+// FIXME: This ignore can be removed when we drop support for Flutter 3.0.
+// ignore_for_file: deprecated_member_use
 
 import 'dart:async';
 

@@ -38,7 +38,7 @@ class _PermissionStatusState extends State<PermissionStatusWidget> {
       children: <Widget>[
         Text(
           'Permission status: ${_permissionGranted ?? "unknown"}',
-          style: Theme.of(context).textTheme.bodyText1,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         Row(
           children: <Widget>[

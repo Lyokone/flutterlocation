@@ -1,0 +1,36 @@
+name: location_web publish
+
+on:
+  push:
+    tags: ['location_web-v*']
+
+jobs:
+  publish:
+    name: Publish on pub.dev
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      # This step adds the auth token for pub.dev
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Publish to pub.dev
+        id: pub_release
+        uses: leancodepl/mobile-tools/.github/actions/pub-release@pub-release-v1
+        with:
+          path: packages/location_web

@@ -45,7 +45,7 @@ class _ChangeNotificationWidgetState extends State<ChangeNotificationWidget> {
         children: <Widget>[
           Text(
             'Android Notification Settings',
-            style: Theme.of(context).textTheme.bodyText1,
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: 4),
           TextFormField(

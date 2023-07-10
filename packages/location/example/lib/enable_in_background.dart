@@ -59,7 +59,7 @@ class _EnableInBackgroundState extends State<EnableInBackgroundWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text('Enabled in background: ${_error ?? '${_enabled ?? false}'}',
-            style: Theme.of(context).textTheme.bodyText1),
+            style: Theme.of(context).textTheme.bodyLarge),
         Row(
           children: <Widget>[
             Container(
