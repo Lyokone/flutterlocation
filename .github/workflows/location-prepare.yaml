@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        flutter-version: ['3.3.x', '3.7.x', '3.10.0']
+        flutter-version: ['3.3.x', '3.7.x', '3.10.x']
 
     steps:
       - name: Clone repository
@@ -47,14 +47,6 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Generate Gradle wrapper
-        working-directory: packages/location/example
-        run: flutter build apk --debug --flavor=does-not-exist || true
-
-      - name: Build example app with Gradle
-        working-directory: packages/location/example/android
-        run: ./gradlew :app:assembleDebug
-
-      - name: Build example app with Flutter tool
+      - name: Build example app
         working-directory: packages/location/example
         run: flutter build apk --debug
