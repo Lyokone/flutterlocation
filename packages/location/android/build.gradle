@@ -1,28 +1,26 @@
-group 'com.lyokone.location'
-version '1.0-SNAPSHOT'
+group "com.lyokone.location"
+version "1.0-SNAPSHOT"
 
 buildscript {
-    ext.kotlin_version = '1.8.22'
+    ext.kotlin_version = "1.9.0"
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath "com.android.tools.build:gradle:7.4.2"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
-rootProject.allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
+repositories {
+    google()
+    mavenCentral()
 }
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
 
 android {
     namespace "com.lyokone.location"
@@ -33,19 +31,19 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = "1.8"
     }
 }
 
 dependencies {
-    compileOnly 'androidx.annotation:annotation:1.6.0'
+    compileOnly "androidx.annotation:annotation:1.6.0"
 
-    api 'com.google.android.gms:play-services-location:21.0.1'
+    api "com.google.android.gms:play-services-location:21.0.1"
     implementation "androidx.core:core-ktx:1.10.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
