@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        flutter-version: ['3.0.x', '3.3.x', '3.7.x', '3.10.0']
+        flutter-version: ['3.3.x', '3.7.x', '3.10.0']
 
     steps:
       - name: Clone repository

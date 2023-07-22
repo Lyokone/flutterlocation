@@ -1,6 +1,3 @@
-// FIXME: This ignore can be removed when we drop support for Flutter 3.0.
-// ignore_for_file: deprecated_member_use
-
 import 'dart:async';
 
 import 'package:async/async.dart';
@@ -12,10 +9,9 @@ import 'package:mockito/mockito.dart';
 
 import 'method_channel_location_test.mocks.dart';
 
-// ignore: always_specify_types
 @GenerateMocks([EventChannel])
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
+  final binding = TestWidgetsFlutterBinding.ensureInitialized();
 
   MethodChannel? methodChannel;
   MockEventChannel? eventChannel;
@@ -28,24 +24,27 @@ void main() {
     eventChannel = MockEventChannel();
     location = MethodChannelLocation.private(methodChannel, eventChannel);
 
-    methodChannel!.setMockMethodCallHandler((methodCall) async {
-      log.add(methodCall);
-      switch (methodCall.method) {
-        case 'getLocation':
-          return <String, dynamic>{
-            'latitude': 48.8534,
-            'longitude': 2.3488,
-          };
-        case 'changeSettings':
-          return 1;
-        case 'serviceEnabled':
-          return 1;
-        case 'requestService':
-          return 1;
-        default:
-          return '';
-      }
-    });
+    binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      methodChannel!,
+      (methodCall) async {
+        log.add(methodCall);
+        switch (methodCall.method) {
+          case 'getLocation':
+            return <String, dynamic>{
+              'latitude': 48.8534,
+              'longitude': 2.3488,
+            };
+          case 'changeSettings':
+            return 1;
+          case 'serviceEnabled':
+            return 1;
+          case 'requestService':
+            return 1;
+          default:
+            return '';
+        }
+      },
+    );
 
     log.clear();
   });
@@ -86,33 +85,45 @@ void main() {
 
   group('Permission Status', () {
     test('Should convert int to correct Permission Status', () async {
-      methodChannel!.setMockMethodCallHandler((methodCall) async {
-        return 0;
-      });
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        methodChannel!,
+        (methodCall) async {
+          return 0;
+        },
+      );
       var receivedPermission = await location.hasPermission();
       expect(receivedPermission, PermissionStatus.denied);
       receivedPermission = await location.requestPermission();
       expect(receivedPermission, PermissionStatus.denied);
 
-      methodChannel!.setMockMethodCallHandler((methodCall) async {
-        return 1;
-      });
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        methodChannel!,
+        (methodCall) async {
+          return 1;
+        },
+      );
       receivedPermission = await location.hasPermission();
       expect(receivedPermission, PermissionStatus.granted);
       receivedPermission = await location.requestPermission();
       expect(receivedPermission, PermissionStatus.granted);
 
-      methodChannel!.setMockMethodCallHandler((methodCall) async {
-        return 2;
-      });
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        methodChannel!,
+        (methodCall) async {
+          return 2;
+        },
+      );
       receivedPermission = await location.hasPermission();
       expect(receivedPermission, PermissionStatus.deniedForever);
       receivedPermission = await location.requestPermission();
       expect(receivedPermission, PermissionStatus.deniedForever);
 
-      methodChannel!.setMockMethodCallHandler((methodCall) async {
-        return 3;
-      });
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        methodChannel!,
+        (methodCall) async {
+          return 3;
+        },
+      );
       receivedPermission = await location.hasPermission();
       expect(receivedPermission, PermissionStatus.grantedLimited);
       receivedPermission = await location.requestPermission();
@@ -120,9 +131,12 @@ void main() {
     });
 
     test('Should throw if other message is sent', () async {
-      methodChannel!.setMockMethodCallHandler((methodCall) async {
-        return 12;
-      });
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        methodChannel!,
+        (methodCall) async {
+          return 12;
+        },
+      );
       try {
         await location.hasPermission();
       } on PlatformException catch (err) {
