@@ -1,9 +1,6 @@
 name: location prepare
 
 on:
-  push:
-    branches: [master, develop]
-    tags-ignore: ['*']
   pull_request:
     branches: [master, develop]
 
@@ -27,14 +24,18 @@ jobs:
           flutter-version: ${{ matrix.flutter-version }}
 
       - name: Set up Melos
-        run: dart pub global activate melos ^2.0.0
+        run: dart pub global activate melos ^3.0.0
 
       - name: melos bootstrap
         run: melos bootstrap
 
-      - name: Format and lint
+      - name: Check code formatting
         if: success() || failure()
-        run: melos run lint:all
+        run: melos run format --no-select
+
+      - name: Run analyzer
+        if: success() || failure()
+        run: melos run analyze --no-select
 
       - name: Run tests
         if: success() || failure()
@@ -44,7 +45,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: temurin
-          java-version: 11
+          java-version: 17
 
       - name: Generate Gradle wrapper
         working-directory: packages/location/example

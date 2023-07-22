@@ -5,7 +5,7 @@ packages:
 
 scripts:
   lint:all:
-    run: melos run analyze && melos run format
+    run: melos run analyze && melos run format-check
     description: Run all static analysis checks.
 
   analyze:
@@ -16,34 +16,20 @@ scripts:
 
   format:
     run: melos exec -- \
-      dart format . --fix
-    description: Run `dart format` for all packages.
-
-  format-check:
-    run: melos exec dart format . --set-exit-if-changed
+      dart format . --set-exit-if-changed
     description: Run `dart format` checks for all packages.
 
-  markdown-check:
-    run: markdownlint . --ignore-path .markdownlintignore --config .markdownlint.yaml
-    description: Runs the markdown linting check.
-
-  markdown-fix:
-    run: markdownlint . --fix --ignore-path .markdownlintignore --config .markdownlint.yaml
-    description: Fixes the markdown linting errors.
-
-  dartdoc:
-    run: melos exec flutter pub run dartdoc
-    description: Run dartdoc checks for all packages.
-
-  test:select:
-    run: melos exec -- flutter test
-    packageFilters:
-      dirExists: test
-    description: Run `flutter test` for selected packages.
+  # TODO: re-add
+  # dartdoc:
+  #   run: melos exec flutter pub run dartdoc
+  #   description: Run dartdoc checks for all packages.
 
   test:
-    run: melos run test:select --no-select
-    description: Run all Flutter tests in this project.
+    run: melos exec -- flutter test .
+    packageFilters:
+      dirExists:
+        - 'test'
+    description: Run `flutter test` for selected packages.
 
   coverage:
     run: |
