@@ -21,14 +21,14 @@ void main() {
   MockEventChannel? eventChannel;
   late MethodChannelLocation location;
 
-  final List<MethodCall> log = <MethodCall>[];
+  final log = <MethodCall>[];
 
   setUp(() {
     methodChannel = const MethodChannel('lyokone/location');
     eventChannel = MockEventChannel();
     location = MethodChannelLocation.private(methodChannel, eventChannel);
 
-    methodChannel!.setMockMethodCallHandler((MethodCall methodCall) async {
+    methodChannel!.setMockMethodCallHandler((methodCall) async {
       log.add(methodCall);
       switch (methodCall.method) {
         case 'getLocation':
@@ -52,7 +52,7 @@ void main() {
 
   group('getLocation', () {
     test('getLocation should convert results correctly', () async {
-      final LocationData receivedLocation = await location.getLocation();
+      final receivedLocation = await location.getLocation();
       expect(receivedLocation.latitude, 48.8534);
       expect(receivedLocation.longitude, 2.3488);
     });
@@ -61,37 +61,40 @@ void main() {
   test('changeSettings passes parameters correctly', () async {
     await location.changeSettings();
     expect(log, <Matcher>[
-      isMethodCall('changeSettings', arguments: <String, dynamic>{
-        'accuracy': LocationAccuracy.high.index,
-        'interval': 1000,
-        'distanceFilter': 0
-      }),
+      isMethodCall(
+        'changeSettings',
+        arguments: <String, dynamic>{
+          'accuracy': LocationAccuracy.high.index,
+          'interval': 1000,
+          'distanceFilter': 0
+        },
+      ),
     ]);
   });
 
   group('Service Status', () {
     test('serviceEnabled should convert results correctly', () async {
-      final bool result = await location.serviceEnabled();
+      final result = await location.serviceEnabled();
       expect(result, true);
     });
 
     test('requestService should convert to string correctly', () async {
-      final bool result = await location.requestService();
+      final result = await location.requestService();
       expect(result, true);
     });
   });
 
   group('Permission Status', () {
     test('Should convert int to correct Permission Status', () async {
-      methodChannel!.setMockMethodCallHandler((MethodCall methodCall) async {
+      methodChannel!.setMockMethodCallHandler((methodCall) async {
         return 0;
       });
-      PermissionStatus receivedPermission = await location.hasPermission();
+      var receivedPermission = await location.hasPermission();
       expect(receivedPermission, PermissionStatus.denied);
       receivedPermission = await location.requestPermission();
       expect(receivedPermission, PermissionStatus.denied);
 
-      methodChannel!.setMockMethodCallHandler((MethodCall methodCall) async {
+      methodChannel!.setMockMethodCallHandler((methodCall) async {
         return 1;
       });
       receivedPermission = await location.hasPermission();
@@ -99,7 +102,7 @@ void main() {
       receivedPermission = await location.requestPermission();
       expect(receivedPermission, PermissionStatus.granted);
 
-      methodChannel!.setMockMethodCallHandler((MethodCall methodCall) async {
+      methodChannel!.setMockMethodCallHandler((methodCall) async {
         return 2;
       });
       receivedPermission = await location.hasPermission();
@@ -107,7 +110,7 @@ void main() {
       receivedPermission = await location.requestPermission();
       expect(receivedPermission, PermissionStatus.deniedForever);
 
-      methodChannel!.setMockMethodCallHandler((MethodCall methodCall) async {
+      methodChannel!.setMockMethodCallHandler((methodCall) async {
         return 3;
       });
       receivedPermission = await location.hasPermission();
@@ -117,7 +120,7 @@ void main() {
     });
 
     test('Should throw if other message is sent', () async {
-      methodChannel!.setMockMethodCallHandler((MethodCall methodCall) async {
+      methodChannel!.setMockMethodCallHandler((methodCall) async {
         return 12;
       });
       try {
@@ -139,7 +142,7 @@ void main() {
     setUp(() {
       controller = StreamController<Map<String, dynamic>>();
       when(eventChannel!.receiveBroadcastStream())
-          .thenAnswer((Invocation invoke) => controller.stream);
+          .thenAnswer((invoke) => controller.stream);
     });
 
     tearDown(() {
@@ -147,21 +150,21 @@ void main() {
     });
 
     test('call receiveBrodcastStream once', () {
-      location.onLocationChanged;
-      location.onLocationChanged;
-      location.onLocationChanged;
+      location
+        ..onLocationChanged
+        ..onLocationChanged
+        ..onLocationChanged;
       verify(eventChannel!.receiveBroadcastStream()).called(1);
     });
 
     test('should receive values', () async {
-      final StreamQueue<LocationData> queue =
-          StreamQueue<LocationData>(location.onLocationChanged);
+      final queue = StreamQueue<LocationData>(location.onLocationChanged);
 
       controller.add(<String, dynamic>{
         'latitude': 48.8534,
         'longitude': 2.3488,
       });
-      LocationData data = await queue.next;
+      var data = await queue.next;
       expect(data.latitude, 48.8534);
       expect(data.longitude, 2.3488);
 

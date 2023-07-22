@@ -1,6 +1,6 @@
-part of location_platform_interface;
+part of '../location_platform_interface.dart';
 
-/// The response object of [Location.getLocation] and [Location.onLocationChanged]
+/// Represents a geographical location in the real world.
 class LocationData {
   LocationData._(
     this.latitude,
@@ -20,6 +20,7 @@ class LocationData {
     this.provider,
   );
 
+  /// Creates a new [LocationData] instance from a map.
   factory LocationData.fromMap(Map<String, dynamic> dataMap) {
     return LocationData._(
       dataMap['latitude'] as double?,
@@ -184,7 +185,7 @@ enum PermissionStatus {
   deniedForever
 }
 
-/// The response object of [Location.changeNotificationOptions].
+/// The response object of `Location.changeNotificationOptions`.
 ///
 /// Contains native information about the notification shown on Android, when
 /// running in background mode.

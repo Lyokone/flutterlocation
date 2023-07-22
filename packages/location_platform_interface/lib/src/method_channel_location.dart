@@ -1,4 +1,4 @@
-part of location_platform_interface;
+part of '../location_platform_interface.dart';
 
 /// The interface that implementations of `location` must extend.
 ///
