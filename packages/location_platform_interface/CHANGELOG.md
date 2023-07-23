@@ -1,3 +1,10 @@
+## 3.1.0
+
+- Refactoring (#853)
+  - Set up code formatting & linting on CI
+  - Remove unused dependency on `package:meta`
+  - Bump minimum Flutter to 3.3
+
 ## 3.0.0
 
 - Bump minimum Flutter to 3.0 (#847)
