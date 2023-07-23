@@ -1,3 +1,11 @@
+## 4.1.0
+
+- Refactoring (#853)
+  - Set up code formatting & linting on CI
+  - Remove unused dependency on `package:meta`
+  - Bump dependency on `location_platform_interface` to `^3.1.0`
+  - Bump minimum Flutter to 3.3
+
 ## 4.0.0
 
 - Bump minimum Flutter to 3.0 (#847)
