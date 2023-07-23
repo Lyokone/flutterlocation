@@ -1,9 +1,11 @@
 name: example
 description: Demonstrates how to use the location plugin.
+publish_to: none
+version: 1.0.0+1
 
 environment:
-  sdk: '>=2.17.0 <4.0.0'
-  flutter: '>=3.0.0'
+  sdk: '>=2.18.0 <4.0.0'
+  flutter: '>=3.3.0'
 
 dependencies:
   flutter:
@@ -11,6 +13,9 @@ dependencies:
   location:
     path: ../
   url_launcher: ^6.0.2
+
+dev_dependencies:
+  leancode_lint: ^3.0.0
 
 flutter:
   uses-material-design: true

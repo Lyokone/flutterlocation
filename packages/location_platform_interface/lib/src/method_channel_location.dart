@@ -1,8 +1,4 @@
-// File created by
-// Lung Razvan <long1eu>
-// on 23/03/2020
-
-part of location_platform_interface;
+part of '../location_platform_interface.dart';
 
 /// The interface that implementations of `location` must extend.
 ///
@@ -16,8 +12,8 @@ class MethodChannelLocation extends LocationPlatform {
   /// Initializes the plugin and starts listening for potential platform events.
   factory MethodChannelLocation() {
     if (_instance == null) {
-      const MethodChannel methodChannel = MethodChannel('lyokone/location');
-      const EventChannel eventChannel = EventChannel('lyokone/locationstream');
+      const methodChannel = MethodChannel('lyokone/location');
+      const eventChannel = EventChannel('lyokone/locationstream');
       _instance = MethodChannelLocation.private(methodChannel, eventChannel);
     }
     return _instance!;
@@ -46,7 +42,7 @@ class MethodChannelLocation extends LocationPlatform {
     int? interval = 1000,
     double? distanceFilter = 0,
   }) async {
-    final int? result = await _methodChannel!.invokeMethod(
+    final result = await _methodChannel!.invokeMethod(
       'changeSettings',
       <String, dynamic>{
         'accuracy': accuracy!.index,
@@ -61,7 +57,7 @@ class MethodChannelLocation extends LocationPlatform {
   /// Checks if service is enabled in the background mode.
   @override
   Future<bool> isBackgroundModeEnabled() async {
-    final int? result =
+    final result =
         await _methodChannel!.invokeMethod('isBackgroundModeEnabled');
     return result == 1;
   }
@@ -69,7 +65,7 @@ class MethodChannelLocation extends LocationPlatform {
   /// Enables or disables service in the background mode.
   @override
   Future<bool> enableBackgroundMode({bool? enable}) async {
-    final int? result = await _methodChannel!.invokeMethod(
+    final result = await _methodChannel!.invokeMethod(
       'enableBackgroundMode',
       <String, dynamic>{'enable': enable},
     );
@@ -83,7 +79,7 @@ class MethodChannelLocation extends LocationPlatform {
   /// Returns a [LocationData] object.
   @override
   Future<LocationData> getLocation() async {
-    final Map<String, dynamic>? resultMap =
+    final resultMap =
         await _methodChannel!.invokeMapMethod<String, dynamic>('getLocation');
     if (resultMap == null) {
       throw PlatformException(
@@ -96,14 +92,14 @@ class MethodChannelLocation extends LocationPlatform {
 
   @override
   Future<PermissionStatus> hasPermission() async {
-    final int? result = await _methodChannel!.invokeMethod('hasPermission');
-    return _parsePermissionStatus(result);
+    final result = await _methodChannel!.invokeMethod('hasPermission');
+    return _parsePermissionStatus(result as int?);
   }
 
   @override
   Future<PermissionStatus> requestPermission() async {
-    final int? result = await _methodChannel!.invokeMethod('requestPermission');
-    return _parsePermissionStatus(result);
+    final result = await _methodChannel!.invokeMethod('requestPermission');
+    return _parsePermissionStatus(result as int?);
   }
 
   PermissionStatus _parsePermissionStatus(int? result) {
@@ -127,27 +123,29 @@ class MethodChannelLocation extends LocationPlatform {
   /// Checks if the location service is enabled.
   @override
   Future<bool> serviceEnabled() async {
-    final int? result = await _methodChannel!.invokeMethod('serviceEnabled');
+    final result = await _methodChannel!.invokeMethod('serviceEnabled');
     return result == 1;
   }
 
   /// Request the activation of the location service.
   @override
   Future<bool> requestService() async {
-    final int? result = await _methodChannel!.invokeMethod('requestService');
+    final result = await _methodChannel!.invokeMethod('requestService');
     return result == 1;
   }
 
   /// Returns a stream of [LocationData] objects. The frequency and accuracy of
-  /// this stream can be changed with [changeSettings]
+  /// this stream can be changed with [changeSettings].
   ///
   /// Throws an error if the app has no permission to access location.
   @override
   Stream<LocationData> get onLocationChanged {
-    return _onLocationChanged ??= _eventChannel!
-        .receiveBroadcastStream()
-        .map<LocationData>((dynamic event) => LocationData.fromMap(
-            Map<String, dynamic>.of(event.cast<String, dynamic>())));
+    return _onLocationChanged ??=
+        _eventChannel!.receiveBroadcastStream().map<LocationData>(
+              (dynamic event) => LocationData.fromMap(
+                Map<String, dynamic>.of(event as Map<String, dynamic>),
+              ),
+            );
   }
 
   /// Change options of sticky background notification on Android.
@@ -157,7 +155,7 @@ class MethodChannelLocation extends LocationPlatform {
   ///
   /// Uses [title] as the notification's content title and searches for a
   /// drawable resource with the given [iconName]. If no matching resource is
-  /// found, no icon is shown. The content text will be set to [subTitle], while
+  /// found, no icon is shown. The content text will be set to [subtitle], while
   /// the sub text will be set to [description]. The notification [color] can
   /// also be customized.
   ///
@@ -189,7 +187,7 @@ class MethodChannelLocation extends LocationPlatform {
       return null;
     }
 
-    final Map<String, dynamic> data = <String, dynamic>{
+    final data = <String, dynamic>{
       'channelName': channelName,
       'title': title,
       'iconName': iconName,
@@ -211,8 +209,8 @@ class MethodChannelLocation extends LocationPlatform {
       data['onTapBringToFront'] = onTapBringToFront;
     }
 
-    final Map<dynamic, dynamic>? result =
-        await _methodChannel!.invokeMethod('changeNotificationOptions', data);
+    final result = await _methodChannel!
+        .invokeMethod<Map<String, dynamic>?>('changeNotificationOptions', data);
 
     return result != null ? AndroidNotificationData.fromMap(result) : null;
   }

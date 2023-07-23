@@ -11,7 +11,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('$LocationPlatform', () {
-    final LocationPlatform defaultInstance = LocationPlatform.instance;
+    final defaultInstance = LocationPlatform.instance;
     late ExtendsLocationPlatform locationPlatform;
 
     setUp(() {
@@ -31,7 +31,7 @@ void main() {
     });
 
     test('Can be mocked with `implements`', () {
-      final MockLocationPlatform mock = MockLocationPlatform();
+      final mock = MockLocationPlatform();
       LocationPlatform.instance = mock;
     });
 
