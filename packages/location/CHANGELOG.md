@@ -1,3 +1,11 @@
+## 5.0.1
+
+- Refactoring (#853)
+  - Set up code formatting & linting on CI, and fix all warnings that arose
+  - Bump dependency on `location_platform_interface` to `^3.1.0`
+  - Bump dependency on `location_web` to `^4.1.0`
+  - Bump minimum Flutter to 3.3
+
 ## 5.0.0
 
 - Fix build errors on Android (#847)
