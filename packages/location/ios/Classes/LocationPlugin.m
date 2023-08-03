@@ -68,7 +68,6 @@
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       BOOL locationServicesEnabled = [CLLocationManager locationServicesEnabled];
 
-
       [self initLocation];
       if ([call.method isEqualToString:@"changeSettings"]) {
         if (locationServicesEnabled) {
@@ -92,15 +91,19 @@
             distanceFilter = kCLDistanceFilterNone;
           }
           self.clLocationManager.distanceFilter = distanceFilter;
-          result(@1);
+          dispatch_async(dispatch_get_main_queue(), ^(void) {
+            result(@1);
+          });
         }
       } else if ([call.method isEqualToString:@"isBackgroundModeEnabled"]) {
         if (self.applicationHasLocationBackgroundMode) {
-          if (@available(iOS 9.0, *)) {
-            result(self.clLocationManager.allowsBackgroundLocationUpdates ? @1
-                                                                          : @0);
-          }
-          result(@0);
+          dispatch_async(dispatch_get_main_queue(), ^(void) {
+            if (@available(iOS 9.0, *)) {
+              result(self.clLocationManager.allowsBackgroundLocationUpdates ? @1
+                                                                            : @0);
+            }
+            result(@0);
+          });
         }
       } else if ([call.method isEqualToString:@"enableBackgroundMode"]) {
         BOOL enable = [call.arguments[@"enable"] boolValue];
@@ -111,16 +114,22 @@
           if (@available(iOS 11.0, *)) {
             self.clLocationManager.showsBackgroundLocationIndicator = enable;
           }
-          result(enable ? @1 : @0);
+          dispatch_async(dispatch_get_main_queue(), ^(void) {
+            result(enable ? @1 : @0);
+          });
         } else {
-          result(@0);
+          dispatch_async(dispatch_get_main_queue(), ^(void) {
+            result(@0);
+          });
         }
       } else if ([call.method isEqualToString:@"getLocation"]) {
         if (!locationServicesEnabled) {
-          result([FlutterError
-              errorWithCode:@"SERVICE_STATUS_DISABLED"
-                    message:@"Failed to get location. Location services disabled"
-                    details:nil]);
+          dispatch_async(dispatch_get_main_queue(), ^(void) {
+            result([FlutterError
+                errorWithCode:@"SERVICE_STATUS_DISABLED"
+                      message:@"Failed to get location. Location services disabled"
+                      details:nil]);
+          });
           return;
         }
         if ([CLLocationManager authorizationStatus] ==
@@ -129,9 +138,11 @@
           NSString *message =
               @"The user explicitly denied the use of location services for this "
               "app or location services are currently disabled in Settings.";
-          result([FlutterError errorWithCode:@"PERMISSION_DENIED"
-                                    message:message
-                                    details:nil]);
+          dispatch_async(dispatch_get_main_queue(), ^(void) {
+            result([FlutterError errorWithCode:@"PERMISSION_DENIED"
+                                      message:message
+                                      details:nil]);
+          }):
           return;
         }
 
@@ -147,25 +158,31 @@
           }
         }
       } else if ([call.method isEqualToString:@"hasPermission"]) {
-        if ([self isPermissionGranted]) {
-          result([self isHighAccuracyPermitted] ? @1 : @3);
-        } else {
-          result(@0);
-        }
+        dispatch_async(dispatch_get_main_queue(), ^(void) {
+          if ([self isPermissionGranted]) {
+            result([self isHighAccuracyPermitted] ? @1 : @3);
+          } else {
+            result(@0);
+          }
+        });
       } else if ([call.method isEqualToString:@"requestPermission"]) {
         if ([self isPermissionGranted]) {
-          result([self isHighAccuracyPermitted] ? @1 : @3);
+          dispatch_async(dispatch_get_main_queue(), ^(void) {
+            result([self isHighAccuracyPermitted] ? @1 : @3);
+          });
         } else if ([CLLocationManager authorizationStatus] ==
                   kCLAuthorizationStatusNotDetermined) {
           self.flutterResult = result;
           self.permissionWanted = YES;
           [self requestPermission];
         } else {
-          result(@2);
+          dispatch_async(dispatch_get_main_queue(), ^(void) {
+            result(@2);
+          });
         }
       } else if ([call.method isEqualToString:@"serviceEnabled"]) {
         dispatch_async(dispatch_get_main_queue(), ^(void) {
-          result(locationServicesEnabled);
+          locationServicesEnabled ? result(@1) : result(@0);
         });
       } else if ([call.method isEqualToString:@"requestService"]) {
         if (locationServicesEnabled) {
