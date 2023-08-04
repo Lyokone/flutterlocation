@@ -25,7 +25,7 @@ flutter:
 dependencies:
   flutter:
     sdk: flutter
-  location_platform_interface: ^3.1.0
+  location_platform_interface: ^3.1.1
   location_web: ^4.1.0
 dev_dependencies:
   async: ^2.5.0
