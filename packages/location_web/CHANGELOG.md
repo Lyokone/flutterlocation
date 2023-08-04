@@ -1,3 +1,7 @@
+## 4.1.1
+
+- Bump dependency on `location_platform_interface` to `^3.1.1`
+
 ## 4.1.0
 
 - Refactoring (#853)
