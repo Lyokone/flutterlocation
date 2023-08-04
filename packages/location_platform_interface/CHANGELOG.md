@@ -1,3 +1,7 @@
+## 3.1.1
+
+- Fix cast error in `Location.onLocationChanged` (#871)
+
 ## 3.1.0
 
 - Refactoring (#853)
