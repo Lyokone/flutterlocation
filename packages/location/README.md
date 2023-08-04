@@ -1,9 +1,9 @@
 # location
 
-[![patrol on pub.dev][patrol_badge]][patrol_link]
+[![location on pub.dev][location_badge]][location_link]
 [![code style][leancode_lint_badge]][leancode_lint_link]
 [![powered by][docs_page_badge]][docs_page_link]
-[![codecov](https://codecov.io/gh/Lyokone/flutterlocation/branch/master/graph/badge.svg)](https://codecov.io/gh/Lyokone/flutterlocation)
+[![codecov][codecov_badge]][codecov_link]
 
 This plugin for [Flutter](https://flutter.dev)
 handles getting a location on Android and iOS. It also provides callbacks when the location is changed.
@@ -211,3 +211,5 @@ helping support this plugin !
 [leancode_lint_link]: https://pub.dev/packages/leancode_lint
 [docs_page_badge]: https://img.shields.io/badge/documentation-docs.page-34C4AC.svg?style
 [docs_page_link]: https://docs.page
+[codecov_badge]: https://codecov.io/gh/Lyokone/flutterlocation/branch/master/graph/badge.svg
+[codecov_link]: https://codecov.io/gh/Lyokone/flutterlocation
