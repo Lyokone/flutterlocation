@@ -2,10 +2,12 @@
 
 This repository contains the following packages:
 
-- `[location]`: code for the cross-platform facing plugin used to display local
-  notifications within Flutter applications. This is what you use in your app!
-- `[location_platform_interface]`: plugin's common platform interface code
-- `[location_web]`: the Web implementation of the plugin
+- [`location`][location]: code for the cross-platform facing plugin used to
+  display local notifications within Flutter applications. This is what you use
+  in your app!
+- [`location_platform_interface`][location_platform_interface]: plugin's common
+  platform interface code
+- [`location_web`][location_web]: the Web implementation of the plugin
 
 ## Getting Started
 
