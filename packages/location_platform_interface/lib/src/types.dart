@@ -48,21 +48,15 @@ class LocationData {
   final double? longitude;
 
   /// Estimated horizontal accuracy of this location, radial, in meters
-  ///
-  /// Always 0 on Web
   final double? accuracy;
 
   /// Estimated vertical accuracy of this location, in meters.
   final double? verticalAccuracy;
 
   /// In meters above the WGS 84 reference ellipsoid. Derived from GPS informations.
-  ///
-  /// Always 0 on Web
   final double? altitude;
 
   /// In meters/second
-  ///
-  /// Always 0 on Web
   final double? speed;
 
   /// In meters/second
@@ -71,8 +65,6 @@ class LocationData {
   final double? speedAccuracy;
 
   /// Heading is the horizontal direction of travel of this device, in degrees
-  ///
-  /// Always 0 on Web
   final double? heading;
 
   /// timestamp of the LocationData
