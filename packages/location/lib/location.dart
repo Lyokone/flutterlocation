@@ -1,22 +1,25 @@
 // Ignored since there is a bug in the coverage report tool
-// https://github.com/dart-lang/coverage/issues/339
-// coverage:ignore-file
+// https://github.com/dart-lang/coverage/issues/339 coverage:ignore-file
 import 'dart:ui';
 
 import 'package:location_platform_interface/location_platform_interface.dart';
 
 export 'package:location_platform_interface/location_platform_interface.dart'
-    show PermissionStatus, LocationAccuracy, LocationData;
+    show LocationAccuracy, LocationData, PermissionStatus;
 
+/// The main access point to the `location` plugin.
 class Location implements LocationPlatform {
   /// Initializes the plugin and starts listening for potential platform events.
   factory Location() => instance;
 
   Location._();
 
+  /// Singleton instance of this class. Use it instead of the factory
+  /// constructor to make it explicit that you're using a singleton, not
+  /// creating a new `Location` instance each time.
   static Location instance = Location._();
 
-  /// Change settings of the location request.
+  /// Changes settings of the location request.
   ///
   /// The [accuracy] argument is controlling the precision of the
   /// [LocationData]. The [interval] and [distanceFilter] are controlling how
@@ -50,8 +53,8 @@ class Location implements LocationPlatform {
 
   /// Gets the current location of the user.
   ///
-  /// Throws an error if the app has no permission to access location.
-  /// Returns a [LocationData] object.
+  /// Throws an error if the app has no permission to access location. Returns a
+  /// [LocationData] object.
   @override
   Future<LocationData> getLocation() async {
     return LocationPlatform.instance.getLocation();
@@ -59,9 +62,8 @@ class Location implements LocationPlatform {
 
   /// Checks if the app has permission to access location.
   ///
-  /// If the result is [PermissionStatus.deniedForever], no dialog will be
-  /// shown on [requestPermission].
-  /// Returns a [PermissionStatus] object.
+  /// If the result is [PermissionStatus.deniedForever], no dialog will be shown
+  /// on [requestPermission]. Returns a [PermissionStatus] object.
   @override
   Future<PermissionStatus> hasPermission() {
     return LocationPlatform.instance.hasPermission();
@@ -69,9 +71,8 @@ class Location implements LocationPlatform {
 
   /// Requests permission to access location.
   ///
-  /// If the result is [PermissionStatus.deniedForever], no dialog will be
-  /// shown on [requestPermission].
-  /// Returns a [PermissionStatus] object.
+  /// If the result is [PermissionStatus.deniedForever], no dialog will be shown
+  /// on [requestPermission]. Returns a [PermissionStatus] object.
   @override
   Future<PermissionStatus> requestPermission() {
     return LocationPlatform.instance.requestPermission();
@@ -89,9 +90,8 @@ class Location implements LocationPlatform {
     return LocationPlatform.instance.requestService();
   }
 
-  /// Returns a stream of [LocationData] objects.
-  /// The frequency and accuracy of this stream can be changed with
-  /// [changeSettings]
+  /// Returns a stream of [LocationData] objects. The frequency and accuracy of
+  /// this stream can be changed with [changeSettings]
   ///
   /// Throws an error if the app has no permission to access location.
   @override
@@ -106,7 +106,7 @@ class Location implements LocationPlatform {
   ///
   /// Uses [title] as the notification's content title and searches for a
   /// drawable resource with the given [iconName]. If no matching resource is
-  /// found, no icon is shown. The content text will be set to [subTitle], while
+  /// found, no icon is shown. The content text will be set to [subtitle], while
   /// the sub text will be set to [description]. The notification [color] can
   /// also be customized.
   ///

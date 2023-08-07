@@ -1,0 +1,52 @@
+---
+title: Install on Android
+---
+
+# Install on Android
+
+## Minimum SDK version
+
+In order to use the `location` plugin, you need to set the minimum SDK version
+to at **least API level 21**:
+
+```groovy title="android/app/build.gradle"
+android {
+    // ...
+    defaultConfig {
+      minSdk 21
+      // ...
+    }
+}
+```
+
+## Theme AppCompat
+
+In order to display dialogs for asking the user to activate the GPS
+automatically and redirect to the Settings page, you need to change the default
+theme of your app to `Theme.AppCompat.Light.NoActionBar`:
+
+```xml name="android/app/src/main/res/values/styles.xml"
+...
+<style name="NormalTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <item name="android:windowBackground">?android:colorBackground</item>
+</style>
+```
+
+## Background location
+
+In order to receive background location, you need to add the following
+permissions to your manifest:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+  <application
+    android:label="your awesome app"
+    android:name="${applicationName}">
+    <!-- ... -->
+  </application>
+</manifest>
+```

@@ -1,11 +1,13 @@
 name: location
-description: A Flutter plugin to easily handle realtime location in iOS and Android. Provides settings for optimizing performance or battery.
-version: 4.3.1
-homepage: https://github.com/Lyokone/flutterlocation
+description: Cross-platform plugin for easy access to device's location in real-time.
+version: 5.0.3
+homepage: https://docs.page/Lyokone/flutterlocation
+repository: https://github.com/Lyokone/flutterlocation
+issue_tracker: https://github.com/Lyokone/flutterlocation/issues
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=1.12.13+hotfix.4"
+  sdk: '>=2.18.0 <4.0.0'
+  flutter: '>=3.3.0'
 
 flutter:
   plugin:
@@ -23,13 +25,13 @@ flutter:
 dependencies:
   flutter:
     sdk: flutter
-  location_platform_interface: ^2.3.0
-  location_web: ^3.1.1
+  location_platform_interface: ^3.1.1
+  location_web: ^4.1.1
 
 dev_dependencies:
   async: ^2.5.0
-  build_runner: ^1.11.5
+  build_runner: ^2.3.3
   flutter_test:
     sdk: flutter
+  leancode_lint: ^3.0.0
   mockito: ^5.0.0
-  test: ^1.16.5

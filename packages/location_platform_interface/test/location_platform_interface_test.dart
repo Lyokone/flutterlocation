@@ -11,7 +11,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('$LocationPlatform', () {
-    final LocationPlatform defaultInstance = LocationPlatform.instance;
+    final defaultInstance = LocationPlatform.instance;
     late ExtendsLocationPlatform locationPlatform;
 
     setUp(() {
@@ -26,18 +26,12 @@ void main() {
       expect(LocationPlatform.instance, isA<MethodChannelLocation>());
     });
 
-    test('Cannot be implemented with `implements`', () {
-      expect(() {
-        LocationPlatform.instance = ImplementsLocationPlatform();
-      }, throwsNoSuchMethodError);
-    });
-
     test('Can be extended', () {
       LocationPlatform.instance = ExtendsLocationPlatform();
     });
 
     test('Can be mocked with `implements`', () {
-      final MockLocationPlatform mock = MockLocationPlatform();
+      final mock = MockLocationPlatform();
       LocationPlatform.instance = mock;
     });
 
@@ -131,11 +125,6 @@ void main() {
       );
     });
   });
-}
-
-class ImplementsLocationPlatform implements LocationPlatform {
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class MockLocationPlatform extends Mock

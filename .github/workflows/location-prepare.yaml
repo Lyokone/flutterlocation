@@ -1,0 +1,94 @@
+name: location prepare
+
+on:
+  pull_request:
+    branches: [master, develop]
+
+jobs:
+  prepare-flutter:
+    name: Flutter ${{ matrix.flutter-version }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        flutter-version: ['3.3.x', '3.7.x', '3.10.x']
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ matrix.flutter-version }}
+
+      - name: Set up Melos
+        run: dart pub global activate melos ^3.0.0
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      - name: Check code formatting
+        if: success() || failure()
+        run: melos run format --no-select
+
+      - name: Run analyzer
+        if: success() || failure()
+        run: melos run analyze --no-select
+
+      - name: Run tests
+        if: success() || failure()
+        run: melos run test --no-select
+
+  prepare-android:
+    name: Android
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.10.x
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build example app
+        working-directory: packages/location/example
+        run: flutter build apk --debug
+
+      - name: Run ktlint
+        working-directory: packages/location/example/android
+        run: ./gradlew :location:ktlintCheck
+
+  prepare-ios:
+    name: iOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.10.x
+
+      - name: Install tools
+        run: brew install clang-format
+
+      - name: clang-format
+        working-directory: packages/location/ios
+        run: |
+          find . -iname '*.h' -o -iname '*.m' | xargs -I {} clang-format --dry-run --Werror {}
+
+      - name: Build example app
+        working-directory: packages/location/example
+        run: flutter build ios --debug --simulator

@@ -1,9 +1,11 @@
-# Flutter Location Plugin
+# location
 
-[![pub package](https://img.shields.io/pub/v/location.svg)](https://pub.dartlang.org/packages/location) ![Cirrus CI - Task and Script Build Status](https://img.shields.io/cirrus/github/Lyokone/flutterlocation?task=test)
-[![codecov](https://codecov.io/gh/Lyokone/flutterlocation/branch/master/graph/badge.svg)](https://codecov.io/gh/Lyokone/flutterlocation)
+[![location on pub.dev][location_badge]][location_link]
+[![code style][leancode_lint_badge]][leancode_lint_link]
+[![powered by][docs_page_badge]][docs_page_link]
+[![codecov][codecov_badge]][codecov_link]
 
-This plugin for [Flutter](https://flutter.io)
+This plugin for [Flutter](https://flutter.dev)
 handles getting a location on Android and iOS. It also provides callbacks when the location is changed.
 
 <p align="center">
@@ -20,13 +22,10 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  location: ^4.2.0
+  location: ^5.0.0
 ```
 
 ### Android
-
-With Flutter 1.12, all the dependencies are automatically added to your project.
-If your project was created before Flutter 1.12, you might need to follow [this](https://github.com/flutter/flutter/wiki/Upgrading-pre-1.12-Android-projects).
 
 To use location background mode on Android, you have to use the enableBackgroundMode({bool enable}) API before accessing location in the background and adding necessary permissions. You should place the required permissions in your applications <your-app>/android/app/src/main/AndroidManifest.xml:
 
@@ -197,7 +196,6 @@ enum PermissionStatus {
   // The permission to use location services has been denied forever by the user. No dialog will be displayed on permission request.
   deniedForever
 }
-
 ```
 
 Note: you can convert the timestamp into a `DateTime` with: `DateTime.fromMillisecondsSinceEpoch(locationData.time.toInt())`
@@ -206,3 +204,12 @@ Note: you can convert the timestamp into a `DateTime` with: `DateTime.fromMillis
 
 Please feel free to [give me any feedback](https://github.com/Lyokone/flutterlocation/issues)
 helping support this plugin !
+
+[location_badge]: https://img.shields.io/pub/v/location?label=location
+[location_link]: https://pub.dev/packages/location
+[leancode_lint_badge]: https://img.shields.io/badge/code%20style-leancode__lint-black
+[leancode_lint_link]: https://pub.dev/packages/leancode_lint
+[docs_page_badge]: https://img.shields.io/badge/documentation-docs.page-34C4AC.svg?style
+[docs_page_link]: https://docs.page
+[codecov_badge]: https://codecov.io/gh/Lyokone/flutterlocation/branch/master/graph/badge.svg
+[codecov_link]: https://codecov.io/gh/Lyokone/flutterlocation

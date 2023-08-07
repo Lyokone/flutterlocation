@@ -1,0 +1,44 @@
+---
+title: Install on iOS
+---
+
+# Install on iOS
+
+## Minimum deployment target
+
+In order to use the `location` plugin, you need to set your minimum deployment
+target to iOS 13.0 or later:
+
+```ruby name="ios/Podfile"
+platform :ios, '13.0'
+```
+
+## Info.plist
+
+In order to request location permissions, you need to add the following to your
+`ios/Runner/Info.plist`:
+
+```
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>The app needs the location</string>
+```
+
+The string will appear in the popup when the user is asked to grant location
+permissions.
+
+## Background location
+
+If you want to receive background location, you need to add the following to
+your `ios/Runner/Info.plist`:
+
+```
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>The app needs the location</string>
+```
+
+The string will appear in the popup when the user is asked to grant background
+location permissions.
+
+You also need to activate enable background mode for the **Runner** target. Open
+Xcode and go to "Signing & Capabilities". Add the "Background Modes" section and
+add "Location updates" to the list.

@@ -1,0 +1,60 @@
+{
+  "name": "package:location",
+  "description": "Cross-platform Flutter plugin for easy access to device's location in real-time.",
+  "plausibleAnalytics": true,
+  "plausibleAnalyticsScript": "https://analytics.bernos.dev/js/script.js",
+  "twitter": "BeGuillaume",
+  "theme": "#FFA03F",
+  "logo": "assets/logo.png",
+  "sidebar": [
+    ["About", "/"],
+    [
+      "Installation",
+      [
+        ["Getting started", "/getting-started"],
+        ["Android", "/installation/android"],
+        ["iOS", "/installation/ios"],
+        ["macOS", "/installation/macos"],
+        ["Web", "/installation/web"]
+      ]
+    ],
+    [
+      "Features",
+      [
+        ["Get location", "/features/get-location"],
+        ["Listen location", "/features/listen-location"],
+        ["Settings", "/features/settings"],
+        ["Permissions", "/features/permissions"],
+        ["Services", "/features/services"],
+        ["Notification", "/features/notification"]
+      ]
+    ],
+    ["Testing", "/testing"],
+    [
+      "API reference",
+      [
+        [
+          "LocationData",
+          "https://pub.dev/documentation/location_platform_interface/latest/location_platform_interface/LocationData-class.html"
+        ],
+        [
+          "LocationAccuracy",
+          "https://pub.dev/documentation/location_platform_interface/latest/location_platform_interface/LocationAccuracy-class.html"
+        ],
+
+        [
+          "LocationSettings",
+          "https://pub.dev/documentation/location_platform_interface/latest/location_platform_interface/LocationSettings-class.html"
+        ],
+        [
+          "PermissionStatus",
+          "https://pub.dev/documentation/location_platform_interface/latest/location_platform_interface/PermissionStatus-class.html"
+        ]
+      ]
+    ],
+    [
+      "Example app",
+      "https://github.com/Lyokone/flutterlocation/tree/master/packages/location/example"
+    ]
+  ]
+}

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
 class PermissionStatusWidget extends StatefulWidget {
-  const PermissionStatusWidget({Key? key}) : super(key: key);
+  const PermissionStatusWidget({super.key});
 
   @override
   _PermissionStatusState createState() => _PermissionStatusState();
@@ -14,8 +14,7 @@ class _PermissionStatusState extends State<PermissionStatusWidget> {
   PermissionStatus? _permissionGranted;
 
   Future<void> _checkPermissions() async {
-    final PermissionStatus permissionGrantedResult =
-        await location.hasPermission();
+    final permissionGrantedResult = await location.hasPermission();
     setState(() {
       _permissionGranted = permissionGrantedResult;
     });
@@ -23,8 +22,7 @@ class _PermissionStatusState extends State<PermissionStatusWidget> {
 
   Future<void> _requestPermission() async {
     if (_permissionGranted != PermissionStatus.granted) {
-      final PermissionStatus permissionRequestedResult =
-          await location.requestPermission();
+      final permissionRequestedResult = await location.requestPermission();
       setState(() {
         _permissionGranted = permissionRequestedResult;
       });
@@ -38,22 +36,22 @@ class _PermissionStatusState extends State<PermissionStatusWidget> {
       children: <Widget>[
         Text(
           'Permission status: ${_permissionGranted ?? "unknown"}',
-          style: Theme.of(context).textTheme.bodyText1,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         Row(
           children: <Widget>[
             Container(
               margin: const EdgeInsets.only(right: 42),
               child: ElevatedButton(
-                child: const Text('Check'),
                 onPressed: _checkPermissions,
+                child: const Text('Check'),
               ),
             ),
             ElevatedButton(
-              child: const Text('Request'),
               onPressed: _permissionGranted == PermissionStatus.granted
                   ? null
                   : _requestPermission,
+              child: const Text('Request'),
             )
           ],
         )

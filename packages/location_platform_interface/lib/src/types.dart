@@ -1,45 +1,43 @@
-// File created by
-// Lung Razvan <long1eu>
-// on 23/03/2020
+part of '../location_platform_interface.dart';
 
-part of location_platform_interface;
-
-/// The response object of [Location.getLocation] and [Location.onLocationChanged]
+/// Represents a geographical location in the real world.
 class LocationData {
   LocationData._(
-      this.latitude,
-      this.longitude,
-      this.accuracy,
-      this.altitude,
-      this.speed,
-      this.speedAccuracy,
-      this.heading,
-      this.time,
-      this.isMock,
-      this.verticalAccuracy,
-      this.headingAccuracy,
-      this.elapsedRealtimeNanos,
-      this.elapsedRealtimeUncertaintyNanos,
-      this.satelliteNumber,
-      this.provider);
+    this.latitude,
+    this.longitude,
+    this.accuracy,
+    this.altitude,
+    this.speed,
+    this.speedAccuracy,
+    this.heading,
+    this.time,
+    this.isMock,
+    this.verticalAccuracy,
+    this.headingAccuracy,
+    this.elapsedRealtimeNanos,
+    this.elapsedRealtimeUncertaintyNanos,
+    this.satelliteNumber,
+    this.provider,
+  );
 
+  /// Creates a new [LocationData] instance from a map.
   factory LocationData.fromMap(Map<String, dynamic> dataMap) {
     return LocationData._(
-      dataMap['latitude'],
-      dataMap['longitude'],
-      dataMap['accuracy'],
-      dataMap['altitude'],
-      dataMap['speed'],
-      dataMap['speed_accuracy'],
-      dataMap['heading'],
-      dataMap['time'],
+      dataMap['latitude'] as double?,
+      dataMap['longitude'] as double?,
+      dataMap['accuracy'] as double?,
+      dataMap['altitude'] as double?,
+      dataMap['speed'] as double?,
+      dataMap['speed_accuracy'] as double?,
+      dataMap['heading'] as double?,
+      dataMap['time'] as double?,
       dataMap['isMock'] == 1,
-      dataMap['verticalAccuracy'],
-      dataMap['headingAccuracy'],
-      dataMap['elapsedRealtimeNanos'],
-      dataMap['elapsedRealtimeUncertaintyNanos'],
-      dataMap['satelliteNumber'],
-      dataMap['provider'],
+      dataMap['verticalAccuracy'] as double?,
+      dataMap['headingAccuracy'] as double?,
+      dataMap['elapsedRealtimeNanos'] as double?,
+      dataMap['elapsedRealtimeUncertaintyNanos'] as double?,
+      dataMap['satelliteNumber'] as int?,
+      dataMap['provider'] as String?,
     );
   }
 
@@ -112,7 +110,7 @@ class LocationData {
 
   @override
   String toString() =>
-      'LocationData<lat: $latitude, long: $longitude${isMock == true ? ', mocked' : ''}>';
+      'LocationData<lat: $latitude, long: $longitude${(isMock ?? false) ? ', mocked' : ''}>';
 
   @override
   bool operator ==(Object other) =>
@@ -170,7 +168,7 @@ enum LocationAccuracy {
   reduced,
 }
 
-// Status of a permission request to use location services.
+/// Status of a permission request to use location services.
 enum PermissionStatus {
   /// The permission to use location services has been granted for high accuracy.
   granted,
@@ -187,17 +185,18 @@ enum PermissionStatus {
   deniedForever
 }
 
-/// The response object of [Location.changeNotificationOptions].
+/// The response object of `Location.changeNotificationOptions`.
 ///
 /// Contains native information about the notification shown on Android, when
 /// running in background mode.
 class AndroidNotificationData {
   const AndroidNotificationData._(this.channelId, this.notificationId);
 
+  /// Creates a new [AndroidNotificationData] instance from a map.
   factory AndroidNotificationData.fromMap(Map<dynamic, dynamic> data) {
     return AndroidNotificationData._(
-      data['channelId'],
-      data['notificationId'],
+      data['channelId'] as String,
+      data['notificationId'] as int,
     );
   }
 

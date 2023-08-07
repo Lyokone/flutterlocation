@@ -1,8 +1,7 @@
-import 'package:flutter/foundation.dart';
+import 'package:example/change_settings.dart';
+import 'package:example/enable_in_background.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
-import 'package:location_example/change_settings.dart';
-import 'package:location_example/enable_in_background.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'change_notification.dart';
@@ -11,10 +10,13 @@ import 'listen_location.dart';
 import 'permission_status.dart';
 import 'service_enabled.dart';
 
-void main() => runApp(MyApp());
+const _url = 'https://github.com/Lyokone/flutterlocation';
+
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -28,7 +30,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, this.title}) : super(key: key);
+  const MyHomePage({super.key, this.title});
   final String? title;
 
   @override
@@ -41,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _showInfoDialog() {
     return showDialog<void>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return AlertDialog(
           title: const Text('Demo Application'),
           content: SingleChildScrollView(
@@ -50,13 +52,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 const Text('Created by Guillaume Bernos'),
                 InkWell(
                   child: const Text(
-                    'https://github.com/Lyokone/flutterlocation',
+                    _url,
                     style: TextStyle(
                       decoration: TextDecoration.underline,
                     ),
                   ),
-                  onTap: () =>
-                      launch('https://github.com/Lyokone/flutterlocation'),
+                  onTap: () => launchUrl(Uri.parse(_url)),
                 ),
               ],
             ),
@@ -89,21 +90,25 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(32),
+          // FIXME: This ignore can be removed when we drop support for Flutter 3.10.
+          // ignore: prefer_const_constructors
           child: Column(
-            children: const <Widget>[
-              PermissionStatusWidget(),
-              Divider(height: 32),
-              ServiceEnabledWidget(),
-              Divider(height: 32),
-              GetLocationWidget(),
-              Divider(height: 32),
-              ListenLocationWidget(),
-              Divider(height: 32),
-              ChangeSettings(),
-              Divider(height: 32),
-              EnableInBackgroundWidget(),
-              Divider(height: 32),
-              ChangeNotificationWidget()
+            // FIXME: This ignore can be removed when we drop support for Flutter 3.10.
+            // ignore: prefer_const_literals_to_create_immutables
+            children: [
+              const PermissionStatusWidget(),
+              const Divider(height: 32),
+              const ServiceEnabledWidget(),
+              const Divider(height: 32),
+              const GetLocationWidget(),
+              const Divider(height: 32),
+              const ListenLocationWidget(),
+              const Divider(height: 32),
+              const ChangeSettings(),
+              const Divider(height: 32),
+              const EnableInBackgroundWidget(),
+              const Divider(height: 32),
+              const ChangeNotificationWidget()
             ],
           ),
         ),

@@ -1,52 +1,40 @@
-name: location
+name: flutterlocation
+repository: https://github.com/Lyokone/flutterlocation
 packages:
   - packages/**
 
 scripts:
   lint:all:
-    run: melos run analyze && melos run format
-    description: Run all static analysis checks
+    run: melos run analyze && melos run format-check
+    description: Run all static analysis checks.
 
   analyze:
     run: |
-      melos exec -c 5 -- \
-        dart analyze . --fatal-infos
-    description: |
-      Run `dart analyze` in all packages.
-       - Note: you can also rely on your IDEs Dart Analysis / Issues window.
-  format:
-    run: melos exec -c 5 -- flutter format .
-    description: |
-      Format all files.
+      melos exec -- \
+        flutter analyze --fatal-infos
+    description: Run `flutter analyze` for all packages.
 
-  test:all:
-    run: melos run test --no-select && melos run test:mobile_e2e --no-select
-    description: Run all tests available on stable channel
+  format:
+    run: melos exec -- \
+      dart format . --set-exit-if-changed
+    description: Run `dart format` checks for all packages.
+
+  # TODO: re-add
+  # dartdoc:
+  #   run: melos exec flutter pub run dartdoc
+  #   description: Run dartdoc checks for all packages.
 
   test:
-    run: |
-      melos exec -c 6 --fail-fast -- \
-        "flutter test --no-pub --coverage"
-    description: Run `flutter test` for a specific package.
-    select-package:
-      dir-exists:
-        - test
-      ignore:
-        - "*web*"
-        - "*example*"
+    run: melos exec -- flutter test .
+    packageFilters:
+      dirExists:
+        - 'test'
+    description: Run `flutter test` for selected packages.
 
-  test:mobile_e2e:
+  coverage:
     run: |
-      melos exec -c 1 --fail-fast -- \
-        "flutter drive --target=./test_driver/MELOS_PARENT_PACKAGE_NAME_e2e.dart"
-    description: |
-      Run all Android or iOS test driver e2e tests in a specific example app.
-       - Requires an Android emulator or iOS simulator.
-    select-package:
-      dir-exists:
-        - test_driver
-      scope: "*example*"
-      ignore:
-        - "*firebase_ml_custom*"
-        - "*firebase_ml_vision*"
-        - "*firebase_admob*"
+      melos exec -- flutter test --coverage &&
+      melos exec -- genhtml coverage/lcov.info --output-directory=coverage/
+    packageFilters:
+      dirExists: test
+    description: Generate coverage for the selected package.
