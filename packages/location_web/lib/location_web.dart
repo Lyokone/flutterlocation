@@ -55,6 +55,7 @@ class LocationWebPlugin extends LocationPlatform {
     }
   }
 
+  /// Reference: https://developer.chrome.com/blog/permissions-api-for-the-web/
   @override
   Future<PermissionStatus> requestPermission() async {
     try {
@@ -73,6 +74,11 @@ class LocationWebPlugin extends LocationPlatform {
   @override
   Future<bool> serviceEnabled() async {
     return true;
+  }
+
+  @override
+  Future<bool> isBackgroundModeEnabled() async {
+    return false;
   }
 
   @override
@@ -98,15 +104,22 @@ class LocationWebPlugin extends LocationPlatform {
     return null;
   }
 
+  /// Converts a [js.Geoposition] to a [LocationData].
+  ///
+  /// This method is used to convert the result of the Geolocation API to a
+  /// [LocationData] object.
+  ///
+  /// Reference: https://developer.mozilla.org/en-US/docs/Web/API/GeolocationCoordinates
+  ///
   LocationData _toLocationData(js.Geoposition result) {
     return LocationData.fromMap(<String, dynamic>{
-      'latitude': result.coords?.latitude?.toDouble() ?? 0,
-      'longitude': result.coords?.longitude?.toDouble() ?? 0,
-      'accuracy': result.coords?.accuracy?.toDouble() ?? 0,
-      'altitude': result.coords?.altitude?.toDouble() ?? 0,
-      'speed': result.coords?.speed?.toDouble() ?? 0,
-      'speed_accuracy': 0,
-      'heading': result.coords?.heading?.toDouble() ?? 0,
+      'latitude': result.coords?.latitude?.toDouble(),
+      'longitude': result.coords?.longitude?.toDouble(),
+      'altitude': result.coords?.altitude?.toDouble(),
+      'accuracy': result.coords?.accuracy?.toDouble(),
+      'verticalAccuracy': result.coords?.altitudeAccuracy?.toDouble(),
+      'heading': result.coords?.heading?.toDouble(),
+      'speed': result.coords?.speed?.toDouble(),
       'time': result.timestamp!.toDouble(),
     });
   }
