@@ -1,3 +1,7 @@
+## 3.1.2
+
+- Fix cast error in `Location.changeNotificationOptions()` (#877)
+
 ## 3.1.1
 
 - Fix cast error in `Location.onLocationChanged` (#871)

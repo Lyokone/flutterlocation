@@ -213,7 +213,7 @@ class MethodChannelLocation extends LocationPlatform {
     }
 
     final result = await _methodChannel!
-        .invokeMethod<Map<String, dynamic>?>('changeNotificationOptions', data);
+        .invokeMethod<Map<dynamic, dynamic>>('changeNotificationOptions', data);
 
     return result != null ? AndroidNotificationData.fromMap(result) : null;
   }
