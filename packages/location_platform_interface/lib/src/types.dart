@@ -49,30 +49,33 @@ class LocationData {
 
   /// Estimated horizontal accuracy of this location, radial, in meters
   ///
-  /// Always 0 on Web
+  /// Will be null if not available.
   final double? accuracy;
 
-  /// Estimated vertical accuracy of this location, in meters.
+  /// Estimated vertical accuracy of altitude, in meters.
+  ///
+  /// Will be null if not available.
   final double? verticalAccuracy;
 
   /// In meters above the WGS 84 reference ellipsoid. Derived from GPS informations.
   ///
-  /// Always 0 on Web
+  /// Will be null if not available.
   final double? altitude;
 
   /// In meters/second
   ///
-  /// Always 0 on Web
+  /// Will be null if not available.
   final double? speed;
 
   /// In meters/second
   ///
-  /// Always 0 on Web
+  /// Will be null if not available.
+  /// Not available on web
   final double? speedAccuracy;
 
   /// Heading is the horizontal direction of travel of this device, in degrees
   ///
-  /// Always 0 on Web
+  /// Will be null if not available.
   final double? heading;
 
   /// timestamp of the LocationData
