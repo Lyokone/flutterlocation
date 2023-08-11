@@ -1,6 +1,6 @@
 ## 4.2.0
 
-- Add accuracy to location data, if available (#876)
+- Add accuracy to location data, if available (#876 by Tyler Jewell)
 
 ## 4.1.1
 

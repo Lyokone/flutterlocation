@@ -1,3 +1,7 @@
+## 5.0.3
+
+- Lower minimum iOS deployment target from 13 to 11 (#882 by Matias de Andrea)
+
 ## 5.0.2+1
 
 - Clean up README (#874)
