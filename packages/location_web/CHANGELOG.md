@@ -1,3 +1,7 @@
+## 4.2.0
+
+- Add accuracy to location data, if available (#876)
+
 ## 4.1.1
 
 - Bump dependency on `location_platform_interface` to `^3.1.1`
