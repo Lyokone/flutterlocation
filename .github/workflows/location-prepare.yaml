@@ -53,7 +53,13 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.27.x
+          flutter-version: ${{ matrix.flutter-version }}
+
+      - name: Set up Melos
+        run: dart pub global activate melos ^3.0.0
+
+      - name: melos bootstrap
+        run: melos bootstrap
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -80,7 +86,13 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.27.x
+          flutter-version: ${{ matrix.flutter-version }}
+
+      - name: Set up Melos
+        run: dart pub global activate melos ^3.0.0
+
+      - name: melos bootstrap
+        run: melos bootstrap
 
       - name: Install tools
         run: brew install clang-format
