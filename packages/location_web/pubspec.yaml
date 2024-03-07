@@ -16,7 +16,8 @@ dependencies:
     sdk: flutter
   http_parser: ^4.0.0
   js: ^0.6.3
-  location_platform_interface: ^3.1.1
+  location_platform_interface:
+    path: ../location_platform_interface/
 
 dev_dependencies:
   flutter_test:
