@@ -25,7 +25,7 @@ apply plugin: "com.android.application"
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdk 33
+    compileSdk 34
     namespace "com.lyokone.location.example"
 
     defaultConfig {
