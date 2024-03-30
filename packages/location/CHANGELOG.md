@@ -1,3 +1,10 @@
+## 6.0.0
+
+- Bump Android Gradle Plugin from 7.4.2 to 8.3.1
+- Bump minimum supported Android SDK to 21
+- Bump minimum Dart version to 3.1, minimum Flutter version to 3.16
+- Bump dependencies
+
 ## 5.0.3
 
 - Lower minimum iOS deployment target from 13 to 11 (#882 by Matias de Andrea)
