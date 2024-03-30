@@ -52,9 +52,9 @@ class _ServiceEnabledState extends State<ServiceEnabledWidget> {
             ElevatedButton(
               onPressed: (_serviceEnabled ?? false) ? null : _requestService,
               child: const Text('Request'),
-            )
+            ),
           ],
-        )
+        ),
       ],
     );
   }

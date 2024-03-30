@@ -65,7 +65,7 @@ void main() {
         arguments: <String, dynamic>{
           'accuracy': LocationAccuracy.high.index,
           'interval': 1000,
-          'distanceFilter': 0
+          'distanceFilter': 0,
         },
       ),
     ]);

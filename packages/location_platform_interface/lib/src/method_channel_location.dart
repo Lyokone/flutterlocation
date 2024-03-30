@@ -47,7 +47,7 @@ class MethodChannelLocation extends LocationPlatform {
       <String, dynamic>{
         'accuracy': accuracy!.index,
         'interval': interval,
-        'distanceFilter': distanceFilter
+        'distanceFilter': distanceFilter,
       },
     );
 

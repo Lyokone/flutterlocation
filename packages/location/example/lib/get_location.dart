@@ -54,7 +54,7 @@ class _GetLocationState extends State<GetLocationWidget> {
                       color: Colors.white,
                     )
                   : const Text('Get'),
-            )
+            ),
           ],
         ),
       ],
