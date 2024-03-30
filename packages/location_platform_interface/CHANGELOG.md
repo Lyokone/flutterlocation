@@ -1,3 +1,8 @@
+## 4.0.0
+
+- Bump minimum Dart version to 3.1, minimum Flutter version to 3.16
+- Bump dependencies
+
 ## 3.1.2
 
 - Fix cast error in `Location.changeNotificationOptions()` (#877)
