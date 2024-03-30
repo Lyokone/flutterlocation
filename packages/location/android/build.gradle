@@ -1,8 +1,7 @@
-group "com.lyokone.location"
-version "1.0-SNAPSHOT"
+group = "com.lyokone.location"
+version = "1.0-SNAPSHOT"
 
 buildscript {
-    ext.kotlin_version = "1.9.0"
     repositories {
         google()
         mavenCentral()
@@ -10,9 +9,9 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:7.4.2"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath("org.jlleitschuh.gradle:ktlint-gradle:11.5.0")
+        classpath "com.android.tools.build:gradle:8.3.1"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.23"
+        classpath "org.jlleitschuh.gradle:ktlint-gradle:12.1.0"
     }
 }
 
@@ -26,16 +25,16 @@ apply plugin: "kotlin-android"
 apply plugin: "org.jlleitschuh.gradle.ktlint"
 
 android {
-    namespace "com.lyokone.location"
-    compileSdk 34
+    namespace = "com.lyokone.location"
+    compileSdk = 34
 
     defaultConfig {
-        minSdk 16
+        minSdk = 21
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
@@ -47,7 +46,6 @@ android {
 dependencies {
     compileOnly "androidx.annotation:annotation:1.6.0"
 
-    api "com.google.android.gms:play-services-location:21.0.1"
+    api "com.google.android.gms:play-services-location:21.2.0"
     implementation "androidx.core:core-ktx:1.10.1"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
