@@ -6,22 +6,22 @@ repository: https://github.com/Lyokone/flutterlocation
 issue_tracker: https://github.com/Lyokone/flutterlocation/issues
 
 environment:
-  sdk: '>=2.18.0 <4.0.0'
-  flutter: '>=3.3.0'
+  sdk: ">=3.1.0 <4.0.0"
+  flutter: ">=3.16.0"
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  http_parser: ^4.0.0
-  js: ^0.6.3
-  location_platform_interface: ^3.1.1
+  http_parser: ^4.0.2
+  js: ^0.6.7
+  location_platform_interface: ^3.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mockito: ^5.0.0
+  mockito: ^5.4.4
 
 flutter:
   plugin:
