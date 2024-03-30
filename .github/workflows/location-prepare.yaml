@@ -80,7 +80,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.10.x
+          flutter-version: 3.16.x
 
       - name: Install tools
         run: brew install clang-format
