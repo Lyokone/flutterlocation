@@ -1,3 +1,8 @@
+## 5.0.0
+
+- Bump minimum Dart version to 3.1, minimum Flutter version to 3.16
+- Bump dependencies
+
 ## 4.2.0
 
 - Add accuracy to location data, if available (#876 by Tyler Jewell)
