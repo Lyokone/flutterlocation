@@ -52,9 +52,9 @@ class _PermissionStatusState extends State<PermissionStatusWidget> {
                   ? null
                   : _requestPermission,
               child: const Text('Request'),
-            )
+            ),
           ],
-        )
+        ),
       ],
     );
   }

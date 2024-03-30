@@ -78,7 +78,7 @@ class _ListenLocationState extends State<ListenLocationWidget> {
             ElevatedButton(
               onPressed: _locationSubscription != null ? _stopListen : null,
               child: const Text('Stop'),
-            )
+            ),
           ],
         ),
       ],

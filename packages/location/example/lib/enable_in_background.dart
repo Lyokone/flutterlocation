@@ -74,9 +74,9 @@ class _EnableInBackgroundState extends State<EnableInBackgroundWidget> {
             ElevatedButton(
               onPressed: _enabled == null ? null : _toggleBackgroundMode,
               child: Text(_enabled ?? false ? 'Disable' : 'Enable'),
-            )
+            ),
           ],
-        )
+        ),
       ],
     );
   }

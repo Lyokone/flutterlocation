@@ -2,7 +2,7 @@ name: location_platform_interface publish
 
 on:
   push:
-    tags: ['location_platform_interface-v*']
+    tags: ["location_platform_interface-v*"]
 
 jobs:
   publish:
@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # This step adds the auth token for pub.dev
       - name: Set up Dart

@@ -23,7 +23,7 @@ void main() {
         'speed': 2.0,
         'speed_accuracy': 2.0,
         'heading': 2.0,
-        'time': 2.0
+        'time': 2.0,
       });
       final otherLocationData = LocationData.fromMap(<String, dynamic>{
         'latitude': 42.0,
@@ -33,7 +33,7 @@ void main() {
         'speed': 2.0,
         'speed_accuracy': 2.0,
         'heading': 2.0,
-        'time': 2.0
+        'time': 2.0,
       });
 
       expect(otherLocationData == locationData, true);
@@ -49,7 +49,7 @@ void main() {
         'speed': 2.0,
         'speed_accuracy': 2.0,
         'heading': 2.0,
-        'time': 2.0
+        'time': 2.0,
       });
       final otherLocationData = LocationData.fromMap(<String, dynamic>{
         'latitude': 42.0,
@@ -59,7 +59,7 @@ void main() {
         'speed': 2.0,
         'speed_accuracy': 2.0,
         'heading': 2.0,
-        'time': 2.0
+        'time': 2.0,
       });
 
       expect(otherLocationData == locationData, false);

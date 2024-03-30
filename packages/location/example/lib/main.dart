@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: _showInfoDialog,
-          )
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -108,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
               const Divider(height: 32),
               const EnableInBackgroundWidget(),
               const Divider(height: 32),
-              const ChangeNotificationWidget()
+              const ChangeNotificationWidget(),
             ],
           ),
         ),
