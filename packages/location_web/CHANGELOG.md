@@ -1,4 +1,4 @@
-## 5.0.0
+## 5.0.1
 
 - Downgraded location_web dependency on js ^0.7.1 to js ^0.6.3 for compatibility with firebase_core ^2.27.2
 
