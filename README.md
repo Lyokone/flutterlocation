@@ -20,3 +20,11 @@ The full README for the plugin can be found in the [location] directory, or on
 [location_platform_interface]: https://github.com/Lyokone/flutterlocation/tree/master/packages/location_platform_interface
 [location_web]: https://github.com/Lyokone/flutterlocation/tree/master/packages/location_web
 [documentation website]: https://docs.page/Lyokone/flutterlocation
+
+## Maintainers
+
+- [Guillaume Bernos] (original creator)
+- [Bartek Pacia]
+
+[Guillaume Bernos]: https://github.com/Lyokone
+[Bartek Pacia]: https://github.com/bartekpacia
