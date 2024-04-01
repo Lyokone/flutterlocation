@@ -1,5 +1,9 @@
 ## 5.0.0
 
+- Downgraded location_web dependency on js ^0.7.1 to js ^0.6.3 for compatibility with firebase_core ^2.27.2
+
+## 5.0.0
+
 - Bump minimum Dart version to 3.1, minimum Flutter version to 3.16
 - Bump dependencies
 

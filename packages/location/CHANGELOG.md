@@ -1,3 +1,7 @@
+## 6.0.1
+
+- Downgraded location_web dependency on js ^0.7.1 to js ^0.6.3 for compatibility with firebase_core ^2.27.2
+
 ## 6.0.0
 
 - Bump Android Gradle Plugin from 7.4.2 to 8.3.1

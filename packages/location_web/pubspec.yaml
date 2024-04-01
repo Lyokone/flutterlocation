@@ -1,6 +1,6 @@
 name: location_web
 description: The web implementation of the location plugin.
-version: 5.0.0
+version: 5.0.1
 homepage: https://github.com/Lyokone/flutterlocation
 repository: https://github.com/Lyokone/flutterlocation
 issue_tracker: https://github.com/Lyokone/flutterlocation/issues
