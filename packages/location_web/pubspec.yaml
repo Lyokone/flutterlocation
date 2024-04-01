@@ -15,7 +15,7 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   http_parser: ^4.0.2
-  js: ^0.7.1
+  js: ^0.6.3
   location_platform_interface: ^4.0.0
 
 dev_dependencies:
