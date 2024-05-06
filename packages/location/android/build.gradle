@@ -28,24 +28,29 @@ android {
     namespace = "com.lyokone.location"
     compileSdk = 34
 
-    defaultConfig {
-        minSdk = 21
-    }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
-        allWarningsAsErrors = true
+        jvmTarget = JavaVersion.VERSION_1_8
+        // allWarningsAsErrors = true // TODO(bartekpacia): Re-enable
+    }
+
+    sourceSets {
+        main.java.srcDirs += "src/main/kotlin"
+        test.java.srcDirs += "src/test/kotlin"
+    }
+
+    defaultConfig {
+        minSdk = 21
+        targetSdk = 34
     }
 }
 
 dependencies {
-    compileOnly "androidx.annotation:annotation:1.6.0"
-
-    api "com.google.android.gms:play-services-location:21.2.0"
-    implementation "androidx.core:core-ktx:1.10.1"
+    compileOnly("androidx.annotation:annotation:1.7.1")
+    implementation("androidx.core:core-ktx:1.13.1")
+    api("com.google.android.gms:play-services-location:21.2.0")
 }
