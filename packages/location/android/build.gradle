@@ -50,7 +50,7 @@ android {
 }
 
 dependencies {
-    compileOnly("androidx.annotation:annotation:1.7.1")
-    implementation("androidx.core:core-ktx:1.13.1")
-    api("com.google.android.gms:play-services-location:21.2.0")
+    compileOnly "androidx.annotation:annotation:1.6.0"
+    implementation "androidx.core:core-ktx:1.13.1"
+    api "com.google.android.gms:play-services-location:21.2.0"
 }

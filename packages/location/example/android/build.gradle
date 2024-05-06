@@ -7,5 +7,5 @@ subprojects {
 }
 
 tasks.register("clean", Delete) {
-    delete(rootProject.buildDir)
+    delete rootProject.buildDir
 }
