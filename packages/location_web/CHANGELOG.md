@@ -1,3 +1,8 @@
+## 5.0.2
+
+- Remove dependency on `dart:html` in favor of `package:web` to allow complation
+  to WASM (#956)
+
 ## 5.0.1
 
 - Downgraded dependency on js ^0.7.1 to js ^0.6.3 for compatibility with
