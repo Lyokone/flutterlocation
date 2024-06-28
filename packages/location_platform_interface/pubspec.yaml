@@ -4,8 +4,8 @@ version: 4.0.0
 homepage: https://github.com/Lyokone/flutterlocation
 
 environment:
-  sdk: ">=3.1.0 <4.0.0"
-  flutter: ">=3.16.0"
+  sdk: ">=3.4.0 <4.0.0"
+  flutter: ">=3.22.0"
 
 dependencies:
   flutter:
@@ -14,8 +14,8 @@ dependencies:
 
 dev_dependencies:
   async: ^2.11.0
-  build_runner: ^2.4.9
+  build_runner: ^2.4.11
   flutter_test:
     sdk: flutter
-  leancode_lint: ^3.0.0
+  leancode_lint: ^13.0.0
   mockito: ^5.4.4
