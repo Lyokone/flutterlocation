@@ -19,6 +19,7 @@ class _ChangeSettingsState extends State<ChangeSettings> {
   );
 
   LocationAccuracy _locationAccuracy = LocationAccuracy.high;
+  bool _pausesLocationUpdatesAutomatically = true;
 
   @override
   void dispose() {
@@ -83,6 +84,34 @@ class _ChangeSettingsState extends State<ChangeSettings> {
                 child: Text('Powersave'),
               ),
             ],
+            decoration: const InputDecoration(
+              labelText: 'LocationAccuracy',
+            ),
+          ),
+          const SizedBox(height: 4),
+          DropdownButtonFormField<bool>(
+            value: _pausesLocationUpdatesAutomatically,
+            onChanged: (value) {
+              if (value == null) {
+                return;
+              }
+              setState(() {
+                _pausesLocationUpdatesAutomatically = value;
+              });
+            },
+            items: const <DropdownMenuItem<bool>>[
+              DropdownMenuItem(
+                value: true,
+                child: Text('True'),
+              ),
+              DropdownMenuItem(
+                value: false,
+                child: Text('False'),
+              ),
+            ],
+            decoration: const InputDecoration(
+              labelText: 'PausesLocationUpdatesAutomatically',
+            ),
           ),
           const SizedBox(height: 4),
           ElevatedButton(
@@ -91,6 +120,8 @@ class _ChangeSettingsState extends State<ChangeSettings> {
                 accuracy: _locationAccuracy,
                 interval: int.parse(_intervalController.text),
                 distanceFilter: double.parse(_distanceFilterController.text),
+                pausesLocationUpdatesAutomatically:
+                    _pausesLocationUpdatesAutomatically,
               );
             },
             child: const Text('Change'),

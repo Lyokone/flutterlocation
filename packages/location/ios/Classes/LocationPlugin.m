@@ -60,6 +60,7 @@
     self.clLocationManager = [[CLLocationManager alloc] init];
     self.clLocationManager.delegate = self;
     self.clLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    self.clLocationManager.pausesLocationUpdatesAutomatically = true;
   }
 }
 
@@ -67,6 +68,9 @@
                   result:(FlutterResult)result {
   [self initLocation];
   if ([call.method isEqualToString:@"changeSettings"]) {
+#ifdef DEBUG
+    NSLog(@"[Location] changeSettings(%@)", call.arguments);
+#endif
     if ([CLLocationManager locationServicesEnabled]) {
       CLLocationAccuracy reducedAccuracy = kCLLocationAccuracyHundredMeters;
       if (@available(iOS 14, *)) {
@@ -88,6 +92,7 @@
         distanceFilter = kCLDistanceFilterNone;
       }
       self.clLocationManager.distanceFilter = distanceFilter;
+      self.clLocationManager.pausesLocationUpdatesAutomatically = [dictionary[call.arguments[@"pausesLocationUpdatesAutomatically"]] boolValue];
       result(@1);
     }
   } else if ([call.method isEqualToString:@"isBackgroundModeEnabled"]) {

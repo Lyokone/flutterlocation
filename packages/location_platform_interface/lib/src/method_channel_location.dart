@@ -35,12 +35,15 @@ class MethodChannelLocation extends LocationPlatform {
   ///
   /// The [accuracy] argument is controlling the precision of the
   /// [LocationData]. The [interval] and [distanceFilter] are controlling how
-  /// often a new location is sent through [onLocationChanged].
+  /// often a new location is sent through [onLocationChanged]. The
+  /// [pausesLocationUpdatesAutomatically] argument indicates whether the
+  /// location-manager object may pause location updates.
   @override
   Future<bool> changeSettings({
     LocationAccuracy? accuracy = LocationAccuracy.high,
     int? interval = 1000,
     double? distanceFilter = 0,
+    bool? pausesLocationUpdatesAutomatically = true,
   }) async {
     final result = await _methodChannel!.invokeMethod(
       'changeSettings',
@@ -48,6 +51,8 @@ class MethodChannelLocation extends LocationPlatform {
         'accuracy': accuracy!.index,
         'interval': interval,
         'distanceFilter': distanceFilter,
+        'pausesLocationUpdatesAutomatically':
+            pausesLocationUpdatesAutomatically,
       },
     );
 
