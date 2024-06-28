@@ -1,3 +1,8 @@
+## 7.0.0
+
+- Bump minimum Dart version to 3.4, minimum Flutter version to 3.22
+- Bump dependencies
+
 ## 6.0.2
 
 - Fix bugs #620 and #864 (#889)
