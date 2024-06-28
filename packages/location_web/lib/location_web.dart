@@ -1,22 +1,24 @@
-import 'dart:html' as js;
+import 'dart:js_interop';
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
+import 'package:web/web.dart' as web;
 
 class LocationWebPlugin extends LocationPlatform {
-  LocationWebPlugin(js.Navigator navigator)
+  LocationWebPlugin(web.Navigator navigator)
       : _geolocation = navigator.geolocation,
         _permissions = navigator.permissions,
         _accuracy = LocationAccuracy.high;
 
-  final js.Geolocation _geolocation;
-  final js.Permissions? _permissions;
+  final web.Geolocation _geolocation;
+  final web.Permissions _permissions;
 
   LocationAccuracy? _accuracy;
 
   static void registerWith(Registrar registrar) {
-    LocationPlatform.instance = LocationWebPlugin(js.window.navigator);
+    LocationPlatform.instance = LocationWebPlugin(web.window.navigator);
   }
 
   @override
@@ -29,19 +31,33 @@ class LocationWebPlugin extends LocationPlatform {
     return true;
   }
 
-  @override
-  Future<LocationData> getLocation() async {
-    final js.Geoposition result = await _geolocation.getCurrentPosition(
-      enableHighAccuracy: _accuracy!.index >= LocationAccuracy.high.index,
+  Future<web.GeolocationPosition> _getCurrentPosition() async {
+    final completer = Completer<web.GeolocationPosition>();
+    _geolocation.getCurrentPosition(
+      (web.GeolocationPosition result) {
+        completer.complete(result);
+      }.toJS,
+      () {
+        completer.completeError(Exception('location error'));
+      }.toJS,
+      web.PositionOptions(
+        enableHighAccuracy: _accuracy!.index >= LocationAccuracy.high.index,
+      ),
     );
 
+    return await completer.future;
+  }
+
+  @override
+  Future<LocationData> getLocation() async {
+    final result = await _getCurrentPosition();
     return _toLocationData(result);
   }
 
   @override
   Future<PermissionStatus> hasPermission() async {
-    final js.PermissionStatus result =
-        await _permissions!.query(<String, String>{'name': 'geolocation'});
+    final web.PermissionStatus result =
+        await _permissions.query({'name': 'geolocation'}.toJSBox).toDart;
 
     switch (result.state) {
       case 'granted':
@@ -59,7 +75,7 @@ class LocationWebPlugin extends LocationPlatform {
   @override
   Future<PermissionStatus> requestPermission() async {
     try {
-      await _geolocation.getCurrentPosition();
+      await _getCurrentPosition();
       return PermissionStatus.granted;
     } catch (e) {
       return PermissionStatus.deniedForever;
@@ -83,10 +99,20 @@ class LocationWebPlugin extends LocationPlatform {
 
   @override
   Stream<LocationData> get onLocationChanged {
-    return _geolocation
-        .watchPosition(
-            enableHighAccuracy: _accuracy!.index >= LocationAccuracy.high.index)
-        .map(_toLocationData);
+    final controller = StreamController<LocationData>();
+    _geolocation.watchPosition(
+      (web.GeolocationPosition result) {
+        controller.add(_toLocationData(result));
+      }.toJS,
+      () {
+        controller.addError(Exception('location error'));
+      }.toJS,
+      web.PositionOptions(
+        enableHighAccuracy: _accuracy!.index >= LocationAccuracy.high.index,
+      ),
+    );
+
+    return controller.stream;
   }
 
   @override
@@ -104,23 +130,23 @@ class LocationWebPlugin extends LocationPlatform {
     return null;
   }
 
-  /// Converts a [js.Geoposition] to a [LocationData].
+  /// Converts a [web.Geoposition] to a [LocationData].
   ///
   /// This method is used to convert the result of the Geolocation API to a
   /// [LocationData] object.
   ///
   /// Reference: https://developer.mozilla.org/en-US/docs/Web/API/GeolocationCoordinates
   ///
-  LocationData _toLocationData(js.Geoposition result) {
+  LocationData _toLocationData(web.GeolocationPosition result) {
     return LocationData.fromMap(<String, dynamic>{
-      'latitude': result.coords?.latitude?.toDouble(),
-      'longitude': result.coords?.longitude?.toDouble(),
-      'altitude': result.coords?.altitude?.toDouble(),
-      'accuracy': result.coords?.accuracy?.toDouble(),
-      'verticalAccuracy': result.coords?.altitudeAccuracy?.toDouble(),
-      'heading': result.coords?.heading?.toDouble(),
-      'speed': result.coords?.speed?.toDouble(),
-      'time': result.timestamp!.toDouble(),
+      'latitude': result.coords.latitude.toDouble(),
+      'longitude': result.coords.longitude.toDouble(),
+      'altitude': result.coords.altitude?.toDouble(),
+      'accuracy': result.coords.accuracy.toDouble(),
+      'verticalAccuracy': result.coords.altitudeAccuracy?.toDouble(),
+      'heading': result.coords.heading?.toDouble(),
+      'speed': result.coords.speed?.toDouble(),
+      'time': result.timestamp.toDouble(),
     });
   }
 }
