@@ -90,25 +90,21 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(32),
-          // FIXME: This ignore can be removed when we drop support for Flutter 3.10.
-          // ignore: prefer_const_constructors
-          child: Column(
-            // FIXME: This ignore can be removed when we drop support for Flutter 3.10.
-            // ignore: prefer_const_literals_to_create_immutables
+          child: const Column(
             children: [
-              const PermissionStatusWidget(),
-              const Divider(height: 32),
-              const ServiceEnabledWidget(),
-              const Divider(height: 32),
-              const GetLocationWidget(),
-              const Divider(height: 32),
-              const ListenLocationWidget(),
-              const Divider(height: 32),
-              const ChangeSettings(),
-              const Divider(height: 32),
-              const EnableInBackgroundWidget(),
-              const Divider(height: 32),
-              const ChangeNotificationWidget(),
+              PermissionStatusWidget(),
+              Divider(height: 32),
+              ServiceEnabledWidget(),
+              Divider(height: 32),
+              GetLocationWidget(),
+              Divider(height: 32),
+              ListenLocationWidget(),
+              Divider(height: 32),
+              ChangeSettings(),
+              Divider(height: 32),
+              EnableInBackgroundWidget(),
+              Divider(height: 32),
+              ChangeNotificationWidget(),
             ],
           ),
         ),
