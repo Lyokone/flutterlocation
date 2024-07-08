@@ -67,29 +67,33 @@
                   result:(FlutterResult)result {
   [self initLocation];
   if ([call.method isEqualToString:@"changeSettings"]) {
-    if ([CLLocationManager locationServicesEnabled]) {
-      CLLocationAccuracy reducedAccuracy = kCLLocationAccuracyHundredMeters;
-      if (@available(iOS 14, *)) {
-        reducedAccuracy = kCLLocationAccuracyReduced;
-      }
-      NSDictionary *dictionary = @{
-        @"0" : @(kCLLocationAccuracyKilometer),
-        @"1" : @(kCLLocationAccuracyHundredMeters),
-        @"2" : @(kCLLocationAccuracyNearestTenMeters),
-        @"3" : @(kCLLocationAccuracyBest),
-        @"4" : @(kCLLocationAccuracyBestForNavigation),
-        @"5" : @(reducedAccuracy)
-      };
+      dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^(void)
+      {
+          if ([CLLocationManager locationServicesEnabled]) {
+              CLLocationAccuracy reducedAccuracy = kCLLocationAccuracyHundredMeters;
+              if (@available(iOS 14, *)) {
+                  reducedAccuracy = kCLLocationAccuracyReduced;
+              }
+              NSDictionary *dictionary = @{
+                      @"0" : @(kCLLocationAccuracyKilometer),
+                      @"1" : @(kCLLocationAccuracyHundredMeters),
+                      @"2" : @(kCLLocationAccuracyNearestTenMeters),
+                      @"3" : @(kCLLocationAccuracyBest),
+                      @"4" : @(kCLLocationAccuracyBestForNavigation),
+                      @"5" : @(reducedAccuracy)
+              };
 
-      self.clLocationManager.desiredAccuracy =
-          [dictionary[call.arguments[@"accuracy"]] doubleValue];
-      double distanceFilter = [call.arguments[@"distanceFilter"] doubleValue];
-      if (distanceFilter == 0) {
-        distanceFilter = kCLDistanceFilterNone;
-      }
-      self.clLocationManager.distanceFilter = distanceFilter;
-      result(@1);
-    }
+              self.clLocationManager.desiredAccuracy =
+                      [dictionary[call.arguments[@"accuracy"]] doubleValue];
+              double distanceFilter = [call.arguments[@"distanceFilter"] doubleValue];
+              if (distanceFilter == 0) {
+                  distanceFilter = kCLDistanceFilterNone;
+              }
+              self.clLocationManager.distanceFilter = distanceFilter;
+              result(@1);
+          }
+      });
+
   } else if ([call.method isEqualToString:@"isBackgroundModeEnabled"]) {
     if (self.applicationHasLocationBackgroundMode) {
       if (@available(iOS 9.0, *)) {
@@ -160,17 +164,23 @@
       result(@2);
     }
   } else if ([call.method isEqualToString:@"serviceEnabled"]) {
-    if ([CLLocationManager locationServicesEnabled]) {
-      result(@1);
-    } else {
-      result(@0);
-    }
+      dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^(void)
+      {
+          if ([CLLocationManager locationServicesEnabled]) {
+              result(@1);
+          } else {
+              result(@0);
+          }
+      });
+
   } else if ([call.method isEqualToString:@"requestService"]) {
-    if ([CLLocationManager locationServicesEnabled]) {
-      result(@1);
-    } else {
+      dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^(void)
+      {
+          if ([CLLocationManager locationServicesEnabled]) {
+              result(@1);
+          } else {
 #if TARGET_OS_OSX
-      NSAlert *alert = [[NSAlert alloc] init];
+              NSAlert *alert = [[NSAlert alloc] init];
       [alert setMessageText:@"Location is Disabled"];
       [alert setInformativeText:
                  @"To use location, go to your System Preferences > Security & "
@@ -188,17 +198,19 @@
                       }
                     }];
 #else
-      UIAlertView *alert = [[UIAlertView alloc]
-              initWithTitle:@"Location is Disabled"
-                    message:@"To use location, go to your Settings App > "
-                            @"Privacy > Location Services."
-                   delegate:self
-          cancelButtonTitle:@"Cancel"
-          otherButtonTitles:nil];
-      [alert show];
+              UIAlertView *alert = [[UIAlertView alloc]
+                      initWithTitle:@"Location is Disabled"
+                            message:@"To use location, go to your Settings App > "
+                                    @"Privacy > Location Services."
+                           delegate:self
+                  cancelButtonTitle:@"Cancel"
+                  otherButtonTitles:nil];
+              [alert show];
 #endif
-      result(@0);
-    }
+              result(@0);
+          }
+      });
+
   } else {
     result(FlutterMethodNotImplemented);
   }
