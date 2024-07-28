@@ -8,7 +8,7 @@ description: Update the Android notification
 When you listen for background location, a notification is displayed on Android. This methods allows you to update the notification.
 
 ```dart
-Future<bool> updateBackgroundNotification({
+Future<bool> changeNotificationOptions({
   String? channelName,
   String? title,
   String? iconName,
@@ -29,9 +29,11 @@ It should be in the `res/drawable` folder with the same name. By default, the li
 The notification will only appear on Android
 
 ```dart
-_locationSubscription = onLocationChanged(inBackground: _inBackground)
+final location = Location();
+location.enableBackgroundMode(enable: true);
+_locationSubscription = location.onLocationChanged
     .listen((LocationData currentLocation) async {
-        await updateBackgroundNotification(
+        await location.changeBackgroundOptions(
             subtitle:
                 'Location: ${currentLocation.latitude}, ${currentLocation.longitude}',
             onTapBringToFront: true,
