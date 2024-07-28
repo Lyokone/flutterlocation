@@ -5,7 +5,7 @@ description: Test your app with Location
 
 # Testing
 
-If you want to set a custom LocationPlatform for testing you can use the `setLocationInstance` property.
+If you want to set a custom Location for testing you can use the `Location.instance` property.
 Here is an example with Mocktail
 
 ```dart
@@ -13,17 +13,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:location/location.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockLocationPlatform extends Mock implements LocationPlatform {}
+class MockLocation extends Mock implements Location {}
 
 void main() {
   testWidgets('get location ...', (tester) async {
-    final mock = MockLocationPlatform();
+    final mock = MockLocation();
 
     when(mock.getLocation).thenAnswer(
-      (invocation) async => LocationData(latitude: 42, longitude: 2),
+      (invocation) async => LocationData.fromMap({'latitude': 42, 'longitude': 2}),
     );
 
-    setLocationInstance(mock);
+    Location.instance = mock;
   });
 }
 ```
