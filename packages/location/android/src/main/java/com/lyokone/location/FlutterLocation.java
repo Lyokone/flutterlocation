@@ -56,6 +56,8 @@ public class FlutterLocation
     private LocationSettingsRequest mLocationSettingsRequest;
     public LocationCallback mLocationCallback;
 
+    private boolean needLocationClientFallback = false;
+
     @TargetApi(Build.VERSION_CODES.N)
     private OnNmeaMessageListener mMessageListener;
 
@@ -420,6 +422,14 @@ public class FlutterLocation
             result.error("MISSING_ACTIVITY", "You should not requestLocation activation outside of an activity.", null);
             throw new ActivityNotFoundException();
         }
+
+        if (needLocationClientFallback) {
+            // fallback
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
+                Looper.myLooper());
+            return;
+        }
+
         mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
                 .addOnSuccessListener(activity, locationSettingsResponse -> {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -452,6 +462,12 @@ public class FlutterLocation
                             }
                             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
                                     Looper.myLooper());
+                        } else if (statusCode == LocationSettingsStatusCodes.API_NOT_CONNECTED) {
+                            // fallback when API available
+                            if (handleFallback(ae)) {
+                                mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
+                                    Looper.myLooper());
+                            }
                         } else {// This should not happen according to Android documentation but it has been
                             // observed on some phones.
                             sendError("UNEXPECTED_ERROR", e.getMessage(), null);
@@ -460,4 +476,13 @@ public class FlutterLocation
                 });
     }
 
+    private boolean handleFallback(ApiException e) {
+        if (this.activity == null) {
+            sendError("UNEXPECTED_ERROR", e.getMessage(), null);
+            return false;
+        }
+        needLocationClientFallback = true;
+        mFusedLocationClient = GPSFusedLocationProviderClient.getClient(activity);
+        return true;
+    }
 }
