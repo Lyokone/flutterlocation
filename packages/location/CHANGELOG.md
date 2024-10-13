@@ -1,3 +1,7 @@
+## 7.0.1
+
+- Bump dependency on `package: location_web` to `^5.0.4`
+
 ## 7.0.0
 
 - Bump minimum Dart version to 3.4, minimum Flutter version to 3.22
