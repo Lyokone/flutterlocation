@@ -1,3 +1,7 @@
+## 5.0.4
+
+- Bump dependency on `package: web` to `^1.0.0`
+
 ## 5.0.3
 
 - Bump dependency on `location_platform_interface` to `^5.0.0`
