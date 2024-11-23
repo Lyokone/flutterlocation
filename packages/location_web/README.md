@@ -6,7 +6,7 @@ The web implementation of [`location`][1].
 
 ### Import the package
 
-This package is the endorsed implementation of `location` for the web platform since version `3.0.0`, so it gets automatically added to your dependencies by depending on `location: ^3.0.0`.
+This package is the endorsed implementation of `location` for the web platform since version `3.0.0`, so it gets automatically added to your dependencies by depending on `location: ^7.0.0`.
 
 No modifications to your `pubspec.yaml` should be required in a recent enough version of Flutter (`>=1.12.13+hotfix.4`):
 
@@ -14,7 +14,7 @@ No modifications to your `pubspec.yaml` should be required in a recent enough ve
 ...
 dependencies:
   ...
-  location: ^4.0.0
+  location: ^7.0.0
   ...
 ```
 

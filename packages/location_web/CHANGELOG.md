@@ -1,3 +1,7 @@
+## 5.0.5
+
+- Remove dependency on `js`
+
 ## 5.0.4
 
 - Bump dependency on `package: web` to `^1.0.0`
