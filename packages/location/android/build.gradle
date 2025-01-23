@@ -9,9 +9,9 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:8.3.1"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.23"
-        classpath "org.jlleitschuh.gradle:ktlint-gradle:11.5.0"
+        classpath("com.android.tools.build:gradle:8.8.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0")
+        classpath("org.jlleitschuh.gradle:ktlint-gradle:11.5.0")
     }
 }
 
@@ -21,20 +21,20 @@ repositories {
 }
 
 apply plugin: "com.android.library"
-apply plugin: "kotlin-android"
+apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "org.jlleitschuh.gradle.ktlint"
 
 android {
     namespace = "com.lyokone.location"
-    compileSdk = 34
+    compileSdk = 35
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = "11"
         // allWarningsAsErrors = true // TODO(bartekpacia): Re-enable
     }
 
@@ -45,12 +45,12 @@ android {
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 34
+        targetSdk = 35
     }
 }
 
 dependencies {
-    compileOnly "androidx.annotation:annotation:1.6.0"
-    implementation "androidx.core:core-ktx:1.13.1"
-    api "com.google.android.gms:play-services-location:21.2.0"
+    compileOnly("androidx.annotation:annotation:1.6.0")
+    implementation("androidx.core:core-ktx:1.13.1")
+    api("com.google.android.gms:play-services-location:21.2.0")
 }
