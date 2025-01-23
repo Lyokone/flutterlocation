@@ -1,27 +1,27 @@
 name: location_web
 description: The web implementation of the location plugin.
-version: 5.0.5
+version: 6.0.0
 homepage: https://github.com/Lyokone/flutterlocation
 repository: https://github.com/Lyokone/flutterlocation
 issue_tracker: https://github.com/Lyokone/flutterlocation/issues
 
 environment:
-  sdk: ">=3.4.0 <4.0.0"
-  flutter: ">=3.22.0"
+  sdk: ">=3.6.0 <4.0.0"
+  flutter: ">=3.27.0"
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  http_parser: ^4.0.0
+  http_parser: ^4.1.0
   location_platform_interface: ^5.0.0
-  web: ^1.0.0
+  web: ^1.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mockito: ^5.4.4
+  mockito: ^5.4.5
 
 flutter:
   plugin:

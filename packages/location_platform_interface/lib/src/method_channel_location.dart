@@ -205,6 +205,8 @@ class MethodChannelLocation extends LocationPlatform {
     }
 
     if (color != null) {
+      // Not sure what to replace this with.
+      // ignore: deprecated_member_use
       data['color'] = '#${color.value.toRadixString(16)}';
     }
 
