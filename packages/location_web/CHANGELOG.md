@@ -1,6 +1,6 @@
 ## 6.0.0
 
-- Bump minimum Dart version to 3.6, minimum Flutter version to 3.27 (#)
+- Bump minimum Dart version to 3.6, minimum Flutter version to 3.27 (#952)
 - Bump dependency on `package: web` to `^1.1.0`
 
 ## 5.0.5

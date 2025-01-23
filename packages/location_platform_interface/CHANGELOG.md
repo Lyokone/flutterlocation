@@ -1,12 +1,18 @@
+## 6.0.0
+
+- Bump dependencies (#952)
+  - Bump minimum Dart version to 3.6, minimum Flutter version to 3.27
+
 ## 5.0.0
 
-- Bump minimum Dart version to 3.4, minimum Flutter version to 3.22
-- Bump dependencies
+- Bump dependencies (#964)
+  - Bump minimum Dart version to 3.4, minimum Flutter version to 3.22
 
 ## 4.0.0
 
-- Bump minimum Dart version to 3.1, minimum Flutter version to 3.16
-- Bump dependencies
+- Bump dependencies (#937)
+  - Bump minimum Dart version to 3.1, minimum Flutter version to 3.16
+
 
 ## 3.1.2
 
