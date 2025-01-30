@@ -34,6 +34,7 @@ import com.google.android.gms.location.SettingsClient;
 import io.flutter.plugin.common.EventChannel.EventSink;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -345,7 +346,9 @@ public class FlutterLocation
             result.success(1);
             return;
         }
-        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+        ActivityCompat.requestPermissions(activity, new String[]{
+                        Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
+                },
                 REQUEST_PERMISSIONS_REQUEST_CODE);
     }
 
