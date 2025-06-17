@@ -40,7 +40,7 @@ class LocationPlatform extends PlatformInterface {
   /// [LocationData]. The [interval] and [distanceFilter] are controlling how
   /// often a new location is sent through [onLocationChanged]. The
   /// [pausesLocationUpdatesAutomatically] argument indicates whether the
-  /// location-manager object may pause location updates.
+  /// underlying location manager object may pause location updates.
   Future<bool> changeSettings({
     LocationAccuracy? accuracy,
     int? interval,

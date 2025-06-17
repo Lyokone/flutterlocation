@@ -37,7 +37,7 @@ class MethodChannelLocation extends LocationPlatform {
   /// [LocationData]. The [interval] and [distanceFilter] are controlling how
   /// often a new location is sent through [onLocationChanged]. The
   /// [pausesLocationUpdatesAutomatically] argument indicates whether the
-  /// location-manager object may pause location updates.
+  /// underlying location manager object may pause location updates.
   @override
   Future<bool> changeSettings({
     LocationAccuracy? accuracy = LocationAccuracy.high,
