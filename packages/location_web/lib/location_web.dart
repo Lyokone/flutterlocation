@@ -26,6 +26,7 @@ class LocationWebPlugin extends LocationPlatform {
     LocationAccuracy? accuracy,
     int? interval,
     double? distanceFilter,
+    bool? pausesLocationUpdatesAutomatically,
   }) async {
     _accuracy = accuracy;
     return true;

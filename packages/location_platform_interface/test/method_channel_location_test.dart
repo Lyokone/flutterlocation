@@ -66,6 +66,7 @@ void main() {
           'accuracy': LocationAccuracy.high.index,
           'interval': 1000,
           'distanceFilter': 0,
+          'pausesLocationUpdatesAutomatically': true,
         },
       ),
     ]);
