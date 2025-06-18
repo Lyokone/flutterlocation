@@ -1,3 +1,7 @@
+## 8.0.1
+
+- Bump dependency on `location_platform_interface` to `^6.0.1` (#933)
+
 ## 8.0.0
 
 - Bump minimum Dart version to 3.4, minimum Flutter version to 3.22
