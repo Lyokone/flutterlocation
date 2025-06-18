@@ -1,3 +1,7 @@
+## 6.0.1
+
+- Configure `pausesLocationUpdatesAutomatically` on iOS (#933)
+
 ## 6.0.0
 
 - Bump dependencies (#952)
