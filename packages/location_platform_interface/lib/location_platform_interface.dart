@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 part 'src/method_channel_location.dart';
+
 part 'src/types.dart';
 
 /// The interface that implementations of `location` must extend.
@@ -56,7 +57,10 @@ class LocationPlatform extends PlatformInterface {
   }
 
   /// Enables or disables service in the background mode.
-  Future<bool> enableBackgroundMode({bool? enable}) {
+  Future<bool> enableBackgroundMode({
+    bool? enable,
+    bool? checkBackgroundPermissions,
+  }) {
     throw UnimplementedError();
   }
 

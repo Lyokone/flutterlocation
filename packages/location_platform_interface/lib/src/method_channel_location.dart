@@ -63,16 +63,22 @@ class MethodChannelLocation extends LocationPlatform {
   @override
   Future<bool> isBackgroundModeEnabled() async {
     final result =
-        await _methodChannel!.invokeMethod('isBackgroundModeEnabled');
+    await _methodChannel!.invokeMethod('isBackgroundModeEnabled');
     return result == 1;
   }
 
   /// Enables or disables service in the background mode.
   @override
-  Future<bool> enableBackgroundMode({bool? enable}) async {
+  Future<bool> enableBackgroundMode({
+    bool? enable,
+    bool? checkBackgroundPermissions,
+  }) async {
     final result = await _methodChannel!.invokeMethod(
       'enableBackgroundMode',
-      <String, dynamic>{'enable': enable},
+      <String, dynamic>{
+        'enable': enable,
+        'checkBackgroundPermissions': checkBackgroundPermissions,
+      },
     );
 
     return result == 1;
@@ -85,7 +91,7 @@ class MethodChannelLocation extends LocationPlatform {
   @override
   Future<LocationData> getLocation() async {
     final resultMap =
-        await _methodChannel!.invokeMapMethod<String, dynamic>('getLocation');
+    await _methodChannel!.invokeMapMethod<String, dynamic>('getLocation');
     if (resultMap == null) {
       throw PlatformException(
         code: 'NULL_RESULT',
