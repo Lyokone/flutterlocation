@@ -314,7 +314,17 @@
 
 - (void)locationManager:(CLLocationManager *)manager
      didUpdateLocations:(NSArray<CLLocation *> *)locations {
-  if (self.waitNextLocation > 0) {
+
+  // Check if location accuracy is reduced on iOS 14 and above
+  // This means precise location is disabled and only one location update will be sent
+  BOOL isReducedAccuracy = NO;
+  if (@available(iOS 14.0, *)) {
+    CLAccuracyAuthorization accuracy = [self.clLocationManager accuracyAuthorization];
+    isReducedAccuracy = (accuracy == CLAccuracyAuthorizationReducedAccuracy);
+  }
+
+  // Only use the guard if precise location is enabled
+  if (!isReducedAccuracy && self.waitNextLocation > 0) {
     self.waitNextLocation -= 1;
     return;
   }
