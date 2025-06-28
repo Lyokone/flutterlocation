@@ -1,3 +1,7 @@
+## 6.0.1
+
+- Configure `pausesLocationUpdatesAutomatically` on iOS. Should fix  (#933)
+
 ## 6.0.0
 
 - Bump minimum Dart version to 3.6, minimum Flutter version to 3.27 (#952)
