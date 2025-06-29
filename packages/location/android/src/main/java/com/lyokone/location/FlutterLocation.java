@@ -124,9 +124,13 @@ public class FlutterLocation
     }
 
     public boolean onRequestPermissionsResultHandler(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE && permissions.length == 1
-                && permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
+        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE && permissions.length == 2
+                && permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION)
+                && permissions[1].equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // fine location permission is granted
+
                 // Checks if this permission was automatically triggered by a location request
                 if (getLocationResult != null || events != null) {
                     startRequestingLocation();
@@ -135,6 +139,19 @@ public class FlutterLocation
                     result.success(1);
                     result = null;
                 }
+            } else if (grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                // coarse location permission is granted
+
+                // Checks if this permission was automatically triggered by a location request
+                if (getLocationResult != null || events != null) {
+                    startRequestingLocation();
+                }
+
+                if (result != null) {
+                    result.success(1);
+                    result = null;
+                }
+
             } else {
                 if (!shouldShowRequestPermissionRationale()) {
                     sendError("PERMISSION_DENIED_NEVER_ASK",
@@ -331,9 +348,11 @@ public class FlutterLocation
             result.error("MISSING_ACTIVITY", "You should not checkPermissions activation outside of an activity.", null);
             throw new ActivityNotFoundException();
         }
-        int locationPermissionState = ActivityCompat.checkSelfPermission(activity,
+        int fineLocationPermissionState = ActivityCompat.checkSelfPermission(activity,
                 Manifest.permission.ACCESS_FINE_LOCATION);
-        return locationPermissionState == PackageManager.PERMISSION_GRANTED;
+        int coarseLocationPermissionState = ActivityCompat.checkSelfPermission(activity,
+                Manifest.permission.ACCESS_COARSE_LOCATION);
+        return fineLocationPermissionState == PackageManager.PERMISSION_GRANTED || coarseLocationPermissionState == PackageManager.PERMISSION_GRANTED;
     }
 
     public void requestPermissions() {
@@ -345,7 +364,7 @@ public class FlutterLocation
             result.success(1);
             return;
         }
-        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                 REQUEST_PERMISSIONS_REQUEST_CODE);
     }
 
@@ -353,7 +372,8 @@ public class FlutterLocation
         if (activity == null) {
             return false;
         }
-        return ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION);
+        return ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+                || ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_COARSE_LOCATION);
     }
 
     /**
@@ -422,7 +442,9 @@ public class FlutterLocation
         }
         mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
                 .addOnSuccessListener(activity, locationSettingsResponse -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    boolean isFineLocationPermissionGranted = ActivityCompat.checkSelfPermission(activity,
+                            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isFineLocationPermissionGranted) {
                         locationManager.addNmeaListener(mMessageListener, null);
                     }
 
