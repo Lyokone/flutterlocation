@@ -311,7 +311,6 @@ public class FlutterLocation
      * Sets up the location request. Android has two location request settings:
      */
     private void createLocationRequest() {
-        // API nova do FusedLocationProvider (sem métodos deprecados)
         final int priority = (this.locationAccuracy != null)
                 ? this.locationAccuracy
                 : Priority.PRIORITY_HIGH_ACCURACY;
