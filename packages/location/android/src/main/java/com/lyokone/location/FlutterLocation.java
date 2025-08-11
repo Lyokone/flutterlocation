@@ -29,6 +29,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.Priority;
 import com.google.android.gms.location.SettingsClient;
 
 import io.flutter.plugin.common.EventChannel.EventSink;
@@ -64,7 +65,7 @@ public class FlutterLocation
     // Parameters of the request
     private long updateIntervalMilliseconds = 5000;
     private long fastestUpdateIntervalMilliseconds = updateIntervalMilliseconds / 2;
-    private Integer locationAccuracy = LocationRequest.PRIORITY_HIGH_ACCURACY;
+    private Integer locationAccuracy = Priority.PRIORITY_HIGH_ACCURACY;
     private float distanceFilter = 0f;
 
     public EventSink events;
@@ -82,12 +83,12 @@ public class FlutterLocation
 
     public SparseArray<Integer> mapFlutterAccuracy = new SparseArray<Integer>() {
         {
-            put(0, LocationRequest.PRIORITY_NO_POWER);
-            put(1, LocationRequest.PRIORITY_LOW_POWER);
-            put(2, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-            put(3, LocationRequest.PRIORITY_HIGH_ACCURACY);
-            put(4, LocationRequest.PRIORITY_HIGH_ACCURACY);
-            put(5, LocationRequest.PRIORITY_LOW_POWER);
+            put(0, Priority.PRIORITY_PASSIVE);
+            put(1, Priority.PRIORITY_LOW_POWER);
+            put(2, Priority.PRIORITY_BALANCED_POWER_ACCURACY);
+            put(3, Priority.PRIORITY_HIGH_ACCURACY);
+            put(4, Priority.PRIORITY_HIGH_ACCURACY);
+            put(5, Priority.PRIORITY_LOW_POWER);
         }
     };
 
@@ -215,6 +216,7 @@ public class FlutterLocation
     /**
      * Creates a callback for receiving location events.
      */
+    @SuppressWarnings("deprecation")
     private void createLocationCallback() {
         if (mLocationCallback != null) {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
@@ -243,7 +245,13 @@ public class FlutterLocation
                     loc.put("satelliteNumber", location.getExtras().getInt("satellites"));
                 }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    loc.put("elapsedRealtimeNanos", (double) location.getElapsedRealtimeNanos());
+
+                    if (location.isMock()) {
+                        loc.put("isMock", (double) 1);
+                    }
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                     loc.put("elapsedRealtimeNanos", (double) location.getElapsedRealtimeNanos());
 
                     if (location.isFromMockProvider()) {
@@ -303,12 +311,16 @@ public class FlutterLocation
      * Sets up the location request. Android has two location request settings:
      */
     private void createLocationRequest() {
-        mLocationRequest = LocationRequest.create();
+        // API nova do FusedLocationProvider (sem métodos deprecados)
+        final int priority = (this.locationAccuracy != null)
+                ? this.locationAccuracy
+                : Priority.PRIORITY_HIGH_ACCURACY;
 
-        mLocationRequest.setInterval(this.updateIntervalMilliseconds);
-        mLocationRequest.setFastestInterval(this.fastestUpdateIntervalMilliseconds);
-        mLocationRequest.setPriority(this.locationAccuracy);
-        mLocationRequest.setSmallestDisplacement(this.distanceFilter);
+        LocationRequest.Builder builder = new LocationRequest.Builder(priority, this.updateIntervalMilliseconds)
+                .setMinUpdateIntervalMillis(this.fastestUpdateIntervalMilliseconds)
+                .setMinUpdateDistanceMeters(this.distanceFilter);
+
+        mLocationRequest = builder.build();
     }
 
     /**

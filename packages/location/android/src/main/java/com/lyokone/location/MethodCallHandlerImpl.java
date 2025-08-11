@@ -99,9 +99,14 @@ final class MethodCallHandlerImpl implements MethodCallHandler {
     private void onChangeSettings(MethodCall call, Result result) {
         try {
             final Integer locationAccuracy = location.mapFlutterAccuracy.get((Integer) call.argument("accuracy"));
-            final Long updateIntervalMilliseconds = new Long((int) call.argument("interval"));
-            final Long fastestUpdateIntervalMilliseconds = updateIntervalMilliseconds / 2;
-            final Float distanceFilter = new Float((double) call.argument("distanceFilter"));
+
+            final Number interval = (Number) call.argument("interval");
+            final Long updateIntervalMilliseconds = Long.valueOf(interval != null ? interval.longValue() : 0L);
+
+            final Long fastestUpdateIntervalMilliseconds = Long.valueOf(updateIntervalMilliseconds / 2);
+
+            final Number distance = (Number) call.argument("distanceFilter");
+            final Float distanceFilter = Float.valueOf(distance != null ? distance.floatValue() : 0f);
 
             location.changeSettings(locationAccuracy, updateIntervalMilliseconds, fastestUpdateIntervalMilliseconds,
                     distanceFilter);
