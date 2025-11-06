@@ -22,7 +22,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  location: ^5.0.0
+  location: ^8.0.1
 ```
 
 ### Android
