@@ -98,14 +98,21 @@
       result(@1);
     }
   } else if ([call.method isEqualToString:@"isBackgroundModeEnabled"]) {
+    #if TARGET_OS_OSX
+    result(FlutterMethodNotImplemented);
+    #else
     if (self.applicationHasLocationBackgroundMode) {
       if (@available(iOS 9.0, *)) {
-        result(self.clLocationManager.allowsBackgroundLocationUpdates ? @1
-                                                                      : @0);
+        result(self.clLocationManager.allowsBackgroundLocationUpdates ? @1 : @0);
+        return;
       }
-      result(@0);
     }
+    result(@0);
+    #endif
   } else if ([call.method isEqualToString:@"enableBackgroundMode"]) {
+    #if TARGET_OS_OSX
+    result(FlutterMethodNotImplemented);
+    #else
     BOOL enable = [call.arguments[@"enable"] boolValue];
     if (self.applicationHasLocationBackgroundMode) {
       if (@available(iOS 9.0, *)) {
@@ -118,6 +125,7 @@
     } else {
       result(@0);
     }
+    #endif
   } else if ([call.method isEqualToString:@"getLocation"]) {
     if (![CLLocationManager locationServicesEnabled]) {
       result([FlutterError
@@ -321,8 +329,17 @@
   CLLocation *location = locations.lastObject;
 
   NSTimeInterval timeInSeconds = [location.timestamp timeIntervalSince1970];
-  BOOL superiorToIos10 =
-      [UIDevice currentDevice].systemVersion.floatValue >= 10;
+  double speedAccuracy = 0.0;
+  #if TARGET_OS_OSX
+  if (@available(macOS 10.15, *)) {
+    speedAccuracy = location.speedAccuracy;
+  }
+  #else
+  if (@available(iOS 10.0, *)) {
+    speedAccuracy = location.speedAccuracy;
+  }
+  #endif
+
   NSDictionary<NSString *, NSNumber *> *coordinatesDict = @{
     @"latitude" : @(location.coordinate.latitude),
     @"longitude" : @(location.coordinate.longitude),
@@ -330,7 +347,7 @@
     @"verticalAccuracy" : @(location.verticalAccuracy),
     @"altitude" : @(location.altitude),
     @"speed" : @(location.speed),
-    @"speed_accuracy" : superiorToIos10 ? @(location.speedAccuracy) : @0.0,
+    @"speed_accuracy" : @(speedAccuracy),
     @"heading" : @(location.course),
     @"time" :
         @(((double)timeInSeconds) * 1000.0) // in milliseconds since the epoch
