@@ -12,11 +12,15 @@ let package = Package(
     products: [
         .library(name: "location", targets: ["location"])
     ],
-    dependencies: [],
+    dependencies: [
+        .package(name: "FlutterFramework", path: "../FlutterFramework")
+    ],
     targets: [
         .target(
             name: "location",
-            dependencies: [],
+            dependencies: [
+                .product(name: "FlutterFramework", package: "FlutterFramework")
+            ],
 			publicHeadersPath: "include/location",
             cSettings: [
 				.headerSearchPath("include/location")
