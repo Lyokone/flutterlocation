@@ -3,8 +3,19 @@
 <!-- Not yet published to pub.dev. Accumulate fixes here; assign a version
      number when we cut the next release. -->
 
-### ✨ New
+### 🎯 Dart API
 
+- Added `LocationData.toJson()`, `LocationData.fromJson()` and
+  `LocationData.copyWith()`, so `LocationData` can be serialized, deserialized
+  and copied without manual field wiring. `fromJson` round-trips with `toJson`
+  across every field (#760).
+- Added `Location.isBackgroundPermissionGranted()`, which reports whether the
+  app has been granted background ("Allow all the time" / Always) location
+  access. Call it before `enableBackgroundMode` to show an in-app rationale
+  before sending the user to the system settings. On iOS/macOS it is `true`
+  only for the "Always" authorization; on Android it reflects the
+  `ACCESS_BACKGROUND_LOCATION` permission on API 29+ and mirrors
+  `hasPermission()` on older versions; on web it is always `false` (#538).
 - Added `getLastKnownLocation()`, which returns the most recently cached
   `LocationData` immediately (or `null` when none is available) without waiting
   for a fresh fix. Useful for showing an approximate position while a precise
@@ -13,8 +24,18 @@
   (`CLLocationManager.location`); web has no cached-location concept and returns
   `null`.
 
+### 🤖 Android
+
+- Report `PermissionStatus.grantedLimited` when the user grants only approximate
+  (coarse) location without precise (fine) location on Android 12+ (API 31+),
+  mirroring iOS reduced accuracy. Previously this coarse-only case was reported as
+  `granted` (#736).
+
 ### 🍎 iOS & macOS
 
+- Populated `LocationData.isMock` on Apple platforms. On iOS 15.0+/macOS 12.0+
+  it reflects `CLLocation.sourceInformation.isSimulatedBySoftware`; on older
+  systems it stays `false`, as Core Location exposes no equivalent flag (#796).
 - Moved `CLLocationManager.locationServicesEnabled()` off the main thread. Apple
   warns that this call can block the caller while location services start up;
   invoking it on the main thread triggered the "UI unresponsiveness" runtime
@@ -30,6 +51,13 @@
   fix. The stale-location guard swallowed the first two updates by count; it now
   skips fixes by age instead, so the first fresh update always resolves the call
   (#798, #955, #1005, #660, #824, #657, #1013).
+
+### 📝 Docs
+
+- Clarified that `enableBackgroundMode(enable: true)` is a standalone call that
+  can be made before listening to `onLocationChanged`, and that on Android it
+  requests the `ACCESS_BACKGROUND_LOCATION` permission when needed — so
+  background permission can be requested independently (#756).
 
 ## 9.0.0
 

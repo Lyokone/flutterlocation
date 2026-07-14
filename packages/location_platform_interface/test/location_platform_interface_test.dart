@@ -90,6 +90,15 @@ void main() {
     });
 
     test(
+        'Default implementation of isBackgroundPermissionGranted should throw unimplemented error',
+        () {
+      expect(
+        () => locationPlatform.isBackgroundPermissionGranted(),
+        throwsUnimplementedError,
+      );
+    });
+
+    test(
         'Default implementation of serviceEnabled should throw unimplemented error',
         () {
       expect(

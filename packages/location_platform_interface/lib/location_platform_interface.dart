@@ -56,6 +56,10 @@ class LocationPlatform extends PlatformInterface {
   }
 
   /// Enables or disables service in the background mode.
+  ///
+  /// This can be called independently, before listening to [onLocationChanged].
+  /// On Android, enabling background mode also requests the
+  /// `ACCESS_BACKGROUND_LOCATION` permission if it has not been granted yet.
   Future<bool> enableBackgroundMode({bool? enable}) {
     throw UnimplementedError();
   }
@@ -96,6 +100,22 @@ class LocationPlatform extends PlatformInterface {
   /// shown on [requestPermission].
   /// Returns a [PermissionStatus] object.
   Future<PermissionStatus> requestPermission() {
+    throw UnimplementedError();
+  }
+
+  /// Checks whether the app has been granted background ("Allow all the time")
+  /// location access, in addition to foreground access.
+  ///
+  /// This is useful before calling [enableBackgroundMode], to decide whether to
+  /// show an in-app rationale before sending the user to the system settings.
+  ///
+  /// - iOS/macOS: `true` only when the authorization status is "Always".
+  /// - Android: reflects the `ACCESS_BACKGROUND_LOCATION` runtime permission on
+  ///   API 29+ (Android 10). On older versions there is no separate background
+  ///   permission, so background access is implied by the foreground grant and
+  ///   this mirrors [hasPermission].
+  /// - Web: always `false`.
+  Future<bool> isBackgroundPermissionGranted() {
     throw UnimplementedError();
   }
 

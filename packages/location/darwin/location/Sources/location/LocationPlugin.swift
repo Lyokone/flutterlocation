@@ -69,6 +69,8 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             onGetLastKnownLocation(result: result)
         case "hasPermission":
             onHasPermission(result: result)
+        case "isBackgroundPermissionGranted":
+            onIsBackgroundPermissionGranted(result: result)
         case "requestPermission":
             onRequestPermission(result: result)
         case "serviceEnabled":
@@ -211,6 +213,14 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
         }
     }
 
+    /// Whether background ("Always") location authorization has been granted.
+    ///
+    /// On both iOS and macOS this maps to `.authorizedAlways`; the more limited
+    /// `.authorizedWhenInUse` does not grant background access.
+    private func onIsBackgroundPermissionGranted(result: FlutterResult) {
+        result(currentAuthorizationStatus == .authorizedAlways ? 1 : 0)
+    }
+
     private func onRequestPermission(result: @escaping FlutterResult) {
         if isPermissionGranted {
             result(isHighAccuracyPermitted ? 1 : 3)
@@ -344,6 +354,18 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
     /// `getLastKnownLocation` so every path returns the same shape.
     private func coordinates(from location: CLLocation) -> [String: Any] {
         let timeInMilliseconds = location.timestamp.timeIntervalSince1970 * 1000
+
+        // Detect simulated/mocked locations. `sourceInformation` is only
+        // available on iOS 15.0+/macOS 12.0+; on older systems Core Location
+        // exposes no such flag, so default to not-mocked. The Dart side reads
+        // this under the same `isMock` key Android uses.
+        var isMock = false
+        if #available(iOS 15.0, macOS 12.0, *) {
+            if let source: CLLocationSourceInformation = location.sourceInformation {
+                isMock = source.isSimulatedBySoftware
+            }
+        }
+
         return [
             "latitude": location.coordinate.latitude,
             "longitude": location.coordinate.longitude,
@@ -354,6 +376,7 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             "speed_accuracy": location.speedAccuracy,
             "heading": location.course,
             "time": timeInMilliseconds,
+            "isMock": isMock ? 1 : 0,
         ]
     }
 

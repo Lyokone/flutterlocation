@@ -41,6 +41,28 @@ class LocationData {
     );
   }
 
+  /// Creates a new [LocationData] instance from a JSON map, as produced by
+  /// [toJson]. This round-trips with [toJson].
+  factory LocationData.fromJson(Map<String, dynamic> json) {
+    return LocationData._(
+      (json['latitude'] as num?)?.toDouble(),
+      (json['longitude'] as num?)?.toDouble(),
+      (json['accuracy'] as num?)?.toDouble(),
+      (json['altitude'] as num?)?.toDouble(),
+      (json['speed'] as num?)?.toDouble(),
+      (json['speedAccuracy'] as num?)?.toDouble(),
+      (json['heading'] as num?)?.toDouble(),
+      (json['time'] as num?)?.toDouble(),
+      json['isMock'] as bool?,
+      (json['verticalAccuracy'] as num?)?.toDouble(),
+      (json['headingAccuracy'] as num?)?.toDouble(),
+      (json['elapsedRealtimeNanos'] as num?)?.toDouble(),
+      (json['elapsedRealtimeUncertaintyNanos'] as num?)?.toDouble(),
+      json['satelliteNumber'] as int?,
+      json['provider'] as String?,
+    );
+  }
+
   /// Latitude in degrees
   final double? latitude;
 
@@ -83,7 +105,8 @@ class LocationData {
 
   /// Is the location currently mocked
   ///
-  /// Always false on iOS
+  /// On iOS 15.0+/macOS 12.0+ this reflects `isSimulatedBySoftware`; on older
+  /// Apple systems it is always false, as Core Location exposes no such flag.
   final bool? isMock;
 
   /// Get the estimated bearing accuracy of this location, in degrees.
@@ -111,6 +134,64 @@ class LocationData {
   /// https://developer.android.com/reference/android/location/Location#getProvider()
   final String? provider;
 
+  /// Converts this [LocationData] into a JSON map. This round-trips with
+  /// [LocationData.fromJson].
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'latitude': latitude,
+        'longitude': longitude,
+        'accuracy': accuracy,
+        'verticalAccuracy': verticalAccuracy,
+        'altitude': altitude,
+        'speed': speed,
+        'speedAccuracy': speedAccuracy,
+        'heading': heading,
+        'time': time,
+        'isMock': isMock,
+        'headingAccuracy': headingAccuracy,
+        'elapsedRealtimeNanos': elapsedRealtimeNanos,
+        'elapsedRealtimeUncertaintyNanos': elapsedRealtimeUncertaintyNanos,
+        'satelliteNumber': satelliteNumber,
+        'provider': provider,
+      };
+
+  /// Returns a copy of this [LocationData] with the given fields replaced by
+  /// the new values. Any argument left `null` keeps the current value.
+  LocationData copyWith({
+    double? latitude,
+    double? longitude,
+    double? accuracy,
+    double? verticalAccuracy,
+    double? altitude,
+    double? speed,
+    double? speedAccuracy,
+    double? heading,
+    double? time,
+    bool? isMock,
+    double? headingAccuracy,
+    double? elapsedRealtimeNanos,
+    double? elapsedRealtimeUncertaintyNanos,
+    int? satelliteNumber,
+    String? provider,
+  }) {
+    return LocationData._(
+      latitude ?? this.latitude,
+      longitude ?? this.longitude,
+      accuracy ?? this.accuracy,
+      altitude ?? this.altitude,
+      speed ?? this.speed,
+      speedAccuracy ?? this.speedAccuracy,
+      heading ?? this.heading,
+      time ?? this.time,
+      isMock ?? this.isMock,
+      verticalAccuracy ?? this.verticalAccuracy,
+      headingAccuracy ?? this.headingAccuracy,
+      elapsedRealtimeNanos ?? this.elapsedRealtimeNanos,
+      elapsedRealtimeUncertaintyNanos ?? this.elapsedRealtimeUncertaintyNanos,
+      satelliteNumber ?? this.satelliteNumber,
+      provider ?? this.provider,
+    );
+  }
+
   @override
   String toString() =>
       'LocationData<lat: $latitude, long: $longitude${(isMock ?? false) ? ', mocked' : ''}>';
@@ -123,24 +204,38 @@ class LocationData {
           latitude == other.latitude &&
           longitude == other.longitude &&
           accuracy == other.accuracy &&
+          verticalAccuracy == other.verticalAccuracy &&
           altitude == other.altitude &&
           speed == other.speed &&
           speedAccuracy == other.speedAccuracy &&
           heading == other.heading &&
           time == other.time &&
-          isMock == other.isMock;
+          isMock == other.isMock &&
+          headingAccuracy == other.headingAccuracy &&
+          elapsedRealtimeNanos == other.elapsedRealtimeNanos &&
+          elapsedRealtimeUncertaintyNanos ==
+              other.elapsedRealtimeUncertaintyNanos &&
+          satelliteNumber == other.satelliteNumber &&
+          provider == other.provider;
 
   @override
-  int get hashCode =>
-      latitude.hashCode ^
-      longitude.hashCode ^
-      accuracy.hashCode ^
-      altitude.hashCode ^
-      speed.hashCode ^
-      speedAccuracy.hashCode ^
-      heading.hashCode ^
-      time.hashCode ^
-      isMock.hashCode;
+  int get hashCode => Object.hash(
+        latitude,
+        longitude,
+        accuracy,
+        verticalAccuracy,
+        altitude,
+        speed,
+        speedAccuracy,
+        heading,
+        time,
+        isMock,
+        headingAccuracy,
+        elapsedRealtimeNanos,
+        elapsedRealtimeUncertaintyNanos,
+        satelliteNumber,
+        provider,
+      );
 }
 
 /// Precision of the Location. A lower precision will provide a greater battery
@@ -185,7 +280,7 @@ enum PermissionStatus {
 
   /// The permission to use location services has been denied forever by the
   /// user. No dialog will be displayed on permission request.
-  deniedForever
+  deniedForever,
 }
 
 /// The response object of `Location.changeNotificationOptions`.

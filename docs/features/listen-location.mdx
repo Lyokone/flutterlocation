@@ -8,37 +8,52 @@ description: How to listen to your user's location
 To listen to the location of the user, you can simply use
 
 ```dart
-Stream<LocationData> onLocationChanged({bool inBackground = false})
+Stream<LocationData> get onLocationChanged
 ```
 
-The stream will use the global settings for location tracking.
-You can set the settings with [`setLocationSettings`](/features/settings).
+The stream uses the global settings for location tracking.
+You can change them with [`changeSettings`](/features/settings).
 
-If you change settings while listening to the location, the stream will be updated with the new settings (you can only have onn global settings active at the same time).
+If you change settings while listening to the location, the stream will use the new settings without being closed (you can only have one set of global settings active at the same time).
 
 Don't forget to **cancel the stream** when you don't need it anymore. Otherwise the location will keep being tracked.
 
-If you set the boolean `inBackground` to true, you will have receive background location notifications. It works only if the app is not killed.
-On Android, listening to background location will trigger a notification that you can control with [`updateBackgroundNotification`](/features/notification).
+To receive location updates while the app is in the background, enable background mode with `enableBackgroundMode(enable: true)` first.
+On Android, background location triggers a notification that you can control with [`changeNotificationOptions`](/features/notification).
 
 ## Examples
+
+### Listening to location
+
+```dart
+final location = Location();
+final subscription = location.onLocationChanged
+    .listen((LocationData currentLocation) {
+        print('Location: ${currentLocation.latitude}, ${currentLocation.longitude}');
+    });
+
+// ...
+
+subscription.cancel();
+```
 
 ### Listening to location in the background
 
 The notification will only appear on Android
 
 ```dart
-_locationSubscription = onLocationChanged(inBackground: _inBackground)
+final location = Location();
+await location.enableBackgroundMode(enable: true);
+final subscription = location.onLocationChanged
     .listen((LocationData currentLocation) async {
-        await updateBackgroundNotification(
+        await location.changeNotificationOptions(
             subtitle:
                 'Location: ${currentLocation.latitude}, ${currentLocation.longitude}',
             onTapBringToFront: true,
         );
-    }
-);
+    });
 
-...
+// ...
 
-_locationSubscription?.cancel();
+subscription.cancel();
 ```
