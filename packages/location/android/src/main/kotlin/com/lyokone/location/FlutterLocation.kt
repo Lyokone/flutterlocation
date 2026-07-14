@@ -8,13 +8,18 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
 import android.location.OnNmeaMessageListener
 import android.os.Build
+import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -44,14 +49,20 @@ class FlutterLocation(
         set(value) {
             field = value
             if (value != null) {
-                mFusedLocationClient = LocationServices.getFusedLocationProviderClient(value)
-                mSettingsClient = LocationServices.getSettingsClient(value)
+                // Only wire up the Google Play services fused provider when GMS is
+                // actually available. On devices without GMS (Huawei, some Chinese
+                // ROMs, AOSP) touching LocationServices throws SERVICE_INVALID, so
+                // we fall back to the Android framework LocationManager instead.
+                if (isGooglePlayServicesAvailable) {
+                    mFusedLocationClient = LocationServices.getFusedLocationProviderClient(value)
+                    mSettingsClient = LocationServices.getSettingsClient(value)
+                }
 
                 createLocationCallback()
                 createLocationRequest()
                 buildLocationSettingsRequest()
             } else {
-                mLocationCallback?.let { mFusedLocationClient?.removeLocationUpdates(it) }
+                stopLocationUpdates()
                 mFusedLocationClient = null
                 mSettingsClient = null
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -99,6 +110,41 @@ class FlutterLocation(
 
     private val locationManager: LocationManager =
         applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+    /**
+     * Whether Google Play services (and therefore the fused location provider) is
+     * usable on this device. Computed once: on devices without GMS every access
+     * to `LocationServices` fails with SERVICE_INVALID, so this gates the entire
+     * fused-provider path and enables the framework [LocationManager] fallback.
+     */
+    private val isGooglePlayServicesAvailable: Boolean =
+        GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(applicationContext) ==
+            ConnectionResult.SUCCESS
+
+    /**
+     * Framework [LocationManager] listener used only when GMS is unavailable.
+     * All four callbacks are overridden explicitly (rather than a SAM lambda) so
+     * no `AbstractMethodError` is raised on API levels below 30, where these
+     * methods were not yet default on the interface.
+     */
+    private val mFrameworkLocationListener: LocationListener =
+        object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                onNewLocation(location)
+            }
+
+            @Deprecated("Deprecated in Java")
+            override fun onStatusChanged(
+                provider: String?,
+                status: Int,
+                extras: Bundle?,
+            ) {
+            }
+
+            override fun onProviderEnabled(provider: String) {}
+
+            override fun onProviderDisabled(provider: String) {}
+        }
 
     val mapFlutterAccuracy: Map<Int, Int> =
         mapOf(
@@ -240,6 +286,32 @@ class FlutterLocation(
         events = null
     }
 
+    /**
+     * Delivers a freshly received [location] to the pending one-shot result
+     * and/or the active event stream. Shared by both the fused-provider callback
+     * and the framework [LocationManager] fallback so both paths emit exactly the
+     * same map shape and honour the same one-shot/stream semantics.
+     */
+    private fun onNewLocation(location: Location) {
+        val loc = locationToMap(location)
+
+        getLocationResult?.success(loc)
+        getLocationResult = null
+        val events = this.events
+        if (events != null) {
+            events.success(loc)
+        } else {
+            // One-shot request satisfied (no active stream): stop updates.
+            stopLocationUpdates()
+        }
+    }
+
+    /** Removes any active location updates from whichever provider is in use. */
+    fun stopLocationUpdates() {
+        mLocationCallback?.let { mFusedLocationClient?.removeLocationUpdates(it) }
+        locationManager.removeUpdates(mFrameworkLocationListener)
+    }
+
     /** Creates a callback for receiving location events. */
     private fun createLocationCallback() {
         mLocationCallback?.let { mFusedLocationClient?.removeLocationUpdates(it) }
@@ -247,16 +319,7 @@ class FlutterLocation(
             object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
                     val location = locationResult.lastLocation ?: return
-                    val loc = locationToMap(location)
-
-                    getLocationResult?.success(loc)
-                    getLocationResult = null
-                    val events = this@FlutterLocation.events
-                    if (events != null) {
-                        events.success(loc)
-                    } else {
-                        mLocationCallback?.let { mFusedLocationClient?.removeLocationUpdates(it) }
-                    }
+                    onNewLocation(location)
                 }
             }
 
@@ -325,6 +388,10 @@ class FlutterLocation(
      * location is available.
      */
     fun getLastKnownLocation(result: Result) {
+        if (!isGooglePlayServicesAvailable) {
+            getLastKnownLocationFramework(result)
+            return
+        }
         val client = mFusedLocationClient
         if (client == null) {
             result.error("MISSING_ACTIVITY", "Location is not attached to an activity.", null)
@@ -340,6 +407,34 @@ class FlutterLocation(
                 }
         } catch (e: SecurityException) {
             result.error("PERMISSION_DENIED", e.message, null)
+        }
+    }
+
+    /**
+     * Framework fallback for [getLastKnownLocation] used when GMS is unavailable.
+     * Returns the most recent cached fix across the GPS, network and passive
+     * providers, or `null` when none is cached.
+     */
+    private fun getLastKnownLocationFramework(result: Result) {
+        try {
+            var best: Location? = null
+            val providers =
+                listOf(
+                    LocationManager.GPS_PROVIDER,
+                    LocationManager.NETWORK_PROVIDER,
+                    LocationManager.PASSIVE_PROVIDER,
+                )
+            for (provider in providers) {
+                val candidate = locationManager.getLastKnownLocation(provider) ?: continue
+                if (best == null || candidate.time > best.time) {
+                    best = candidate
+                }
+            }
+            result.success(best?.let { locationToMap(it) })
+        } catch (e: SecurityException) {
+            result.error("PERMISSION_DENIED", e.message, null)
+        } catch (e: IllegalArgumentException) {
+            result.error("LAST_KNOWN_LOCATION_ERROR", e.message, null)
         }
     }
 
@@ -503,6 +598,18 @@ class FlutterLocation(
             return
         }
 
+        if (!isGooglePlayServicesAvailable) {
+            // Without GMS there is no system dialog to enable location from within
+            // the app. Report it as disabled so the app can direct the user to the
+            // device settings.
+            requestServiceResult.error(
+                "SERVICE_STATUS_DISABLED",
+                "Failed to get location. Location services disabled",
+                null,
+            )
+            return
+        }
+
         this.requestServiceResult = requestServiceResult
         val settingsRequest = mLocationSettingsRequest ?: return
         mSettingsClient?.checkLocationSettings(settingsRequest)?.addOnFailureListener(activity) { e ->
@@ -537,6 +644,13 @@ class FlutterLocation(
             result?.error("MISSING_ACTIVITY", "You should not requestLocation activation outside of an activity.", null)
             throw ActivityNotFoundException()
         }
+        if (!isGooglePlayServicesAvailable) {
+            // No GMS: skip the fused-provider settings check (which would throw
+            // SERVICE_INVALID) and request directly from the framework providers.
+            registerNmeaListener()
+            requestLocationUpdatesFramework()
+            return
+        }
         val settingsRequest = mLocationSettingsRequest ?: return
         mSettingsClient?.checkLocationSettings(settingsRequest)
             ?.addOnSuccessListener(activity) {
@@ -560,12 +674,33 @@ class FlutterLocation(
                     // This error code happens during airplane mode.
                     registerNmeaListener()
                     requestLocationUpdates()
+                } else if (isApiUnavailable(e)) {
+                    // GMS reported itself as available but the LocationServices API
+                    // is not actually connected on this device (e.g. SERVICE_INVALID
+                    // on some OEM builds). Engage the framework fallback instead of
+                    // throwing (#772, #944, #1015).
+                    Log.i(TAG, "Google Play services location API unavailable, using framework provider.")
+                    registerNmeaListener()
+                    requestLocationUpdatesFramework()
                 } else {
                     // This should not happen according to Android documentation but it has
                     // been observed on some phones.
                     sendError("UNEXPECTED_ERROR", e.message ?: "Unexpected error", null)
                 }
             }
+    }
+
+    /**
+     * Returns whether [e] indicates the Google Play services location API is not
+     * usable on this device, in which case the framework fallback should engage.
+     */
+    private fun isApiUnavailable(e: Exception): Boolean {
+        val code = (e as? ApiException)?.statusCode ?: return false
+        return code == ConnectionResult.SERVICE_INVALID ||
+            code == ConnectionResult.SERVICE_MISSING ||
+            code == ConnectionResult.SERVICE_DISABLED ||
+            code == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED ||
+            code == CommonStatusCodes.API_NOT_CONNECTED
     }
 
     private fun registerNmeaListener() {
@@ -579,6 +714,50 @@ class FlutterLocation(
         val request = mLocationRequest ?: return
         val callback = mLocationCallback ?: return
         mFusedLocationClient?.requestLocationUpdates(request, callback, Looper.myLooper())
+    }
+
+    /**
+     * Requests location updates from the Android framework [LocationManager],
+     * used when Google Play services is unavailable. Registers on every enabled
+     * provider among GPS and network so a fix is delivered whichever is
+     * available; a single [mFrameworkLocationListener] receives all of them and
+     * [stopLocationUpdates] deregisters it from all providers at once.
+     */
+    private fun requestLocationUpdatesFramework() {
+        val backgroundInterval = backgroundIntervalMilliseconds
+        val interval =
+            if (isInBackground && backgroundInterval != null) {
+                backgroundInterval
+            } else {
+                updateIntervalMilliseconds
+            }
+        val looper = Looper.myLooper() ?: Looper.getMainLooper()
+
+        val providers = ArrayList<String>()
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            providers.add(LocationManager.GPS_PROVIDER)
+        }
+        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            providers.add(LocationManager.NETWORK_PROVIDER)
+        }
+        if (providers.isEmpty()) {
+            sendError("UNEXPECTED_ERROR", "No location provider is available", null)
+            return
+        }
+
+        try {
+            for (provider in providers) {
+                locationManager.requestLocationUpdates(
+                    provider,
+                    interval,
+                    distanceFilter,
+                    mFrameworkLocationListener,
+                    looper,
+                )
+            }
+        } catch (e: SecurityException) {
+            sendError("PERMISSION_DENIED", e.message ?: "Location permission denied", null)
+        }
     }
 
     private fun isLocationFromMockProvider(location: Location): Boolean =

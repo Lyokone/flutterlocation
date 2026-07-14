@@ -65,7 +65,7 @@ internal class StreamHandlerImpl : StreamHandler {
 
     override fun onCancel(arguments: Any?) {
         val location = this.location ?: return
-        location.mLocationCallback?.let { location.mFusedLocationClient?.removeLocationUpdates(it) }
+        location.stopLocationUpdates()
         location.events = null
     }
 

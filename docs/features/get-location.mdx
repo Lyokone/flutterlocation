@@ -18,6 +18,21 @@ The accuracy, interval and distance filter used for the request come from the
 global settings. See [the settings](/features/settings) page to change them with
 `changeSettings`.
 
+## Devices without Google Play services (Android)
+
+On Android the plugin uses the Google Play services fused location provider when
+it is available. On devices without Google Play services (many Huawei devices,
+some Chinese ROMs, AOSP builds) it automatically falls back to the Android
+framework `LocationManager` (GPS and network providers). `getLocation`,
+`getLastKnownLocation` and `onLocationChanged` all work through this fallback,
+returning the same `LocationData`. No configuration is required, and devices
+with Google Play services are unaffected.
+
+Note that on non-GMS devices `requestService()` cannot show the in-app
+"turn on location" dialog (that dialog is a Google Play services feature). When
+the location service is off it reports the service as disabled so you can direct
+the user to the system location settings instead.
+
 ## Examples
 
 ### Getting location
