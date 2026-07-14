@@ -12,6 +12,7 @@ class LocationData {
     this.heading,
     this.time,
     this.isMock,
+    this.isProducedByAccessory,
     this.verticalAccuracy,
     this.headingAccuracy,
     this.elapsedRealtimeNanos,
@@ -32,6 +33,7 @@ class LocationData {
       dataMap['heading'] as double?,
       dataMap['time'] as double?,
       dataMap['isMock'] == 1,
+      dataMap['isProducedByAccessory'] == 1,
       dataMap['verticalAccuracy'] as double?,
       dataMap['headingAccuracy'] as double?,
       dataMap['elapsedRealtimeNanos'] as double?,
@@ -54,6 +56,7 @@ class LocationData {
       (json['heading'] as num?)?.toDouble(),
       (json['time'] as num?)?.toDouble(),
       json['isMock'] as bool?,
+      json['isProducedByAccessory'] as bool?,
       (json['verticalAccuracy'] as num?)?.toDouble(),
       (json['headingAccuracy'] as num?)?.toDouble(),
       (json['elapsedRealtimeNanos'] as num?)?.toDouble(),
@@ -109,6 +112,14 @@ class LocationData {
   /// Apple systems it is always false, as Core Location exposes no such flag.
   final bool? isMock;
 
+  /// Whether the location was produced by a connected accessory, such as an
+  /// external GPS receiver.
+  ///
+  /// On iOS 15.0+/macOS 12.0+ this reflects
+  /// `CLLocation.sourceInformation?.isProducedByAccessory`; on older Apple
+  /// systems and on Android/web it is always false, as no such flag is exposed.
+  final bool? isProducedByAccessory;
+
   /// Get the estimated bearing accuracy of this location, in degrees.
   /// Only available on Android
   /// https://developer.android.com/reference/android/location/Location#getBearingAccuracyDegrees()
@@ -147,6 +158,7 @@ class LocationData {
         'heading': heading,
         'time': time,
         'isMock': isMock,
+        'isProducedByAccessory': isProducedByAccessory,
         'headingAccuracy': headingAccuracy,
         'elapsedRealtimeNanos': elapsedRealtimeNanos,
         'elapsedRealtimeUncertaintyNanos': elapsedRealtimeUncertaintyNanos,
@@ -167,6 +179,7 @@ class LocationData {
     double? heading,
     double? time,
     bool? isMock,
+    bool? isProducedByAccessory,
     double? headingAccuracy,
     double? elapsedRealtimeNanos,
     double? elapsedRealtimeUncertaintyNanos,
@@ -183,6 +196,7 @@ class LocationData {
       heading ?? this.heading,
       time ?? this.time,
       isMock ?? this.isMock,
+      isProducedByAccessory ?? this.isProducedByAccessory,
       verticalAccuracy ?? this.verticalAccuracy,
       headingAccuracy ?? this.headingAccuracy,
       elapsedRealtimeNanos ?? this.elapsedRealtimeNanos,
@@ -194,7 +208,7 @@ class LocationData {
 
   @override
   String toString() =>
-      'LocationData<lat: $latitude, long: $longitude${(isMock ?? false) ? ', mocked' : ''}>';
+      'LocationData<lat: $latitude, long: $longitude${(isMock ?? false) ? ', mocked' : ''}${(isProducedByAccessory ?? false) ? ', accessory' : ''}>';
 
   @override
   bool operator ==(Object other) =>
@@ -211,6 +225,7 @@ class LocationData {
           heading == other.heading &&
           time == other.time &&
           isMock == other.isMock &&
+          isProducedByAccessory == other.isProducedByAccessory &&
           headingAccuracy == other.headingAccuracy &&
           elapsedRealtimeNanos == other.elapsedRealtimeNanos &&
           elapsedRealtimeUncertaintyNanos ==
@@ -230,6 +245,7 @@ class LocationData {
         heading,
         time,
         isMock,
+        isProducedByAccessory,
         headingAccuracy,
         elapsedRealtimeNanos,
         elapsedRealtimeUncertaintyNanos,

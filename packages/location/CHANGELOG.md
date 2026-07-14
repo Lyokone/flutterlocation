@@ -56,6 +56,11 @@
   fix. The stale-location guard swallowed the first two updates by count; it now
   skips fixes by age instead, so the first fresh update always resolves the call
   (#798, #955, #1005, #660, #824, #657, #1013).
+- Exposed `LocationData.isProducedByAccessory`, populated from
+  `CLLocation.sourceInformation?.isProducedByAccessory` on iOS 15+/macOS 12+. It
+  reports whether a fix came from a connected accessory such as an external GPS
+  receiver, and defaults to `false` on older Apple systems and on Android/web
+  (#914).
 
 ### 📝 Docs
 
