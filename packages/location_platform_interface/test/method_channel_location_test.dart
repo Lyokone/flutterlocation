@@ -86,6 +86,7 @@ void main() {
           'interval': 1000,
           'distanceFilter': 0,
           'pausesLocationUpdatesAutomatically': true,
+          'backgroundInterval': null,
         },
       ),
     ]);

@@ -77,6 +77,15 @@ class FlutterLocation(
     private var locationAccuracy = Priority.PRIORITY_HIGH_ACCURACY
     private var distanceFilter = 0f
 
+    // Optional interval (in milliseconds) to use while the app is in background
+    // mode (i.e. the foreground service is running). When null, the regular
+    // [updateIntervalMilliseconds] is used in the background as well.
+    private var backgroundIntervalMilliseconds: Long? = null
+
+    // Whether the app is currently operating in background mode. Driven by the
+    // foreground service being enabled/disabled in [FlutterLocationService].
+    private var isInBackground = false
+
     var events: EventSink? = null
 
     // Store result until a permission check is resolved
@@ -180,16 +189,44 @@ class FlutterLocation(
         updateIntervalMilliseconds: Long,
         fastestUpdateIntervalMilliseconds: Long,
         distanceFilter: Float,
+        backgroundIntervalMilliseconds: Long? = null,
     ) {
         this.locationAccuracy = newLocationAccuracy ?: Priority.PRIORITY_HIGH_ACCURACY
         this.updateIntervalMilliseconds = updateIntervalMilliseconds
         this.fastestUpdateIntervalMilliseconds = fastestUpdateIntervalMilliseconds
         this.distanceFilter = distanceFilter
+        this.backgroundIntervalMilliseconds = backgroundIntervalMilliseconds
 
         createLocationCallback()
         createLocationRequest()
         buildLocationSettingsRequest()
         startRequestingLocation()
+    }
+
+    /**
+     * Notifies the location request that the app has entered or left background
+     * mode. When a distinct [backgroundIntervalMilliseconds] is configured, the
+     * location request is rebuilt with the appropriate interval and, if a stream
+     * is active, updates are re-registered to take effect immediately.
+     */
+    fun setBackgroundMode(inBackground: Boolean) {
+        if (isInBackground == inBackground) {
+            return
+        }
+        isInBackground = inBackground
+
+        // Nothing to do if no separate background interval was requested.
+        if (backgroundIntervalMilliseconds == null) {
+            return
+        }
+
+        createLocationRequest()
+        buildLocationSettingsRequest()
+
+        // Only re-register updates when actively streaming locations.
+        if (events != null) {
+            startRequestingLocation()
+        }
     }
 
     private fun sendError(
@@ -308,9 +345,20 @@ class FlutterLocation(
 
     /** Sets up the location request using the modern builder API. */
     private fun createLocationRequest() {
+        val backgroundInterval = backgroundIntervalMilliseconds
+        val interval: Long
+        val fastestInterval: Long
+        if (isInBackground && backgroundInterval != null) {
+            interval = backgroundInterval
+            fastestInterval = backgroundInterval / 2
+        } else {
+            interval = updateIntervalMilliseconds
+            fastestInterval = fastestUpdateIntervalMilliseconds
+        }
+
         mLocationRequest =
-            LocationRequest.Builder(locationAccuracy, updateIntervalMilliseconds)
-                .setMinUpdateIntervalMillis(fastestUpdateIntervalMilliseconds)
+            LocationRequest.Builder(locationAccuracy, interval)
+                .setMinUpdateIntervalMillis(fastestInterval)
                 .setMinUpdateDistanceMeters(distanceFilter)
                 .build()
     }

@@ -25,10 +25,20 @@ Future<bool> changeSettings({
   /// Whether the underlying platform location manager may pause updates to
   /// improve battery life. Only used on iOS and macOS.
   bool? pausesLocationUpdatesAutomatically = true,
+
+  /// An alternate update interval (in milliseconds) used while background mode
+  /// is enabled. When set, the interval switches to this value once you call
+  /// `enableBackgroundMode(enable: true)` and back to `interval` when background
+  /// mode is disabled. Android only; `null` (the default) keeps `interval`.
+  int? backgroundInterval,
 })
 ```
 
 When you call `changeSettings`, an active `onLocationChanged` stream is updated with the new settings without being closed. The next `getLocation` call also uses them.
+
+`backgroundInterval` lets you poll less frequently to save battery while the app
+is backgrounded, then resume the foreground `interval` automatically. It is
+Android-only — Core Location has no equivalent on iOS/macOS.
 
 ## Example
 

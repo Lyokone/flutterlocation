@@ -27,6 +27,8 @@ class LocationWebPlugin extends LocationPlatform {
     int? interval,
     double? distanceFilter,
     bool? pausesLocationUpdatesAutomatically,
+    // backgroundInterval is Android-only and ignored on web.
+    int? backgroundInterval,
   }) async {
     _accuracy = accuracy;
     return true;

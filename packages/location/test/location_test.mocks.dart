@@ -56,6 +56,7 @@ class MockLocation extends _i1.Mock implements _i3.Location {
     int? interval = 1000,
     double? distanceFilter = 0.0,
     bool? pausesLocationUpdatesAutomatically = true,
+    int? backgroundInterval,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -67,6 +68,7 @@ class MockLocation extends _i1.Mock implements _i3.Location {
             #distanceFilter: distanceFilter,
             #pausesLocationUpdatesAutomatically:
                 pausesLocationUpdatesAutomatically,
+            #backgroundInterval: backgroundInterval,
           },
         ),
         returnValue: _i4.Future<bool>.value(false),
@@ -135,6 +137,15 @@ class MockLocation extends _i1.Mock implements _i3.Location {
         returnValue: _i4.Future<_i2.PermissionStatus>.value(
             _i2.PermissionStatus.granted),
       ) as _i4.Future<_i2.PermissionStatus>);
+
+  @override
+  _i4.Future<bool> isBackgroundPermissionGranted() => (super.noSuchMethod(
+        Invocation.method(
+          #isBackgroundPermissionGranted,
+          [],
+        ),
+        returnValue: _i4.Future<bool>.value(false),
+      ) as _i4.Future<bool>);
 
   @override
   _i4.Future<bool> serviceEnabled() => (super.noSuchMethod(

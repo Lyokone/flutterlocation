@@ -23,6 +23,11 @@
   (`FusedLocationProviderClient.getLastLocation`) and iOS/macOS
   (`CLLocationManager.location`); web has no cached-location concept and returns
   `null`.
+- Added an optional `backgroundInterval` (milliseconds) parameter to
+  `changeSettings`. When set, the location update interval automatically switches
+  to this value while background mode is enabled and back to `interval` when it
+  is disabled. It is Android-only (Core Location exposes no equivalent on Apple
+  platforms) and defaults to `null`, preserving the current behaviour (#1011).
 
 ### 🤖 Android
 
