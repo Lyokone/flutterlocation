@@ -10,8 +10,18 @@
   and copied without manual field wiring. `fromJson` round-trips with `toJson`
   across every field (#760).
 
+### 🤖 Android
+
+- Report `PermissionStatus.grantedLimited` when the user grants only approximate
+  (coarse) location without precise (fine) location on Android 12+ (API 31+),
+  mirroring iOS reduced accuracy. Previously this coarse-only case was reported as
+  `granted` (#736).
+
 ### 🍎 iOS & macOS
 
+- Populated `LocationData.isMock` on Apple platforms. On iOS 15.0+/macOS 12.0+
+  it reflects `CLLocation.sourceInformation.isSimulatedBySoftware`; on older
+  systems it stays `false`, as Core Location exposes no equivalent flag (#796).
 - Moved `CLLocationManager.locationServicesEnabled()` off the main thread. Apple
   warns that this call can block the caller while location services start up;
   invoking it on the main thread triggered the "UI unresponsiveness" runtime
@@ -27,6 +37,13 @@
   fix. The stale-location guard swallowed the first two updates by count; it now
   skips fixes by age instead, so the first fresh update always resolves the call
   (#798, #955, #1005, #660, #824, #657, #1013).
+
+### 📝 Docs
+
+- Clarified that `enableBackgroundMode(enable: true)` is a standalone call that
+  can be made before listening to `onLocationChanged`, and that on Android it
+  requests the `ACCESS_BACKGROUND_LOCATION` permission when needed — so
+  background permission can be requested independently (#756).
 
 ## 9.0.0
 

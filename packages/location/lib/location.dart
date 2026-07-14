@@ -22,10 +22,11 @@ class Location implements LocationPlatform {
   /// Changes settings of the location request.
   ///
   /// The [accuracy] argument is controlling the precision of the
-  /// [LocationData]. The [interval] and [distanceFilter] are controlling how
-  /// often a new location is sent through [onLocationChanged]. The
-  /// [pausesLocationUpdatesAutomatically] argument indicates whether the
-  /// underlying location manager object may pause location updates.
+  /// [LocationData]. The [interval] (in milliseconds) and [distanceFilter] (in
+  /// meters) control how often a new location is sent through
+  /// [onLocationChanged]. The [pausesLocationUpdatesAutomatically] argument
+  /// indicates whether the underlying location manager object may pause location
+  /// updates.
   ///
   /// [interval] and [distanceFilter] are not used on web.
   @override
@@ -50,6 +51,11 @@ class Location implements LocationPlatform {
   }
 
   /// Enables or disables service in the background mode.
+  ///
+  /// This can be called independently, before you start listening to
+  /// [onLocationChanged]. On Android, enabling background mode also requests the
+  /// `ACCESS_BACKGROUND_LOCATION` permission if it has not been granted yet, so
+  /// it can be used to prompt for background location permission on its own.
   @override
   Future<bool> enableBackgroundMode({bool? enable = true}) {
     return LocationPlatform.instance.enableBackgroundMode(enable: enable);

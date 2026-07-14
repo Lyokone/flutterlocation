@@ -158,6 +158,12 @@ To receive location when application is in background you have to enable it:
 location.enableBackgroundMode(enable: true)
 ```
 
+`enableBackgroundMode(enable: true)` is a standalone call: you can invoke it
+**before** you start listening to `onLocationChanged`. On Android it also
+requests the `ACCESS_BACKGROUND_LOCATION` permission when it has not been granted
+yet, so you can use it to prompt for background permission independently, without
+having to activate a location stream first.
+
 Be sure to check the example project to get other code samples.
 
 On Android, a foreground notification is displayed with information that location service is running in the background.
