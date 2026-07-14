@@ -39,6 +39,12 @@
   (coarse) location without precise (fine) location on Android 12+ (API 31+),
   mirroring iOS reduced accuracy. Previously this coarse-only case was reported as
   `granted` (#736).
+- Fall back to the framework `LocationManager` on devices without Google Play
+  services (Huawei and other non-GMS devices), where the fused provider throws
+  `SERVICE_INVALID` and location never worked. GMS availability is checked once;
+  when present the fused path is unchanged, and the fallback is only engaged when
+  Play services are absent or report a service-unavailable status (#772, #944,
+  #1015).
 
 ### 🍎 iOS & macOS
 
