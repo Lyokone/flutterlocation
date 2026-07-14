@@ -136,22 +136,22 @@ class LocationData {
   /// Converts this [LocationData] into a JSON map. This round-trips with
   /// [LocationData.fromJson].
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'latitude': latitude,
-        'longitude': longitude,
-        'accuracy': accuracy,
-        'verticalAccuracy': verticalAccuracy,
-        'altitude': altitude,
-        'speed': speed,
-        'speedAccuracy': speedAccuracy,
-        'heading': heading,
-        'time': time,
-        'isMock': isMock,
-        'headingAccuracy': headingAccuracy,
-        'elapsedRealtimeNanos': elapsedRealtimeNanos,
-        'elapsedRealtimeUncertaintyNanos': elapsedRealtimeUncertaintyNanos,
-        'satelliteNumber': satelliteNumber,
-        'provider': provider,
-      };
+    'latitude': latitude,
+    'longitude': longitude,
+    'accuracy': accuracy,
+    'verticalAccuracy': verticalAccuracy,
+    'altitude': altitude,
+    'speed': speed,
+    'speedAccuracy': speedAccuracy,
+    'heading': heading,
+    'time': time,
+    'isMock': isMock,
+    'headingAccuracy': headingAccuracy,
+    'elapsedRealtimeNanos': elapsedRealtimeNanos,
+    'elapsedRealtimeUncertaintyNanos': elapsedRealtimeUncertaintyNanos,
+    'satelliteNumber': satelliteNumber,
+    'provider': provider,
+  };
 
   /// Returns a copy of this [LocationData] with the given fields replaced by
   /// the new values. Any argument left `null` keeps the current value.
@@ -219,22 +219,22 @@ class LocationData {
 
   @override
   int get hashCode => Object.hash(
-        latitude,
-        longitude,
-        accuracy,
-        verticalAccuracy,
-        altitude,
-        speed,
-        speedAccuracy,
-        heading,
-        time,
-        isMock,
-        headingAccuracy,
-        elapsedRealtimeNanos,
-        elapsedRealtimeUncertaintyNanos,
-        satelliteNumber,
-        provider,
-      );
+    latitude,
+    longitude,
+    accuracy,
+    verticalAccuracy,
+    altitude,
+    speed,
+    speedAccuracy,
+    heading,
+    time,
+    isMock,
+    headingAccuracy,
+    elapsedRealtimeNanos,
+    elapsedRealtimeUncertaintyNanos,
+    satelliteNumber,
+    provider,
+  );
 }
 
 /// Precision of the Location. A lower precision will provide a greater battery
@@ -279,7 +279,7 @@ enum PermissionStatus {
 
   /// The permission to use location services has been denied forever by the
   /// user. No dialog will be displayed on permission request.
-  deniedForever
+  deniedForever,
 }
 
 /// The response object of `Location.changeNotificationOptions`.

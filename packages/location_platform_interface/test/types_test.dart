@@ -142,7 +142,10 @@ void main() {
         'provider': 'gps',
       });
 
-      final updated = locationData.copyWith(longitude: 3.5, provider: 'network');
+      final updated = locationData.copyWith(
+        longitude: 3.5,
+        provider: 'network',
+      );
 
       expect(updated.latitude, 42.0);
       expect(updated.longitude, 3.5);
@@ -152,52 +155,40 @@ void main() {
 
   group('$AndroidNotificationData', () {
     test('AndroidNotificationData should be correctly converted to string', () {
-      final androidNotificationData =
-          AndroidNotificationData.fromMap(<String, dynamic>{
-        'channelId': 'test-id',
-        'notificationId': 2,
-      });
+      final androidNotificationData = AndroidNotificationData.fromMap(
+        <String, dynamic>{'channelId': 'test-id', 'notificationId': 2},
+      );
       expect(
         androidNotificationData.toString(),
         'AndroidNotificationData<channelId: test-id, notificationId: 2>',
       );
     });
 
-    test('AndroidNotificationData should be equal if all parameters are equals',
-        () {
-      final androidNotificationData = AndroidNotificationData.fromMap(
-        <String, dynamic>{
-          'channelId': 'test-id',
-          'notificationId': 2,
-        },
-      );
-      final otherAndroidNotificationData = AndroidNotificationData.fromMap(
-        <String, dynamic>{
-          'channelId': 'test-id',
-          'notificationId': 2,
-        },
-      );
+    test(
+      'AndroidNotificationData should be equal if all parameters are equals',
+      () {
+        final androidNotificationData = AndroidNotificationData.fromMap(
+          <String, dynamic>{'channelId': 'test-id', 'notificationId': 2},
+        );
+        final otherAndroidNotificationData = AndroidNotificationData.fromMap(
+          <String, dynamic>{'channelId': 'test-id', 'notificationId': 2},
+        );
 
-      expect(otherAndroidNotificationData == androidNotificationData, true);
-      expect(
-        otherAndroidNotificationData.hashCode ==
-            androidNotificationData.hashCode,
-        true,
-      );
-    });
+        expect(otherAndroidNotificationData == androidNotificationData, true);
+        expect(
+          otherAndroidNotificationData.hashCode ==
+              androidNotificationData.hashCode,
+          true,
+        );
+      },
+    );
 
     test('LocationData should be different if one parameters is different', () {
       final androidNotificationData = AndroidNotificationData.fromMap(
-        <String, dynamic>{
-          'channelId': 'test-id',
-          'notificationId': 2,
-        },
+        <String, dynamic>{'channelId': 'test-id', 'notificationId': 2},
       );
       final otherAndroidNotificationData = AndroidNotificationData.fromMap(
-        <String, dynamic>{
-          'channelId': 'test-id',
-          'notificationId': 3,
-        },
+        <String, dynamic>{'channelId': 'test-id', 'notificationId': 3},
       );
 
       expect(otherAndroidNotificationData == androidNotificationData, false);
