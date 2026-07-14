@@ -1,3 +1,52 @@
+## 9.0.0
+
+A major maintenance release that modernises every platform and adds desktop
+support. Thanks to everyone who reported issues and opened pull requests.
+
+### ✨ New platforms
+
+- **Windows** support, backed by the `Windows.Devices.Geolocation` (WinRT) APIs.
+- **Linux** support, backed by GeoClue2 over D-Bus.
+
+### 🤖 Android
+
+- Rewrote the plugin from Java to **Kotlin**.
+- Moved off the deprecated `FusedLocationProvider` API to `LocationRequest.Builder`
+  and `Priority`, removing the build-time deprecation warnings (#1019, #1023, #1035).
+- Declare `FOREGROUND_SERVICE_TYPE_LOCATION` so background location keeps working
+  on Android 14+ (#970).
+- Approximate ("coarse") location grants are now honoured instead of being
+  reported as denied (#990, #991).
+- Fixed a crash on dispose when the engine had already detached (#1041).
+- More reliable mock-location detection on Android 12+ (#1016).
+- Toolchain bumps: Android Gradle Plugin 8.11, Kotlin 2.2, Gradle 8.14,
+  `compileSdk`/`targetSdk` 36.
+
+### 🍎 iOS & macOS
+
+- Rewrote the plugin from Objective-C to **Swift**, sharing a single source
+  across iOS and macOS.
+- Added **Swift Package Manager** support (#1044, #1047).
+- Adopted the modern authorization APIs and removed the deprecated `UIAlertView`.
+- No longer crashes at launch when the Info.plist usage description is missing
+  (#1040, #1042).
+- `getLocation` now resolves when precise location is turned off (#984).
+
+### 🧹 Housekeeping
+
+- Bumped dev dependencies (`leancode_lint`, `build_runner`, `mockito`).
+- Fixed the example app build and migrated it to current Flutter templates.
+- Documented the newly supported platforms.
+
+### ⚠️ Breaking changes
+
+- No Dart API changes — existing code continues to work.
+- Native deployment floors were raised: iOS 12, macOS 10.15, and the newer
+  Android toolchain above.
+- Android now requests both `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION`;
+  apps that use background location should also declare
+  `FOREGROUND_SERVICE_LOCATION`.
+
 ## 8.0.1
 
 - Bump dependency on `location_platform_interface` to `^6.0.1` (#933)

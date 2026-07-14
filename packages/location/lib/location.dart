@@ -60,7 +60,7 @@ class Location implements LocationPlatform {
   /// Throws an error if the app has no permission to access location. Returns a
   /// [LocationData] object.
   @override
-  Future<LocationData> getLocation() async {
+  Future<LocationData> getLocation() {
     return LocationPlatform.instance.getLocation();
   }
 

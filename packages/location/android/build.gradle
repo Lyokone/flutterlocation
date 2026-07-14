@@ -9,9 +9,9 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:8.8.0")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0")
-        classpath("org.jlleitschuh.gradle:ktlint-gradle:11.5.0")
+        classpath("com.android.tools.build:gradle:8.11.1")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.20")
+        classpath("org.jlleitschuh.gradle:ktlint-gradle:12.1.2")
     }
 }
 
@@ -26,7 +26,7 @@ apply plugin: "org.jlleitschuh.gradle.ktlint"
 
 android {
     namespace = "com.lyokone.location"
-    compileSdk = 35
+    compileSdk = 36
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -45,12 +45,12 @@ android {
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 35
+        targetSdk = 36
     }
 }
 
 dependencies {
-    compileOnly("androidx.annotation:annotation:1.6.0")
-    implementation("androidx.core:core-ktx:1.13.1")
+    compileOnly("androidx.annotation:annotation:1.8.1")
+    implementation("androidx.core:core-ktx:1.16.0")
     api("com.google.android.gms:play-services-location:21.3.0")
 }

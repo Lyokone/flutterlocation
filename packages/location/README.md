@@ -6,7 +6,16 @@
 [![codecov][codecov_badge]][codecov_link]
 
 This plugin for [Flutter](https://flutter.dev)
-handles getting a location on Android and iOS. It also provides callbacks when the location is changed.
+handles getting a location across Android, iOS, macOS, web, Windows and Linux.
+It also provides callbacks when the location is changed.
+
+| Android | iOS | macOS | Web | Windows | Linux |
+| :-----: | :-: | :---: | :-: | :-----: | :---: |
+|   ✅    | ✅  |  ✅   | ✅  |   ✅    |  ✅   |
+
+Background mode is available on Android and iOS. Windows relies on
+`Windows.Devices.Geolocation` and Linux on GeoClue2 (over D-Bus); both require
+the system location service to be enabled.
 
 <p align="center">
   <a href="https://www.youtube.com/watch?feature=player_embedded&v=65qbtJMltVk" target="_blank">
@@ -22,7 +31,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  location: ^5.0.0
+  location: ^8.0.0
 ```
 
 ### Android
@@ -86,6 +95,18 @@ Add this permission in Info.plist :
 NSLocationWhenInUseUsageDescription
 NSLocationAlwaysUsageDescription
 ```
+
+### Windows
+
+Nothing to do. The plugin uses the `Windows.Devices.Geolocation` APIs, which
+prompt the user for location access on first use. Make sure Location is enabled
+in the Windows privacy settings.
+
+### Linux
+
+The plugin talks to [GeoClue2](https://gitlab.freedesktop.org/geoclue/geoclue)
+over D-Bus, so a running `geoclue` service is required (it ships with most
+desktop distributions). No extra dependency needs to be bundled with your app.
 
 ## Usage
 
