@@ -311,6 +311,29 @@ class FlutterLocation(
             coarseState == PackageManager.PERMISSION_GRANTED
     }
 
+    /**
+     * Returns whether background ("Allow all the time") location access has been
+     * granted.
+     *
+     * On API 29+ (Android 10) background access is a dedicated runtime
+     * permission, [Manifest.permission.ACCESS_BACKGROUND_LOCATION], distinct
+     * from the foreground fine/coarse permissions. On older versions there is no
+     * separate background permission — a foreground grant already allows
+     * background access — so this mirrors [checkPermissions].
+     */
+    fun checkBackgroundPermissions(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return checkPermissions()
+        }
+        val activity = this.activity
+        if (activity == null) {
+            result?.error("MISSING_ACTIVITY", "You should not checkPermissions activation outside of an activity.", null)
+            throw ActivityNotFoundException()
+        }
+        return ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_BACKGROUND_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED
+    }
+
     private fun hasFineLocationPermission(): Boolean {
         val activity = this.activity ?: return false
         return ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) ==

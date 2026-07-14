@@ -84,6 +84,12 @@ class LocationWebPlugin extends LocationPlatform {
   }
 
   @override
+  Future<bool> isBackgroundPermissionGranted() async {
+    // The web platform has no notion of background location permission.
+    return false;
+  }
+
+  @override
   Future<bool> requestService() async {
     return true;
   }

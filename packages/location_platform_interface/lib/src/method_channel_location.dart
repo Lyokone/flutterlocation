@@ -107,6 +107,13 @@ class MethodChannelLocation extends LocationPlatform {
     return _parsePermissionStatus(result as int?);
   }
 
+  @override
+  Future<bool> isBackgroundPermissionGranted() async {
+    final result =
+        await _methodChannel!.invokeMethod('isBackgroundPermissionGranted');
+    return result == 1;
+  }
+
   PermissionStatus _parsePermissionStatus(int? result) {
     switch (result) {
       case 0:

@@ -131,6 +131,20 @@ void main() {
       expect(receivedPermission, PermissionStatus.grantedLimited);
     });
 
+    test('isBackgroundPermissionGranted converts results correctly', () async {
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        methodChannel!,
+        (methodCall) async => 1,
+      );
+      expect(await location.isBackgroundPermissionGranted(), true);
+
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        methodChannel!,
+        (methodCall) async => 0,
+      );
+      expect(await location.isBackgroundPermissionGranted(), false);
+    });
+
     test('Should throw if other message is sent', () async {
       binding.defaultBinaryMessenger.setMockMethodCallHandler(
         methodChannel!,
