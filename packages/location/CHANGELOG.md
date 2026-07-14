@@ -12,6 +12,9 @@
   a background queue with the result delivered back on the main thread, so
   `getLocation`, `serviceEnabled`, `requestService` and `changeSettings` no
   longer stall the UI.
+- Added an Apple **privacy manifest** (`PrivacyInfo.xcprivacy`) for iOS and macOS,
+  declaring no tracking, no collected data and no required-reason API use, as
+  required for App Store submission (#947).
 
 ## 9.0.0
 

@@ -13,6 +13,7 @@ Cross-platform plugin for easy access to the device location in real time.
   s.author           = { 'Lyokone' => 'https://github.com/Lyokone/flutterlocation' }
   s.source           = { :path => '.' }
   s.source_files     = 'location/Sources/location/**/*.swift'
+  s.resource_bundles = { 'location_privacy' => ['location/Sources/location/PrivacyInfo.xcprivacy'] }
 
   s.ios.dependency 'Flutter'
   s.osx.dependency 'FlutterMacOS'
