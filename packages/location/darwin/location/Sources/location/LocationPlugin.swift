@@ -65,8 +65,12 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             onEnableBackgroundMode(call, result: result)
         case "getLocation":
             onGetLocation(result: result)
+        case "getLastKnownLocation":
+            onGetLastKnownLocation(result: result)
         case "hasPermission":
             onHasPermission(result: result)
+        case "isBackgroundPermissionGranted":
+            onIsBackgroundPermissionGranted(result: result)
         case "requestPermission":
             onRequestPermission(result: result)
         case "serviceEnabled":
@@ -131,6 +135,10 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             if let pauses = args["pausesLocationUpdatesAutomatically"] as? Bool {
                 manager.pausesLocationUpdatesAutomatically = pauses
             }
+
+            // `backgroundInterval` is intentionally ignored on Apple platforms:
+            // CoreLocation does not expose a separate background update interval,
+            // so it is an Android-only setting.
             result(1)
         }
     }
@@ -190,12 +198,31 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
         }
     }
 
+    /// Returns the most recently cached fix from CoreLocation, or `nil` if none
+    /// is available. `CLLocationManager.location` holds the last known location
+    /// without starting fresh updates, so this returns immediately.
+    private func onGetLastKnownLocation(result: @escaping FlutterResult) {
+        guard isPermissionGranted, let location = clLocationManager?.location else {
+            result(nil)
+            return
+        }
+        result(coordinates(from: location))
+    }
+
     private func onHasPermission(result: FlutterResult) {
         if isPermissionGranted {
             result(isHighAccuracyPermitted ? 1 : 3)
         } else {
             result(0)
         }
+    }
+
+    /// Whether background ("Always") location authorization has been granted.
+    ///
+    /// On both iOS and macOS this maps to `.authorizedAlways`; the more limited
+    /// `.authorizedWhenInUse` does not grant background access.
+    private func onIsBackgroundPermissionGranted(result: FlutterResult) {
+        result(currentAuthorizationStatus == .authorizedAlways ? 1 : 0)
     }
 
     private func onRequestPermission(result: @escaping FlutterResult) {
@@ -324,6 +351,43 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
         return nil
     }
 
+    // MARK: - Location serialization
+
+    /// Builds the coordinates dictionary sent to Flutter from a [CLLocation].
+    /// Shared by the location stream, one-shot `getLocation` and
+    /// `getLastKnownLocation` so every path returns the same shape.
+    private func coordinates(from location: CLLocation) -> [String: Any] {
+        let timeInMilliseconds = location.timestamp.timeIntervalSince1970 * 1000
+
+        // Detect simulated/mocked locations and locations produced by a
+        // connected accessory (e.g. an external GPS receiver). `sourceInformation`
+        // is only available on iOS 15.0+/macOS 12.0+; on older systems Core
+        // Location exposes no such flags, so default both to false. The Dart side
+        // reads these under the `isMock` and `isProducedByAccessory` keys.
+        var isMock = false
+        var isProducedByAccessory = false
+        if #available(iOS 15.0, macOS 12.0, *) {
+            if let source: CLLocationSourceInformation = location.sourceInformation {
+                isMock = source.isSimulatedBySoftware
+                isProducedByAccessory = source.isProducedByAccessory
+            }
+        }
+
+        return [
+            "latitude": location.coordinate.latitude,
+            "longitude": location.coordinate.longitude,
+            "accuracy": location.horizontalAccuracy,
+            "verticalAccuracy": location.verticalAccuracy,
+            "altitude": location.altitude,
+            "speed": location.speed,
+            "speed_accuracy": location.speedAccuracy,
+            "heading": location.course,
+            "time": timeInMilliseconds,
+            "isMock": isMock ? 1 : 0,
+            "isProducedByAccessory": isProducedByAccessory ? 1 : 0,
+        ]
+    }
+
     // MARK: - CLLocationManagerDelegate
 
     public func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -341,35 +405,7 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             return
         }
 
-        let timeInMilliseconds = location.timestamp.timeIntervalSince1970 * 1000
-
-        // Detect simulated/mocked locations and locations produced by a
-        // connected accessory (e.g. an external GPS receiver). `sourceInformation`
-        // is only available on iOS 15.0+/macOS 12.0+; on older systems Core
-        // Location exposes no such flags, so default both to false. The Dart side
-        // reads these under the `isMock` and `isProducedByAccessory` keys.
-        var isMock = false
-        var isProducedByAccessory = false
-        if #available(iOS 15.0, macOS 12.0, *) {
-            if let source: CLLocationSourceInformation = location.sourceInformation {
-                isMock = source.isSimulatedBySoftware
-                isProducedByAccessory = source.isProducedByAccessory
-            }
-        }
-
-        let coordinates: [String: Any] = [
-            "latitude": location.coordinate.latitude,
-            "longitude": location.coordinate.longitude,
-            "accuracy": location.horizontalAccuracy,
-            "verticalAccuracy": location.verticalAccuracy,
-            "altitude": location.altitude,
-            "speed": location.speed,
-            "speed_accuracy": location.speedAccuracy,
-            "heading": location.course,
-            "time": timeInMilliseconds,
-            "isMock": isMock ? 1 : 0,
-            "isProducedByAccessory": isProducedByAccessory ? 1 : 0,
-        ]
+        let coordinates = coordinates(from: location)
 
         if locationWanted {
             locationWanted = false

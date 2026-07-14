@@ -77,6 +77,15 @@ class FlutterLocation(
     private var locationAccuracy = Priority.PRIORITY_HIGH_ACCURACY
     private var distanceFilter = 0f
 
+    // Optional interval (in milliseconds) to use while the app is in background
+    // mode (i.e. the foreground service is running). When null, the regular
+    // [updateIntervalMilliseconds] is used in the background as well.
+    private var backgroundIntervalMilliseconds: Long? = null
+
+    // Whether the app is currently operating in background mode. Driven by the
+    // foreground service being enabled/disabled in [FlutterLocationService].
+    private var isInBackground = false
+
     var events: EventSink? = null
 
     // Store result until a permission check is resolved
@@ -180,16 +189,44 @@ class FlutterLocation(
         updateIntervalMilliseconds: Long,
         fastestUpdateIntervalMilliseconds: Long,
         distanceFilter: Float,
+        backgroundIntervalMilliseconds: Long? = null,
     ) {
         this.locationAccuracy = newLocationAccuracy ?: Priority.PRIORITY_HIGH_ACCURACY
         this.updateIntervalMilliseconds = updateIntervalMilliseconds
         this.fastestUpdateIntervalMilliseconds = fastestUpdateIntervalMilliseconds
         this.distanceFilter = distanceFilter
+        this.backgroundIntervalMilliseconds = backgroundIntervalMilliseconds
 
         createLocationCallback()
         createLocationRequest()
         buildLocationSettingsRequest()
         startRequestingLocation()
+    }
+
+    /**
+     * Notifies the location request that the app has entered or left background
+     * mode. When a distinct [backgroundIntervalMilliseconds] is configured, the
+     * location request is rebuilt with the appropriate interval and, if a stream
+     * is active, updates are re-registered to take effect immediately.
+     */
+    fun setBackgroundMode(inBackground: Boolean) {
+        if (isInBackground == inBackground) {
+            return
+        }
+        isInBackground = inBackground
+
+        // Nothing to do if no separate background interval was requested.
+        if (backgroundIntervalMilliseconds == null) {
+            return
+        }
+
+        createLocationRequest()
+        buildLocationSettingsRequest()
+
+        // Only re-register updates when actively streaming locations.
+        if (events != null) {
+            startRequestingLocation()
+        }
     }
 
     private fun sendError(
@@ -210,40 +247,7 @@ class FlutterLocation(
             object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
                     val location = locationResult.lastLocation ?: return
-                    val loc = HashMap<String, Any?>()
-                    loc["latitude"] = location.latitude
-                    loc["longitude"] = location.longitude
-                    loc["accuracy"] = location.accuracy.toDouble()
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        loc["verticalAccuracy"] = location.verticalAccuracyMeters.toDouble()
-                        loc["headingAccuracy"] = location.bearingAccuracyDegrees.toDouble()
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        loc["elapsedRealtimeUncertaintyNanos"] = location.elapsedRealtimeUncertaintyNanos
-                    }
-
-                    loc["provider"] = location.provider
-                    location.extras?.let { loc["satelliteNumber"] = it.getInt("satellites") }
-
-                    loc["elapsedRealtimeNanos"] = location.elapsedRealtimeNanos.toDouble()
-                    if (isLocationFromMockProvider(location)) {
-                        loc["isMock"] = 1.0
-                    }
-
-                    // Using NMEA data to get MSL level altitude
-                    val lastMslAltitude = mLastMslAltitude
-                    if (lastMslAltitude == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                        loc["altitude"] = location.altitude
-                    } else {
-                        loc["altitude"] = lastMslAltitude
-                    }
-
-                    loc["speed"] = location.speed.toDouble()
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        loc["speed_accuracy"] = location.speedAccuracyMetersPerSecond.toDouble()
-                    }
-                    loc["heading"] = location.bearing.toDouble()
-                    loc["time"] = location.time.toDouble()
+                    val loc = locationToMap(location)
 
                     getLocationResult?.success(loc)
                     getLocationResult = null
@@ -273,11 +277,88 @@ class FlutterLocation(
         }
     }
 
+    /**
+     * Serializes an Android [Location] into the map shape shared by the
+     * location stream, the one-shot `getLocation` and `getLastKnownLocation`.
+     */
+    private fun locationToMap(location: Location): HashMap<String, Any?> {
+        val loc = HashMap<String, Any?>()
+        loc["latitude"] = location.latitude
+        loc["longitude"] = location.longitude
+        loc["accuracy"] = location.accuracy.toDouble()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            loc["verticalAccuracy"] = location.verticalAccuracyMeters.toDouble()
+            loc["headingAccuracy"] = location.bearingAccuracyDegrees.toDouble()
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            loc["elapsedRealtimeUncertaintyNanos"] = location.elapsedRealtimeUncertaintyNanos
+        }
+
+        loc["provider"] = location.provider
+        location.extras?.let { loc["satelliteNumber"] = it.getInt("satellites") }
+
+        loc["elapsedRealtimeNanos"] = location.elapsedRealtimeNanos.toDouble()
+        if (isLocationFromMockProvider(location)) {
+            loc["isMock"] = 1.0
+        }
+
+        // Using NMEA data to get MSL level altitude
+        val lastMslAltitude = mLastMslAltitude
+        if (lastMslAltitude == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            loc["altitude"] = location.altitude
+        } else {
+            loc["altitude"] = lastMslAltitude
+        }
+
+        loc["speed"] = location.speed.toDouble()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            loc["speed_accuracy"] = location.speedAccuracyMetersPerSecond.toDouble()
+        }
+        loc["heading"] = location.bearing.toDouble()
+        loc["time"] = location.time.toDouble()
+        return loc
+    }
+
+    /**
+     * Returns the last known location cached by the fused location provider
+     * without waiting for a fresh fix. Succeeds with `null` when no cached
+     * location is available.
+     */
+    fun getLastKnownLocation(result: Result) {
+        val client = mFusedLocationClient
+        if (client == null) {
+            result.error("MISSING_ACTIVITY", "Location is not attached to an activity.", null)
+            return
+        }
+        try {
+            client.lastLocation
+                .addOnSuccessListener { location ->
+                    result.success(location?.let { locationToMap(it) })
+                }
+                .addOnFailureListener { e ->
+                    result.error("LAST_KNOWN_LOCATION_ERROR", e.message, null)
+                }
+        } catch (e: SecurityException) {
+            result.error("PERMISSION_DENIED", e.message, null)
+        }
+    }
+
     /** Sets up the location request using the modern builder API. */
     private fun createLocationRequest() {
+        val backgroundInterval = backgroundIntervalMilliseconds
+        val interval: Long
+        val fastestInterval: Long
+        if (isInBackground && backgroundInterval != null) {
+            interval = backgroundInterval
+            fastestInterval = backgroundInterval / 2
+        } else {
+            interval = updateIntervalMilliseconds
+            fastestInterval = fastestUpdateIntervalMilliseconds
+        }
+
         mLocationRequest =
-            LocationRequest.Builder(locationAccuracy, updateIntervalMilliseconds)
-                .setMinUpdateIntervalMillis(fastestUpdateIntervalMilliseconds)
+            LocationRequest.Builder(locationAccuracy, interval)
+                .setMinUpdateIntervalMillis(fastestInterval)
                 .setMinUpdateDistanceMeters(distanceFilter)
                 .build()
     }
@@ -309,6 +390,29 @@ class FlutterLocation(
             ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION)
         return fineState == PackageManager.PERMISSION_GRANTED ||
             coarseState == PackageManager.PERMISSION_GRANTED
+    }
+
+    /**
+     * Returns whether background ("Allow all the time") location access has been
+     * granted.
+     *
+     * On API 29+ (Android 10) background access is a dedicated runtime
+     * permission, [Manifest.permission.ACCESS_BACKGROUND_LOCATION], distinct
+     * from the foreground fine/coarse permissions. On older versions there is no
+     * separate background permission — a foreground grant already allows
+     * background access — so this mirrors [checkPermissions].
+     */
+    fun checkBackgroundPermissions(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return checkPermissions()
+        }
+        val activity = this.activity
+        if (activity == null) {
+            result?.error("MISSING_ACTIVITY", "You should not checkPermissions activation outside of an activity.", null)
+            throw ActivityNotFoundException()
+        }
+        return ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_BACKGROUND_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED
     }
 
     private fun hasFineLocationPermission(): Boolean {

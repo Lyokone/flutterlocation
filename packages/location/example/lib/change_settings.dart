@@ -17,6 +17,10 @@ class _ChangeSettingsState extends State<ChangeSettings> {
   final TextEditingController _distanceFilterController = TextEditingController(
     text: '0',
   );
+  // Android-only: interval used while background mode is enabled. Leave empty to
+  // reuse the regular interval in the background.
+  final TextEditingController _backgroundIntervalController =
+      TextEditingController();
 
   LocationAccuracy _locationAccuracy = LocationAccuracy.high;
   bool _pausesLocationUpdatesAutomatically = true;
@@ -25,6 +29,7 @@ class _ChangeSettingsState extends State<ChangeSettings> {
   void dispose() {
     _intervalController.dispose();
     _distanceFilterController.dispose();
+    _backgroundIntervalController.dispose();
     super.dispose();
   }
 
@@ -53,6 +58,14 @@ class _ChangeSettingsState extends State<ChangeSettings> {
             controller: _distanceFilterController,
             decoration: const InputDecoration(
               labelText: 'DistanceFilter',
+            ),
+          ),
+          const SizedBox(height: 4),
+          TextFormField(
+            keyboardType: TextInputType.number,
+            controller: _backgroundIntervalController,
+            decoration: const InputDecoration(
+              labelText: 'Background Interval (Android only)',
             ),
           ),
           const SizedBox(height: 4),
@@ -122,6 +135,8 @@ class _ChangeSettingsState extends State<ChangeSettings> {
                 distanceFilter: double.parse(_distanceFilterController.text),
                 pausesLocationUpdatesAutomatically:
                     _pausesLocationUpdatesAutomatically,
+                backgroundInterval:
+                    int.tryParse(_backgroundIntervalController.text),
               );
             },
             child: const Text('Change'),

@@ -30,6 +30,7 @@ void main() {
         log.add(methodCall);
         switch (methodCall.method) {
           case 'getLocation':
+          case 'getLastKnownLocation':
             return <String, dynamic>{
               'latitude': 48.8534,
               'longitude': 2.3488,
@@ -57,6 +58,24 @@ void main() {
     });
   });
 
+  group('getLastKnownLocation', () {
+    test('should convert results correctly', () async {
+      final receivedLocation = await location.getLastKnownLocation();
+      expect(receivedLocation, isNotNull);
+      expect(receivedLocation!.latitude, 48.8534);
+      expect(receivedLocation.longitude, 2.3488);
+    });
+
+    test('should return null when no cached location is available', () async {
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        methodChannel!,
+        (methodCall) async => null,
+      );
+      final receivedLocation = await location.getLastKnownLocation();
+      expect(receivedLocation, isNull);
+    });
+  });
+
   test('changeSettings passes parameters correctly', () async {
     await location.changeSettings();
     expect(log, <Matcher>[
@@ -67,6 +86,7 @@ void main() {
           'interval': 1000,
           'distanceFilter': 0,
           'pausesLocationUpdatesAutomatically': true,
+          'backgroundInterval': null,
         },
       ),
     ]);
@@ -129,6 +149,20 @@ void main() {
       expect(receivedPermission, PermissionStatus.grantedLimited);
       receivedPermission = await location.requestPermission();
       expect(receivedPermission, PermissionStatus.grantedLimited);
+    });
+
+    test('isBackgroundPermissionGranted converts results correctly', () async {
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        methodChannel!,
+        (methodCall) async => 1,
+      );
+      expect(await location.isBackgroundPermissionGranted(), true);
+
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        methodChannel!,
+        (methodCall) async => 0,
+      );
+      expect(await location.isBackgroundPermissionGranted(), false);
     });
 
     test('Should throw if other message is sent', () async {
