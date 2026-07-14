@@ -5,20 +5,37 @@ description: Check service status
 
 # Services
 
-Services refers to the options available to you in order to get the location of your user.
+The location service is the system-level switch that has to be on for any app to
+access the device's location.
 
-On **Android** you can have the status of the GPS and Network services.
-The Network service is often less precise.
-
-On **iOS** both the GPS and the Network service are available but cannot be requested individually. Either the Location Service is activated or not.
+Check whether it is currently enabled:
 
 ```dart
-Future<bool> isGPSEnabled()
+Future<bool> serviceEnabled()
 ```
+
+Request the user to enable it:
 
 ```dart
-Future<bool> isNetworkEnabled()
+Future<bool> requestService()
 ```
 
-If the service are disabled, you can make a call to `getLocation` or `onLocationChanged`.
-The call will automatically try to activate the required location service depending on the precision request for the location.
+`getLocation` and `onLocationChanged` also try to activate the service
+automatically, so calling these manually is only needed if you want to check or
+prompt for the service before requesting a location.
+
+## Examples
+
+### Ensuring the service is enabled
+
+```dart
+final location = Location();
+var enabled = await location.serviceEnabled();
+if (!enabled) {
+    enabled = await location.requestService();
+    if (!enabled) {
+        // The user did not enable the location service.
+        return;
+    }
+}
+```

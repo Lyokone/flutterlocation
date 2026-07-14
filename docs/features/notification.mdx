@@ -33,7 +33,7 @@ final location = Location();
 location.enableBackgroundMode(enable: true);
 _locationSubscription = location.onLocationChanged
     .listen((LocationData currentLocation) async {
-        await location.changeBackgroundOptions(
+        await location.changeNotificationOptions(
             subtitle:
                 'Location: ${currentLocation.latitude}, ${currentLocation.longitude}',
             onTapBringToFront: true,
