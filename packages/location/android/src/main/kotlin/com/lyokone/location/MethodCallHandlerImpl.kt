@@ -212,6 +212,7 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
             val channelName = call.argument<String>("channelName") ?: DEFAULT_CHANNEL_NAME
             val title = call.argument<String>("title") ?: DEFAULT_NOTIFICATION_TITLE
             val iconName = call.argument<String>("iconName") ?: DEFAULT_NOTIFICATION_ICON_NAME
+            val imageName = call.argument<String>("imageName")
             val subtitle = call.argument<String>("subtitle")
             val description = call.argument<String>("description")
             val onTapBringToFront = call.argument<Boolean>("onTapBringToFront") ?: false
@@ -224,6 +225,7 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
                     channelName,
                     title,
                     iconName,
+                    imageName,
                     subtitle,
                     description,
                     color,

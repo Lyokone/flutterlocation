@@ -12,6 +12,7 @@ Future<bool> changeNotificationOptions({
   String? channelName,
   String? title,
   String? iconName,
+  String? imageName,
   String? subtitle,
   String? description,
   Color? color,
@@ -19,8 +20,12 @@ Future<bool> changeNotificationOptions({
 })
 ```
 
-`iconName` is the name of the icon to display.
+`iconName` is the name of the small icon to display.
 It should be in the `res/drawable` folder with the same name. By default, the library gives you a transparent icon.
+
+`imageName` is the name of a large image shown on the notification (the Android
+"large icon"). Like `iconName`, it resolves a drawable in `res/drawable` by name.
+Leave it `null` (the default) for no image. Android only.
 
 ## Examples
 
