@@ -76,42 +76,61 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
         }
     }
 
+    // MARK: - Location services
+
+    /// `CLLocationManager.locationServicesEnabled()` can block the calling
+    /// thread while location services start up. Apple warns against calling it
+    /// on the main thread — doing so triggers the "UI unresponsiveness" runtime
+    /// warning and can hang the app (#782, #789, #909, #1004, #1027). Run it on
+    /// a background queue and deliver the answer back on the main thread, where
+    /// the `CLLocationManager` instance and the Flutter result must be used.
+    private func locationServicesEnabled(_ completion: @escaping (Bool) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            let enabled = CLLocationManager.locationServicesEnabled()
+            DispatchQueue.main.async {
+                completion(enabled)
+            }
+        }
+    }
+
     // MARK: - Method handlers
 
-    private func onChangeSettings(_ call: FlutterMethodCall, result: FlutterResult) {
-        guard CLLocationManager.locationServicesEnabled() else { return }
-        guard
-            let manager = clLocationManager,
-            let args = call.arguments as? [String: Any]
-        else {
-            result(FlutterError(code: "CHANGE_SETTINGS_ERROR", message: "Invalid arguments", details: nil))
-            return
-        }
+    private func onChangeSettings(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        locationServicesEnabled { [weak self] enabled in
+            guard let self, enabled else { return }
+            guard
+                let manager = self.clLocationManager,
+                let args = call.arguments as? [String: Any]
+            else {
+                result(FlutterError(code: "CHANGE_SETTINGS_ERROR", message: "Invalid arguments", details: nil))
+                return
+            }
 
-        var reducedAccuracy = kCLLocationAccuracyHundredMeters
-        if #available(iOS 14, macOS 11, *) {
-            reducedAccuracy = kCLLocationAccuracyReduced
-        }
-        let accuracyMap: [Int: CLLocationAccuracy] = [
-            0: kCLLocationAccuracyKilometer,
-            1: kCLLocationAccuracyHundredMeters,
-            2: kCLLocationAccuracyNearestTenMeters,
-            3: kCLLocationAccuracyBest,
-            4: kCLLocationAccuracyBestForNavigation,
-            5: reducedAccuracy,
-        ]
+            var reducedAccuracy = kCLLocationAccuracyHundredMeters
+            if #available(iOS 14, macOS 11, *) {
+                reducedAccuracy = kCLLocationAccuracyReduced
+            }
+            let accuracyMap: [Int: CLLocationAccuracy] = [
+                0: kCLLocationAccuracyKilometer,
+                1: kCLLocationAccuracyHundredMeters,
+                2: kCLLocationAccuracyNearestTenMeters,
+                3: kCLLocationAccuracyBest,
+                4: kCLLocationAccuracyBestForNavigation,
+                5: reducedAccuracy,
+            ]
 
-        if let accuracy = args["accuracy"] as? Int, let mapped = accuracyMap[accuracy] {
-            manager.desiredAccuracy = mapped
-        }
+            if let accuracy = args["accuracy"] as? Int, let mapped = accuracyMap[accuracy] {
+                manager.desiredAccuracy = mapped
+            }
 
-        let distanceFilter = args["distanceFilter"] as? Double ?? 0
-        manager.distanceFilter = distanceFilter == 0 ? kCLDistanceFilterNone : distanceFilter
+            let distanceFilter = args["distanceFilter"] as? Double ?? 0
+            manager.distanceFilter = distanceFilter == 0 ? kCLDistanceFilterNone : distanceFilter
 
-        if let pauses = args["pausesLocationUpdatesAutomatically"] as? Bool {
-            manager.pausesLocationUpdatesAutomatically = pauses
+            if let pauses = args["pausesLocationUpdatesAutomatically"] as? Bool {
+                manager.pausesLocationUpdatesAutomatically = pauses
+            }
+            result(1)
         }
-        result(1)
     }
 
     private func onIsBackgroundModeEnabled(result: FlutterResult) {
@@ -138,31 +157,34 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
     }
 
     private func onGetLocation(result: @escaping FlutterResult) {
-        guard CLLocationManager.locationServicesEnabled() else {
-            result(FlutterError(
-                code: "SERVICE_STATUS_DISABLED",
-                message: "Failed to get location. Location services disabled",
-                details: nil,
-            ))
-            return
-        }
-        if currentAuthorizationStatus == .denied {
-            result(FlutterError(
-                code: "PERMISSION_DENIED",
-                message: "The user explicitly denied the use of location services for this app or "
-                    + "location services are currently disabled in Settings.",
-                details: nil,
-            ))
-            return
-        }
+        locationServicesEnabled { [weak self] enabled in
+            guard let self else { return }
+            guard enabled else {
+                result(FlutterError(
+                    code: "SERVICE_STATUS_DISABLED",
+                    message: "Failed to get location. Location services disabled",
+                    details: nil,
+                ))
+                return
+            }
+            if self.currentAuthorizationStatus == .denied {
+                result(FlutterError(
+                    code: "PERMISSION_DENIED",
+                    message: "The user explicitly denied the use of location services for this app or "
+                        + "location services are currently disabled in Settings.",
+                    details: nil,
+                ))
+                return
+            }
 
-        flutterResult = result
-        locationWanted = true
+            self.flutterResult = result
+            self.locationWanted = true
 
-        if isPermissionGranted {
-            clLocationManager?.startUpdatingLocation()
-        } else {
-            requestPermission()
+            if self.isPermissionGranted {
+                self.clLocationManager?.startUpdatingLocation()
+            } else {
+                self.requestPermission()
+            }
         }
     }
 
@@ -186,37 +208,41 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
         }
     }
 
-    private func onServiceEnabled(result: FlutterResult) {
-        result(CLLocationManager.locationServicesEnabled() ? 1 : 0)
+    private func onServiceEnabled(result: @escaping FlutterResult) {
+        locationServicesEnabled { enabled in
+            result(enabled ? 1 : 0)
+        }
     }
 
-    private func onRequestService(result: FlutterResult) {
-        if CLLocationManager.locationServicesEnabled() {
-            result(1)
-            return
-        }
-        #if os(macOS)
-        let alert = NSAlert()
-        alert.messageText = "Location is Disabled"
-        alert.informativeText = "To use location, go to your System Settings > Privacy & Security > "
-            + "Location Services."
-        alert.addButton(withTitle: "Open")
-        alert.addButton(withTitle: "Cancel")
-        if let window = NSApplication.shared.mainWindow {
-            alert.beginSheetModal(for: window) { response in
-                if response == .alertFirstButtonReturn,
-                   let url = URL(
-                       string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices") {
-                    NSWorkspace.shared.open(url)
+    private func onRequestService(result: @escaping FlutterResult) {
+        locationServicesEnabled { enabled in
+            if enabled {
+                result(1)
+                return
+            }
+            #if os(macOS)
+            let alert = NSAlert()
+            alert.messageText = "Location is Disabled"
+            alert.informativeText = "To use location, go to your System Settings > Privacy & Security > "
+                + "Location Services."
+            alert.addButton(withTitle: "Open")
+            alert.addButton(withTitle: "Cancel")
+            if let window = NSApplication.shared.mainWindow {
+                alert.beginSheetModal(for: window) { response in
+                    if response == .alertFirstButtonReturn,
+                       let url = URL(
+                           string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices") {
+                        NSWorkspace.shared.open(url)
+                    }
                 }
             }
+            #elseif os(iOS)
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(url)
+            }
+            #endif
+            result(0)
         }
-        #elseif os(iOS)
-        if let url = URL(string: UIApplication.openSettingsURLString) {
-            UIApplication.shared.open(url)
-        }
-        #endif
-        result(0)
     }
 
     // MARK: - Permissions
