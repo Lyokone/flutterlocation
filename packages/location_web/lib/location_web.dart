@@ -148,6 +148,7 @@ class LocationWebPlugin extends LocationPlatform {
     String? channelName,
     String? title,
     String? iconName,
+    String? imageName,
     String? subtitle,
     String? description,
     Color? color,
