@@ -36,7 +36,9 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
         when (call.method) {
             "changeSettings" -> onChangeSettings(call, result, location)
             "getLocation" -> onGetLocation(result, location)
+            "getLastKnownLocation" -> location.getLastKnownLocation(result)
             "hasPermission" -> onHasPermission(result, location)
+            "isBackgroundPermissionGranted" -> onIsBackgroundPermissionGranted(result, location)
             "requestPermission" -> onRequestPermission(result, location)
             "serviceEnabled" -> onServiceEnabled(result, location)
             "requestService" -> location.requestService(result)
@@ -131,6 +133,13 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
         // permissionStatusCode() returns 1 (granted), 3 (grantedLimited,
         // approximate-only on API 31+) or 0 (denied) (#736).
         result.success(location.permissionStatusCode())
+    }
+
+    private fun onIsBackgroundPermissionGranted(
+        result: Result,
+        location: FlutterLocation,
+    ) {
+        result.success(if (location.checkBackgroundPermissions()) 1 else 0)
     }
 
     private fun onServiceEnabled(
