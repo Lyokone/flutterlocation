@@ -11,6 +11,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -18,6 +19,7 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.ServiceCompat
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 
@@ -251,7 +253,13 @@ class FlutterLocationService : Service(), PluginRegistry.RequestPermissionsResul
             Log.d(TAG, "Start service in foreground mode.")
 
             val notification = backgroundNotification!!.build()
-            startForeground(ONGOING_NOTIFICATION_ID, notification)
+            val foregroundServiceType =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+                } else {
+                    0
+                }
+            ServiceCompat.startForeground(this, ONGOING_NOTIFICATION_ID, notification, foregroundServiceType)
 
             isForeground = true
         }
