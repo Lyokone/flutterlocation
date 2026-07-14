@@ -37,6 +37,7 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
             "changeSettings" -> onChangeSettings(call, result, location)
             "getLocation" -> onGetLocation(result, location)
             "hasPermission" -> onHasPermission(result, location)
+            "isBackgroundPermissionGranted" -> onIsBackgroundPermissionGranted(result, location)
             "requestPermission" -> onRequestPermission(result, location)
             "serviceEnabled" -> onServiceEnabled(result, location)
             "requestService" -> location.requestService(result)
@@ -130,6 +131,13 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
         } else {
             result.success(0)
         }
+    }
+
+    private fun onIsBackgroundPermissionGranted(
+        result: Result,
+        location: FlutterLocation,
+    ) {
+        result.success(if (location.checkBackgroundPermissions()) 1 else 0)
     }
 
     private fun onServiceEnabled(

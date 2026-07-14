@@ -67,6 +67,8 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             onGetLocation(result: result)
         case "hasPermission":
             onHasPermission(result: result)
+        case "isBackgroundPermissionGranted":
+            onIsBackgroundPermissionGranted(result: result)
         case "requestPermission":
             onRequestPermission(result: result)
         case "serviceEnabled":
@@ -196,6 +198,14 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
         } else {
             result(0)
         }
+    }
+
+    /// Whether background ("Always") location authorization has been granted.
+    ///
+    /// On both iOS and macOS this maps to `.authorizedAlways`; the more limited
+    /// `.authorizedWhenInUse` does not grant background access.
+    private func onIsBackgroundPermissionGranted(result: FlutterResult) {
+        result(currentAuthorizationStatus == .authorizedAlways ? 1 : 0)
     }
 
     private func onRequestPermission(result: @escaping FlutterResult) {

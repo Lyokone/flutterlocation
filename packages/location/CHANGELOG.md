@@ -3,6 +3,16 @@
 <!-- Not yet published to pub.dev. Accumulate fixes here; assign a version
      number when we cut the next release. -->
 
+### ✨ Features
+
+- Added `Location.isBackgroundPermissionGranted()`, which reports whether the
+  app has been granted background ("Allow all the time" / Always) location
+  access. Call it before `enableBackgroundMode` to show an in-app rationale
+  before sending the user to the system settings. On iOS/macOS it is `true`
+  only for the "Always" authorization; on Android it reflects the
+  `ACCESS_BACKGROUND_LOCATION` permission on API 29+ and mirrors
+  `hasPermission()` on older versions; on web it is always `false` (#538).
+
 ### 🍎 iOS & macOS
 
 - Moved `CLLocationManager.locationServicesEnabled()` off the main thread. Apple

@@ -82,6 +82,22 @@ class Location implements LocationPlatform {
     return LocationPlatform.instance.requestPermission();
   }
 
+  /// Checks whether the app has been granted background ("Allow all the time")
+  /// location access, in addition to foreground access.
+  ///
+  /// Use this before calling [enableBackgroundMode] to decide whether to show
+  /// an in-app rationale before sending the user to the system settings.
+  ///
+  /// - iOS/macOS: `true` only when the authorization status is "Always".
+  /// - Android: reflects the `ACCESS_BACKGROUND_LOCATION` runtime permission on
+  ///   API 29+ (Android 10). On older versions background access is implied by
+  ///   the foreground grant, so this mirrors [hasPermission].
+  /// - Web: always `false`.
+  @override
+  Future<bool> isBackgroundPermissionGranted() {
+    return LocationPlatform.instance.isBackgroundPermissionGranted();
+  }
+
   /// Checks if the location service is enabled.
   @override
   Future<bool> serviceEnabled() {
