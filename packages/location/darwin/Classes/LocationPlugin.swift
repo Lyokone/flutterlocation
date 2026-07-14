@@ -299,7 +299,13 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
     // MARK: - CLLocationManagerDelegate
 
     public func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if waitNextLocation > 0 {
+        // With reduced accuracy (precise location off) only a single update is
+        // delivered, so the stale-location guard must not swallow it (#984).
+        var isReducedAccuracy = false
+        if #available(iOS 14.0, macOS 11.0, *) {
+            isReducedAccuracy = clLocationManager?.accuracyAuthorization == .reducedAccuracy
+        }
+        if !isReducedAccuracy, waitNextLocation > 0 {
             waitNextLocation -= 1
             return
         }

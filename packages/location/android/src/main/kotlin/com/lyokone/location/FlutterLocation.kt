@@ -106,10 +106,15 @@ class FlutterLocation(
         permissions: Array<out String>,
         grantResults: IntArray,
     ): Boolean {
-        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE && permissions.size == 1 &&
-            permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION
+        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE && permissions.size == 2 &&
+            grantResults.size == 2 &&
+            permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION &&
+            permissions[1] == Manifest.permission.ACCESS_COARSE_LOCATION
         ) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            val fineGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
+            val coarseGranted = grantResults[1] == PackageManager.PERMISSION_GRANTED
+            if (fineGranted || coarseGranted) {
+                // Either precise or approximate location was granted.
                 // Checks if this permission was automatically triggered by a location request
                 if (getLocationResult != null || events != null) {
                     startRequestingLocation()
@@ -288,9 +293,20 @@ class FlutterLocation(
             result?.error("MISSING_ACTIVITY", "You should not checkPermissions activation outside of an activity.", null)
             throw ActivityNotFoundException()
         }
-        val locationPermissionState =
+        // Approximate (coarse) location counts as granted: a user who only
+        // allows approximate location should still receive updates (#991).
+        val fineState =
             ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
-        return locationPermissionState == PackageManager.PERMISSION_GRANTED
+        val coarseState =
+            ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION)
+        return fineState == PackageManager.PERMISSION_GRANTED ||
+            coarseState == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun hasFineLocationPermission(): Boolean {
+        val activity = this.activity ?: return false
+        return ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED
     }
 
     fun requestPermissions() {
@@ -305,14 +321,24 @@ class FlutterLocation(
         }
         ActivityCompat.requestPermissions(
             activity,
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            ),
             REQUEST_PERMISSIONS_REQUEST_CODE,
         )
     }
 
     fun shouldShowRequestPermissionRationale(): Boolean {
         val activity = this.activity ?: return false
-        return ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+        return ActivityCompat.shouldShowRequestPermissionRationale(
+            activity,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ) ||
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                activity,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            )
     }
 
     /** Checks whether location services are enabled. */
@@ -407,7 +433,8 @@ class FlutterLocation(
     }
 
     private fun registerNmeaListener() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        // NMEA messages are only delivered with precise (fine) location access.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && hasFineLocationPermission()) {
             mMessageListener?.let { locationManager.addNmeaListener(it, null) }
         }
     }
