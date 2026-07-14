@@ -27,6 +27,8 @@ class LocationWebPlugin extends LocationPlatform {
     int? interval,
     double? distanceFilter,
     bool? pausesLocationUpdatesAutomatically,
+    // backgroundInterval is Android-only and ignored on web.
+    int? backgroundInterval,
   }) async {
     _accuracy = accuracy;
     return true;
@@ -56,6 +58,13 @@ class LocationWebPlugin extends LocationPlatform {
   }
 
   @override
+  Future<LocationData?> getLastKnownLocation() async {
+    // The browser Geolocation API does not expose a cached "last known"
+    // location, so there is nothing to return without triggering a fresh fix.
+    return null;
+  }
+
+  @override
   Future<PermissionStatus> hasPermission() async {
     final web.PermissionStatus result =
         await _permissions.query({'name': 'geolocation'}.toJSBox).toDart;
@@ -81,6 +90,12 @@ class LocationWebPlugin extends LocationPlatform {
     } catch (e) {
       return PermissionStatus.deniedForever;
     }
+  }
+
+  @override
+  Future<bool> isBackgroundPermissionGranted() async {
+    // The web platform has no notion of background location permission.
+    return false;
   }
 
   @override

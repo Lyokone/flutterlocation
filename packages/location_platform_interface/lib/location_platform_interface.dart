@@ -41,11 +41,17 @@ class LocationPlatform extends PlatformInterface {
   /// often a new location is sent through [onLocationChanged]. The
   /// [pausesLocationUpdatesAutomatically] argument indicates whether the
   /// underlying location manager object may pause location updates.
+  ///
+  /// [backgroundInterval] (in milliseconds, Android only) sets a different
+  /// update interval to use while background mode is enabled. When null,
+  /// [interval] is used in the background as well. Ignored on iOS, macOS and
+  /// web.
   Future<bool> changeSettings({
     LocationAccuracy? accuracy,
     int? interval,
     double? distanceFilter,
     bool? pausesLocationUpdatesAutomatically,
+    int? backgroundInterval,
   }) {
     throw UnimplementedError();
   }
@@ -72,6 +78,19 @@ class LocationPlatform extends PlatformInterface {
     throw UnimplementedError();
   }
 
+  /// Gets the most recently cached location of the user, if any.
+  ///
+  /// Unlike [getLocation], this returns immediately with the last known
+  /// location the platform has cached, without waiting for a fresh fix. It is
+  /// useful to show an approximate position (for example a grey marker) while
+  /// a precise location is still being acquired.
+  ///
+  /// Returns `null` when no cached location is available (for example on a
+  /// fresh install, or when the platform has no cached fix).
+  Future<LocationData?> getLastKnownLocation() {
+    throw UnimplementedError();
+  }
+
   /// Checks if the app has permission to access location.
   ///
   /// If the result is [PermissionStatus.deniedForever], no dialog will be
@@ -87,6 +106,22 @@ class LocationPlatform extends PlatformInterface {
   /// shown on [requestPermission].
   /// Returns a [PermissionStatus] object.
   Future<PermissionStatus> requestPermission() {
+    throw UnimplementedError();
+  }
+
+  /// Checks whether the app has been granted background ("Allow all the time")
+  /// location access, in addition to foreground access.
+  ///
+  /// This is useful before calling [enableBackgroundMode], to decide whether to
+  /// show an in-app rationale before sending the user to the system settings.
+  ///
+  /// - iOS/macOS: `true` only when the authorization status is "Always".
+  /// - Android: reflects the `ACCESS_BACKGROUND_LOCATION` runtime permission on
+  ///   API 29+ (Android 10). On older versions there is no separate background
+  ///   permission, so background access is implied by the foreground grant and
+  ///   this mirrors [hasPermission].
+  /// - Web: always `false`.
+  Future<bool> isBackgroundPermissionGranted() {
     throw UnimplementedError();
   }
 

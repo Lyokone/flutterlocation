@@ -9,6 +9,25 @@
   `LocationData.copyWith()`, so `LocationData` can be serialized, deserialized
   and copied without manual field wiring. `fromJson` round-trips with `toJson`
   across every field (#760).
+- Added `Location.isBackgroundPermissionGranted()`, which reports whether the
+  app has been granted background ("Allow all the time" / Always) location
+  access. Call it before `enableBackgroundMode` to show an in-app rationale
+  before sending the user to the system settings. On iOS/macOS it is `true`
+  only for the "Always" authorization; on Android it reflects the
+  `ACCESS_BACKGROUND_LOCATION` permission on API 29+ and mirrors
+  `hasPermission()` on older versions; on web it is always `false` (#538).
+- Added `getLastKnownLocation()`, which returns the most recently cached
+  `LocationData` immediately (or `null` when none is available) without waiting
+  for a fresh fix. Useful for showing an approximate position while a precise
+  location is still being acquired (#733). Implemented on Android
+  (`FusedLocationProviderClient.getLastLocation`) and iOS/macOS
+  (`CLLocationManager.location`); web has no cached-location concept and returns
+  `null`.
+- Added an optional `backgroundInterval` (milliseconds) parameter to
+  `changeSettings`. When set, the location update interval automatically switches
+  to this value while background mode is enabled and back to `interval` when it
+  is disabled. It is Android-only (Core Location exposes no equivalent on Apple
+  platforms) and defaults to `null`, preserving the current behaviour (#1011).
 
 ### 🤖 Android
 
@@ -41,6 +60,11 @@
   fix. The stale-location guard swallowed the first two updates by count; it now
   skips fixes by age instead, so the first fresh update always resolves the call
   (#798, #955, #1005, #660, #824, #657, #1013).
+- Exposed `LocationData.isProducedByAccessory`, populated from
+  `CLLocation.sourceInformation?.isProducedByAccessory` on iOS 15+/macOS 12+. It
+  reports whether a fix came from a connected accessory such as an external GPS
+  receiver, and defaults to `false` on older Apple systems and on Android/web
+  (#914).
 
 ### 📝 Docs
 

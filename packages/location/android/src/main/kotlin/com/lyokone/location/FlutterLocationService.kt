@@ -275,6 +275,9 @@ class FlutterLocationService : Service(), PluginRegistry.RequestPermissionsResul
             ServiceCompat.startForeground(this, ONGOING_NOTIFICATION_ID, notification, foregroundServiceType)
 
             isForeground = true
+
+            // Switch to the background update interval, if one was configured.
+            location?.setBackgroundMode(true)
         }
     }
 
@@ -288,6 +291,9 @@ class FlutterLocationService : Service(), PluginRegistry.RequestPermissionsResul
         }
 
         isForeground = false
+
+        // Restore the foreground update interval.
+        location?.setBackgroundMode(false)
     }
 
     fun changeNotificationOptions(options: NotificationOptions): Map<String, Any>? {

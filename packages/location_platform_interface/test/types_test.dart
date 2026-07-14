@@ -78,6 +78,7 @@ void main() {
         'heading': 8.0,
         'time': 9.0,
         'isMock': true,
+        'isProducedByAccessory': true,
         'headingAccuracy': 10.0,
         'elapsedRealtimeNanos': 11.0,
         'elapsedRealtimeUncertaintyNanos': 12.0,
@@ -96,6 +97,7 @@ void main() {
         'heading': 8.0,
         'time': 9.0,
         'isMock': true,
+        'isProducedByAccessory': true,
         'headingAccuracy': 10.0,
         'elapsedRealtimeNanos': 11.0,
         'elapsedRealtimeUncertaintyNanos': 12.0,
@@ -116,6 +118,7 @@ void main() {
         'heading': 8.0,
         'time': 9.0,
         'isMock': true,
+        'isProducedByAccessory': true,
         'headingAccuracy': 10.0,
         'elapsedRealtimeNanos': 11.0,
         'elapsedRealtimeUncertaintyNanos': 12.0,
@@ -145,11 +148,53 @@ void main() {
       final updated = locationData.copyWith(
         longitude: 3.5,
         provider: 'network',
+        isProducedByAccessory: true,
       );
 
       expect(updated.latitude, 42.0);
       expect(updated.longitude, 3.5);
       expect(updated.provider, 'network');
+      expect(updated.isProducedByAccessory, true);
+    });
+
+    test('LocationData parses isProducedByAccessory from the platform map', () {
+      final accessoryLocation = LocationData.fromMap(<String, dynamic>{
+        'latitude': 42.0,
+        'longitude': 2.0,
+        'isProducedByAccessory': 1,
+      });
+      expect(accessoryLocation.isProducedByAccessory, true);
+
+      final deviceLocation = LocationData.fromMap(<String, dynamic>{
+        'latitude': 42.0,
+        'longitude': 2.0,
+        'isProducedByAccessory': 0,
+      });
+      expect(deviceLocation.isProducedByAccessory, false);
+
+      // Defaults to false when the platform omits the key (Android/web).
+      final missingLocation = LocationData.fromMap(<String, dynamic>{
+        'latitude': 42.0,
+        'longitude': 2.0,
+      });
+      expect(missingLocation.isProducedByAccessory, false);
+    });
+
+    test('LocationData differs when isProducedByAccessory differs', () {
+      final accessoryLocation = LocationData.fromMap(<String, dynamic>{
+        'latitude': 42.0,
+        'longitude': 2.0,
+        'isProducedByAccessory': 1,
+      });
+      final deviceLocation = LocationData.fromMap(<String, dynamic>{
+        'latitude': 42.0,
+        'longitude': 2.0,
+        'isProducedByAccessory': 0,
+      });
+
+      expect(accessoryLocation == deviceLocation, false);
+      expect(accessoryLocation.hashCode == deviceLocation.hashCode, false);
+      expect(accessoryLocation.toString(), contains('accessory'));
     });
   });
 
