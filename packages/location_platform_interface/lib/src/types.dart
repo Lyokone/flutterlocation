@@ -83,7 +83,8 @@ class LocationData {
 
   /// Is the location currently mocked
   ///
-  /// Always false on iOS
+  /// On iOS 15.0+/macOS 12.0+ this reflects `isSimulatedBySoftware`; on older
+  /// Apple systems it is always false, as Core Location exposes no such flag.
   final bool? isMock;
 
   /// Get the estimated bearing accuracy of this location, in degrees.
