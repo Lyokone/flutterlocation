@@ -19,8 +19,10 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
     private var hasInit = false
     private var applicationHasLocationBackgroundMode = false
 
-    // Needed to prevent instant firing of the previously known location.
-    private var waitNextLocation = 2
+    // CoreLocation delivers a cached fix immediately when updates start; fixes
+    // older than this (in seconds) are treated as stale and skipped. See
+    // locationManager(_:didUpdateLocations:).
+    private let staleLocationThreshold: TimeInterval = 15
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         #if os(iOS)
@@ -325,17 +327,19 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
     // MARK: - CLLocationManagerDelegate
 
     public func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        // With reduced accuracy (precise location off) only a single update is
-        // delivered, so the stale-location guard must not swallow it (#984).
-        var isReducedAccuracy = false
-        if #available(iOS 14.0, macOS 11.0, *) {
-            isReducedAccuracy = clLocationManager?.accuracyAuthorization == .reducedAccuracy
-        }
-        if !isReducedAccuracy, waitNextLocation > 0 {
-            waitNextLocation -= 1
+        guard let location = locations.last else { return }
+
+        // CoreLocation delivers a cached "last known" fix immediately when
+        // updates start. Skip clearly-stale fixes so callers get a current
+        // position — but key this off the fix age rather than swallowing a
+        // fixed number of updates. The old counter dropped the first two
+        // updates, so a one-shot getLocation() never completed when fewer than
+        // three arrived: reduced accuracy delivers a single update (#984) and a
+        // static iOS-simulator location emits only a couple (#657, #955, #1005,
+        // #1013), leaving the Dart Future hanging forever.
+        if abs(location.timestamp.timeIntervalSinceNow) > staleLocationThreshold {
             return
         }
-        guard let location = locations.last else { return }
 
         let timeInMilliseconds = location.timestamp.timeIntervalSince1970 * 1000
         let coordinates: [String: Any] = [
@@ -359,7 +363,6 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             flutterEventSink?(coordinates)
         } else {
             clLocationManager?.stopUpdatingLocation()
-            waitNextLocation = 2
         }
     }
 

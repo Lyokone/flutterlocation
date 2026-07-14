@@ -15,6 +15,11 @@
 - Added an Apple **privacy manifest** (`PrivacyInfo.xcprivacy`) for iOS and macOS,
   declaring no tracking, no collected data and no required-reason API use, as
   required for App Store submission (#947).
+- Fixed `getLocation()` hanging forever when Core Location delivered fewer than
+  three updates — e.g. a static iOS-simulator "Custom Location" or a sparse first
+  fix. The stale-location guard swallowed the first two updates by count; it now
+  skips fixes by age instead, so the first fresh update always resolves the call
+  (#798, #955, #1005, #660, #824, #657, #1013).
 
 ## 9.0.0
 
