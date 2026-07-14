@@ -36,14 +36,16 @@ class MockLocation extends _i1.Mock implements _i3.Location {
           {_i2.LocationAccuracy? accuracy = _i2.LocationAccuracy.high,
           int? interval = 1000,
           double? distanceFilter = 0.0,
-          bool? pausesLocationUpdatesAutomatically = true}) =>
+          bool? pausesLocationUpdatesAutomatically = true,
+          int? backgroundInterval}) =>
       (super.noSuchMethod(
           Invocation.method(#changeSettings, [], {
             #accuracy: accuracy,
             #interval: interval,
             #distanceFilter: distanceFilter,
             #pausesLocationUpdatesAutomatically:
-                pausesLocationUpdatesAutomatically
+                pausesLocationUpdatesAutomatically,
+            #backgroundInterval: backgroundInterval
           }),
           returnValue: Future<bool>.value(false)) as _i4.Future<bool>);
   @override

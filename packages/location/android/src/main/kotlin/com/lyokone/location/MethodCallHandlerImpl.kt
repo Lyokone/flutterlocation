@@ -86,12 +86,15 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
             val updateIntervalMilliseconds = call.argument<Int>("interval")!!.toLong()
             val fastestUpdateIntervalMilliseconds = updateIntervalMilliseconds / 2
             val distanceFilter = call.argument<Double>("distanceFilter")!!.toFloat()
+            // Optional, Android-only: interval used while in background mode.
+            val backgroundIntervalMilliseconds = call.argument<Int>("backgroundInterval")?.toLong()
 
             location.changeSettings(
                 locationAccuracy,
                 updateIntervalMilliseconds,
                 fastestUpdateIntervalMilliseconds,
                 distanceFilter,
+                backgroundIntervalMilliseconds,
             )
 
             result.success(1)

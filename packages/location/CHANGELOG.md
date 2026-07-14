@@ -3,6 +3,14 @@
 <!-- Not yet published to pub.dev. Accumulate fixes here; assign a version
      number when we cut the next release. -->
 
+### ✨ Features
+
+- Added an optional `backgroundInterval` (milliseconds) parameter to
+  `changeSettings`. When set, the location update interval automatically switches
+  to this value while background mode is enabled and back to `interval` when it
+  is disabled. It is Android-only (Core Location exposes no equivalent on Apple
+  platforms) and defaults to `null`, preserving the current behaviour (#1011).
+
 ### 🤖 Android
 
 - Report `PermissionStatus.grantedLimited` when the user grants only approximate

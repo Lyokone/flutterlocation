@@ -131,6 +131,10 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             if let pauses = args["pausesLocationUpdatesAutomatically"] as? Bool {
                 manager.pausesLocationUpdatesAutomatically = pauses
             }
+
+            // `backgroundInterval` is intentionally ignored on Apple platforms:
+            // CoreLocation does not expose a separate background update interval,
+            // so it is an Android-only setting.
             result(1)
         }
     }

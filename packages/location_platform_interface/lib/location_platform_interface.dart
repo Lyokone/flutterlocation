@@ -41,11 +41,17 @@ class LocationPlatform extends PlatformInterface {
   /// often a new location is sent through [onLocationChanged]. The
   /// [pausesLocationUpdatesAutomatically] argument indicates whether the
   /// underlying location manager object may pause location updates.
+  ///
+  /// [backgroundInterval] (in milliseconds, Android only) sets a different
+  /// update interval to use while background mode is enabled. When null,
+  /// [interval] is used in the background as well. Ignored on iOS, macOS and
+  /// web.
   Future<bool> changeSettings({
     LocationAccuracy? accuracy,
     int? interval,
     double? distanceFilter,
     bool? pausesLocationUpdatesAutomatically,
+    int? backgroundInterval,
   }) {
     throw UnimplementedError();
   }

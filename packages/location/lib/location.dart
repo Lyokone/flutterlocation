@@ -29,18 +29,26 @@ class Location implements LocationPlatform {
   /// updates.
   ///
   /// [interval] and [distanceFilter] are not used on web.
+  ///
+  /// [backgroundInterval] (in milliseconds, Android only) sets a different
+  /// update interval to use while background mode is enabled (see
+  /// [enableBackgroundMode]). When null, [interval] is used in the background as
+  /// well. This is ignored on iOS, macOS and web, where the interval is not
+  /// tunable per app lifecycle state.
   @override
   Future<bool> changeSettings({
     LocationAccuracy? accuracy = LocationAccuracy.high,
     int? interval = 1000,
     double? distanceFilter = 0,
     bool? pausesLocationUpdatesAutomatically = true,
+    int? backgroundInterval,
   }) {
     return LocationPlatform.instance.changeSettings(
       accuracy: accuracy,
       interval: interval,
       distanceFilter: distanceFilter,
       pausesLocationUpdatesAutomatically: pausesLocationUpdatesAutomatically,
+      backgroundInterval: backgroundInterval,
     );
   }
 
