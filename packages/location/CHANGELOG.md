@@ -1,3 +1,18 @@
+## Unreleased
+
+<!-- Not yet published to pub.dev. Accumulate fixes here; assign a version
+     number when we cut the next release. -->
+
+### 🍎 iOS & macOS
+
+- Moved `CLLocationManager.locationServicesEnabled()` off the main thread. Apple
+  warns that this call can block the caller while location services start up;
+  invoking it on the main thread triggered the "UI unresponsiveness" runtime
+  warning and could hang the app (#782, #789, #909, #1004, #1027). It now runs on
+  a background queue with the result delivered back on the main thread, so
+  `getLocation`, `serviceEnabled`, `requestService` and `changeSettings` no
+  longer stall the UI.
+
 ## 9.0.0
 
 A major maintenance release that modernises every platform and adds desktop
