@@ -20,4 +20,4 @@ dependencies:
 
 Once you have `location` in `pubspec.yaml` you should be able to use `package:location` as normal.
 
-[1]: ../location
+[1]: https://pub.dev/packages/location
