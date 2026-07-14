@@ -143,9 +143,11 @@ void LocationPlugin::HandleMethodCall(
     [](Geolocator geolocator, winrt::apartment_context ui_thread,
        std::shared_ptr<flutter::MethodResult<EncodableValue>> result)
         -> winrt::fire_and_forget {
+      // co_await is not allowed inside a catch block, so record any failure
+      // and respond after the try/catch.
+      std::string error_message;
       try {
-        auto access =
-            co_await Geolocator::RequestAccessAsync();
+        auto access = co_await Geolocator::RequestAccessAsync();
         if (access != GeolocationAccessStatus::Allowed) {
           co_await ui_thread;
           result->Error("PERMISSION_DENIED",
@@ -155,10 +157,12 @@ void LocationPlugin::HandleMethodCall(
         auto position = co_await geolocator.GetGeopositionAsync();
         co_await ui_thread;
         result->Success(GeopositionToEncodable(position));
+        co_return;
       } catch (const winrt::hresult_error& e) {
-        co_await ui_thread;
-        result->Error("LOCATION_ERROR", winrt::to_string(e.message()));
+        error_message = winrt::to_string(e.message());
       }
+      co_await ui_thread;
+      result->Error("LOCATION_ERROR", error_message);
     }(geolocator, ui_thread, shared_result);
   } else if (method == "hasPermission" || method == "requestPermission") {
     winrt::apartment_context ui_thread;
