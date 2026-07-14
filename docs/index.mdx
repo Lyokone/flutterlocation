@@ -30,8 +30,9 @@ Start by [installing Location](/getting-started)!
 Then, to get the location of your user you can simply do:
 
 ```dart
-final location = await getLocation();
-print("Location: ${location.latitude}, ${location.longitude}");
+final location = Location();
+final locationData = await location.getLocation();
+print("Location: ${locationData.latitude}, ${locationData.longitude}");
 ```
 
 [flutter favorite]: https://docs.flutter.dev/packages-and-plugins/favorites
