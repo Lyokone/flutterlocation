@@ -7,13 +7,8 @@ on:
 
 jobs:
   prepare-flutter:
-    name: Flutter ${{ matrix.flutter-version }}
+    name: Flutter
     runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        flutter-version: ["3.27.x"]
 
     steps:
       - name: Clone repository
@@ -23,10 +18,9 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: ${{ matrix.flutter-version }}
 
       - name: Set up Melos
-        run: dart pub global activate melos ^3.0.0
+        run: dart pub global activate melos
 
       - name: melos bootstrap
         run: melos bootstrap
@@ -54,10 +48,10 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ matrix.flutter-version }}
+          channel: stable
 
       - name: Set up Melos
-        run: dart pub global activate melos ^3.0.0
+        run: dart pub global activate melos
 
       - name: melos bootstrap
         run: melos bootstrap
@@ -87,10 +81,10 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ matrix.flutter-version }}
+          channel: stable
 
       - name: Set up Melos
-        run: dart pub global activate melos ^3.0.0
+        run: dart pub global activate melos
 
       - name: melos bootstrap
         run: melos bootstrap
