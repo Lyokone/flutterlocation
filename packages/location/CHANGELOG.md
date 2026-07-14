@@ -5,6 +5,9 @@
 
 ### 🍎 iOS & macOS
 
+- Populated `LocationData.isMock` on Apple platforms. On iOS 15.0+/macOS 12.0+
+  it reflects `CLLocation.sourceInformation.isSimulatedBySoftware`; on older
+  systems it stays `false`, as Core Location exposes no equivalent flag (#796).
 - Moved `CLLocationManager.locationServicesEnabled()` off the main thread. Apple
   warns that this call can block the caller while location services start up;
   invoking it on the main thread triggered the "UI unresponsiveness" runtime
