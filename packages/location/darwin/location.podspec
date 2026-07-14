@@ -12,7 +12,7 @@ Cross-platform plugin for easy access to the device location in real time.
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Lyokone' => 'https://github.com/Lyokone/flutterlocation' }
   s.source           = { :path => '.' }
-  s.source_files     = 'Classes/**/*'
+  s.source_files     = 'location/Sources/location/**/*.swift'
 
   s.ios.dependency 'Flutter'
   s.osx.dependency 'FlutterMacOS'
