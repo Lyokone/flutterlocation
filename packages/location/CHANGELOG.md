@@ -3,6 +3,13 @@
 <!-- Not yet published to pub.dev. Accumulate fixes here; assign a version
      number when we cut the next release. -->
 
+### 🤖 Android
+
+- Report `PermissionStatus.grantedLimited` when the user grants only approximate
+  (coarse) location without precise (fine) location on Android 12+ (API 31+),
+  mirroring iOS reduced accuracy. Previously this coarse-only case was reported as
+  `granted` (#736).
+
 ### 🍎 iOS & macOS
 
 - Moved `CLLocationManager.locationServicesEnabled()` off the main thread. Apple
