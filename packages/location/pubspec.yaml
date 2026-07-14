@@ -21,6 +21,10 @@ flutter:
       macos:
         pluginClass: LocationPlugin
         sharedDarwinSource: true
+      linux:
+        pluginClass: LocationPlugin
+      windows:
+        pluginClass: LocationPlugin
       web:
         default_package: location_web
 
