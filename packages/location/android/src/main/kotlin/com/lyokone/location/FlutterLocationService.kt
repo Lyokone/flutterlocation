@@ -281,7 +281,7 @@ class FlutterLocationService : Service(), PluginRegistry.RequestPermissionsResul
 
     fun setActivity(activity: Activity?) {
         this.activity = activity
-        location?.setActivity(activity)
+        location?.activity = activity
     }
 
     override fun onRequestPermissionsResult(
