@@ -1,15 +1,45 @@
-#include "location_plugin.h"
+#include "include/location/location_plugin.h"
 
+#include <flutter/event_channel.h>
+#include <flutter/event_sink.h>
 #include <flutter/event_stream_handler_functions.h>
+#include <flutter/method_channel.h>
 #include <flutter/method_result_functions.h>
+#include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
 
+#include <winrt/Windows.Devices.Geolocation.h>
 #include <winrt/Windows.Foundation.h>
 
 #include <memory>
 #include <string>
 
 namespace location {
+
+// Handles method calls and location streaming for the Windows platform.
+class LocationPlugin : public flutter::Plugin {
+ public:
+  static void RegisterWithRegistrar(flutter::PluginRegistrarWindows* registrar);
+
+  LocationPlugin();
+  ~LocationPlugin() override;
+
+  LocationPlugin(const LocationPlugin&) = delete;
+  LocationPlugin& operator=(const LocationPlugin&) = delete;
+
+ private:
+  void HandleMethodCall(
+      const flutter::MethodCall<flutter::EncodableValue>& method_call,
+      std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
+
+  void EnsureGeolocator();
+  void StartListening();
+  void StopListening();
+
+  winrt::Windows::Devices::Geolocation::Geolocator geolocator_{nullptr};
+  winrt::event_token position_changed_token_{};
+  std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> event_sink_;
+};
 
 namespace {
 
@@ -209,3 +239,10 @@ void LocationPlugin::HandleMethodCall(
 }
 
 }  // namespace location
+
+void LocationPluginRegisterWithRegistrar(
+    FlutterDesktopPluginRegistrarRef registrar) {
+  location::LocationPlugin::RegisterWithRegistrar(
+      flutter::PluginRegistrarManager::GetInstance()
+          ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
+}

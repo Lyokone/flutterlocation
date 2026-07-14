@@ -16,8 +16,6 @@ set(PLUGIN_NAME "location_plugin")
 # on PLUGIN_NAME above).
 add_library(${PLUGIN_NAME} SHARED
   "location_plugin.cpp"
-  "location_plugin.h"
-  "location_plugin_c_api.cpp"
 )
 
 # Apply a standard set of build settings that are configured in the
