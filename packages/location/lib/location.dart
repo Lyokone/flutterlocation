@@ -22,10 +22,11 @@ class Location implements LocationPlatform {
   /// Changes settings of the location request.
   ///
   /// The [accuracy] argument is controlling the precision of the
-  /// [LocationData]. The [interval] and [distanceFilter] are controlling how
-  /// often a new location is sent through [onLocationChanged]. The
-  /// [pausesLocationUpdatesAutomatically] argument indicates whether the
-  /// underlying location manager object may pause location updates.
+  /// [LocationData]. The [interval] (in milliseconds) and [distanceFilter] (in
+  /// meters) control how often a new location is sent through
+  /// [onLocationChanged]. The [pausesLocationUpdatesAutomatically] argument
+  /// indicates whether the underlying location manager object may pause location
+  /// updates.
   ///
   /// [interval] and [distanceFilter] are not used on web.
   @override
