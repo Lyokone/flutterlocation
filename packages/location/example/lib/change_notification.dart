@@ -64,7 +64,7 @@ class _ChangeNotificationWidgetState extends State<ChangeNotificationWidget> {
           ),
           const SizedBox(height: 4),
           DropdownButtonFormField<String>(
-            value: _iconName,
+            initialValue: _iconName,
             onChanged: (value) {
               setState(() {
                 _iconName = value;

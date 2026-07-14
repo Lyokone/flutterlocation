@@ -57,7 +57,7 @@ class _ChangeSettingsState extends State<ChangeSettings> {
           ),
           const SizedBox(height: 4),
           DropdownButtonFormField<LocationAccuracy>(
-            value: _locationAccuracy,
+            initialValue: _locationAccuracy,
             onChanged: (value) {
               if (value == null) {
                 return;
@@ -90,7 +90,7 @@ class _ChangeSettingsState extends State<ChangeSettings> {
           ),
           const SizedBox(height: 4),
           DropdownButtonFormField<bool>(
-            value: _pausesLocationUpdatesAutomatically,
+            initialValue: _pausesLocationUpdatesAutomatically,
             onChanged: (value) {
               if (value == null) {
                 return;
