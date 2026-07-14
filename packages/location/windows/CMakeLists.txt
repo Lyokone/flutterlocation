@@ -30,9 +30,12 @@ apply_standard_settings(${PLUGIN_NAME})
 # exported should be explicitly exported with the FLUTTER_PLUGIN_EXPORT macro.
 set_target_properties(${PLUGIN_NAME} PROPERTIES
   CXX_VISIBILITY_PRESET hidden)
+# C++/WinRT coroutines (co_await on IAsyncOperation) require the C++20
+# <coroutine> header; C++17 falls back to the removed <experimental/coroutine>.
 set_target_properties(${PLUGIN_NAME} PROPERTIES
-  CXX_STANDARD 17
+  CXX_STANDARD 20
   CXX_STANDARD_REQUIRED ON)
+target_compile_features(${PLUGIN_NAME} PRIVATE cxx_std_20)
 target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 
 # Source include directories and library dependencies. Add any plugin-specific
