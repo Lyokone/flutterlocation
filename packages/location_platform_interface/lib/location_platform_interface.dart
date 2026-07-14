@@ -56,6 +56,10 @@ class LocationPlatform extends PlatformInterface {
   }
 
   /// Enables or disables service in the background mode.
+  ///
+  /// This can be called independently, before listening to [onLocationChanged].
+  /// On Android, enabling background mode also requests the
+  /// `ACCESS_BACKGROUND_LOCATION` permission if it has not been granted yet.
   Future<bool> enableBackgroundMode({bool? enable}) {
     throw UnimplementedError();
   }

@@ -51,6 +51,11 @@ class Location implements LocationPlatform {
   }
 
   /// Enables or disables service in the background mode.
+  ///
+  /// This can be called independently, before you start listening to
+  /// [onLocationChanged]. On Android, enabling background mode also requests the
+  /// `ACCESS_BACKGROUND_LOCATION` permission if it has not been granted yet, so
+  /// it can be used to prompt for background location permission on its own.
   @override
   Future<bool> enableBackgroundMode({bool? enable = true}) {
     return LocationPlatform.instance.enableBackgroundMode(enable: enable);
