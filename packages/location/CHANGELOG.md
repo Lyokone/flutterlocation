@@ -31,6 +31,13 @@
   skips fixes by age instead, so the first fresh update always resolves the call
   (#798, #955, #1005, #660, #824, #657, #1013).
 
+### 📝 Docs
+
+- Clarified that `enableBackgroundMode(enable: true)` is a standalone call that
+  can be made before listening to `onLocationChanged`, and that on Android it
+  requests the `ACCESS_BACKGROUND_LOCATION` permission when needed — so
+  background permission can be requested independently (#756).
+
 ## 9.0.0
 
 A major maintenance release that modernises every platform and adds desktop
