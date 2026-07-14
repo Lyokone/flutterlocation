@@ -65,6 +65,89 @@ void main() {
       expect(otherLocationData == locationData, false);
       expect(otherLocationData.hashCode == locationData.hashCode, false);
     });
+
+    test('toJson exposes every field of LocationData', () {
+      final locationData = LocationData.fromJson(<String, dynamic>{
+        'latitude': 42.0,
+        'longitude': 2.0,
+        'accuracy': 3.0,
+        'verticalAccuracy': 4.0,
+        'altitude': 5.0,
+        'speed': 6.0,
+        'speedAccuracy': 7.0,
+        'heading': 8.0,
+        'time': 9.0,
+        'isMock': true,
+        'headingAccuracy': 10.0,
+        'elapsedRealtimeNanos': 11.0,
+        'elapsedRealtimeUncertaintyNanos': 12.0,
+        'satelliteNumber': 13,
+        'provider': 'gps',
+      });
+
+      expect(locationData.toJson(), <String, dynamic>{
+        'latitude': 42.0,
+        'longitude': 2.0,
+        'accuracy': 3.0,
+        'verticalAccuracy': 4.0,
+        'altitude': 5.0,
+        'speed': 6.0,
+        'speedAccuracy': 7.0,
+        'heading': 8.0,
+        'time': 9.0,
+        'isMock': true,
+        'headingAccuracy': 10.0,
+        'elapsedRealtimeNanos': 11.0,
+        'elapsedRealtimeUncertaintyNanos': 12.0,
+        'satelliteNumber': 13,
+        'provider': 'gps',
+      });
+    });
+
+    test('fromJson(toJson) round-trips with all fields set', () {
+      final locationData = LocationData.fromJson(<String, dynamic>{
+        'latitude': 42.0,
+        'longitude': 2.0,
+        'accuracy': 3.0,
+        'verticalAccuracy': 4.0,
+        'altitude': 5.0,
+        'speed': 6.0,
+        'speedAccuracy': 7.0,
+        'heading': 8.0,
+        'time': 9.0,
+        'isMock': true,
+        'headingAccuracy': 10.0,
+        'elapsedRealtimeNanos': 11.0,
+        'elapsedRealtimeUncertaintyNanos': 12.0,
+        'satelliteNumber': 13,
+        'provider': 'gps',
+      });
+
+      final roundTripped = LocationData.fromJson(locationData.toJson());
+
+      expect(roundTripped, locationData);
+      expect(roundTripped.hashCode, locationData.hashCode);
+    });
+
+    test('fromJson(toJson) round-trips with null fields', () {
+      final locationData = LocationData.fromJson(<String, dynamic>{});
+
+      expect(LocationData.fromJson(locationData.toJson()), locationData);
+    });
+
+    test('copyWith replaces only the provided fields', () {
+      final locationData = LocationData.fromJson(<String, dynamic>{
+        'latitude': 42.0,
+        'longitude': 2.0,
+        'provider': 'gps',
+      });
+
+      final updated = locationData.copyWith(longitude: 3.5, provider: 'network');
+
+      expect(updated.latitude, 42.0);
+      expect(updated.longitude, 3.5);
+      expect(updated.provider, 'network');
+    });
   });
 
   group('$AndroidNotificationData', () {

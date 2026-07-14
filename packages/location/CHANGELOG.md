@@ -3,6 +3,13 @@
 <!-- Not yet published to pub.dev. Accumulate fixes here; assign a version
      number when we cut the next release. -->
 
+### 🎯 Dart API
+
+- Added `LocationData.toJson()`, `LocationData.fromJson()` and
+  `LocationData.copyWith()`, so `LocationData` can be serialized, deserialized
+  and copied without manual field wiring. `fromJson` round-trips with `toJson`
+  across every field (#760).
+
 ### 🍎 iOS & macOS
 
 - Moved `CLLocationManager.locationServicesEnabled()` off the main thread. Apple
