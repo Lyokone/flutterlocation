@@ -17,7 +17,10 @@ let package = Package(
     targets: [
         .target(
             name: "location",
-            dependencies: []
+            dependencies: [],
+            resources: [
+                .process("PrivacyInfo.xcprivacy"),
+            ]
         ),
     ]
 )
