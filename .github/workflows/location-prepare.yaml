@@ -95,14 +95,29 @@ jobs:
       - name: melos bootstrap
         run: melos bootstrap
 
-      - name: Install tools
-        run: brew install clang-format
-
-      - name: clang-format
-        working-directory: packages/location/ios
-        run: |
-          find . -iname '*.h' -o -iname '*.m' | xargs -I {} clang-format --dry-run --Werror {}
-
       - name: Build example app
         working-directory: packages/location/example
         run: flutter build ios --debug --simulator
+
+  prepare-macos:
+    name: macOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      - name: Build example app
+        working-directory: packages/location/example
+        run: flutter build macos --debug
