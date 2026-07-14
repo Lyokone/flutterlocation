@@ -32,6 +32,32 @@ Future<PermissionStatus> requestPermission()
 A dialog will be shown to the user if the location has not been granted yet.
 If a reduced precision permission has been given (`PermissionStatus.grantedLimited`), the user will be asked to grant the precise permission.
 
+## Background Permission
+
+To keep receiving location updates while the app is in the background, the user
+must grant "Allow all the time" (Always) access on top of the foreground grant.
+You can check whether that has been granted with:
+
+```dart
+Future<bool> isBackgroundPermissionGranted()
+```
+
+Use it before calling `enableBackgroundMode` to decide whether to show an in-app
+rationale before sending the user to the system settings.
+
+- **iOS / macOS:** `true` only when the authorization status is "Always".
+- **Android:** reflects the `ACCESS_BACKGROUND_LOCATION` runtime permission on
+  API 29+ (Android 10). On older versions background access is implied by the
+  foreground grant, so this mirrors `hasPermission`.
+- **Web:** always `false`.
+
+```dart
+final location = Location();
+if (!await location.isBackgroundPermissionGranted()) {
+    // Show your own explanation, then guide the user to settings.
+}
+```
+
 ## Examples
 
 ### Getting permission status

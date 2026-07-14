@@ -53,3 +53,30 @@ await location.changeSettings(accuracy: LocationAccuracy.high);
 final locationData = await location.getLocation();
 print("Location: ${locationData.latitude}, ${locationData.longitude}");
 ```
+
+## Last known location
+
+If you want to show something immediately instead of waiting for a fresh fix,
+you can read the location the platform has already cached:
+
+```dart
+Future<LocationData?> getLastKnownLocation()
+```
+
+Unlike `getLocation`, this returns right away without acquiring a new fix. It
+returns `null` when no cached location is available (for example on a fresh
+install). This is handy for displaying an approximate position — for instance a
+grey marker with its timestamp — while a precise location is still being
+acquired.
+
+```dart
+final location = Location();
+final cached = await location.getLastKnownLocation();
+if (cached != null) {
+    print("Last known: ${cached.latitude}, ${cached.longitude}");
+}
+// Meanwhile, request a precise fix.
+final fresh = await location.getLocation();
+```
+
+Web has no cached-location concept and always returns `null`.
