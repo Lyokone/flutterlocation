@@ -72,6 +72,19 @@ class LocationPlatform extends PlatformInterface {
     throw UnimplementedError();
   }
 
+  /// Gets the most recently cached location of the user, if any.
+  ///
+  /// Unlike [getLocation], this returns immediately with the last known
+  /// location the platform has cached, without waiting for a fresh fix. It is
+  /// useful to show an approximate position (for example a grey marker) while
+  /// a precise location is still being acquired.
+  ///
+  /// Returns `null` when no cached location is available (for example on a
+  /// fresh install, or when the platform has no cached fix).
+  Future<LocationData?> getLastKnownLocation() {
+    throw UnimplementedError();
+  }
+
   /// Checks if the app has permission to access location.
   ///
   /// If the result is [PermissionStatus.deniedForever], no dialog will be

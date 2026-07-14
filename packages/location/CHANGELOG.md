@@ -16,6 +16,13 @@
   only for the "Always" authorization; on Android it reflects the
   `ACCESS_BACKGROUND_LOCATION` permission on API 29+ and mirrors
   `hasPermission()` on older versions; on web it is always `false` (#538).
+- Added `getLastKnownLocation()`, which returns the most recently cached
+  `LocationData` immediately (or `null` when none is available) without waiting
+  for a fresh fix. Useful for showing an approximate position while a precise
+  location is still being acquired (#733). Implemented on Android
+  (`FusedLocationProviderClient.getLastLocation`) and iOS/macOS
+  (`CLLocationManager.location`); web has no cached-location concept and returns
+  `null`.
 
 ### 🤖 Android
 

@@ -36,6 +36,7 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
         when (call.method) {
             "changeSettings" -> onChangeSettings(call, result, location)
             "getLocation" -> onGetLocation(result, location)
+            "getLastKnownLocation" -> location.getLastKnownLocation(result)
             "hasPermission" -> onHasPermission(result, location)
             "isBackgroundPermissionGranted" -> onIsBackgroundPermissionGranted(result, location)
             "requestPermission" -> onRequestPermission(result, location)
