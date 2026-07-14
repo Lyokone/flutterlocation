@@ -12,6 +12,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.graphics.BitmapFactory
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -31,6 +32,7 @@ data class NotificationOptions(
     val channelName: String = DEFAULT_CHANNEL_NAME,
     val title: String = DEFAULT_NOTIFICATION_TITLE,
     val iconName: String = DEFAULT_NOTIFICATION_ICON_NAME,
+    val imageName: String? = null,
     val subtitle: String? = null,
     val description: String? = null,
     val color: Int? = null,
@@ -92,10 +94,21 @@ class BackgroundNotification(
             getDrawableId(options.iconName).let {
                 if (it != 0) it else getDrawableId(DEFAULT_NOTIFICATION_ICON_NAME)
             }
+        val largeIcon =
+            options.imageName?.let { imageName ->
+                getDrawableId(imageName).let { imageId ->
+                    if (imageId != 0) {
+                        BitmapFactory.decodeResource(context.resources, imageId)
+                    } else {
+                        null
+                    }
+                }
+            }
         builder =
             builder
                 .setContentTitle(options.title)
                 .setSmallIcon(iconId)
+                .setLargeIcon(largeIcon)
                 .setContentText(options.subtitle)
                 .setSubText(options.description)
 

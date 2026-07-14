@@ -12,6 +12,10 @@
 
 ### 🤖 Android
 
+- Added an optional `imageName` parameter to `changeNotificationOptions`, which
+  resolves a drawable resource (like `iconName`) and displays it as the
+  background notification's large icon. Defaults to no image, preserving the
+  previous behavior (#856).
 - Report `PermissionStatus.grantedLimited` when the user grants only approximate
   (coarse) location without precise (fine) location on Android 12+ (API 31+),
   mirroring iOS reduced accuracy. Previously this coarse-only case was reported as

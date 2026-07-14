@@ -167,6 +167,10 @@ class MethodChannelLocation extends LocationPlatform {
   /// the sub text will be set to [description]. The notification [color] can
   /// also be customized.
   ///
+  /// A large icon (image) can be shown by providing [imageName], which is
+  /// resolved to a drawable resource in the same way as [iconName]. If no
+  /// matching resource is found, no large icon is shown.
+  ///
   /// When [onTapBringToFront] is set to true, tapping the notification will
   /// bring the activity back to the front.
   ///
@@ -184,6 +188,7 @@ class MethodChannelLocation extends LocationPlatform {
     String? channelName,
     String? title,
     String? iconName,
+    String? imageName,
     String? subtitle,
     String? description,
     Color? color,
@@ -200,6 +205,10 @@ class MethodChannelLocation extends LocationPlatform {
       'title': title,
       'iconName': iconName,
     };
+
+    if (imageName != null) {
+      data['imageName'] = imageName;
+    }
 
     if (subtitle != null) {
       data['subtitle'] = subtitle;
