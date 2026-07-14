@@ -343,14 +343,17 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
 
         let timeInMilliseconds = location.timestamp.timeIntervalSince1970 * 1000
 
-        // Detect simulated/mocked locations. `sourceInformation` is only
-        // available on iOS 15.0+/macOS 12.0+; on older systems Core Location
-        // exposes no such flag, so default to not-mocked. The Dart side reads
-        // this under the same `isMock` key Android uses.
+        // Detect simulated/mocked locations and locations produced by a
+        // connected accessory (e.g. an external GPS receiver). `sourceInformation`
+        // is only available on iOS 15.0+/macOS 12.0+; on older systems Core
+        // Location exposes no such flags, so default both to false. The Dart side
+        // reads these under the `isMock` and `isProducedByAccessory` keys.
         var isMock = false
+        var isProducedByAccessory = false
         if #available(iOS 15.0, macOS 12.0, *) {
             if let source: CLLocationSourceInformation = location.sourceInformation {
                 isMock = source.isSimulatedBySoftware
+                isProducedByAccessory = source.isProducedByAccessory
             }
         }
 
@@ -365,6 +368,7 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             "heading": location.course,
             "time": timeInMilliseconds,
             "isMock": isMock ? 1 : 0,
+            "isProducedByAccessory": isProducedByAccessory ? 1 : 0,
         ]
 
         if locationWanted {
