@@ -202,40 +202,7 @@ class FlutterLocation(
             object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
                     val location = locationResult.lastLocation ?: return
-                    val loc = HashMap<String, Any?>()
-                    loc["latitude"] = location.latitude
-                    loc["longitude"] = location.longitude
-                    loc["accuracy"] = location.accuracy.toDouble()
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        loc["verticalAccuracy"] = location.verticalAccuracyMeters.toDouble()
-                        loc["headingAccuracy"] = location.bearingAccuracyDegrees.toDouble()
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        loc["elapsedRealtimeUncertaintyNanos"] = location.elapsedRealtimeUncertaintyNanos
-                    }
-
-                    loc["provider"] = location.provider
-                    location.extras?.let { loc["satelliteNumber"] = it.getInt("satellites") }
-
-                    loc["elapsedRealtimeNanos"] = location.elapsedRealtimeNanos.toDouble()
-                    if (isLocationFromMockProvider(location)) {
-                        loc["isMock"] = 1.0
-                    }
-
-                    // Using NMEA data to get MSL level altitude
-                    val lastMslAltitude = mLastMslAltitude
-                    if (lastMslAltitude == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                        loc["altitude"] = location.altitude
-                    } else {
-                        loc["altitude"] = lastMslAltitude
-                    }
-
-                    loc["speed"] = location.speed.toDouble()
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        loc["speed_accuracy"] = location.speedAccuracyMetersPerSecond.toDouble()
-                    }
-                    loc["heading"] = location.bearing.toDouble()
-                    loc["time"] = location.time.toDouble()
+                    val loc = locationToMap(location)
 
                     getLocationResult?.success(loc)
                     getLocationResult = null
@@ -262,6 +229,72 @@ class FlutterLocation(
                         }
                     }
                 }
+        }
+    }
+
+    /**
+     * Serializes an Android [Location] into the map shape shared by the
+     * location stream, the one-shot `getLocation` and `getLastKnownLocation`.
+     */
+    private fun locationToMap(location: Location): HashMap<String, Any?> {
+        val loc = HashMap<String, Any?>()
+        loc["latitude"] = location.latitude
+        loc["longitude"] = location.longitude
+        loc["accuracy"] = location.accuracy.toDouble()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            loc["verticalAccuracy"] = location.verticalAccuracyMeters.toDouble()
+            loc["headingAccuracy"] = location.bearingAccuracyDegrees.toDouble()
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            loc["elapsedRealtimeUncertaintyNanos"] = location.elapsedRealtimeUncertaintyNanos
+        }
+
+        loc["provider"] = location.provider
+        location.extras?.let { loc["satelliteNumber"] = it.getInt("satellites") }
+
+        loc["elapsedRealtimeNanos"] = location.elapsedRealtimeNanos.toDouble()
+        if (isLocationFromMockProvider(location)) {
+            loc["isMock"] = 1.0
+        }
+
+        // Using NMEA data to get MSL level altitude
+        val lastMslAltitude = mLastMslAltitude
+        if (lastMslAltitude == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            loc["altitude"] = location.altitude
+        } else {
+            loc["altitude"] = lastMslAltitude
+        }
+
+        loc["speed"] = location.speed.toDouble()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            loc["speed_accuracy"] = location.speedAccuracyMetersPerSecond.toDouble()
+        }
+        loc["heading"] = location.bearing.toDouble()
+        loc["time"] = location.time.toDouble()
+        return loc
+    }
+
+    /**
+     * Returns the last known location cached by the fused location provider
+     * without waiting for a fresh fix. Succeeds with `null` when no cached
+     * location is available.
+     */
+    fun getLastKnownLocation(result: Result) {
+        val client = mFusedLocationClient
+        if (client == null) {
+            result.error("MISSING_ACTIVITY", "Location is not attached to an activity.", null)
+            return
+        }
+        try {
+            client.lastLocation
+                .addOnSuccessListener { location ->
+                    result.success(location?.let { locationToMap(it) })
+                }
+                .addOnFailureListener { e ->
+                    result.error("LAST_KNOWN_LOCATION_ERROR", e.message, null)
+                }
+        } catch (e: SecurityException) {
+            result.error("PERMISSION_DENIED", e.message, null)
         }
     }
 

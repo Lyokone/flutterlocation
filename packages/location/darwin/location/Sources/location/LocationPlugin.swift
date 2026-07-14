@@ -65,6 +65,8 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             onEnableBackgroundMode(call, result: result)
         case "getLocation":
             onGetLocation(result: result)
+        case "getLastKnownLocation":
+            onGetLastKnownLocation(result: result)
         case "hasPermission":
             onHasPermission(result: result)
         case "requestPermission":
@@ -188,6 +190,17 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
                 self.requestPermission()
             }
         }
+    }
+
+    /// Returns the most recently cached fix from CoreLocation, or `nil` if none
+    /// is available. `CLLocationManager.location` holds the last known location
+    /// without starting fresh updates, so this returns immediately.
+    private func onGetLastKnownLocation(result: @escaping FlutterResult) {
+        guard isPermissionGranted, let location = clLocationManager?.location else {
+            result(nil)
+            return
+        }
+        result(coordinates(from: location))
     }
 
     private func onHasPermission(result: FlutterResult) {
@@ -324,6 +337,26 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
         return nil
     }
 
+    // MARK: - Location serialization
+
+    /// Builds the coordinates dictionary sent to Flutter from a [CLLocation].
+    /// Shared by the location stream, one-shot `getLocation` and
+    /// `getLastKnownLocation` so every path returns the same shape.
+    private func coordinates(from location: CLLocation) -> [String: Any] {
+        let timeInMilliseconds = location.timestamp.timeIntervalSince1970 * 1000
+        return [
+            "latitude": location.coordinate.latitude,
+            "longitude": location.coordinate.longitude,
+            "accuracy": location.horizontalAccuracy,
+            "verticalAccuracy": location.verticalAccuracy,
+            "altitude": location.altitude,
+            "speed": location.speed,
+            "speed_accuracy": location.speedAccuracy,
+            "heading": location.course,
+            "time": timeInMilliseconds,
+        ]
+    }
+
     // MARK: - CLLocationManagerDelegate
 
     public func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -341,18 +374,7 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             return
         }
 
-        let timeInMilliseconds = location.timestamp.timeIntervalSince1970 * 1000
-        let coordinates: [String: Any] = [
-            "latitude": location.coordinate.latitude,
-            "longitude": location.coordinate.longitude,
-            "accuracy": location.horizontalAccuracy,
-            "verticalAccuracy": location.verticalAccuracy,
-            "altitude": location.altitude,
-            "speed": location.speed,
-            "speed_accuracy": location.speedAccuracy,
-            "heading": location.course,
-            "time": timeInMilliseconds,
-        ]
+        let coordinates = coordinates(from: location)
 
         if locationWanted {
             locationWanted = false

@@ -56,6 +56,13 @@ class LocationWebPlugin extends LocationPlatform {
   }
 
   @override
+  Future<LocationData?> getLastKnownLocation() async {
+    // The browser Geolocation API does not expose a cached "last known"
+    // location, so there is nothing to return without triggering a fresh fix.
+    return null;
+  }
+
+  @override
   Future<PermissionStatus> hasPermission() async {
     final web.PermissionStatus result =
         await _permissions.query({'name': 'geolocation'}.toJSBox).toDart;

@@ -30,6 +30,7 @@ void main() {
         log.add(methodCall);
         switch (methodCall.method) {
           case 'getLocation':
+          case 'getLastKnownLocation':
             return <String, dynamic>{
               'latitude': 48.8534,
               'longitude': 2.3488,
@@ -54,6 +55,24 @@ void main() {
       final receivedLocation = await location.getLocation();
       expect(receivedLocation.latitude, 48.8534);
       expect(receivedLocation.longitude, 2.3488);
+    });
+  });
+
+  group('getLastKnownLocation', () {
+    test('should convert results correctly', () async {
+      final receivedLocation = await location.getLastKnownLocation();
+      expect(receivedLocation, isNotNull);
+      expect(receivedLocation!.latitude, 48.8534);
+      expect(receivedLocation.longitude, 2.3488);
+    });
+
+    test('should return null when no cached location is available', () async {
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        methodChannel!,
+        (methodCall) async => null,
+      );
+      final receivedLocation = await location.getLastKnownLocation();
+      expect(receivedLocation, isNull);
     });
   });
 

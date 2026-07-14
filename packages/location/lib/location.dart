@@ -64,6 +64,21 @@ class Location implements LocationPlatform {
     return LocationPlatform.instance.getLocation();
   }
 
+  /// Gets the most recently cached location of the user, if any.
+  ///
+  /// Unlike [getLocation], this returns immediately with the last known
+  /// location the platform has cached, without waiting for a fresh fix. This is
+  /// useful to display an approximate position (for example a grey marker with
+  /// its timestamp) while a precise location is still being acquired.
+  ///
+  /// Returns `null` when no cached location is available (for example on a
+  /// fresh install, or when the platform has no cached fix). Web has no cached
+  /// location concept and therefore always returns `null`.
+  @override
+  Future<LocationData?> getLastKnownLocation() {
+    return LocationPlatform.instance.getLastKnownLocation();
+  }
+
   /// Checks if the app has permission to access location.
   ///
   /// If the result is [PermissionStatus.deniedForever], no dialog will be shown

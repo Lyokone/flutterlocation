@@ -95,6 +95,19 @@ class MethodChannelLocation extends LocationPlatform {
     return LocationData.fromMap(resultMap);
   }
 
+  /// Gets the most recently cached location of the user, if any.
+  ///
+  /// Returns `null` when no cached location is available.
+  @override
+  Future<LocationData?> getLastKnownLocation() async {
+    final resultMap = await _methodChannel!
+        .invokeMapMethod<String, dynamic>('getLastKnownLocation');
+    if (resultMap == null) {
+      return null;
+    }
+    return LocationData.fromMap(resultMap);
+  }
+
   @override
   Future<PermissionStatus> hasPermission() async {
     final result = await _methodChannel!.invokeMethod('hasPermission');
