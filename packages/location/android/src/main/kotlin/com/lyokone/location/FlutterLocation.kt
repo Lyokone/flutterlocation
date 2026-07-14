@@ -119,7 +119,15 @@ class FlutterLocation(
                 if (getLocationResult != null || events != null) {
                     startRequestingLocation()
                 }
-                result?.success(1)
+                // Approximate-only (coarse without fine) on Android 12+ maps to
+                // grantedLimited (3); precise access maps to granted (1) (#736).
+                val code =
+                    if (!fineGranted && coarseGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        3
+                    } else {
+                        1
+                    }
+                result?.success(code)
                 result = null
             } else {
                 if (!shouldShowRequestPermissionRationale()) {
@@ -332,6 +340,30 @@ class FlutterLocation(
             PackageManager.PERMISSION_GRANTED
     }
 
+    private fun hasCoarseLocationPermission(): Boolean {
+        val activity = this.activity ?: return false
+        return ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED
+    }
+
+    /**
+     * Computes the permission status code sent to Dart:
+     * 1 = granted (precise), 3 = grantedLimited (approximate-only), 0 = denied.
+     *
+     * On Android 12+ (API 31+) a user can grant only ACCESS_COARSE_LOCATION
+     * (approximate) without ACCESS_FINE_LOCATION. That case maps to
+     * grantedLimited, mirroring iOS reduced accuracy (#736).
+     */
+    fun permissionStatusCode(): Int {
+        if (hasFineLocationPermission()) {
+            return 1
+        }
+        if (hasCoarseLocationPermission()) {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) 3 else 1
+        }
+        return 0
+    }
+
     fun requestPermissions() {
         val activity = this.activity
         if (activity == null) {
@@ -339,7 +371,7 @@ class FlutterLocation(
             throw ActivityNotFoundException()
         }
         if (checkPermissions()) {
-            result?.success(1)
+            result?.success(permissionStatusCode())
             return
         }
         ActivityCompat.requestPermissions(

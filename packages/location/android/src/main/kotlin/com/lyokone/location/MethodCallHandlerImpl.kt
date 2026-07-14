@@ -126,11 +126,9 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
             return
         }
 
-        if (location.checkPermissions()) {
-            result.success(1)
-        } else {
-            result.success(0)
-        }
+        // permissionStatusCode() returns 1 (granted), 3 (grantedLimited,
+        // approximate-only on API 31+) or 0 (denied) (#736).
+        result.success(location.permissionStatusCode())
     }
 
     private fun onIsBackgroundPermissionGranted(
