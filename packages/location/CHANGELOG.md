@@ -66,6 +66,13 @@
   receiver, and defaults to `false` on older Apple systems and on Android/web
   (#914).
 
+### 🌐 Web
+
+- Fixed `hasPermission()` throwing on web (`Failed to read the 'name' property
+  from 'PermissionDescriptor'` / a `TypeError`). The Permissions API was handed
+  an opaque boxed Dart object instead of a real JS descriptor; it now receives a
+  proper `{ name: 'geolocation' }` object literal (#978, #987).
+
 ### 📝 Docs
 
 - Clarified that `enableBackgroundMode(enable: true)` is a standalone call that
