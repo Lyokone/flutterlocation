@@ -6,6 +6,13 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
 import 'package:web/web.dart' as web;
 
+/// A `PermissionDescriptor` for `navigator.permissions.query`. Modeling it as
+/// an extension type with an external factory produces a real JS object literal
+/// (`{name: ...}`), which is what the browser's Permissions API requires.
+extension type _PermissionDescriptor._(JSObject _) implements JSObject {
+  external factory _PermissionDescriptor({required String name});
+}
+
 class LocationWebPlugin extends LocationPlatform {
   LocationWebPlugin(web.Navigator navigator)
       : _geolocation = navigator.geolocation,
@@ -66,8 +73,13 @@ class LocationWebPlugin extends LocationPlatform {
 
   @override
   Future<PermissionStatus> hasPermission() async {
-    final web.PermissionStatus result =
-        await _permissions.query({'name': 'geolocation'}.toJSBox).toDart;
+    // The Permissions API expects a real JS object with a `name` property.
+    // `{...}.toJSBox` would hand it an opaque Dart object whose `name` is
+    // undefined, which the browser rejects with "Failed to read the 'name'
+    // property from 'PermissionDescriptor'".
+    final web.PermissionStatus result = await _permissions
+        .query(_PermissionDescriptor(name: 'geolocation'))
+        .toDart;
 
     switch (result.state) {
       case 'granted':
