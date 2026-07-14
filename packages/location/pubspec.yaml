@@ -29,8 +29,8 @@ dependencies:
   location_web: ^6.0.0
 dev_dependencies:
   async: ^2.11.0
-  build_runner: ^2.4.14
+  build_runner: ^2.15.0
   flutter_test:
     sdk: flutter
-  leancode_lint: ^15.0.0
-  mockito: ^5.4.5
+  leancode_lint: ^24.0.0
+  mockito: ^5.7.0
