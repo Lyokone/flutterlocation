@@ -28,6 +28,11 @@
   to this value while background mode is enabled and back to `interval` when it
   is disabled. It is Android-only (Core Location exposes no equivalent on Apple
   platforms) and defaults to `null`, preserving the current behaviour (#1011).
+- Fixed calling `getLocation()` more than once concurrently (e.g. from two
+  `FutureBuilder`s in the same build) resolving only the most recent call, on
+  both Android and iOS/macOS; earlier ones hung forever. All pending
+  `getLocation()` calls are now queued and resolved together with the same fix
+  or error (#977).
 
 ### 🤖 Android
 
@@ -64,6 +69,11 @@
   `LocationManager` fallback's provider-disabled callback now error the
   stream, but only once the system location toggle is confirmed off, so
   ordinary transient signal loss (tunnels, indoors) doesn't misfire (#535).
+- Fixed `getLocation()` hanging forever if the user cancelled the "enable
+  location settings" resolution dialog it triggers. The cancellation handler
+  checked the wrong pending-result field (one populated only by
+  `requestPermission()`, not `getLocation()` or the stream), so it silently
+  did nothing instead of resolving the call with an error.
 
 ### 🍎 iOS & macOS
 
@@ -105,6 +115,11 @@
   requested. Only the pre-iOS 11 `NSLocationAlwaysUsageDescription` key was
   checked before, so an app declaring solely the current, README-recommended
   key was treated as having no always-usage description at all (#962).
+- Fixed `changeSettings(interval: ...)` having no effect at all; the stream
+  fired as fast as Core Location delivered fixes. `interval` was never read on
+  iOS/macOS — Core Location has no native time-based interval concept (only
+  `distanceFilter`, a minimum distance) — so it's now applied by throttling
+  stream delivery client-side instead (#960).
 
 ### 🌐 Web
 
