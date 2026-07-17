@@ -133,6 +133,11 @@
   iOS/macOS — Core Location has no native time-based interval concept (only
   `distanceFilter`, a minimum distance) — so it's now applied by throttling
   stream delivery client-side instead (#960).
+- Fixed `hasPermission()` reporting plain `denied` for an authorization status
+  that `requestPermission()` already correctly reports as `deniedForever`
+  (iOS has no "denied, can ask again" state — once authorization is
+  `.denied`, the system won't show the prompt again). The two methods now
+  agree on the same state (#738).
 
 ### 🌐 Web
 
