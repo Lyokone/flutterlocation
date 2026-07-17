@@ -436,6 +436,20 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
                 permissionWanted = false
                 flutterResult?(0)
                 flutterResult = nil
+            } else if locationWanted {
+                // getLocation() requested permission just-in-time (status was
+                // .notDetermined) and the user denied it. Without this, flutterResult
+                // was never resolved and the Dart Future from getLocation() hung
+                // forever instead of throwing, since only the requestPermission() flow
+                // above resolved on denial (#979).
+                locationWanted = false
+                flutterResult?(FlutterError(
+                    code: "PERMISSION_DENIED",
+                    message: "The user explicitly denied the use of location services for this app or "
+                        + "location services are currently disabled in Settings.",
+                    details: nil,
+                ))
+                flutterResult = nil
             }
             return
         }
