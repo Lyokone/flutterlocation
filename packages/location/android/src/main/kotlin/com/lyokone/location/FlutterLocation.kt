@@ -828,7 +828,16 @@ class FlutterLocation(
     private fun requestLocationUpdates() {
         val request = mLocationRequest ?: return
         val callback = mLocationCallback ?: return
-        mFusedLocationClient?.requestLocationUpdates(request, callback, Looper.myLooper())
+        try {
+            mFusedLocationClient?.requestLocationUpdates(request, callback, Looper.myLooper())
+        } catch (e: SecurityException) {
+            // The permission check in checkPermissions()/startRequestingLocation()
+            // and this call are not atomic -- a permission granted only "for this
+            // time" (Android 11+) can be revoked by the OS in between, e.g. after
+            // the app has been backgrounded for a while (#767). Surface it as a
+            // normal error instead of letting it crash the app.
+            sendError("PERMISSION_DENIED", e.message ?: "Location permission denied", null)
+        }
     }
 
     /**
