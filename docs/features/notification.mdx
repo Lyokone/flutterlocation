@@ -67,3 +67,34 @@ _locationSubscription = location.onLocationChanged
 
 _locationSubscription?.cancel();
 ```
+
+### Fully custom notification content
+
+`changeNotificationOptions` covers the common fields, but Android identifies
+the foreground service's notification purely by its channel and notification
+ID — any code that posts to that same ID replaces its displayed content, the
+same way this plugin's own updates do internally. Call
+`changeNotificationOptions` once to obtain that ID, then use another
+notification plugin (e.g.
+[`flutter_local_notifications`](https://pub.dev/packages/flutter_local_notifications))
+to post whatever content you want to it:
+
+```dart
+final notificationData = await location.changeNotificationOptions();
+if (notificationData != null) {
+  await flutterLocalNotificationsPlugin.show(
+    notificationData.notificationId,
+    'Fully custom title',
+    'Fully custom body, any layout flutter_local_notifications supports',
+    NotificationDetails(
+      android: AndroidNotificationDetails(
+        notificationData.channelId,
+        'My channel name',
+      ),
+    ),
+  );
+}
+```
+
+Note that calling `changeNotificationOptions` again afterwards will overwrite
+your custom content back to this plugin's own notification builder.
