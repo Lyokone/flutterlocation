@@ -251,13 +251,19 @@ class FlutterLocation(
                 return true
             }
             REQUEST_CHECK_SETTINGS -> {
-                val result = this.result ?: return false
+                // This resolution dialog is triggered by startRequestingLocation(), on
+                // behalf of a pending getLocation() one-shot call and/or an active
+                // onLocationChanged stream -- getLocationResult/events, not the
+                // requestPermission()-only `result` field this used to (incorrectly)
+                // check, which is virtually always null here. Checking the wrong field
+                // meant getLocation() hung forever if the user cancelled this dialog,
+                // since neither field was ever resolved (#728, #1020).
+                if (getLocationResult == null && events == null) return false
                 if (resultCode == Activity.RESULT_OK) {
                     startRequestingLocation()
                     return true
                 }
-                result.error("SERVICE_STATUS_DISABLED", "Failed to get location. Location services disabled", null)
-                this.result = null
+                sendError("SERVICE_STATUS_DISABLED", "Failed to get location. Location services disabled", null)
                 return true
             }
             else -> return false
