@@ -22,6 +22,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -157,7 +158,15 @@ class FlutterLocation(
 
             override fun onProviderEnabled(provider: String) {}
 
-            override fun onProviderDisabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {
+                // Only surface an error once every provider is gone (checkServiceEnabled
+                // is the same OR-of-providers check used elsewhere); disabling just GPS
+                // while network location is still on shouldn't error out an active
+                // stream (#535).
+                if (!checkServiceEnabled()) {
+                    sendError("SERVICE_STATUS_DISABLED", "Location services were disabled", null)
+                }
+            }
         }
 
     val mapFlutterAccuracy: Map<Int, Int> =
@@ -336,6 +345,17 @@ class FlutterLocation(
         mLocationCallback?.let { mFusedLocationClient?.removeLocationUpdates(it) }
         mLocationCallback =
             object : LocationCallback() {
+                override fun onLocationAvailability(locationAvailability: LocationAvailability) {
+                    // isLocationAvailable can be false transiently (e.g. no fix yet,
+                    // temporarily indoors) without the location service actually being
+                    // disabled, so cross-check with checkServiceEnabled() -- the
+                    // deterministic "is the system location toggle off" signal -- before
+                    // erroring out an active stream (#535).
+                    if (!locationAvailability.isLocationAvailable && !checkServiceEnabled()) {
+                        sendError("SERVICE_STATUS_DISABLED", "Location services were disabled", null)
+                    }
+                }
+
                 override fun onLocationResult(locationResult: LocationResult) {
                     val location = locationResult.lastLocation ?: return
                     onNewLocation(location)
