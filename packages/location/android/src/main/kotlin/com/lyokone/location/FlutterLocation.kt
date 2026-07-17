@@ -262,7 +262,7 @@ class FlutterLocation(
                 // check, which is virtually always null here. Checking the wrong field
                 // meant getLocation() hung forever if the user cancelled this dialog,
                 // since neither field was ever resolved (#728, #1020).
-                if (getLocationResult == null && events == null) return false
+                if (getLocationResults.isEmpty() && events == null) return false
                 if (resultCode == Activity.RESULT_OK) {
                     startRequestingLocation()
                     return true
