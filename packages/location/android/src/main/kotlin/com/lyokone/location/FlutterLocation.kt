@@ -40,6 +40,9 @@ private const val REQUEST_PERMISSIONS_REQUEST_CODE = 34
 private const val REQUEST_CHECK_SETTINGS = 0x1
 private const val GPS_ENABLE_REQUEST = 0x1001
 
+private const val PREFS_NAME = "flutter_location_prefs"
+private const val PREFS_KEY_PERMISSION_REQUESTED = "location_permission_requested"
+
 class FlutterLocation(
     applicationContext: Context,
     activity: Activity?,
@@ -110,6 +113,17 @@ class FlutterLocation(
 
     private val locationManager: LocationManager =
         applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+    private val sharedPreferences =
+        applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    // Whether the location permission had already been requested from this app
+    // before the request currently in flight. Captured right before calling
+    // ActivityCompat.requestPermissions() (#1009): shouldShowRequestPermissionRationale()
+    // returns false both before the permission has ever been asked for AND once
+    // it has been permanently denied, so it alone can't tell a first-time denial
+    // apart from "don't ask again". Persisted so it survives process death.
+    private var permissionPreviouslyRequested = false
 
     /**
      * Whether Google Play services (and therefore the fused location provider) is
@@ -185,7 +199,12 @@ class FlutterLocation(
                 result?.success(code)
                 result = null
             } else {
-                if (!shouldShowRequestPermissionRationale()) {
+                // shouldShowRequestPermissionRationale() returns false both before the
+                // permission has ever been requested and once it's permanently denied
+                // ("don't ask again"), so on its own it can't distinguish a first-time
+                // denial/dismissal from a real "never ask again" (#1009). Only treat it
+                // as permanently denied when we know a prior request already happened.
+                if (!shouldShowRequestPermissionRationale() && permissionPreviouslyRequested) {
                     sendError(
                         "PERMISSION_DENIED_NEVER_ASK",
                         "Location permission denied forever - please open app settings",
@@ -550,6 +569,9 @@ class FlutterLocation(
             result?.success(permissionStatusCode())
             return
         }
+        permissionPreviouslyRequested =
+            sharedPreferences.getBoolean(PREFS_KEY_PERMISSION_REQUESTED, false)
+        sharedPreferences.edit().putBoolean(PREFS_KEY_PERMISSION_REQUESTED, true).apply()
         ActivityCompat.requestPermissions(
             activity,
             arrayOf(
