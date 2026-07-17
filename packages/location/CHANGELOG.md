@@ -3,6 +3,15 @@
 <!-- Not yet published to pub.dev. Accumulate fixes here; assign a version
      number when we cut the next release. -->
 
+### 💥 Breaking changes
+
+- `LocationData.latitude` and `LocationData.longitude` are now non-nullable
+  (`double` instead of `double?`). Every platform implementation always sets
+  both, so the nullability was never load-bearing; `fromMap`/`fromJson` now
+  throw instead of silently producing a `LocationData` with null coordinates
+  if a caller (e.g. a hand-built test double) omits them (#675). **This
+  package's next release should be a major version bump.**
+
 ### 🎯 Dart API
 
 - Added `LocationData.toJson()`, `LocationData.fromJson()` and
@@ -161,6 +170,10 @@
   drawables by name at runtime, which Android's release-build resource
   shrinker can strip since it can't see dynamic lookups — and how to keep
   them via a `res/raw/keep.xml` `tools:keep` entry (#839).
+- Documented posting fully custom notification content (e.g. via
+  `flutter_local_notifications`) by reusing the `channelId`/`notificationId`
+  `changeNotificationOptions` already returns, since Android identifies the
+  foreground service's notification purely by that ID (#753, #928).
 
 ## 9.0.0
 
