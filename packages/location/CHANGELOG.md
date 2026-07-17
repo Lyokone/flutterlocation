@@ -49,6 +49,18 @@
   resolves a drawable resource (like `iconName`) and displays it as the
   background notification's large icon. Defaults to no image, preserving the
   previous behavior (#856).
+- Added an optional `requireBackgroundPermission` parameter to
+  `enableBackgroundMode`, defaulting to `true` (preserving current behavior).
+  Setting it to `false` skips the `ACCESS_BACKGROUND_LOCATION` ("Allow all the
+  time") prompt and starts the foreground service directly on just the regular
+  location permission — a foreground service with the location type already
+  retains location access while backgrounded without that stricter permission
+  at all (#600).
+- Added optional `iconBytes`/`imageBytes` parameters to
+  `changeNotificationOptions`, an alternative to `iconName`/`imageName` for
+  apps that don't want to add a drawable resource to their Android project —
+  e.g. to render a Flutter icon to PNG bytes at runtime instead. Bytes take
+  precedence over the resource name when both are provided (#1017).
 - Report `PermissionStatus.grantedLimited` when the user grants only approximate
   (coarse) location without precise (fine) location on Android 12+ (API 31+),
   mirroring iOS reduced accuracy. Previously this coarse-only case was reported as
