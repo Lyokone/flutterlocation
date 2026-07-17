@@ -24,8 +24,8 @@ class LocationData {
   /// Creates a new [LocationData] instance from a map.
   factory LocationData.fromMap(Map<String, dynamic> dataMap) {
     return LocationData._(
-      dataMap['latitude'] as double?,
-      dataMap['longitude'] as double?,
+      dataMap['latitude'] as double,
+      dataMap['longitude'] as double,
       dataMap['accuracy'] as double?,
       dataMap['altitude'] as double?,
       dataMap['speed'] as double?,
@@ -47,8 +47,8 @@ class LocationData {
   /// [toJson]. This round-trips with [toJson].
   factory LocationData.fromJson(Map<String, dynamic> json) {
     return LocationData._(
-      (json['latitude'] as num?)?.toDouble(),
-      (json['longitude'] as num?)?.toDouble(),
+      (json['latitude'] as num).toDouble(),
+      (json['longitude'] as num).toDouble(),
       (json['accuracy'] as num?)?.toDouble(),
       (json['altitude'] as num?)?.toDouble(),
       (json['speed'] as num?)?.toDouble(),
@@ -67,10 +67,10 @@ class LocationData {
   }
 
   /// Latitude in degrees
-  final double? latitude;
+  final double latitude;
 
   /// Longitude, in degrees
-  final double? longitude;
+  final double longitude;
 
   /// Estimated horizontal accuracy of this location, radial, in meters
   ///
