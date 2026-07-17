@@ -184,8 +184,11 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
         if (locationService != null && enable != null) {
             if (locationService.checkBackgroundPermissions()) {
                 if (enable) {
-                    locationService.enableBackgroundMode()
-                    result.success(1)
+                    if (locationService.enableBackgroundMode()) {
+                        result.success(1)
+                    } else {
+                        result.error("ENABLE_BACKGROUND_MODE_ERROR", "Failed to start the foreground service", null)
+                    }
                 } else {
                     locationService.disableBackgroundMode()
                     result.success(0)

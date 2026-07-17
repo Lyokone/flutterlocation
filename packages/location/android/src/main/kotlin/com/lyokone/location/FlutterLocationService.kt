@@ -259,26 +259,40 @@ class FlutterLocationService : Service(), PluginRegistry.RequestPermissionsResul
 
     fun isInForegroundMode(): Boolean = isForeground
 
-    fun enableBackgroundMode() {
+    /**
+     * Starts the service in foreground mode. Returns whether it succeeded:
+     * on Android 12+ the system can refuse a foreground service start (e.g.
+     * `ForegroundServiceStartNotAllowedException` when the app has no
+     * qualifying foreground-launch exemption at the time of the call), which
+     * previously crashed with an unhandled exception instead of surfacing a
+     * normal Dart-side error (#945).
+     */
+    fun enableBackgroundMode(): Boolean {
         if (isForeground) {
             Log.d(TAG, "Service already in foreground mode.")
-        } else {
-            Log.d(TAG, "Start service in foreground mode.")
-
-            val notification = backgroundNotification!!.build()
-            val foregroundServiceType =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-                } else {
-                    0
-                }
-            ServiceCompat.startForeground(this, ONGOING_NOTIFICATION_ID, notification, foregroundServiceType)
-
-            isForeground = true
-
-            // Switch to the background update interval, if one was configured.
-            location?.setBackgroundMode(true)
+            return true
         }
+        Log.d(TAG, "Start service in foreground mode.")
+
+        val notification = backgroundNotification!!.build()
+        val foregroundServiceType =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+            } else {
+                0
+            }
+        try {
+            ServiceCompat.startForeground(this, ONGOING_NOTIFICATION_ID, notification, foregroundServiceType)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start service in foreground mode.", e)
+            return false
+        }
+
+        isForeground = true
+
+        // Switch to the background update interval, if one was configured.
+        location?.setBackgroundMode(true)
+        return true
     }
 
     fun disableBackgroundMode() {
@@ -321,8 +335,11 @@ class FlutterLocationService : Service(), PluginRegistry.RequestPermissionsResul
         ) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 // Permissions granted, background mode can be enabled
-                enableBackgroundMode()
-                result?.success(1)
+                if (enableBackgroundMode()) {
+                    result?.success(1)
+                } else {
+                    result?.error("ENABLE_BACKGROUND_MODE_ERROR", "Failed to start the foreground service", null)
+                }
                 result = null
             } else {
                 if (!shouldShowRequestBackgroundPermissionRationale()) {
