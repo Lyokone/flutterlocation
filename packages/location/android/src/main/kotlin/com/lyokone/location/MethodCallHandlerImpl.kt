@@ -149,7 +149,14 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
         try {
             result.success(if (location.checkServiceEnabled()) 1 else 0)
         } catch (e: Exception) {
-            result.error("SERVICE_STATUS_ERROR", "Location service status couldn't be determined", null)
+            // Surface the real exception instead of a fixed, uninformative message
+            // (#1020) -- this was previously discarded, making the actual failure
+            // impossible to diagnose from a bug report alone.
+            result.error(
+                "SERVICE_STATUS_ERROR",
+                "Location service status couldn't be determined: ${e.message}",
+                e.stackTraceToString(),
+            )
         }
     }
 
