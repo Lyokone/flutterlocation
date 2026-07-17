@@ -13,7 +13,12 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
     private var flutterResult: FlutterResult?
     private var flutterEventSink: FlutterEventSink?
 
-    private var locationWanted = false
+    // Pending getLocation() calls waiting for the next fix. A list rather than
+    // a single field: overwriting a single pending result silently orphaned an
+    // earlier concurrent getLocation() call's Future forever when a second one
+    // came in before the first resolved (#977). All pending calls resolve
+    // together with the same fix/error.
+    private var pendingLocationResults: [FlutterResult] = []
     private var permissionWanted = false
     private var flutterListening = false
     private var hasInit = false
@@ -187,8 +192,7 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
                 return
             }
 
-            self.flutterResult = result
-            self.locationWanted = true
+            self.pendingLocationResults.append(result)
 
             if self.isPermissionGranted {
                 self.clLocationManager?.startUpdatingLocation()
@@ -421,10 +425,9 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
 
         let coordinates = coordinates(from: location)
 
-        if locationWanted {
-            locationWanted = false
-            flutterResult?(coordinates)
-            flutterResult = nil
+        if !pendingLocationResults.isEmpty {
+            pendingLocationResults.forEach { $0(coordinates) }
+            pendingLocationResults.removeAll()
         }
         if flutterListening {
             flutterEventSink?(coordinates)
@@ -450,20 +453,20 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
                 permissionWanted = false
                 flutterResult?(0)
                 flutterResult = nil
-            } else if locationWanted {
+            } else if !pendingLocationResults.isEmpty {
                 // getLocation() requested permission just-in-time (status was
-                // .notDetermined) and the user denied it. Without this, flutterResult
-                // was never resolved and the Dart Future from getLocation() hung
-                // forever instead of throwing, since only the requestPermission() flow
-                // above resolved on denial (#979).
-                locationWanted = false
-                flutterResult?(FlutterError(
+                // .notDetermined) and the user denied it. Without this, the pending
+                // result(s) were never resolved and the Dart Future(s) from
+                // getLocation() hung forever instead of throwing, since only the
+                // requestPermission() flow above resolved on denial (#979).
+                let error = FlutterError(
                     code: "PERMISSION_DENIED",
                     message: "The user explicitly denied the use of location services for this app or "
                         + "location services are currently disabled in Settings.",
                     details: nil,
-                ))
-                flutterResult = nil
+                )
+                pendingLocationResults.forEach { $0(error) }
+                pendingLocationResults.removeAll()
             }
             return
         }
@@ -482,7 +485,7 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             flutterResult?(isHighAccuracyPermitted ? 1 : 3)
             flutterResult = nil
         }
-        if locationWanted || flutterListening {
+        if !pendingLocationResults.isEmpty || flutterListening {
             clLocationManager?.startUpdatingLocation()
         }
     }

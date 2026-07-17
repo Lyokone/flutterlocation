@@ -115,8 +115,12 @@ class FlutterLocation(
     // Store the result for the requestService, used in ActivityResult
     private var requestServiceResult: Result? = null
 
-    // Store result until a location is getting resolved
-    var getLocationResult: Result? = null
+    // Pending getLocation() calls waiting for the next fix. A list rather than
+    // a single field: overwriting a single pending Result silently orphaned an
+    // earlier concurrent getLocation() call's Future forever when a second one
+    // came in before the first resolved (#977). All pending calls resolve
+    // together with the same fix/error.
+    val getLocationResults: MutableList<Result> = mutableListOf()
 
     private val locationManager: LocationManager =
         applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -200,7 +204,7 @@ class FlutterLocation(
             if (fineGranted || coarseGranted) {
                 // Either precise or approximate location was granted.
                 // Checks if this permission was automatically triggered by a location request
-                if (getLocationResult != null || events != null) {
+                if (getLocationResults.isNotEmpty() || events != null) {
                     startRequestingLocation()
                 }
                 // Approximate-only (coarse without fine) on Android 12+ maps to
@@ -314,8 +318,8 @@ class FlutterLocation(
         errorMessage: String,
         errorDetails: Any?,
     ) {
-        getLocationResult?.error(errorCode, errorMessage, errorDetails)
-        getLocationResult = null
+        getLocationResults.forEach { it.error(errorCode, errorMessage, errorDetails) }
+        getLocationResults.clear()
         events?.error(errorCode, errorMessage, errorDetails)
         events = null
     }
@@ -329,8 +333,8 @@ class FlutterLocation(
     private fun onNewLocation(location: Location) {
         val loc = locationToMap(location)
 
-        getLocationResult?.success(loc)
-        getLocationResult = null
+        getLocationResults.forEach { it.success(loc) }
+        getLocationResults.clear()
         val events = this.events
         if (events != null) {
             events.success(loc)

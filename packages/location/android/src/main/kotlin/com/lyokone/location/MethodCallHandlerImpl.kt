@@ -113,7 +113,7 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
         result: Result,
         location: FlutterLocation,
     ) {
-        location.getLocationResult = result
+        location.getLocationResults.add(result)
         if (!location.checkPermissions()) {
             location.requestPermissions()
         } else {
