@@ -78,6 +78,16 @@
   from 'PermissionDescriptor'` / a `TypeError`). The Permissions API was handed
   an opaque boxed Dart object instead of a real JS descriptor; it now receives a
   proper `{ name: 'geolocation' }` object literal (#978, #987).
+- Fixed `getLocation()`/`onLocationChanged` errors not being catchable as
+  `PlatformException` on web like they are on Android/iOS; browser Geolocation
+  errors are now mapped to a `PlatformException` with a
+  `PERMISSION_DENIED`/`POSITION_UNAVAILABLE`/`TIMEOUT` code (#967).
+- Fixed `requestPermission()` reporting `deniedForever` for a location-fetch
+  failure unrelated to permission (e.g. a GPS timeout after the user already
+  allowed access) (#891).
+- Fixed `hasPermission()` crashing in browsers/webviews that support Geolocation
+  but not the Permissions API (`navigator.permissions` undefined); it now
+  reports "not yet determined" instead (#959).
 
 ### 📝 Docs
 
