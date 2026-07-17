@@ -27,6 +27,23 @@ It should be in the `res/drawable` folder with the same name. By default, the li
 "large icon"). Like `iconName`, it resolves a drawable in `res/drawable` by name.
 Leave it `null` (the default) for no image. Android only.
 
+Both are resolved at runtime by *name* (`Resources.getIdentifier`), not by a
+compile-time reference. Android's release-build resource shrinker only sees
+resources referenced directly in code/XML, so it can strip a drawable that's
+only ever looked up by its string name — showing up as a blank/transparent
+icon in release builds while working fine in debug. If that happens, tell the
+shrinker to keep it by adding a `res/raw/keep.xml` to your Android app:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/your_icon_name,@drawable/your_image_name" />
+```
+
+See Android's [shrink, obfuscate, and optimize your
+app](https://developer.android.com/build/shrink-code#keep-resources) guide for
+details.
+
 ## Examples
 
 ### Updating the notification with the current location
