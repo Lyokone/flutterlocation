@@ -85,6 +85,12 @@ class FlutterLocation(
 
     private var mLastMslAltitude: Double? = null
 
+    // Number of satellites used in the last fix, parsed from NMEA (see
+    // createLocationCallback). Location.extras' "satellites" key is a legacy
+    // GPS-provider-only extra that the fused provider never populates, which
+    // made satelliteNumber always report 0 (#808).
+    private var mLastSatelliteCount: Int? = null
+
     // Parameters of the request
     private var updateIntervalMilliseconds = 5000L
     private var fastestUpdateIntervalMilliseconds = updateIntervalMilliseconds / 2
@@ -349,10 +355,16 @@ class FlutterLocation(
                         val tokens = message.split(",")
                         val type = tokens[0]
 
-                        // Parse altitude above sea level. Description of NMEA string:
+                        // Parse altitude above sea level and satellites used from the
+                        // GGA sentence. Description of NMEA string:
                         // http://aprs.gids.nl/nmea/#gga
-                        if (type.startsWith("\$GPGGA") && tokens.size > 9 && tokens[9].isNotEmpty()) {
-                            mLastMslAltitude = tokens[9].toDoubleOrNull()
+                        if (type.startsWith("\$GPGGA") && tokens.size > 9) {
+                            if (tokens[7].isNotEmpty()) {
+                                mLastSatelliteCount = tokens[7].toIntOrNull()
+                            }
+                            if (tokens[9].isNotEmpty()) {
+                                mLastMslAltitude = tokens[9].toDoubleOrNull()
+                            }
                         }
                     }
                 }
@@ -377,7 +389,13 @@ class FlutterLocation(
         }
 
         loc["provider"] = location.provider
-        location.extras?.let { loc["satelliteNumber"] = it.getInt("satellites") }
+        // The "satellites" extra is only ever set by the legacy GPS provider;
+        // the fused provider never populates it, so fall back to the NMEA-derived
+        // count (see createLocationCallback) which works for both (#808).
+        val satelliteCount =
+            location.extras?.takeIf { it.containsKey("satellites") }?.getInt("satellites")
+                ?: mLastSatelliteCount
+        satelliteCount?.let { loc["satelliteNumber"] = it }
 
         loc["elapsedRealtimeNanos"] = location.elapsedRealtimeNanos.toDouble()
         if (isLocationFromMockProvider(location)) {
