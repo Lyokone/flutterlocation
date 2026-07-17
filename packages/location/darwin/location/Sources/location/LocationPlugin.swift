@@ -278,7 +278,12 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
 
     private func requestPermission() {
         let hasWhenInUse = Bundle.main.object(forInfoDictionaryKey: "NSLocationWhenInUseUsageDescription") != nil
+        // NSLocationAlwaysUsageDescription is the pre-iOS 11 key; the modern,
+        // README-recommended key is NSLocationAlwaysAndWhenInUseUsageDescription.
+        // Only checking the old key meant an app declaring solely the current
+        // key was treated as having neither description (#962).
         let hasAlways = Bundle.main.object(forInfoDictionaryKey: "NSLocationAlwaysUsageDescription") != nil
+            || Bundle.main.object(forInfoDictionaryKey: "NSLocationAlwaysAndWhenInUseUsageDescription") != nil
 
         #if os(macOS)
         if hasWhenInUse || hasAlways {
@@ -296,7 +301,7 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
         #endif
 
         NSLog(
-            "[Location] Missing NSLocationWhenInUseUsageDescription (or NSLocationAlwaysUsageDescription) "
+            "[Location] Missing NSLocationWhenInUseUsageDescription (or NSLocationAlwaysAndWhenInUseUsageDescription) "
                 + "in Info.plist; the location permission cannot be requested.")
     }
 
