@@ -52,6 +52,18 @@
   the plugin previously treated as always meaning the latter. It now tracks
   whether the permission has actually been requested before and only reports
   `deniedForever` in that case (#1009).
+- Fixed `LocationData.satelliteNumber` always reporting `0`. It was read from
+  `Location.extras`' legacy `"satellites"` key, which only the old GPS
+  `LocationProvider` API ever set — the `FusedLocationProviderClient` this
+  plugin has used since the Kotlin rewrite never populates it. Now parsed from
+  the `$GPGGA` NMEA sentence's "Satellites Used" field instead, the same way
+  MSL altitude already is (#808).
+- Fixed `onLocationChanged` giving no signal when location services were
+  disabled while a stream was active — it just silently stopped emitting.
+  Both the fused provider's availability callback and the framework
+  `LocationManager` fallback's provider-disabled callback now error the
+  stream, but only once the system location toggle is confirmed off, so
+  ordinary transient signal loss (tunnels, indoors) doesn't misfire (#535).
 
 ### 🍎 iOS & macOS
 
@@ -83,6 +95,16 @@
   just-in-time permission prompt. It now rejects with a `PERMISSION_DENIED`
   error in that case, matching the behavior when authorization is already
   `.denied` before the call starts (#979).
+- Fixed `LocationData.speed`/`speedAccuracy` reporting a literal `-1` instead
+  of `null` for an indoor/stationary fix. Core Location uses a negative value
+  as its own documented sentinel for "invalid/not available"; it's now mapped
+  to `null` instead of being passed through as if it were a real measurement
+  (#741).
+- Recognized the modern `NSLocationAlwaysAndWhenInUseUsageDescription`
+  `Info.plist` key when deciding whether "Always" authorization can be
+  requested. Only the pre-iOS 11 `NSLocationAlwaysUsageDescription` key was
+  checked before, so an app declaring solely the current, README-recommended
+  key was treated as having no always-usage description at all (#962).
 
 ### 🌐 Web
 
@@ -107,6 +129,15 @@
   can be made before listening to `onLocationChanged`, and that on Android it
   requests the `ACCESS_BACKGROUND_LOCATION` permission when needed — so
   background permission can be requested independently (#756).
+- Documented that background mode does not survive the app being killed or
+  terminated by the user or OS — neither the Android foreground service nor
+  the iOS background execution exemption can run once the process itself no
+  longer exists — and pointed to `flutter_background_geolocation` for that use
+  case (#707, #724, #773, #774, #888, #994, #1021, #1024, #1025).
+- Clarified that `pausesLocationUpdatesAutomatically` (default `true` on
+  iOS/macOS) can cause continuous background tracking to stop unpredictably,
+  and that setting it to `false` via `changeSettings` avoids that for apps
+  that need truly continuous updates.
 
 ## 9.0.0
 
