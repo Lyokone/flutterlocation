@@ -45,6 +45,13 @@
   when present the fused path is unchanged, and the fallback is only engaged when
   Play services are absent or report a service-unavailable status (#772, #944,
   #1015).
+- Fixed `requestPermission()` reporting `deniedForever` on the very first
+  permission denial, including just dismissing the system dialog. This came
+  from `shouldShowRequestPermissionRationale()` returning `false` both before a
+  permission has ever been requested and once it's permanently denied, which
+  the plugin previously treated as always meaning the latter. It now tracks
+  whether the permission has actually been requested before and only reports
+  `deniedForever` in that case (#1009).
 
 ### 🍎 iOS & macOS
 
@@ -71,6 +78,11 @@
   reports whether a fix came from a connected accessory such as an external GPS
   receiver, and defaults to `false` on older Apple systems and on Android/web
   (#914).
+- Fixed `getLocation()` never resolving (no value, no exception) when
+  authorization was `.notDetermined` and the user denied the resulting
+  just-in-time permission prompt. It now rejects with a `PERMISSION_DENIED`
+  error in that case, matching the behavior when authorization is already
+  `.denied` before the call starts (#979).
 
 ### 🌐 Web
 
