@@ -74,6 +74,10 @@
   checked the wrong pending-result field (one populated only by
   `requestPermission()`, not `getLocation()` or the stream), so it silently
   did nothing instead of resolving the call with an error.
+- Fixed `enableBackgroundMode()` crashing with an unhandled
+  `ForegroundServiceStartNotAllowedException` (Android 12+, when the app has
+  no qualifying foreground-launch exemption at that moment) instead of
+  reporting a normal Dart-side error.
 
 ### 🍎 iOS & macOS
 
@@ -153,6 +157,10 @@
   iOS/macOS) can cause continuous background tracking to stop unpredictably,
   and that setting it to `false` via `changeSettings` avoids that for apps
   that need truly continuous updates.
+- Documented that `changeNotificationOptions`' `iconName`/`imageName` resolve
+  drawables by name at runtime, which Android's release-build resource
+  shrinker can strip since it can't see dynamic lookups — and how to keep
+  them via a `res/raw/keep.xml` `tools:keep` entry (#839).
 
 ## 9.0.0
 
