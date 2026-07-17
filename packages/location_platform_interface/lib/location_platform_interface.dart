@@ -65,8 +65,26 @@ class LocationPlatform extends PlatformInterface {
   ///
   /// This can be called independently, before listening to [onLocationChanged].
   /// On Android, enabling background mode also requests the
-  /// `ACCESS_BACKGROUND_LOCATION` permission if it has not been granted yet.
-  Future<bool> enableBackgroundMode({bool? enable}) {
+  /// `ACCESS_BACKGROUND_LOCATION` permission if it has not been granted yet,
+  /// unless [requireBackgroundPermission] is set to `false` (Android only;
+  /// ignored elsewhere).
+  ///
+  /// Android's foreground-service background-access exemption means a
+  /// foreground service with [FOREGROUND_SERVICE_TYPE_LOCATION] retains
+  /// location access while the app is backgrounded without needing
+  /// `ACCESS_BACKGROUND_LOCATION` ("Allow all the time") at all — that
+  /// permission is only required for location access *outside* of an active
+  /// foreground service (e.g. periodic background fetches). Setting
+  /// [requireBackgroundPermission] to `false` starts the foreground service
+  /// directly on just the foreground (fine/coarse) permission, skipping the
+  /// `ACCESS_BACKGROUND_LOCATION` prompt entirely. Defaults to `true`,
+  /// preserving the previous behavior.
+  ///
+  /// [FOREGROUND_SERVICE_TYPE_LOCATION]: https://developer.android.com/guide/components/foreground-services#location
+  Future<bool> enableBackgroundMode({
+    bool? enable,
+    bool requireBackgroundPermission = true,
+  }) {
     throw UnimplementedError();
   }
 

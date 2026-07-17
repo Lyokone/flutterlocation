@@ -180,9 +180,17 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
         result: Result,
     ) {
         val enable = call.argument<Boolean>("enable")
+        // A foreground service with FOREGROUND_SERVICE_TYPE_LOCATION retains
+        // location access while backgrounded without ACCESS_BACKGROUND_LOCATION
+        // ("Allow all the time") at all -- that permission is only required for
+        // location access outside of an active foreground service. Skipping this
+        // check lets callers opt into relying solely on the foreground-service
+        // exemption instead of forcing the stricter background permission (#600).
+        val requireBackgroundPermission =
+            call.argument<Boolean>("requireBackgroundPermission") ?: true
         val locationService = this.locationService
         if (locationService != null && enable != null) {
-            if (locationService.checkBackgroundPermissions()) {
+            if (!requireBackgroundPermission || locationService.checkBackgroundPermissions()) {
                 if (enable) {
                     if (locationService.enableBackgroundMode()) {
                         result.success(1)
