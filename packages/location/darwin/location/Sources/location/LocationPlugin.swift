@@ -229,6 +229,14 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
     private func onHasPermission(result: FlutterResult) {
         if isPermissionGranted {
             result(isHighAccuracyPermitted ? 1 : 3)
+        } else if currentAuthorizationStatus == .denied {
+            // Once authorization has actually been denied, iOS won't show the
+            // system prompt again -- requestPermission() already reflects this
+            // by returning deniedForever for any non-notDetermined, non-granted
+            // status. hasPermission() previously always returned plain `denied`
+            // regardless, inconsistent with what a following requestPermission()
+            // call would report for the same state (#738).
+            result(2)
         } else {
             result(0)
         }
