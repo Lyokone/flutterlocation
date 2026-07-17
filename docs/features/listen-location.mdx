@@ -21,6 +21,26 @@ Don't forget to **cancel the stream** when you don't need it anymore. Otherwise 
 To receive location updates while the app is in the background, enable background mode with `enableBackgroundMode(enable: true)` first.
 On Android, background location triggers a notification that you can control with [`changeNotificationOptions`](/features/notification).
 
+By default, `enableBackgroundMode` also requests the `ACCESS_BACKGROUND_LOCATION`
+("Allow all the time") permission on Android if it hasn't been granted yet. A
+foreground service with the location type actually retains location access
+while backgrounded *without* that permission at all — it's only required for
+location access outside of an active foreground service (e.g. a periodic
+background fetch with no visible notification). If you only need updates
+while your foreground service notification is showing, pass
+`requireBackgroundPermission: false` to skip that stricter prompt and start
+the foreground service directly on just the regular (fine/coarse) location
+permission:
+
+```dart
+await location.enableBackgroundMode(
+  enable: true,
+  requireBackgroundPermission: false,
+);
+```
+
+Android only; ignored on other platforms.
+
 ## Examples
 
 ### Listening to location

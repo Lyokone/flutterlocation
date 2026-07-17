@@ -63,10 +63,24 @@ class Location implements LocationPlatform {
   /// This can be called independently, before you start listening to
   /// [onLocationChanged]. On Android, enabling background mode also requests the
   /// `ACCESS_BACKGROUND_LOCATION` permission if it has not been granted yet, so
-  /// it can be used to prompt for background location permission on its own.
+  /// it can be used to prompt for background location permission on its own —
+  /// unless [requireBackgroundPermission] is set to `false` (Android only;
+  /// ignored elsewhere), in which case the foreground service is started
+  /// directly on just the foreground permission. A foreground service with
+  /// the location type retains location access while backgrounded without
+  /// needing `ACCESS_BACKGROUND_LOCATION` ("Allow all the time") at all —
+  /// that permission is only required for location access *outside* of an
+  /// active foreground service. Defaults to `true`, preserving the previous
+  /// behavior.
   @override
-  Future<bool> enableBackgroundMode({bool? enable = true}) {
-    return LocationPlatform.instance.enableBackgroundMode(enable: enable);
+  Future<bool> enableBackgroundMode({
+    bool? enable = true,
+    bool requireBackgroundPermission = true,
+  }) {
+    return LocationPlatform.instance.enableBackgroundMode(
+      enable: enable,
+      requireBackgroundPermission: requireBackgroundPermission,
+    );
   }
 
   /// Gets the current location of the user.

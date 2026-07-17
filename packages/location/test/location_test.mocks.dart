@@ -84,12 +84,18 @@ class MockLocation extends _i1.Mock implements _i3.Location {
       ) as _i4.Future<bool>);
 
   @override
-  _i4.Future<bool> enableBackgroundMode({bool? enable = true}) =>
+  _i4.Future<bool> enableBackgroundMode({
+    bool? enable = true,
+    bool? requireBackgroundPermission = true,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #enableBackgroundMode,
           [],
-          {#enable: enable},
+          {
+            #enable: enable,
+            #requireBackgroundPermission: requireBackgroundPermission,
+          },
         ),
         returnValue: _i4.Future<bool>.value(false),
       ) as _i4.Future<bool>);
