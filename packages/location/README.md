@@ -164,6 +164,15 @@ requests the `ACCESS_BACKGROUND_LOCATION` permission when it has not been grante
 yet, so you can use it to prompt for background permission independently, without
 having to activate a location stream first.
 
+**This only keeps tracking location while your app process is alive** — on
+Android via a foreground service, on iOS via a background execution exemption.
+Neither survives the user manually killing the app (swiping it away from the
+recent-apps list) or the OS terminating it outright; there is no way for any
+Flutter plugin to run Dart code once the process itself no longer exists. If
+you need tracking that resumes after the app is killed/terminated, look at a
+plugin built around native background services designed for that, such as
+[`flutter_background_geolocation`](https://pub.dev/packages/flutter_background_geolocation).
+
 Be sure to check the example project to get other code samples.
 
 On Android, a foreground notification is displayed with information that location service is running in the background.
