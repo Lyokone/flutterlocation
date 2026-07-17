@@ -177,6 +177,13 @@ class LocationPlatform extends PlatformInterface {
   /// resolved to a drawable resource in the same way as [iconName]. If no
   /// matching resource is found, no large icon is shown.
   ///
+  /// [iconBytes]/[imageBytes] are an alternative to [iconName]/[imageName]
+  /// for apps that don't want to manually add a drawable resource to their
+  /// Android project (e.g. to render a Flutter icon to PNG bytes at runtime
+  /// instead) — decoded directly into the small/large icon bitmap. When both
+  /// are provided for the same icon, the bytes take precedence over the
+  /// resource name.
+  ///
   /// When [onTapBringToFront] is set to true, tapping the notification will
   /// bring the activity back to the front.
   ///
@@ -194,6 +201,8 @@ class LocationPlatform extends PlatformInterface {
     String? title,
     String? iconName,
     String? imageName,
+    Uint8List? iconBytes,
+    Uint8List? imageBytes,
     String? subtitle,
     String? description,
     Color? color,

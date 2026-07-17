@@ -1,5 +1,6 @@
 // Ignored since there is a bug in the coverage report tool
 // https://github.com/dart-lang/coverage/issues/339 coverage:ignore-file
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:location_platform_interface/location_platform_interface.dart';
@@ -177,6 +178,13 @@ class Location implements LocationPlatform {
   /// resolved to a drawable resource in the same way as [iconName]. If no
   /// matching resource is found, no large icon is shown.
   ///
+  /// [iconBytes]/[imageBytes] are an alternative to [iconName]/[imageName]
+  /// for apps that don't want to manually add a drawable resource to their
+  /// Android project (e.g. to render a Flutter icon to PNG bytes at runtime
+  /// instead) — decoded directly into the small/large icon bitmap. When both
+  /// are provided for the same icon, the bytes take precedence over the
+  /// resource name.
+  ///
   /// When [onTapBringToFront] is set to true, tapping the notification will
   /// bring the activity back to the front.
   ///
@@ -195,6 +203,8 @@ class Location implements LocationPlatform {
     String? title,
     String? iconName,
     String? imageName,
+    Uint8List? iconBytes,
+    Uint8List? imageBytes,
     String? subtitle,
     String? description,
     Color? color,
@@ -205,6 +215,8 @@ class Location implements LocationPlatform {
       title: title,
       iconName: iconName,
       imageName: imageName,
+      iconBytes: iconBytes,
+      imageBytes: imageBytes,
       subtitle: subtitle,
       description: description,
       color: color,

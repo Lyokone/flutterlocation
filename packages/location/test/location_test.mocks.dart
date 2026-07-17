@@ -4,7 +4,8 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
-import 'dart:ui' as _i5;
+import 'dart:typed_data' as _i5;
+import 'dart:ui' as _i6;
 
 import 'package:location/location.dart' as _i3;
 import 'package:location_platform_interface/location_platform_interface.dart'
@@ -177,9 +178,11 @@ class MockLocation extends _i1.Mock implements _i3.Location {
     String? title,
     String? iconName,
     String? imageName,
+    _i5.Uint8List? iconBytes,
+    _i5.Uint8List? imageBytes,
     String? subtitle,
     String? description,
-    _i5.Color? color,
+    _i6.Color? color,
     bool? onTapBringToFront,
   }) =>
       (super.noSuchMethod(
@@ -191,6 +194,8 @@ class MockLocation extends _i1.Mock implements _i3.Location {
             #title: title,
             #iconName: iconName,
             #imageName: imageName,
+            #iconBytes: iconBytes,
+            #imageBytes: imageBytes,
             #subtitle: subtitle,
             #description: description,
             #color: color,

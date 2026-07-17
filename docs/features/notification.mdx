@@ -13,6 +13,8 @@ Future<bool> changeNotificationOptions({
   String? title,
   String? iconName,
   String? imageName,
+  Uint8List? iconBytes,
+  Uint8List? imageBytes,
   String? subtitle,
   String? description,
   Color? color,
@@ -43,6 +45,45 @@ shrinker to keep it by adding a `res/raw/keep.xml` to your Android app:
 See Android's [shrink, obfuscate, and optimize your
 app](https://developer.android.com/build/shrink-code#keep-resources) guide for
 details.
+
+### Setting an icon without a drawable resource
+
+`iconBytes`/`imageBytes` are an alternative to `iconName`/`imageName` for apps
+that don't want to manually add a drawable resource to their Android project
+— e.g. to use one of Flutter's own `Icons` instead. Render it to PNG bytes at
+runtime and pass the bytes directly; when both a name and bytes are provided
+for the same icon, the bytes take precedence.
+
+```dart
+Future<Uint8List> iconDataToPngBytes(IconData icon, {double size = 24, Color color = Colors.white}) async {
+  final recorder = PictureRecorder();
+  final canvas = Canvas(recorder);
+  final painter = TextPainter(textDirection: TextDirection.ltr)
+    ..text = TextSpan(
+      text: String.fromCharCode(icon.codePoint),
+      style: TextStyle(
+        fontSize: size,
+        fontFamily: icon.fontFamily,
+        package: icon.fontPackage,
+        color: color,
+      ),
+    )
+    ..layout();
+  painter.paint(canvas, Offset.zero);
+  final image = await recorder.endRecording().toImage(size.ceil(), size.ceil());
+  final bytes = await image.toByteData(format: ImageByteFormat.png);
+  return bytes!.buffer.asUint8List();
+}
+
+await location.changeNotificationOptions(
+  iconBytes: await iconDataToPngBytes(Icons.location_on),
+);
+```
+
+Android's small-icon convention expects a white silhouette on a transparent
+background (the system tints it to match the status bar) — render your icon
+accordingly for it to look right; this plugin decodes whatever bytes it's
+given as-is.
 
 ## Examples
 

@@ -222,6 +222,8 @@ class MethodChannelLocation extends LocationPlatform {
     String? title,
     String? iconName,
     String? imageName,
+    Uint8List? iconBytes,
+    Uint8List? imageBytes,
     String? subtitle,
     String? description,
     Color? color,
@@ -241,6 +243,14 @@ class MethodChannelLocation extends LocationPlatform {
 
     if (imageName != null) {
       data['imageName'] = imageName;
+    }
+
+    if (iconBytes != null) {
+      data['iconBytes'] = iconBytes;
+    }
+
+    if (imageBytes != null) {
+      data['imageBytes'] = imageBytes;
     }
 
     if (subtitle != null) {
