@@ -3,8 +3,10 @@ package com.lyokone.location
 import android.Manifest
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
@@ -16,6 +18,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.ApiException
@@ -45,7 +48,7 @@ private const val PREFS_NAME = "flutter_location_prefs"
 private const val PREFS_KEY_PERMISSION_REQUESTED = "location_permission_requested"
 
 class FlutterLocation(
-    applicationContext: Context,
+    private val applicationContext: Context,
     activity: Activity?,
 ) : PluginRegistry.RequestPermissionsResultListener,
     PluginRegistry.ActivityResultListener {
@@ -65,6 +68,13 @@ class FlutterLocation(
                 createLocationCallback()
                 createLocationRequest()
                 buildLocationSettingsRequest()
+                unregisterLocationProvidersChangedReceiver()
+                ContextCompat.registerReceiver(
+                    applicationContext,
+                    locationProvidersChangedReceiver,
+                    IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION),
+                    ContextCompat.RECEIVER_NOT_EXPORTED,
+                )
             } else {
                 stopLocationUpdates()
                 mFusedLocationClient = null
@@ -73,8 +83,17 @@ class FlutterLocation(
                     mMessageListener?.let { locationManager.removeNmeaListener(it) }
                     mMessageListener = null
                 }
+                unregisterLocationProvidersChangedReceiver()
             }
         }
+
+    private fun unregisterLocationProvidersChangedReceiver() {
+        try {
+            applicationContext.unregisterReceiver(locationProvidersChangedReceiver)
+        } catch (e: IllegalArgumentException) {
+            // Not currently registered -- nothing to undo.
+        }
+    }
 
     var mFusedLocationClient: FusedLocationProviderClient? = null
     private var mSettingsClient: SettingsClient? = null
@@ -175,6 +194,32 @@ class FlutterLocation(
                 // stream (#535).
                 if (!checkServiceEnabled()) {
                     sendError("SERVICE_STATUS_DISABLED", "Location services were disabled", null)
+                }
+            }
+        }
+
+    /**
+     * Retries a pending one-shot [getLocationResults] call and/or an active
+     * [events] stream once the location service is turned back on.
+     *
+     * [startRequestingLocation] only runs when something explicitly asks for a
+     * location (`getLocation()`/`onLocationChanged.listen()`/a settings change).
+     * If the service was off at that moment, the Google Play services settings
+     * check fails and -- unless the user happens to tap "Turn on" on the
+     * resulting system dialog -- nothing ever retries: enabling the service
+     * afterwards through Quick Settings or the Settings app doesn't surface a
+     * result to [onActivityResult], and (on the primary fused-provider path)
+     * nothing else observes provider on/off transitions. This receiver, kept
+     * for as long as an activity is attached, is that missing signal (#926).
+     */
+    private val locationProvidersChangedReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                context: Context,
+                intent: Intent,
+            ) {
+                if (checkServiceEnabled() && (getLocationResults.isNotEmpty() || events != null)) {
+                    startRequestingLocation()
                 }
             }
         }
