@@ -21,6 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
+import androidx.core.graphics.drawable.IconCompat
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 
@@ -33,6 +34,8 @@ data class NotificationOptions(
     val title: String = DEFAULT_NOTIFICATION_TITLE,
     val iconName: String = DEFAULT_NOTIFICATION_ICON_NAME,
     val imageName: String? = null,
+    val iconBytes: ByteArray? = null,
+    val imageBytes: ByteArray? = null,
     val subtitle: String? = null,
     val description: String? = null,
     val color: Int? = null,
@@ -90,24 +93,35 @@ class BackgroundNotification(
         options: NotificationOptions,
         notify: Boolean,
     ) {
-        val iconId =
-            getDrawableId(options.iconName).let {
-                if (it != 0) it else getDrawableId(DEFAULT_NOTIFICATION_ICON_NAME)
-            }
+        // iconBytes/imageBytes let a caller supply a pre-rendered icon (e.g. a
+        // Flutter IconData rasterized to PNG bytes) instead of adding a drawable
+        // resource to their Android project by name (#1017). Bytes take
+        // precedence over the by-name lookup when both are provided.
         val largeIcon =
-            options.imageName?.let { imageName ->
-                getDrawableId(imageName).let { imageId ->
-                    if (imageId != 0) {
-                        BitmapFactory.decodeResource(context.resources, imageId)
-                    } else {
-                        null
+            options.imageBytes?.let { bytes -> BitmapFactory.decodeByteArray(bytes, 0, bytes.size) }
+                ?: options.imageName?.let { imageName ->
+                    getDrawableId(imageName).let { imageId ->
+                        if (imageId != 0) {
+                            BitmapFactory.decodeResource(context.resources, imageId)
+                        } else {
+                            null
+                        }
                     }
                 }
+        builder =
+            if (options.iconBytes != null) {
+                val bitmap = BitmapFactory.decodeByteArray(options.iconBytes, 0, options.iconBytes.size)
+                builder.setSmallIcon(IconCompat.createWithBitmap(bitmap))
+            } else {
+                val iconId =
+                    getDrawableId(options.iconName).let {
+                        if (it != 0) it else getDrawableId(DEFAULT_NOTIFICATION_ICON_NAME)
+                    }
+                builder.setSmallIcon(iconId)
             }
         builder =
             builder
                 .setContentTitle(options.title)
-                .setSmallIcon(iconId)
                 .setLargeIcon(largeIcon)
                 .setContentText(options.subtitle)
                 .setSubText(options.description)

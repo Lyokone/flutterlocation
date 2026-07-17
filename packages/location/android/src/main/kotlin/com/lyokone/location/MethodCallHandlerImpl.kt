@@ -216,6 +216,8 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
             val title = call.argument<String>("title") ?: DEFAULT_NOTIFICATION_TITLE
             val iconName = call.argument<String>("iconName") ?: DEFAULT_NOTIFICATION_ICON_NAME
             val imageName = call.argument<String>("imageName")
+            val iconBytes = call.argument<ByteArray>("iconBytes")
+            val imageBytes = call.argument<ByteArray>("imageBytes")
             val subtitle = call.argument<String>("subtitle")
             val description = call.argument<String>("description")
             val onTapBringToFront = call.argument<Boolean>("onTapBringToFront") ?: false
@@ -229,6 +231,8 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
                     title,
                     iconName,
                     imageName,
+                    iconBytes,
+                    imageBytes,
                     subtitle,
                     description,
                     color,

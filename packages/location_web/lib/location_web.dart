@@ -184,6 +184,8 @@ class LocationWebPlugin extends LocationPlatform {
     String? title,
     String? iconName,
     String? imageName,
+    Uint8List? iconBytes,
+    Uint8List? imageBytes,
     String? subtitle,
     String? description,
     Color? color,
