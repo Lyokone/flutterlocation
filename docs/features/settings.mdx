@@ -40,6 +40,15 @@ When you call `changeSettings`, an active `onLocationChanged` stream is updated 
 is backgrounded, then resume the foreground `interval` automatically. It is
 Android-only — Core Location has no equivalent on iOS/macOS.
 
+If you need continuous background tracking on iOS/macOS and see updates stop
+unexpectedly after some time (the exact duration varies — it depends on the
+device's movement, not a fixed timeout), set
+`pausesLocationUpdatesAutomatically: false`. Core Location's default (`true`)
+lets it pause updates on its own judgment — e.g. when the device appears to
+have stopped moving — as a battery-saving heuristic, which is usually fine but
+can be surprising for an app that expects truly continuous updates (like live
+tracking).
+
 ## Example
 
 ```dart
