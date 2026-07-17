@@ -373,14 +373,23 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             }
         }
 
+        // Core Location uses a negative value as a sentinel for "invalid/not
+        // available" on speed and speed accuracy (see the `CLLocation.speed`
+        // and `CLLocation.speedAccuracy` docs). Passed straight through, that
+        // sentinel reads to Dart callers as a real (negative) measurement
+        // rather than "no data", e.g. a stationary or indoor fix reporting a
+        // speed of exactly -1 (#741). Map it to `nil` instead.
+        let speed: Double? = location.speed >= 0 ? location.speed : nil
+        let speedAccuracy: Double? = location.speedAccuracy >= 0 ? location.speedAccuracy : nil
+
         return [
             "latitude": location.coordinate.latitude,
             "longitude": location.coordinate.longitude,
             "accuracy": location.horizontalAccuracy,
             "verticalAccuracy": location.verticalAccuracy,
             "altitude": location.altitude,
-            "speed": location.speed,
-            "speed_accuracy": location.speedAccuracy,
+            "speed": speed as Any,
+            "speed_accuracy": speedAccuracy as Any,
             "heading": location.course,
             "time": timeInMilliseconds,
             "isMock": isMock ? 1 : 0,
