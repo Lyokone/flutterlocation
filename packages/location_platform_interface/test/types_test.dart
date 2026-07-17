@@ -133,7 +133,12 @@ void main() {
     });
 
     test('fromJson(toJson) round-trips with null fields', () {
-      final locationData = LocationData.fromJson(<String, dynamic>{});
+      // latitude/longitude are non-nullable, so they're the only fields that
+      // must be present; everything else round-trips through its null default.
+      final locationData = LocationData.fromJson(<String, dynamic>{
+        'latitude': 42.0,
+        'longitude': 2.0,
+      });
 
       expect(LocationData.fromJson(locationData.toJson()), locationData);
     });
