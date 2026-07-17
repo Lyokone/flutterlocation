@@ -195,7 +195,11 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
                 ))
                 return
             }
-            if self.currentAuthorizationStatus == .denied {
+            // .restricted (parental controls / MDM) needs the same early-out as
+            // .denied: requestPermission() below is a no-op for it (CLLocationManager
+            // cannot prompt for or change a restricted status), so without this the
+            // pending result appended just below would never resolve.
+            if self.isPermissionDeniedOrRestricted {
                 result(FlutterError(
                     code: "PERMISSION_DENIED",
                     message: "The user explicitly denied the use of location services for this app or "
@@ -229,17 +233,26 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
     private func onHasPermission(result: FlutterResult) {
         if isPermissionGranted {
             result(isHighAccuracyPermitted ? 1 : 3)
-        } else if currentAuthorizationStatus == .denied {
-            // Once authorization has actually been denied, iOS won't show the
-            // system prompt again -- requestPermission() already reflects this
-            // by returning deniedForever for any non-notDetermined, non-granted
-            // status. hasPermission() previously always returned plain `denied`
-            // regardless, inconsistent with what a following requestPermission()
-            // call would report for the same state (#738).
+        } else if isPermissionDeniedOrRestricted {
+            // Once authorization has actually been denied (or is restricted by
+            // parental controls/MDM), iOS won't show the system prompt again --
+            // requestPermission() already reflects this by returning deniedForever
+            // for any non-notDetermined, non-granted status. hasPermission()
+            // previously always returned plain `denied` regardless, inconsistent
+            // with what a following requestPermission() call would report for the
+            // same state (#738).
             result(2)
         } else {
             result(0)
         }
+    }
+
+    /// Whether the current authorization status can never turn into a grant
+    /// without the user leaving the app to change it in Settings: either an
+    /// explicit `.denied`, or `.restricted` (parental controls/MDM), for which
+    /// `CLLocationManager` cannot prompt or change the status at all.
+    private var isPermissionDeniedOrRestricted: Bool {
+        currentAuthorizationStatus == .denied || currentAuthorizationStatus == .restricted
     }
 
     /// Whether background ("Always") location authorization has been granted.
@@ -481,12 +494,20 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
                 permissionWanted = false
                 flutterResult?(0)
                 flutterResult = nil
-            } else if !pendingLocationResults.isEmpty {
+            }
+            if !pendingLocationResults.isEmpty {
                 // getLocation() requested permission just-in-time (status was
                 // .notDetermined) and the user denied it. Without this, the pending
                 // result(s) were never resolved and the Dart Future(s) from
                 // getLocation() hung forever instead of throwing, since only the
                 // requestPermission() flow above resolved on denial (#979).
+                //
+                // This must be a second independent `if`, not `else if`: a
+                // concurrent requestPermission() + getLocation() pair (the same
+                // shape of concurrent call the #977 fix targets) can leave both
+                // permissionWanted and pendingLocationResults non-empty at once,
+                // and an `else if` here silently dropped the getLocation() side,
+                // leaving those Futures hanging forever.
                 let error = FlutterError(
                     code: "PERMISSION_DENIED",
                     message: "The user explicitly denied the use of location services for this app or "
