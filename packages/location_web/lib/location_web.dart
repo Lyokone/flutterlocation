@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:js_interop';
-import 'dart:ui';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
 import 'package:web/web.dart' as web;
@@ -47,8 +47,8 @@ class LocationWebPlugin extends LocationPlatform {
       (web.GeolocationPosition result) {
         completer.complete(result);
       }.toJS,
-      () {
-        completer.completeError(Exception('location error'));
+      (web.GeolocationPositionError error) {
+        completer.completeError(_toPlatformException(error));
       }.toJS,
       web.PositionOptions(
         enableHighAccuracy: _accuracy!.index >= LocationAccuracy.high.index,
@@ -56,6 +56,26 @@ class LocationWebPlugin extends LocationPlatform {
     );
 
     return await completer.future;
+  }
+
+  /// Converts a [web.GeolocationPositionError] to a [PlatformException] so
+  /// that web errors are catchable the same way as the `PlatformException`s
+  /// thrown by the Android/iOS method channel implementations.
+  ///
+  /// Reference: https://developer.mozilla.org/en-US/docs/Web/API/GeolocationPositionError
+  PlatformException _toPlatformException(web.GeolocationPositionError error) {
+    final String code;
+    switch (error.code) {
+      case web.GeolocationPositionError.PERMISSION_DENIED:
+        code = 'PERMISSION_DENIED';
+      case web.GeolocationPositionError.POSITION_UNAVAILABLE:
+        code = 'POSITION_UNAVAILABLE';
+      case web.GeolocationPositionError.TIMEOUT:
+        code = 'TIMEOUT';
+      default:
+        code = 'UNKNOWN_ERROR';
+    }
+    return PlatformException(code: code, message: error.message);
   }
 
   @override
@@ -73,6 +93,14 @@ class LocationWebPlugin extends LocationPlatform {
 
   @override
   Future<PermissionStatus> hasPermission() async {
+    // Some browsers/embedded webviews (e.g. in-app browsers) implement
+    // Geolocation but not the Permissions API, leaving `navigator.permissions`
+    // undefined. Querying it would crash, so treat it as "not yet determined"
+    // and let requestPermission() drive the actual native prompt instead.
+    if (_permissions.isUndefinedOrNull) {
+      return PermissionStatus.denied;
+    }
+
     // The Permissions API expects a real JS object with a `name` property.
     // `{...}.toJSBox` would hand it an opaque Dart object whose `name` is
     // undefined, which the browser rejects with "Failed to read the 'name'
@@ -99,7 +127,14 @@ class LocationWebPlugin extends LocationPlatform {
     try {
       await _getCurrentPosition();
       return PermissionStatus.granted;
-    } catch (e) {
+    } on PlatformException catch (e) {
+      if (e.code != 'PERMISSION_DENIED') {
+        // The browser only resolves the permission prompt (and reaches a
+        // POSITION_UNAVAILABLE/TIMEOUT error) once the user has already
+        // allowed access, so assuming denial here would misreport an
+        // unrelated location-fetch failure as a permission rejection.
+        return hasPermission();
+      }
       return PermissionStatus.deniedForever;
     }
   }
@@ -132,8 +167,8 @@ class LocationWebPlugin extends LocationPlatform {
       (web.GeolocationPosition result) {
         controller.add(_toLocationData(result));
       }.toJS,
-      () {
-        controller.addError(Exception('location error'));
+      (web.GeolocationPositionError error) {
+        controller.addError(_toPlatformException(error));
       }.toJS,
       web.PositionOptions(
         enableHighAccuracy: _accuracy!.index >= LocationAccuracy.high.index,
