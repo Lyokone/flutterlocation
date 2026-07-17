@@ -24,6 +24,15 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
     // locationManager(_:didUpdateLocations:).
     private let staleLocationThreshold: TimeInterval = 15
 
+    // Core Location has no native "minimum time between updates" concept (only
+    // distanceFilter, a minimum distance) unlike Android's LocationRequest
+    // interval, so `interval` was silently ignored on iOS/macOS and the stream
+    // fired as fast as fixes arrived (#960). Throttled client-side instead: the
+    // stream drops updates delivered sooner than this many milliseconds after
+    // the last one it forwarded. Matches the Dart-side default of 1000ms.
+    private var updateIntervalMilliseconds: Double = 1000
+    private var lastStreamUpdateAt: Date?
+
     public static func register(with registrar: FlutterPluginRegistrar) {
         #if os(iOS)
         let messenger = registrar.messenger()
@@ -131,6 +140,10 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
 
             let distanceFilter = args["distanceFilter"] as? Double ?? 0
             manager.distanceFilter = distanceFilter == 0 ? kCLDistanceFilterNone : distanceFilter
+
+            if let interval = args["interval"] as? Int {
+                self.updateIntervalMilliseconds = Double(interval)
+            }
 
             if let pauses = args["pausesLocationUpdatesAutomatically"] as? Bool {
                 manager.pausesLocationUpdatesAutomatically = pauses
@@ -341,6 +354,7 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
     public func onListen(withArguments _: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         flutterEventSink = events
         flutterListening = true
+        lastStreamUpdateAt = nil
 
         if isPermissionGranted {
             clLocationManager?.startUpdatingLocation()
@@ -427,6 +441,12 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             flutterResult = nil
         }
         if flutterListening {
+            let now = Date()
+            if let lastUpdate = lastStreamUpdateAt,
+               now.timeIntervalSince(lastUpdate) * 1000 < updateIntervalMilliseconds {
+                return
+            }
+            lastStreamUpdateAt = now
             flutterEventSink?(coordinates)
         } else {
             clLocationManager?.stopUpdatingLocation()
