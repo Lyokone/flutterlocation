@@ -38,6 +38,7 @@ class _ServiceEnabledState extends State<ServiceEnabledWidget> {
       children: <Widget>[
         Text(
           'Service enabled: ${_serviceEnabled ?? "unknown"}',
+          key: const Key('serviceEnabledText'),
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         Row(
@@ -45,11 +46,13 @@ class _ServiceEnabledState extends State<ServiceEnabledWidget> {
             Container(
               margin: const EdgeInsets.only(right: 42),
               child: ElevatedButton(
+                key: const Key('serviceCheckButton'),
                 onPressed: _checkService,
                 child: const Text('Check'),
               ),
             ),
             ElevatedButton(
+              key: const Key('serviceRequestButton'),
               onPressed: (_serviceEnabled ?? false) ? null : _requestService,
               child: const Text('Request'),
             ),

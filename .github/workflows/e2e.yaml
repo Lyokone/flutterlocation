@@ -1,0 +1,337 @@
+name: e2e
+
+# Real GPS-mocked integration tests, one job per platform. See
+# BACKLOG-TRIAGE.md for the reasoning: Android/iOS/Web/Linux inject a real
+# mock fix and assert against it; macOS/Windows only get a smoke test since
+# neither has a known CI-scriptable way to pre-authorize the location
+# permission or inject a fix.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [master, develop]
+
+env:
+  # Google's Mountain View campus. Keep in sync with
+  # packages/location/example/integration_test/test_config.dart.
+  TEST_LAT: "37.4219999"
+  TEST_LON: "-122.0840575"
+  TEST_LAT2: "37.3861000"
+  TEST_LON2: "-122.0839000"
+
+jobs:
+  e2e-android:
+    name: Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Activate patrol_cli
+        run: |
+          dart pub global activate patrol_cli
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Enable KVM (emulator acceleration)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run Android e2e tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          script: |
+            adb emu geo fix $TEST_LON $TEST_LAT
+
+            cd packages/location/example
+
+            patrol test \
+              --target integration_test/permission_flow_test.dart \
+              -d emulator-5554
+
+            patrol test \
+              --target integration_test/get_location_test.dart \
+              -d emulator-5554
+
+            # onLocationChanged assertion needs a *second*, distinct fix
+            # partway through the test run -- start the test, then flip the
+            # mock location once it's had time to observe the first fix. The
+            # fused location provider applies "stationary throttling" on
+            # emulators (confirmed via logcat while developing this test
+            # locally: it can delay the very first fix by 20-40+ seconds even
+            # with a mock location already injected), so this must wait
+            # comfortably longer than that before switching, or the switch
+            # can race the first fix and the test never observes it.
+            patrol test \
+              --target integration_test/listen_location_test.dart \
+              -d emulator-5554 &
+            LISTEN_TEST_PID=$!
+            sleep 45
+            adb emu geo fix $TEST_LON2 $TEST_LAT2
+            wait $LISTEN_TEST_PID
+
+            adb shell cmd location set-location-enabled false
+            patrol test \
+              --target integration_test/service_disabled_test.dart \
+              -d emulator-5554
+            adb shell cmd location set-location-enabled true
+
+  e2e-ios:
+    name: iOS
+    runs-on: macos-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      - name: Activate patrol_cli
+        run: |
+          dart pub global activate patrol_cli
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Boot iOS Simulator
+        id: simulator
+        run: |
+          UDID=$(xcrun simctl create PatrolE2E "iPhone 15" | tail -1)
+          xcrun simctl boot "$UDID"
+          xcrun simctl location "$UDID" set "$TEST_LAT,$TEST_LON"
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Run iOS e2e tests
+        working-directory: packages/location/example
+        run: |
+          UDID="${{ steps.simulator.outputs.udid }}"
+
+          patrol test \
+            --target integration_test/permission_flow_test.dart \
+            -d "$UDID"
+
+          patrol test \
+            --target integration_test/get_location_test.dart \
+            -d "$UDID"
+
+          patrol test \
+            --target integration_test/listen_location_test.dart \
+            -d "$UDID" &
+          LISTEN_TEST_PID=$!
+          sleep 20
+          xcrun simctl location "$UDID" set "$TEST_LAT2,$TEST_LON2"
+          wait $LISTEN_TEST_PID
+
+      - name: Shut down simulator
+        if: always()
+        run: xcrun simctl shutdown "${{ steps.simulator.outputs.udid }}" || true
+
+  e2e-web:
+    name: Web
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      - name: Activate patrol_cli
+        run: |
+          dart pub global activate patrol_cli
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Run web e2e tests
+        working-directory: packages/location/example
+        run: |
+          for target in get_location_test listen_location_test; do
+            patrol test \
+              --target integration_test/$target.dart \
+              -d chrome \
+              --web-geolocation="{\"latitude\": $TEST_LAT, \"longitude\": $TEST_LON}" \
+              --web-permissions='["geolocation"]'
+          done
+
+  e2e-linux:
+    name: Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install Linux build + D-Bus dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev \
+            xvfb python3-dbus python3-gi
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      - name: Activate patrol_cli
+        run: |
+          dart pub global activate patrol_cli
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      # The real GeoClue2 (and this fake) owns its name on the SYSTEM bus,
+      # which requires an explicit D-Bus policy grant for a non-root process
+      # to do the same -- then the system bus needs restarting to pick it up.
+      - name: Allow this user to own org.freedesktop.GeoClue2 on the system bus
+        run: |
+          sudo tee /etc/dbus-1/system.d/fake-geoclue2.conf > /dev/null <<EOF
+          <!DOCTYPE busconfig PUBLIC "-//freedesktop//DTD D-Bus Bus Configuration 1.0//EN"
+           "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
+          <busconfig>
+            <policy user="$(whoami)">
+              <allow own="org.freedesktop.GeoClue2"/>
+            </policy>
+          </busconfig>
+          EOF
+          sudo systemctl restart dbus
+
+      - name: Start fake GeoClue2 service
+        run: |
+          echo "{\"latitude\": $TEST_LAT, \"longitude\": $TEST_LON}" > /tmp/mock_location.json
+          nohup python3 .github/scripts/fake_geoclue2.py /tmp/mock_location.json \
+            > /tmp/fake_geoclue2.log 2>&1 &
+          # Give it a moment to claim the bus name before the app starts.
+          sleep 2
+          cat /tmp/fake_geoclue2.log
+
+      - name: Run Linux e2e tests (service available)
+        working-directory: packages/location/example
+        run: |
+          xvfb-run -a patrol test \
+            --target integration_test/get_location_test.dart \
+            -d linux
+
+          xvfb-run -a patrol test \
+            --target integration_test/listen_location_test.dart \
+            -d linux &
+          LISTEN_TEST_PID=$!
+          sleep 10
+          echo "{\"latitude\": $TEST_LAT2, \"longitude\": $TEST_LON2}" > /tmp/mock_location.json
+          wait $LISTEN_TEST_PID
+
+      - name: Stop fake GeoClue2 service and run service-disabled test
+        working-directory: packages/location/example
+        run: |
+          sudo pkill -f fake_geoclue2.py || true
+          xvfb-run -a patrol test \
+            --target integration_test/service_disabled_test.dart \
+            -d linux
+
+  # macOS/Windows: smoke test only, not real GPS-mocked e2e. Neither platform
+  # has a known CI-scriptable way to pre-authorize the location permission or
+  # inject a mock fix -- see the top of this file and BACKLOG-TRIAGE.md.
+  # Plain `flutter test integration_test/`, not Patrol: there's no native
+  # dialog to gain from driving with the native automator on either platform.
+  e2e-macos:
+    name: macOS (smoke test)
+    runs-on: macos-latest
+    timeout-minutes: 20
+    # patrol's macOS support has an upstream Package.swift bug that breaks
+    # `flutter build macos` for the whole app the moment patrol is a
+    # dependency at all (see the matching comment in
+    # packages/location/example/pubspec.yaml and location-prepare.yaml's
+    # prepare-macos job) -- so this job is currently expected to fail at the
+    # build step, not because of anything this test does. Non-blocking until
+    # patrol fixes this upstream; kept in the workflow so it starts passing
+    # automatically (and visibly) the moment that happens.
+    continue-on-error: true
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      - name: Run macOS smoke test
+        working-directory: packages/location/example
+        run: flutter test integration_test/smoke_test.dart -d macos
+
+  e2e-windows:
+    name: Windows (smoke test)
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      - name: Run Windows smoke test
+        working-directory: packages/location/example
+        run: flutter test integration_test/smoke_test.dart -d windows

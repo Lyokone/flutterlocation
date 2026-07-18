@@ -49,10 +49,12 @@ class _ListenLocationState extends State<ListenLocationWidget> {
 
   @override
   void dispose() {
+    // No setState() here: the element is already being torn down by the
+    // time dispose() runs, and calling setState() on a defunct element
+    // throws (caught by an e2e test exercising a widget teardown mid-stream
+    // for the first time -- this had gone unnoticed since nothing had ever
+    // unmounted this widget with an active subscription before).
     _locationSubscription?.cancel();
-    setState(() {
-      _locationSubscription = null;
-    });
     super.dispose();
   }
 
@@ -63,6 +65,7 @@ class _ListenLocationState extends State<ListenLocationWidget> {
       children: <Widget>[
         Text(
           'Listen location: ${_error ?? '${_location ?? "unknown"}'}',
+          key: const Key('listenLocationText'),
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         Row(
@@ -70,12 +73,14 @@ class _ListenLocationState extends State<ListenLocationWidget> {
             Container(
               margin: const EdgeInsets.only(right: 42),
               child: ElevatedButton(
+                key: const Key('listenLocationButton'),
                 onPressed:
                     _locationSubscription == null ? _listenLocation : null,
                 child: const Text('Listen'),
               ),
             ),
             ElevatedButton(
+              key: const Key('stopListenLocationButton'),
               onPressed: _locationSubscription != null ? _stopListen : null,
               child: const Text('Stop'),
             ),

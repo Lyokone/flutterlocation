@@ -36,6 +36,7 @@ class _PermissionStatusState extends State<PermissionStatusWidget> {
       children: <Widget>[
         Text(
           'Permission status: ${_permissionGranted ?? "unknown"}',
+          key: const Key('permissionStatusText'),
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         Row(
@@ -43,11 +44,13 @@ class _PermissionStatusState extends State<PermissionStatusWidget> {
             Container(
               margin: const EdgeInsets.only(right: 42),
               child: ElevatedButton(
+                key: const Key('permissionCheckButton'),
                 onPressed: _checkPermissions,
                 child: const Text('Check'),
               ),
             ),
             ElevatedButton(
+              key: const Key('permissionRequestButton'),
               onPressed: _permissionGranted == PermissionStatus.granted
                   ? null
                   : _requestPermission,
