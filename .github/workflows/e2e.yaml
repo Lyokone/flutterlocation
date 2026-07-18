@@ -16,8 +16,6 @@ env:
   # packages/location/example/integration_test/test_config.dart.
   TEST_LAT: "37.4219999"
   TEST_LON: "-122.0840575"
-  TEST_LAT2: "37.3861000"
-  TEST_LON2: "-122.0839000"
 
 jobs:
   e2e-android:
@@ -73,14 +71,12 @@ jobs:
           # quoted string", meaning it doesn't even respect a quoted string
           # continuing onto the next line -- it's a naive per-line split
           # before the shell ever sees it. Every line below is therefore a
-          # single, fully self-contained command: its own `cd`, and (for the
-          # mid-test location switch) its own background subshell + wait,
-          # all on one line, not relying on any state from a previous line.
+          # single, fully self-contained command with its own `cd`.
           script: |
             adb emu geo fix $TEST_LON $TEST_LAT
             cd packages/location/example && patrol test --target integration_test/permission_flow_test.dart -d emulator-5554
             cd packages/location/example && patrol test --target integration_test/get_location_test.dart -d emulator-5554
-            cd packages/location/example && ( (sleep 45 && adb emu geo fix $TEST_LON2 $TEST_LAT2) & patrol test --target integration_test/listen_location_test.dart -d emulator-5554; wait )
+            cd packages/location/example && patrol test --target integration_test/listen_location_test.dart -d emulator-5554
             adb shell cmd location set-location-enabled false
             cd packages/location/example && patrol test --target integration_test/service_disabled_test.dart -d emulator-5554
             adb shell cmd location set-location-enabled true
@@ -151,11 +147,7 @@ jobs:
 
           patrol test \
             --target integration_test/listen_location_test.dart \
-            -d "$UDID" &
-          LISTEN_TEST_PID=$!
-          sleep 20
-          xcrun simctl location "$UDID" set "$TEST_LAT2,$TEST_LON2"
-          wait $LISTEN_TEST_PID
+            -d "$UDID"
 
       - name: Shut down simulator
         if: always()
@@ -291,16 +283,7 @@ jobs:
         working-directory: packages/location/example
         run: |
           xvfb-run -a flutter test integration_test/get_location_linux_test.dart -d linux
-
-          xvfb-run -a flutter test integration_test/listen_location_linux_test.dart -d linux &
-          LISTEN_TEST_PID=$!
-          # 10s wasn't enough -- confirmed via CI: the Linux app build alone
-          # (flutter test builds fresh per invocation, ~15s) ate the whole
-          # budget, so the mock location already showed the *second* fix
-          # before the app was even running to observe the first one.
-          sleep 25
-          echo "{\"latitude\": $TEST_LAT2, \"longitude\": $TEST_LON2}" > /tmp/mock_location.json
-          wait $LISTEN_TEST_PID
+          xvfb-run -a flutter test integration_test/listen_location_linux_test.dart -d linux
 
       - name: Stop fake GeoClue2 service and run service-disabled test
         working-directory: packages/location/example

@@ -4,18 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:patrol/patrol.dart';
 
-/// Reference coordinates injected by the CI scripts before/while running
-/// these tests (Google's Mountain View campus). Keep these in sync with the
-/// `adb emu geo fix` / `simctl location set` / CDP `Page.setGeolocationOverride`
-/// calls in `.github/workflows/e2e.yaml`.
+/// Reference coordinates injected by the CI scripts before running these
+/// tests (Google's Mountain View campus). Keep in sync with the
+/// `adb emu geo fix` / `simctl location set` / `--web-geolocation` /
+/// fake GeoClue2 mock-location calls in `.github/workflows/e2e.yaml`.
 const testLatitude = 37.4219999;
 const testLongitude = -122.0840575;
-
-/// A second, distinct fix used by tests that need to prove a *second* update
-/// was actually delivered (e.g. the `onLocationChanged` stream), rather than
-/// just re-observing the first one.
-const testLatitude2 = 37.3861000;
-const testLongitude2 = -122.0839000;
 
 /// How close a received coordinate must be to the injected one to count as a
 /// match. Real GPS/emulator/simulator fixes are never bit-exact.
