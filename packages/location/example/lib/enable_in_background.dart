@@ -60,6 +60,7 @@ class _EnableInBackgroundState extends State<EnableInBackgroundWidget> {
       children: <Widget>[
         Text(
           'Enabled in background: ${_error ?? '${_enabled ?? false}'}',
+          key: const Key('backgroundModeText'),
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         Row(
@@ -67,11 +68,13 @@ class _EnableInBackgroundState extends State<EnableInBackgroundWidget> {
             Container(
               margin: const EdgeInsets.only(right: 42),
               child: ElevatedButton(
+                key: const Key('backgroundModeCheckButton'),
                 onPressed: _checkBackgroundMode,
                 child: const Text('Check'),
               ),
             ),
             ElevatedButton(
+              key: const Key('backgroundModeToggleButton'),
               onPressed: _enabled == null ? null : _toggleBackgroundMode,
               child: Text(_enabled ?? false ? 'Disable' : 'Enable'),
             ),

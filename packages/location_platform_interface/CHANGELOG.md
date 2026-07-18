@@ -1,3 +1,39 @@
+## 7.0.0
+
+### 💥 Breaking changes
+
+- `LocationData.latitude` and `LocationData.longitude` are now non-nullable
+  (`double` instead of `double?`). Every platform implementation always sets
+  both, so the nullability was never load-bearing; `fromMap`/`fromJson` now
+  throw instead of silently producing a `LocationData` with null coordinates
+  if given a map that omits them (#675).
+
+### Added
+
+- `LocationData.toJson()`, `LocationData.fromJson()` and `LocationData.copyWith()`.
+- `LocationData.isMock`, populated on Apple platforms from
+  `CLLocation.sourceInformation.isSimulatedBySoftware` (#796).
+- `LocationData.isProducedByAccessory`, populated on Apple platforms from
+  `CLLocation.sourceInformation?.isProducedByAccessory` (#914).
+- `LocationPlatform.isBackgroundPermissionGranted()`, reporting whether
+  background ("Allow all the time"/Always) location access has been granted,
+  independent of foreground access (#538).
+- `LocationPlatform.getLastKnownLocation()`, returning the most recently
+  cached `LocationData` immediately, or `null` when none is available,
+  without waiting for a fresh fix (#733).
+- `backgroundInterval` parameter on `changeSettings`, an Android-only
+  alternate update interval used while background mode is enabled (#1011).
+- `requireBackgroundPermission` parameter on `enableBackgroundMode`
+  (Android only; defaults to `true`, preserving current behavior). When
+  `false`, skips the `ACCESS_BACKGROUND_LOCATION` prompt and relies on the
+  foreground-service background-access exemption instead (#600).
+- `imageName` parameter on `changeNotificationOptions`, for a background
+  notification large icon resolved by drawable name (#856).
+- `iconBytes`/`imageBytes` parameters on `changeNotificationOptions`, an
+  alternative to `iconName`/`imageName` for callers that render an icon at
+  runtime (e.g. from a Flutter `IconData`) instead of bundling a drawable
+  resource (#1017).
+
 ## 6.0.1
 
 - Configure `pausesLocationUpdatesAutomatically` on iOS (#933)

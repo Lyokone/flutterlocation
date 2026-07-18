@@ -31,7 +31,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  location: ^9.0.0
+  location: ^10.0.0
 ```
 
 ### Android
@@ -186,16 +186,20 @@ On iOS, while the app is in the background and gets the location, the blue syste
 
 ## Public Methods Summary
 
-| Return                    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Future\<PermissionStatus> | **requestPermission()** <br>Request the Location permission. Return a PermissionStatus to know if the permission has been granted.                                                                                                                                                                                                                                                                                                                           |
-| Future\<PermissionStatus> | **hasPermission()** <br>Return a PermissionStatus to know the state of the location permission.                                                                                                                                                                                                                                                                                                                                                              |
-| Future\<bool>             | **serviceEnabled()** <br>Return a boolean to know if the Location Service is enabled or if the user manually deactivated it.                                                                                                                                                                                                                                                                                                                                 |
-| Future\<bool>             | **requestService()** <br>Show an alert dialog to request the user to activate the Location Service. On iOS, will only display an alert due to Apple Guidelines, the user having to manually go to Settings. Return a boolean to know if the Location Service has been activated (always `false` on iOS).                                                                                                                                                     |
-| Future\<bool>             | **changeSettings(LocationAccuracy accuracy = LocationAccuracy.HIGH, int interval = 1000, double distanceFilter = 0)** <br>Will change the settings of future requests. `accuracy`will describe the accuracy of the request (see the LocationAccuracy object). `interval` will set the desired interval for active location updates, in milliseconds (only affects Android). `distanceFilter` set the minimum displacement between location updates in meters. |
-| Future\<LocationData>     | **getLocation()** <br>Allow to get a one time position of the user. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted.                                                                                                                                                                                                                                                    |
-| Stream\<LocationData>     | **onLocationChanged** <br>Get the stream of the user's location. It will try to request permission if not granted yet and will throw a `PERMISSION_DENIED` error code if permission still not granted.                                                                                                                                                                                                                                                       |
-| Future\<bool>             | **enableBackgroundMode({bool enable})** <br>Allow or disallow to retrieve location events in the background. Return a boolean to know if background mode was successfully enabled.                                                                                                                                                                                                                                                                           |
+| Return                          | Description                                                                                                                                                                                                                                    |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Future\<PermissionStatus>        | **requestPermission()** <br>Request the Location permission. Returns a `PermissionStatus` to know if the permission has been granted.                                                                                                        |
+| Future\<PermissionStatus>        | **hasPermission()** <br>Returns a `PermissionStatus` to know the state of the location permission.                                                                                                                                            |
+| Future\<bool>                    | **isBackgroundPermissionGranted()** <br>Whether background ("Allow all the time"/Always) location access has been granted, separately from foreground access. Always `false` on web.                                                        |
+| Future\<bool>                    | **serviceEnabled()** <br>Returns a boolean to know if the Location Service is enabled or if the user manually deactivated it.                                                                                                                 |
+| Future\<bool>                    | **requestService()** <br>Show an alert dialog to request the user to activate the Location Service. On iOS, will only display an alert due to Apple Guidelines, the user having to manually go to Settings. Returns a boolean to know if the Location Service has been activated (always `false` on iOS). |
+| Future\<bool>                    | **changeSettings({accuracy, interval, distanceFilter, pausesLocationUpdatesAutomatically, backgroundInterval})** <br>Changes the settings of future requests. `interval`/`distanceFilter`/`backgroundInterval` are Android-only; `pausesLocationUpdatesAutomatically` is iOS/macOS-only. See [settings](https://docs.page/Lyokone/flutterlocation/features/settings) for details. |
+| Future\<LocationData>            | **getLocation()** <br>Gets a one-time position of the user. Requests permission if not already granted, and throws a `PERMISSION_DENIED` error if permission still isn't granted.                                                            |
+| Future\<LocationData?>           | **getLastKnownLocation()** <br>Returns the most recently cached location immediately (or `null` if none is available), without waiting for a fresh fix. Always `null` on web.                                                                |
+| Stream\<LocationData>            | **onLocationChanged** <br>Stream of the user's location. Requests permission if not already granted, and throws a `PERMISSION_DENIED` error if permission still isn't granted.                                                               |
+| Future\<bool>                    | **isBackgroundModeEnabled()** <br>Checks whether background mode is currently enabled.                                                                                                                                                        |
+| Future\<bool>                    | **enableBackgroundMode({enable, requireBackgroundPermission})** <br>Enables or disables retrieving location events in the background (Android/iOS only). `requireBackgroundPermission` (Android only, default `true`) controls whether `ACCESS_BACKGROUND_LOCATION` is required. |
+| Future\<AndroidNotificationData?> | **changeNotificationOptions({channelName, title, iconName, imageName, iconBytes, imageBytes, subtitle, description, color, onTapBringToFront})** <br>Customizes the Android background-mode notification. See [notifications](https://docs.page/Lyokone/flutterlocation/features/notification). |
 
 You should try to manage permission manually with `requestPermission()` to avoid error, but plugin will try handle some cases for you.
 
@@ -205,36 +209,47 @@ You should try to manage permission manually with `requestPermission()` to avoid
 class LocationData {
   final double latitude; // Latitude, in degrees
   final double longitude; // Longitude, in degrees
-  final double accuracy; // Estimated horizontal accuracy of this location, radial, in meters
-  final double altitude; // In meters above the WGS 84 reference ellipsoid
-  final double speed; // In meters/second
-  final double speedAccuracy; // In meters/second, always 0 on iOS and web
-  final double heading; // Heading is the horizontal direction of travel of this device, in degrees
-  final double time; // timestamp of the LocationData
-  final bool isMock; // Is the location currently mocked
+  final double? accuracy; // Estimated horizontal accuracy of this location, radial, in meters
+  final double? verticalAccuracy; // Estimated vertical accuracy of altitude, in meters
+  final double? altitude; // In meters above the WGS 84 reference ellipsoid
+  final double? speed; // In meters/second
+  final double? speedAccuracy; // In meters/second. Not available on web
+  final double? heading; // Horizontal direction of travel of this device, in degrees
+  final double? time; // Timestamp of the LocationData
+  final bool? isMock; // Is the location currently mocked
+  final bool? isProducedByAccessory; // Whether the fix came from a connected accessory (e.g. external GPS). iOS/macOS only
+  final double? headingAccuracy; // Estimated bearing accuracy, in degrees. Android only
+  final double? elapsedRealtimeNanos; // Time of this fix, in elapsed real-time since system boot. Android only
+  final double? elapsedRealtimeUncertaintyNanos; // Uncertainty of elapsedRealtimeNanos. Android only
+  final int? satelliteNumber; // Number of satellites used to derive the fix. Android only
+  final String? provider; // Name of the provider that generated this fix. Android only
 }
 
-
 enum LocationAccuracy {
-  powerSave, // To request best accuracy possible with zero additional power consumption,
+  powerSave, // To request best accuracy possible with zero additional power consumption
   low, // To request "city" level accuracy
   balanced, // To request "block" level accuracy
   high, // To request the most accurate locations available
-  navigation // To request location for navigation usage (affect only iOS)
+  navigation, // To request location for navigation usage (affects only iOS)
+  reduced, // Maps to kCLLocationAccuracyReduced on iOS 14+; equivalent to `low` elsewhere
 }
 
 // Status of a permission request to use location services.
 enum PermissionStatus {
-  /// The permission to use location services has been granted.
+  /// The permission to use location services has been granted for high accuracy.
   granted,
-  // The permission to use location services has been denied by the user. May have been denied forever on iOS.
+  /// The permission has been granted but for low (approximate) accuracy only.
+  grantedLimited,
+  /// The permission to use location services has been denied by the user. May have been denied forever on iOS.
   denied,
-  // The permission to use location services has been denied forever by the user. No dialog will be displayed on permission request.
+  /// The permission to use location services has been denied forever by the user. No dialog will be displayed on permission request.
   deniedForever
 }
 ```
 
-Note: you can convert the timestamp into a `DateTime` with: `DateTime.fromMillisecondsSinceEpoch(locationData.time.toInt())`
+`LocationData` also has `toJson()`/`fromJson()` and `copyWith()` for serialization and copying.
+
+Note: you can convert the timestamp into a `DateTime` with: `DateTime.fromMillisecondsSinceEpoch(locationData.time!.toInt())`
 
 ## Feedback
 

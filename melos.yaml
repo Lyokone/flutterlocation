@@ -25,7 +25,12 @@ scripts:
   #   description: Run dartdoc checks for all packages.
 
   test:
-    run: melos exec -- flutter test .
+    # Scoped to test/, not `.`: flutter test's file discovery doesn't respect
+    # nested pubspec.yaml boundaries, so `flutter test .` in `location` also
+    # swept up packages/location/example/integration_test/*_test.dart (a
+    # separate package with its own dependencies) once that directory
+    # existed, and failed to resolve them.
+    run: melos exec -- flutter test test/
     packageFilters:
       dirExists:
         - 'test'
@@ -33,7 +38,7 @@ scripts:
 
   coverage:
     run: |
-      melos exec -- flutter test --coverage &&
+      melos exec -- flutter test --coverage test/ &&
       melos exec -- genhtml coverage/lcov.info --output-directory=coverage/
     packageFilters:
       dirExists: test

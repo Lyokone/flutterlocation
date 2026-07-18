@@ -63,11 +63,13 @@ class _GetLocationState extends State<GetLocationWidget> {
       children: <Widget>[
         Text(
           'Location: ${_error ?? '${_location ?? "unknown"}'}',
+          key: const Key('getLocationText'),
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         Row(
           children: <Widget>[
             ElevatedButton(
+              key: const Key('getLocationButton'),
               onPressed: _getLocation,
               child: _loading
                   ? const CircularProgressIndicator(
@@ -77,6 +79,7 @@ class _GetLocationState extends State<GetLocationWidget> {
             ),
             const SizedBox(width: 8),
             ElevatedButton(
+              key: const Key('getLastKnownLocationButton'),
               onPressed: _getLastKnownLocation,
               child: const Text('Get last known'),
             ),

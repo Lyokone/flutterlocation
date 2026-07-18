@@ -1,0 +1,397 @@
+name: e2e
+
+# Real GPS-mocked integration tests, one job per platform. See
+# BACKLOG-TRIAGE.md for the reasoning: Android/iOS/Web/Linux inject a real
+# mock fix and assert against it; macOS/Windows only get a smoke test since
+# neither has a known CI-scriptable way to pre-authorize the location
+# permission or inject a fix.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [master, develop]
+
+env:
+  # Google's Mountain View campus. Keep in sync with
+  # packages/location/example/integration_test/test_config.dart.
+  TEST_LAT: "37.4219999"
+  TEST_LON: "-122.0840575"
+
+jobs:
+  e2e-android:
+    name: Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Activate patrol_cli
+        run: |
+          dart pub global activate patrol_cli
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Enable KVM (emulator acceleration)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run Android e2e tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          # This action executes each line of `script` as its own,
+          # completely independent `sh -c` call -- confirmed via CI twice:
+          # first a bare `cd` on its own line didn't persist to later lines,
+          # then wrapping the whole thing in a single `bash -c '...'` spread
+          # across multiple YAML lines still failed with "Unterminated
+          # quoted string", meaning it doesn't even respect a quoted string
+          # continuing onto the next line -- it's a naive per-line split
+          # before the shell ever sees it. Every line below is therefore a
+          # single, fully self-contained command with its own `cd`.
+          script: |
+            adb emu geo fix $TEST_LON $TEST_LAT
+            cd packages/location/example && patrol test --target integration_test/permission_flow_test.dart -d emulator-5554
+            cd packages/location/example && patrol test --target integration_test/get_location_test.dart -d emulator-5554
+            cd packages/location/example && patrol test --target integration_test/listen_location_test.dart -d emulator-5554
+            adb shell cmd location set-location-enabled false
+            cd packages/location/example && patrol test --target integration_test/service_disabled_test.dart -d emulator-5554
+            adb shell cmd location set-location-enabled true
+
+  e2e-ios:
+    name: iOS
+    runs-on: macos-latest
+    timeout-minutes: 45
+    # Confirmed via CI (xcodebuild exited 70, "Total: 0" tests, ~7s after
+    # launch -- a bootstatus wait for full simulator boot didn't change
+    # this) and by comparing against patrol's own example project: Patrol's
+    # iOS native automation needs a dedicated XCUITest runner target
+    # (RunnerUITests, containing just `PATROL_INTEGRATION_TEST_IOS_RUNNER`)
+    # wired into Runner.xcodeproj, which this example app's Xcode project
+    # doesn't have. Adding a new Xcode target means editing
+    # project.pbxproj's interdependent target/build-phase/scheme structure,
+    # which isn't safe to hand-edit blind without Xcode itself -- a
+    # malformed reference can corrupt the whole project. Needs someone with
+    # Xcode to add the target properly; non-blocking until then.
+    continue-on-error: true
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      - name: Activate patrol_cli
+        run: |
+          dart pub global activate patrol_cli
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Boot iOS Simulator
+        id: simulator
+        run: |
+          UDID=$(xcrun simctl create PatrolE2E "iPhone 15" | tail -1)
+          xcrun simctl boot "$UDID"
+          # `simctl boot` returns as soon as the boot is requested, not once
+          # it's actually done -- installing/launching the app immediately
+          # after raced the simulator finishing startup in an earlier run
+          # (xcodebuild exited 70 a few seconds into "Running app...", no
+          # further detail surfaced). bootstatus blocks until it's ready.
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl location "$UDID" set "$TEST_LAT,$TEST_LON"
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Run iOS e2e tests
+        working-directory: packages/location/example
+        run: |
+          UDID="${{ steps.simulator.outputs.udid }}"
+
+          patrol test \
+            --target integration_test/permission_flow_test.dart \
+            -d "$UDID"
+
+          patrol test \
+            --target integration_test/get_location_test.dart \
+            -d "$UDID"
+
+          patrol test \
+            --target integration_test/listen_location_test.dart \
+            -d "$UDID"
+
+      - name: Shut down simulator
+        if: always()
+        run: xcrun simctl shutdown "${{ steps.simulator.outputs.udid }}" || true
+
+  e2e-web:
+    name: Web
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Non-blocking: patrol test on web has failed with "0 tests" across
+    # several real root-cause fixes (a locale RangeError, missing Chromium
+    # system deps) without ever actually running a test, and the remaining
+    # cause isn't identified yet. Left in place (not deleted) so it starts
+    # passing visibly once someone tracks down the real blocker.
+    continue-on-error: true
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      - name: Activate patrol_cli
+        run: |
+          dart pub global activate patrol_cli
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # patrol test's own "Installing Playwright dependencies" step only
+      # installs the npm package, not Chromium's system-level shared
+      # libraries -- headless Chrome fails to launch on a bare Ubuntu runner
+      # without them (confirmed via CI: the run exited right after that step
+      # with "Playwright process exited unexpectedly", 0 tests executed).
+      - name: Install Playwright's Chromium + OS dependencies
+        run: |
+          npm install -g playwright
+          npx playwright install --with-deps chromium
+
+      # First fix attempt found "Error [RangeError]: Incorrect locale
+      # information provided" from Flutter web's own engine startup
+      # (EnginePlatformDispatcher.parseBrowserLanguages) via --verbose, and
+      # --web-locale=en-US was added to force a valid one -- but the next
+      # run still failed identically ("0 tests", 5s). Either that wasn't
+      # the actual blocker, or it's one of several. --verbose again to see
+      # what's actually happening now.
+      - name: Run web e2e tests
+        working-directory: packages/location/example
+        run: |
+          for target in get_location_test listen_location_test; do
+            patrol test \
+              --verbose \
+              --target integration_test/$target.dart \
+              -d chrome \
+              --web-locale=en-US \
+              --web-geolocation="{\"latitude\": $TEST_LAT, \"longitude\": $TEST_LON}" \
+              --web-permissions='["geolocation"]'
+          done
+
+  e2e-linux:
+    name: Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install Linux build + D-Bus dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev \
+            xvfb python3-dbus python3-gi
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      # The real GeoClue2 (and this fake) owns its name on the SYSTEM bus,
+      # which requires an explicit D-Bus policy grant for a non-root process
+      # to do the same -- then the system bus needs restarting to pick it up.
+      # `own` alone was not enough (confirmed via CI: the fake service
+      # started and claimed the name fine, but the app still got
+      # SERVICE_STATUS_ERROR) -- the system bus's default policy also denies
+      # *sending messages to* an arbitrary destination/receiving from it
+      # regardless of who owns the name, so every other process needs an
+      # explicit grant to actually call methods on this service, matching
+      # what the real GeoClue2's own policy file grants.
+      - name: Allow this user to own org.freedesktop.GeoClue2 on the system bus
+        run: |
+          sudo tee /etc/dbus-1/system.d/fake-geoclue2.conf > /dev/null <<EOF
+          <!DOCTYPE busconfig PUBLIC "-//freedesktop//DTD D-Bus Bus Configuration 1.0//EN"
+           "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
+          <busconfig>
+            <policy user="$(whoami)">
+              <allow own="org.freedesktop.GeoClue2"/>
+            </policy>
+            <policy context="default">
+              <allow send_destination="org.freedesktop.GeoClue2"/>
+              <allow receive_sender="org.freedesktop.GeoClue2"/>
+            </policy>
+          </busconfig>
+          EOF
+          sudo systemctl restart dbus
+
+      # A blind `sleep 2` here was genuinely racy (confirmed via CI: this
+      # job failed and passed intermittently across otherwise-identical
+      # runs with no code changes between them) -- actively poll until a
+      # real D-Bus call to the fake service succeeds instead of guessing at
+      # a fixed delay.
+      - name: Start fake GeoClue2 service
+        run: |
+          echo "{\"latitude\": $TEST_LAT, \"longitude\": $TEST_LON}" > /tmp/mock_location.json
+          nohup python3 .github/scripts/fake_geoclue2.py /tmp/mock_location.json \
+            > /tmp/fake_geoclue2.log 2>&1 &
+          for i in $(seq 1 20); do
+            if gdbus call --system \
+              --dest org.freedesktop.GeoClue2 \
+              --object-path /org/freedesktop/GeoClue2/Manager \
+              --method org.freedesktop.GeoClue2.Manager.GetClient \
+              > /dev/null 2>&1; then
+              echo "fake GeoClue2 service confirmed reachable after $i attempt(s)"
+              break
+            fi
+            if [ "$i" -eq 20 ]; then
+              echo "fake GeoClue2 service never became reachable"
+              cat /tmp/fake_geoclue2.log
+              exit 1
+            fi
+            sleep 0.5
+          done
+          cat /tmp/fake_geoclue2.log
+
+      # Plain `flutter test`, not Patrol: `patrol_cli` has no support for
+      # `-d linux` at all ("Device linux is not attached", confirmed via
+      # CI). Linux doesn't need Patrol's native automator anyway -- GeoClue2
+      # has no OS permission dialog to drive.
+      - name: Run Linux e2e tests (service available)
+        working-directory: packages/location/example
+        run: |
+          xvfb-run -a flutter test integration_test/get_location_linux_test.dart -d linux
+          xvfb-run -a flutter test integration_test/listen_location_linux_test.dart -d linux
+
+      # SERVICE_STATUS_ERROR came back on getLocation()/listen even after
+      # the readiness poll above confirmed Manager.GetClient was reachable
+      # (and the flutter build finished ~30s later, so it wasn't a
+      # short-window race) -- dump the fake service's own call log
+      # unconditionally so a repeat failure shows whether Client.Start()
+      # was ever actually received, rather than guessing again.
+      - name: Show fake GeoClue2 service log
+        if: always()
+        run: cat /tmp/fake_geoclue2.log
+
+      - name: Stop fake GeoClue2 service and run service-disabled test
+        working-directory: packages/location/example
+        run: |
+          sudo pkill -f fake_geoclue2.py || true
+          xvfb-run -a flutter test integration_test/service_disabled_linux_test.dart -d linux
+
+  # macOS/Windows: smoke test only, not real GPS-mocked e2e. Neither platform
+  # has a known CI-scriptable way to pre-authorize the location permission or
+  # inject a mock fix -- see the top of this file and BACKLOG-TRIAGE.md.
+  # Plain `flutter test integration_test/`, not Patrol: there's no native
+  # dialog to gain from driving with the native automator on either platform.
+  e2e-macos:
+    name: macOS (smoke test)
+    runs-on: macos-latest
+    timeout-minutes: 20
+    # patrol's macOS support has an upstream Package.swift bug that breaks
+    # `flutter build macos` for the whole app the moment patrol is a
+    # dependency at all (see the matching comment in
+    # packages/location/example/pubspec.yaml and location-prepare.yaml's
+    # prepare-macos job) -- so this job is currently expected to fail at the
+    # build step, not because of anything this test does. Non-blocking until
+    # patrol fixes this upstream; kept in the workflow so it starts passing
+    # automatically (and visibly) the moment that happens.
+    continue-on-error: true
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      - name: Run macOS smoke test
+        working-directory: packages/location/example
+        run: flutter test integration_test/smoke_test.dart -d macos
+
+  e2e-windows:
+    name: Windows (smoke test)
+    runs-on: windows-latest
+    timeout-minutes: 20
+    # Confirmed via two real CI runs: hasPermission() never resolves at all
+    # here, not a test-timing issue -- switching from pumpAndSettle to
+    # explicit 30s polling (smoke_test.dart) made no difference, ruling that
+    # theory out. This looks like a genuine platform limitation:
+    # Windows.Devices.Geolocation's permission APIs likely need a real
+    # interactive user session that a headless CI runner doesn't have.
+    # Non-blocking; would need a Windows machine to investigate further.
+    continue-on-error: true
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      - name: Run Windows smoke test
+        working-directory: packages/location/example
+        run: flutter test integration_test/smoke_test.dart -d windows
