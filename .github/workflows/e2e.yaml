@@ -266,13 +266,32 @@ jobs:
           EOF
           sudo systemctl restart dbus
 
+      # A blind `sleep 2` here was genuinely racy (confirmed via CI: this
+      # job failed and passed intermittently across otherwise-identical
+      # runs with no code changes between them) -- actively poll until a
+      # real D-Bus call to the fake service succeeds instead of guessing at
+      # a fixed delay.
       - name: Start fake GeoClue2 service
         run: |
           echo "{\"latitude\": $TEST_LAT, \"longitude\": $TEST_LON}" > /tmp/mock_location.json
           nohup python3 .github/scripts/fake_geoclue2.py /tmp/mock_location.json \
             > /tmp/fake_geoclue2.log 2>&1 &
-          # Give it a moment to claim the bus name before the app starts.
-          sleep 2
+          for i in $(seq 1 20); do
+            if gdbus call --system \
+              --dest org.freedesktop.GeoClue2 \
+              --object-path /org/freedesktop/GeoClue2/Manager \
+              --method org.freedesktop.GeoClue2.Manager.GetClient \
+              > /dev/null 2>&1; then
+              echo "fake GeoClue2 service confirmed reachable after $i attempt(s)"
+              break
+            fi
+            if [ "$i" -eq 20 ]; then
+              echo "fake GeoClue2 service never became reachable"
+              cat /tmp/fake_geoclue2.log
+              exit 1
+            fi
+            sleep 0.5
+          done
           cat /tmp/fake_geoclue2.log
 
       # Plain `flutter test`, not Patrol: `patrol_cli` has no support for
