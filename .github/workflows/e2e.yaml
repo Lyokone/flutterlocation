@@ -310,6 +310,16 @@ jobs:
           xvfb-run -a flutter test integration_test/get_location_linux_test.dart -d linux
           xvfb-run -a flutter test integration_test/listen_location_linux_test.dart -d linux
 
+      # SERVICE_STATUS_ERROR came back on getLocation()/listen even after
+      # the readiness poll above confirmed Manager.GetClient was reachable
+      # (and the flutter build finished ~30s later, so it wasn't a
+      # short-window race) -- dump the fake service's own call log
+      # unconditionally so a repeat failure shows whether Client.Start()
+      # was ever actually received, rather than guessing again.
+      - name: Show fake GeoClue2 service log
+        if: always()
+        run: cat /tmp/fake_geoclue2.log
+
       - name: Stop fake GeoClue2 service and run service-disabled test
         working-directory: packages/location/example
         run: |

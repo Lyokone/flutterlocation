@@ -91,23 +91,33 @@ class Client(dbus.service.Object):
 
     @dbus.service.method(CLIENT_IFACE)
     def Start(self):
+        print("Client.Start() called", flush=True)
         self._started = True
-        self._maybe_publish(force=True)
+        try:
+            self._maybe_publish(force=True)
+        except Exception:
+            import traceback
+
+            traceback.print_exc()
+            raise
 
     @dbus.service.method(CLIENT_IFACE)
     def Stop(self):
+        print("Client.Stop() called", flush=True)
         self._started = False
 
     @dbus.service.method(
         "org.freedesktop.DBus.Properties", in_signature="ss", out_signature="v"
     )
     def Get(self, interface, name):
+        print(f"Client.Get({interface!r}, {name!r}) called", flush=True)
         return self._props[name]
 
     @dbus.service.method(
         "org.freedesktop.DBus.Properties", in_signature="ssv"
     )
     def Set(self, interface, name, value):
+        print(f"Client.Set({interface!r}, {name!r}, {value!r}) called", flush=True)
         self._props[name] = value
 
     @dbus.service.method(
@@ -152,6 +162,7 @@ class Manager(dbus.service.Object):
 
     @dbus.service.method(MANAGER_IFACE, out_signature="o")
     def GetClient(self):
+        print("Manager.GetClient() called", flush=True)
         return CLIENT_PATH
 
 
