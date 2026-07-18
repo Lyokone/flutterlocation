@@ -87,7 +87,15 @@ class Client(dbus.service.Object):
         # Worked for the very first one seemingly by luck (GC hadn't run
         # yet by the time it was queried); broke once a second/third
         # Location object was created shortly after in the same run.
-        self._locations = []
+        #
+        # NOT named `_locations`: dbus.service.Object already uses that
+        # exact attribute internally (its list of (connection, path) pairs
+        # this object is exported at, consulted by signal emission).
+        # Reusing the name silently replaced that bookkeeping list with
+        # this one, so emitting LocationUpdated crashed inside dbus-python
+        # with "'Location' object is not subscriptable" -- confirmed via
+        # CI logging every Client method call, which caught the traceback.
+        self._published_locations = []
 
     @dbus.service.method(CLIENT_IFACE)
     def Start(self):
@@ -148,7 +156,7 @@ class Client(dbus.service.Object):
 
         self._location_index += 1
         new_path = f"{CLIENT_PATH}/Location/{self._location_index}"
-        self._locations.append(Location(self._bus, new_path, key[0], key[1]))
+        self._published_locations.append(Location(self._bus, new_path, key[0], key[1]))
 
         old_path = self._current_location_path or "/"
         self._current_location_path = new_path
