@@ -201,17 +201,19 @@ jobs:
           npm install -g playwright
           npx playwright install --with-deps chromium
 
-      # Root cause found via --verbose: "Error [RangeError]: Incorrect locale
+      # First fix attempt found "Error [RangeError]: Incorrect locale
       # information provided" from Flutter web's own engine startup
-      # (EnginePlatformDispatcher.parseBrowserLanguages) -- headless Chrome
-      # in this CI environment has no configured browser locale at all,
-      # which crashes the app before any test code runs (hence "0 tests").
-      # --web-locale forces a valid one.
+      # (EnginePlatformDispatcher.parseBrowserLanguages) via --verbose, and
+      # --web-locale=en-US was added to force a valid one -- but the next
+      # run still failed identically ("0 tests", 5s). Either that wasn't
+      # the actual blocker, or it's one of several. --verbose again to see
+      # what's actually happening now.
       - name: Run web e2e tests
         working-directory: packages/location/example
         run: |
           for target in get_location_test listen_location_test; do
             patrol test \
+              --verbose \
               --target integration_test/$target.dart \
               -d chrome \
               --web-locale=en-US \

@@ -80,6 +80,14 @@ class Client(dbus.service.Object):
             "RequestedAccuracyLevel": dbus.UInt32(8),
         }
         self._last_seen = None
+        # dbus.service.Object instances must stay referenced to remain
+        # exported on the bus -- without this, each Location object
+        # created in _maybe_publish was eligible for garbage collection
+        # the moment the function returned, since nothing held onto it.
+        # Worked for the very first one seemingly by luck (GC hadn't run
+        # yet by the time it was queried); broke once a second/third
+        # Location object was created shortly after in the same run.
+        self._locations = []
 
     @dbus.service.method(CLIENT_IFACE)
     def Start(self):
@@ -130,7 +138,7 @@ class Client(dbus.service.Object):
 
         self._location_index += 1
         new_path = f"{CLIENT_PATH}/Location/{self._location_index}"
-        Location(self._bus, new_path, key[0], key[1])
+        self._locations.append(Location(self._bus, new_path, key[0], key[1]))
 
         old_path = self._current_location_path or "/"
         self._current_location_path = new_path
