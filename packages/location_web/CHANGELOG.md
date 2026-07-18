@@ -1,3 +1,29 @@
+## 7.0.0
+
+### 💥 Breaking changes
+
+- Depends on `location_platform_interface: ^7.0.0`, whose `LocationData.latitude`
+  and `LocationData.longitude` are now non-nullable (#675). This package's own
+  location map always populated both, so no code here changed to accommodate it.
+
+### Fixed
+
+- `hasPermission()` throwing (`Failed to read the 'name' property from
+  'PermissionDescriptor'`) instead of returning a permission status. The
+  Permissions API was handed an opaque boxed Dart object instead of a real JS
+  object literal; it now receives a proper `{ name: 'geolocation' }` descriptor
+  (#978, #987).
+- `getLocation()`/`onLocationChanged` errors not being catchable as
+  `PlatformException` like they are on Android/iOS; browser Geolocation errors
+  are now mapped to a `PlatformException` with a
+  `PERMISSION_DENIED`/`POSITION_UNAVAILABLE`/`TIMEOUT` code (#967).
+- `requestPermission()` reporting `deniedForever` for a location-fetch failure
+  unrelated to permission (e.g. a GPS timeout after the user already allowed
+  access) (#891).
+- `hasPermission()` crashing in browsers/webviews that support Geolocation but
+  not the Permissions API (`navigator.permissions` undefined); it now reports
+  "not yet determined" instead (#959).
+
 ## 6.0.1
 
 - Configure `pausesLocationUpdatesAutomatically` on iOS. Should fix  (#933)

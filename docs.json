@@ -15,7 +15,9 @@
         ["Android", "/installation/android"],
         ["iOS", "/installation/ios"],
         ["macOS", "/installation/macos"],
-        ["Web", "/installation/web"]
+        ["Web", "/installation/web"],
+        ["Windows", "/installation/windows"],
+        ["Linux", "/installation/linux"]
       ]
     ],
     [

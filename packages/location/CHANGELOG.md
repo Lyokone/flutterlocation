@@ -1,7 +1,9 @@
-## Unreleased
+## 10.0.0
 
-<!-- Not yet published to pub.dev. Accumulate fixes here; assign a version
-     number when we cut the next release. -->
+A major release with one breaking change (see below) plus a large batch of
+bug fixes and small features across every supported platform — Android, iOS,
+macOS, web, Windows and Linux — accumulated since 9.0.0. Thanks to everyone
+who reported issues and opened pull requests.
 
 ### 💥 Breaking changes
 
@@ -99,6 +101,26 @@
   `ForegroundServiceStartNotAllowedException` (Android 12+, when the app has
   no qualifying foreground-launch exemption at that moment) instead of
   reporting a normal Dart-side error.
+- Fixed `serviceEnabled()` discarding the real exception behind a generic
+  `"Location service status couldn't be determined"` error, which made past
+  reports of this error impossible to root-cause. The actual exception
+  message and stack trace are now included (#1020).
+- Fixed the location listener (and any pending `getLocation()` call) not
+  resuming after the location service was toggled off and back on through
+  Quick Settings or the Settings app rather than the plugin's own "enable
+  location" dialog — nothing previously observed that transition on the
+  primary Google Play services code path (#926).
+- Fixed an unhandled `SecurityException` crash from the fused location
+  provider's `requestLocationUpdates()` when a permission granted only "for
+  this time" (Android 11+) is revoked by the OS between the permission check
+  and the call — now surfaced as a normal `PERMISSION_DENIED` error instead
+  (#767).
+- Guarded the unconditional `kotlin-android` plugin apply behind an AGP
+  version check, matching the pattern already used by `device_info_plus`,
+  `package_info_plus` and `share_plus`. AGP 9+ deprecated the standalone
+  Kotlin Gradle Plugin in favor of its own built-in Kotlin support, and
+  Flutter's temporary compatibility shim for that is scheduled for removal
+  (#1048).
 
 ### 🍎 iOS & macOS
 
@@ -150,6 +172,12 @@
   (iOS has no "denied, can ask again" state — once authorization is
   `.denied`, the system won't show the prompt again). The two methods now
   agree on the same state (#738).
+- Fixed `getLocation()` hanging forever when denied in the same authorization
+  change as a concurrent `requestPermission()` call — only the
+  `requestPermission()` side was being resolved.
+- Fixed `getLocation()`/`hasPermission()` hanging or misreporting for
+  `.restricted` authorization status (parental controls/MDM), which wasn't
+  handled the same way as `.denied`.
 
 ### 🌐 Web
 
