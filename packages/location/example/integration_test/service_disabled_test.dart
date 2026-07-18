@@ -5,18 +5,20 @@ import 'package:patrol/patrol.dart';
 
 import 'test_config.dart';
 
-/// Android + Linux only: the CI job disables the mock location service
-/// before running this file (`adb shell cmd location set-location-enabled
-/// false` on Android; the fake GeoClue2 service isn't started on Linux —
-/// see `.github/workflows/e2e.yaml`).
+/// Android only: the CI job disables the mock location service before
+/// running this file (`adb shell cmd location set-location-enabled false`
+/// — see `.github/workflows/e2e.yaml`). Linux has its own
+/// `service_disabled_linux_test.dart` (plain `testWidgets`, not Patrol —
+/// `patrol_cli` doesn't support `-d linux` at all).
 ///
 /// This directly targets the hang-class bugs fixed this session (#728,
 /// #1020, #926): `getLocation()` must resolve with a clean error within a
-/// bounded time, not hang forever. The exact error code differs by platform
-/// (a real, pre-existing inconsistency found writing this test: Android
-/// reports `SERVICE_STATUS_DISABLED`, the Linux plugin reports the more
-/// generic `SERVICE_STATUS_ERROR` for an unreachable GeoClue2) — this
-/// checks for either rather than picking one, since fixing that
+/// bounded time, not hang forever. Also checks for the more generic
+/// `SERVICE_STATUS_ERROR`, not just `SERVICE_STATUS_DISABLED`: a real,
+/// pre-existing cross-platform error-code inconsistency was found writing
+/// this test (Linux's plugin reports `SERVICE_STATUS_ERROR` for the same
+/// condition Android reports as `SERVICE_STATUS_DISABLED`), so both files
+/// accept either rather than asserting one, since fixing that
 /// inconsistency is out of scope here.
 void main() {
   patrolTest(

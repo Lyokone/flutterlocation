@@ -22,26 +22,30 @@ void main() {
     await tester.pumpWidget(const app.MyApp());
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('permissionCheckButton')));
-    await tester.pumpAndSettle(
-      const Duration(milliseconds: 100),
-      EnginePhase.sendSemanticsUpdate,
-      const Duration(seconds: 15),
-    );
-    expect(
-      tester.widget<Text>(find.byKey(const Key('permissionStatusText'))).data,
-      isNot(contains('unknown')),
-    );
+    // Polling, not pumpAndSettle(): with nothing animating, pumpAndSettle
+    // can return well before the underlying async platform-channel call
+    // actually resolves, since there's no scheduled frame to keep it
+    // waiting on.
+    Future<void> waitForResult(Key textKey, Key checkButtonKey) async {
+      await tester.tap(find.byKey(checkButtonKey));
+      final deadline = DateTime.now().add(const Duration(seconds: 30));
+      String text;
+      do {
+        if (DateTime.now().isAfter(deadline)) {
+          fail('$textKey still showed "unknown" after 30s');
+        }
+        await tester.pump(const Duration(milliseconds: 250));
+        text = tester.widget<Text>(find.byKey(textKey)).data ?? '';
+      } while (text.contains('unknown'));
+    }
 
-    await tester.tap(find.byKey(const Key('serviceCheckButton')));
-    await tester.pumpAndSettle(
-      const Duration(milliseconds: 100),
-      EnginePhase.sendSemanticsUpdate,
-      const Duration(seconds: 15),
+    await waitForResult(
+      const Key('permissionStatusText'),
+      const Key('permissionCheckButton'),
     );
-    expect(
-      tester.widget<Text>(find.byKey(const Key('serviceEnabledText'))).data,
-      isNot(contains('unknown')),
+    await waitForResult(
+      const Key('serviceEnabledText'),
+      const Key('serviceCheckButton'),
     );
   });
 }
