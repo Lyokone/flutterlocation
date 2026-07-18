@@ -201,20 +201,20 @@ jobs:
           npm install -g playwright
           npx playwright install --with-deps chromium
 
-      # --verbose: the first attempt at fixing this (installing Chromium's
-      # system deps explicitly, since patrol's own "Installing Playwright
-      # dependencies" step only installs the npm package) didn't resolve
-      # "Playwright process exited unexpectedly with code 1, 0 tests" --
-      # need more detail than patrol's summarized output gives to diagnose
-      # further.
+      # Root cause found via --verbose: "Error [RangeError]: Incorrect locale
+      # information provided" from Flutter web's own engine startup
+      # (EnginePlatformDispatcher.parseBrowserLanguages) -- headless Chrome
+      # in this CI environment has no configured browser locale at all,
+      # which crashes the app before any test code runs (hence "0 tests").
+      # --web-locale forces a valid one.
       - name: Run web e2e tests
         working-directory: packages/location/example
         run: |
           for target in get_location_test listen_location_test; do
             patrol test \
-              --verbose \
               --target integration_test/$target.dart \
               -d chrome \
+              --web-locale=en-US \
               --web-geolocation="{\"latitude\": $TEST_LAT, \"longitude\": $TEST_LON}" \
               --web-permissions='["geolocation"]'
           done
@@ -292,7 +292,11 @@ jobs:
 
           xvfb-run -a flutter test integration_test/listen_location_linux_test.dart -d linux &
           LISTEN_TEST_PID=$!
-          sleep 10
+          # 10s wasn't enough -- confirmed via CI: the Linux app build alone
+          # (flutter test builds fresh per invocation, ~15s) ate the whole
+          # budget, so the mock location already showed the *second* fix
+          # before the app was even running to observe the first one.
+          sleep 25
           echo "{\"latitude\": $TEST_LAT2, \"longitude\": $TEST_LON2}" > /tmp/mock_location.json
           wait $LISTEN_TEST_PID
 
@@ -344,14 +348,13 @@ jobs:
     name: Windows (smoke test)
     runs-on: windows-latest
     timeout-minutes: 20
-    # First real CI run found hasPermission() still showing "unknown" after
-    # a 15s pumpAndSettle -- likely the same pumpAndSettle-doesn't-wait-for-
-    # async-gaps issue fixed elsewhere in this suite (now fixed here too,
-    # see smoke_test.dart), but possibly a genuine platform limitation
-    # (Windows.Devices.Geolocation's permission APIs may not resolve at all
-    # in a headless CI session with no interactive user). Can't verify
-    # either way without a Windows machine, so non-blocking until proven
-    # reliable across a few real runs.
+    # Confirmed via two real CI runs: hasPermission() never resolves at all
+    # here, not a test-timing issue -- switching from pumpAndSettle to
+    # explicit 30s polling (smoke_test.dart) made no difference, ruling that
+    # theory out. This looks like a genuine platform limitation:
+    # Windows.Devices.Geolocation's permission APIs likely need a real
+    # interactive user session that a headless CI runner doesn't have.
+    # Non-blocking; would need a Windows machine to investigate further.
     continue-on-error: true
 
     steps:
