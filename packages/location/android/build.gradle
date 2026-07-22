@@ -38,11 +38,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
-        // allWarningsAsErrors = true // TODO(bartekpacia): Re-enable
-    }
-
     sourceSets {
         main.java.srcDirs += "src/main/kotlin"
         test.java.srcDirs += "src/test/kotlin"
@@ -51,6 +46,16 @@ android {
     defaultConfig {
         minSdk = 21
         targetSdk = 36
+    }
+}
+
+// Use the top-level `kotlin` DSL instead of `android.kotlinOptions` so that the
+// compiler options resolve both with KGP (AGP < 9) and with AGP 9's built-in
+// Kotlin, where the `kotlinOptions` block is no longer available.
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
+        // allWarningsAsErrors = true // TODO(bartekpacia): Re-enable
     }
 }
 
