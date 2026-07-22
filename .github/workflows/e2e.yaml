@@ -72,13 +72,24 @@ jobs:
           # continuing onto the next line -- it's a naive per-line split
           # before the shell ever sees it. Every line below is therefore a
           # single, fully self-contained command with its own `cd`.
+          #
+          # Each `patrol test` is wrapped in an inline retry (up to 3 attempts)
+          # because Patrol's native UIAutomator automation is transiently flaky
+          # on the CI emulator: grantPermissionWhenInUse() intermittently gets
+          # "Invalid response: 404 -- selector button to allow permission while
+          # using found nothing" when the system permission dialog hasn't
+          # finished rendering the instant Patrol polls for it. The exact same
+          # test code passed on #1094 and failed on #1096 with no change to that
+          # path, so this is timing flake, not a real regression. The retry
+          # still `exit 1`s if all attempts fail, so a genuine break stays red.
+          # Keep each retry on a single physical line (see the split note above).
           script: |
             adb emu geo fix $TEST_LON $TEST_LAT
-            cd packages/location/example && patrol test --target integration_test/permission_flow_test.dart -d emulator-5554
-            cd packages/location/example && patrol test --target integration_test/get_location_test.dart -d emulator-5554
-            cd packages/location/example && patrol test --target integration_test/listen_location_test.dart -d emulator-5554
+            cd packages/location/example && n=0; until patrol test --target integration_test/permission_flow_test.dart -d emulator-5554; do n=$((n+1)); if [ "$n" -ge 3 ]; then echo "permission_flow_test still failing after $n attempts"; exit 1; fi; echo "Patrol native-automation flake; retry $n after 5s"; sleep 5; done
+            cd packages/location/example && n=0; until patrol test --target integration_test/get_location_test.dart -d emulator-5554; do n=$((n+1)); if [ "$n" -ge 3 ]; then echo "get_location_test still failing after $n attempts"; exit 1; fi; echo "Patrol native-automation flake; retry $n after 5s"; sleep 5; done
+            cd packages/location/example && n=0; until patrol test --target integration_test/listen_location_test.dart -d emulator-5554; do n=$((n+1)); if [ "$n" -ge 3 ]; then echo "listen_location_test still failing after $n attempts"; exit 1; fi; echo "Patrol native-automation flake; retry $n after 5s"; sleep 5; done
             adb shell cmd location set-location-enabled false
-            cd packages/location/example && patrol test --target integration_test/service_disabled_test.dart -d emulator-5554
+            cd packages/location/example && n=0; until patrol test --target integration_test/service_disabled_test.dart -d emulator-5554; do n=$((n+1)); if [ "$n" -ge 3 ]; then echo "service_disabled_test still failing after $n attempts"; exit 1; fi; echo "Patrol native-automation flake; retry $n after 5s"; sleep 5; done
             adb shell cmd location set-location-enabled true
 
   e2e-ios:
