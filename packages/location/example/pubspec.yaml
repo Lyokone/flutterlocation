@@ -17,20 +17,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  integration_test:
-    sdk: flutter
   leancode_lint: ^15.0.0
-  # patrol 4.x's macOS support has a known upstream bug: its Package.swift is
-  # missing a FlutterFramework dependency (see patrol's own TODO comment in
-  # that file), which breaks `flutter build macos` entirely for this whole
-  # app the moment patrol is a dependency -- even for tests that never touch
-  # Patrol's API, since Flutter's plugin registrant unconditionally imports
-  # it for every platform the app supports. Kept on 4.x anyway because it's
-  # the only line with web-testing support (`patrol test --web-geolocation`),
-  # needed for the web e2e tests; the macOS build check in
-  # .github/workflows/location-prepare.yaml and the e2e-macos job are marked
-  # continue-on-error until patrol fixes this upstream.
-  patrol: ^4.7.1
 
 flutter:
   uses-material-design: true
