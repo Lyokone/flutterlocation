@@ -22,8 +22,16 @@ repositories {
 
 apply plugin: "com.android.library"
 
+// AGP 9 ships built-in Kotlin support, but it can be turned off with the
+// `android.builtInKotlin` Gradle property. Only skip applying the standalone
+// Kotlin Gradle plugin when built-in Kotlin is actually active; otherwise the
+// `kotlin { }` block below would have no backing extension. Mirrors the logic
+// used by other Flutter plugins (e.g. file_picker).
 def agpMajor = Integer.parseInt(com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.split("\\.")[0])
-if (agpMajor < 9) {
+def builtInKotlinProperty = providers.gradleProperty("android.builtInKotlin").orNull
+def builtInKotlinEnabled = agpMajor >= 9 &&
+    (builtInKotlinProperty == null || builtInKotlinProperty.toBoolean())
+if (!builtInKotlinEnabled) {
     apply plugin: "org.jetbrains.kotlin.android"
 }
 
