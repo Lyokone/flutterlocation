@@ -1,3 +1,14 @@
+## 10.0.1
+
+### 🐛 Bug fixes
+
+- **Android:** Completed the migration to Flutter's Built-in Kotlin. The plugin
+  now configures the Kotlin compiler through the top-level `kotlin { compilerOptions {} }`
+  DSL instead of `android.kotlinOptions {}`, which is no longer available under
+  AGP 9's Built-in Kotlin. Combined with the existing conditional
+  `kotlin-android` apply, the plugin builds correctly on both AGP 8 (KGP) and
+  AGP 9 (Built-in Kotlin) (#1095).
+
 ## 10.0.0
 
 A major release with one breaking change (see below) plus a large batch of
