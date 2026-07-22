@@ -96,16 +96,6 @@ jobs:
   prepare-macos:
     name: macOS
     runs-on: macos-latest
-    # `patrol` (added to the example app's dev_dependencies for the e2e
-    # suite, see .github/workflows/e2e.yaml) has an upstream bug: its
-    # Package.swift is missing a FlutterFramework dependency (visible as a
-    # TODO comment in patrol's own source), which breaks `flutter build
-    # macos` for this whole app regardless of whether a given test touches
-    # Patrol's API -- Flutter's plugin registrant unconditionally imports it
-    # for every platform the app supports. iOS is unaffected (verified by
-    # building it directly); this is specific to macOS's stricter SPM/
-    # CocoaPods interaction. Non-blocking until patrol fixes this upstream.
-    continue-on-error: true
 
     steps:
       - name: Clone repository
