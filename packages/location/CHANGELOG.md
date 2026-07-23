@@ -1,3 +1,16 @@
+## 10.0.2
+
+### 🐛 Bug fixes
+
+- **Android:** Respect the `android.builtInKotlin` Gradle property when deciding
+  whether to apply the standalone Kotlin Gradle plugin. Previously the decision
+  was based solely on the AGP major version, assuming AGP 9 always implies
+  Built-in Kotlin. When a consumer disables Built-in Kotlin on AGP 9
+  (`android.builtInKotlin=false`), neither KGP nor Built-in Kotlin was applied
+  and the top-level `kotlin { }` block failed with no backing extension. The
+  standalone plugin is now applied whenever Built-in Kotlin is not actually
+  active (#1099).
+
 ## 10.0.1
 
 ### 🐛 Bug fixes
