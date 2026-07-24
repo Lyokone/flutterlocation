@@ -101,7 +101,7 @@ class LocationData {
   /// Will be null if not available.
   final double? heading;
 
-  /// timestamp of the LocationData, in milliseconds since epoch.
+  /// Timestamp of the LocationData, in milliseconds since epoch.
   final double time;
 
   /// Is the location currently mocked
