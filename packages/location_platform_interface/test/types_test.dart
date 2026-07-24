@@ -7,6 +7,8 @@ void main() {
       final locationData = LocationData.fromMap(<String, dynamic>{
         'latitude': 42.0,
         'longitude': 2.0,
+        'accuracy': 1.0,
+        'time': 123456789.0,
       });
       expect(
         locationData.toString(),
@@ -133,11 +135,13 @@ void main() {
     });
 
     test('fromJson(toJson) round-trips with null fields', () {
-      // latitude/longitude are non-nullable, so they're the only fields that
+      // latitude/longitude/accuracy/time are non-nullable, so they're the only fields that
       // must be present; everything else round-trips through its null default.
       final locationData = LocationData.fromJson(<String, dynamic>{
         'latitude': 42.0,
         'longitude': 2.0,
+        'accuracy': 1.0,
+        'time': 123456789.0,
       });
 
       expect(LocationData.fromJson(locationData.toJson()), locationData);
@@ -147,6 +151,8 @@ void main() {
       final locationData = LocationData.fromJson(<String, dynamic>{
         'latitude': 42.0,
         'longitude': 2.0,
+        'accuracy': 1.0,
+        'time': 123456789.0,
         'provider': 'gps',
       });
 
@@ -166,6 +172,8 @@ void main() {
       final accessoryLocation = LocationData.fromMap(<String, dynamic>{
         'latitude': 42.0,
         'longitude': 2.0,
+        'accuracy': 1.0,
+        'time': 123456789.0,
         'isProducedByAccessory': 1,
       });
       expect(accessoryLocation.isProducedByAccessory, true);
@@ -173,6 +181,8 @@ void main() {
       final deviceLocation = LocationData.fromMap(<String, dynamic>{
         'latitude': 42.0,
         'longitude': 2.0,
+        'accuracy': 1.0,
+        'time': 123456789.0,
         'isProducedByAccessory': 0,
       });
       expect(deviceLocation.isProducedByAccessory, false);
@@ -181,6 +191,8 @@ void main() {
       final missingLocation = LocationData.fromMap(<String, dynamic>{
         'latitude': 42.0,
         'longitude': 2.0,
+        'accuracy': 1.0,
+        'time': 123456789.0,
       });
       expect(missingLocation.isProducedByAccessory, false);
     });
@@ -189,11 +201,15 @@ void main() {
       final accessoryLocation = LocationData.fromMap(<String, dynamic>{
         'latitude': 42.0,
         'longitude': 2.0,
+        'accuracy': 1.0,
+        'time': 123456789.0,
         'isProducedByAccessory': 1,
       });
       final deviceLocation = LocationData.fromMap(<String, dynamic>{
         'latitude': 42.0,
         'longitude': 2.0,
+        'accuracy': 1.0,
+        'time': 123456789.0,
         'isProducedByAccessory': 0,
       });
 

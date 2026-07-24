@@ -26,12 +26,12 @@ class LocationData {
     return LocationData._(
       dataMap['latitude'] as double,
       dataMap['longitude'] as double,
-      dataMap['accuracy'] as double?,
+      dataMap['accuracy'] as double,
       dataMap['altitude'] as double?,
       dataMap['speed'] as double?,
       dataMap['speed_accuracy'] as double?,
       dataMap['heading'] as double?,
-      dataMap['time'] as double?,
+      dataMap['time'] as double,
       dataMap['isMock'] == 1,
       dataMap['isProducedByAccessory'] == 1,
       dataMap['verticalAccuracy'] as double?,
@@ -49,12 +49,12 @@ class LocationData {
     return LocationData._(
       (json['latitude'] as num).toDouble(),
       (json['longitude'] as num).toDouble(),
-      (json['accuracy'] as num?)?.toDouble(),
+      (json['accuracy'] as num).toDouble(),
       (json['altitude'] as num?)?.toDouble(),
       (json['speed'] as num?)?.toDouble(),
       (json['speedAccuracy'] as num?)?.toDouble(),
       (json['heading'] as num?)?.toDouble(),
-      (json['time'] as num?)?.toDouble(),
+      (json['time'] as num).toDouble(),
       json['isMock'] as bool?,
       json['isProducedByAccessory'] as bool?,
       (json['verticalAccuracy'] as num?)?.toDouble(),
@@ -72,10 +72,8 @@ class LocationData {
   /// Longitude, in degrees
   final double longitude;
 
-  /// Estimated horizontal accuracy of this location, radial, in meters
-  ///
-  /// Will be null if not available.
-  final double? accuracy;
+  /// Estimated horizontal accuracy of this location, radial, in meters.
+  final double accuracy;
 
   /// Estimated vertical accuracy of altitude, in meters.
   ///
@@ -103,8 +101,8 @@ class LocationData {
   /// Will be null if not available.
   final double? heading;
 
-  /// timestamp of the LocationData
-  final double? time;
+  /// timestamp of the LocationData, in milliseconds since epoch.
+  final double time;
 
   /// Is the location currently mocked
   ///

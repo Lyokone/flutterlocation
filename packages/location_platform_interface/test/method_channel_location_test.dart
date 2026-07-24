@@ -34,6 +34,8 @@ void main() {
             return <String, dynamic>{
               'latitude': 48.8534,
               'longitude': 2.3488,
+              'accuracy': 1.0,
+              'time': 123456789.0,
             };
           case 'changeSettings':
             return 1;
@@ -212,6 +214,8 @@ void main() {
       controller.add(<String, dynamic>{
         'latitude': 48.8534,
         'longitude': 2.3488,
+        'accuracy': 1.0,
+        'time': 123456789.0,
       });
       var data = await queue.next;
       expect(data.latitude, 48.8534);
@@ -220,6 +224,8 @@ void main() {
       controller.add(<String, dynamic>{
         'latitude': 42.8534,
         'longitude': 23.3488,
+        'accuracy': 1.0,
+        'time': 123456789.0,
       });
       data = await queue.next;
       expect(data.latitude, 42.8534);
