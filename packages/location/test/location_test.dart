@@ -50,8 +50,8 @@ void main() {
   );
 
   test('getLocation should call the correct underlying instance', () async {
-    when(location.getLocation()).thenAnswer((_) => Future.value(
-        LocationData.fromMap({'latitude': 42.0, 'longitude': 2.0})));
+    when(location.getLocation()).thenAnswer((_) => Future.value(LocationData.fromMap(
+        {'latitude': 42.0, 'longitude': 2.0, 'accuracy': 1.0, 'time': 123456789.0})));
 
     await location.getLocation();
     verify(mockLocation.getLocation()).called(1);
@@ -60,8 +60,8 @@ void main() {
   test(
     'getLastKnownLocation should call the correct underlying instance',
     () async {
-      when(location.getLastKnownLocation()).thenAnswer((_) => Future.value(
-          LocationData.fromMap({'latitude': 42.0, 'longitude': 2.0})));
+      when(location.getLastKnownLocation()).thenAnswer((_) => Future.value(LocationData.fromMap(
+          {'latitude': 42.0, 'longitude': 2.0, 'accuracy': 1.0, 'time': 123456789.0})));
 
       await location.getLastKnownLocation();
       verify(mockLocation.getLastKnownLocation()).called(1);
@@ -131,12 +131,16 @@ void main() {
           LocationData.fromMap(<String, dynamic>{
             'latitude': 48.8534,
             'longitude': 2.3488,
+            'accuracy': 1.0,
+            'time': 123456789.0,
           }),
         )
         ..add(
           LocationData.fromMap(<String, dynamic>{
             'latitude': 42.8534,
             'longitude': 23.3488,
+            'accuracy': 1.0,
+            'time': 123456789.0,
           }),
         );
       unawaited(controller.close());
@@ -148,10 +152,14 @@ void main() {
             LocationData.fromMap(<String, dynamic>{
               'latitude': 48.8534,
               'longitude': 2.3488,
+              'accuracy': 1.0,
+              'time': 123456789.0,
             }),
             LocationData.fromMap(<String, dynamic>{
               'latitude': 42.8534,
               'longitude': 23.3488,
+              'accuracy': 1.0,
+              'time': 123456789.0,
             }),
             emitsDone,
           ],

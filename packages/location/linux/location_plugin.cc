@@ -77,6 +77,13 @@ static FlValue* read_location(LocationPlugin* self, const gchar* location_path) 
     } else if (strcmp(key, "Heading") == 0) {
       fl_value_set_string_take(map, "heading",
                                fl_value_new_float(g_variant_get_double(value)));
+    } else if (strcmp(key, "Timestamp") == 0) {
+      uint64_t seconds = 0;
+      uint64_t microseconds = 0;
+      g_variant_get(value, "(tt)", &seconds, &microseconds);
+      double time_ms = static_cast<double>(seconds) * 1000.0 +
+                       static_cast<double>(microseconds) / 1000.0;
+      fl_value_set_string_take(map, "time", fl_value_new_float(time_ms));
     }
     g_variant_unref(value);
   }
