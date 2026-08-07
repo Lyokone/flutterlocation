@@ -18,6 +18,15 @@
 // GeoClue2 accuracy level for a high-accuracy request (GCLUE_ACCURACY_LEVEL_EXACT).
 #define GEOCLUE_ACCURACY_EXACT 8
 
+// org.freedesktop.GeoClue2.Location documents in-band sentinels for the fields
+// a fix may not carry: Speed, Heading and Accuracy are -1 when unknown, and
+// Altitude is the minimum double (-G_MAXDOUBLE). Forwarding those verbatim
+// reads to Dart callers as a real measurement -- a heading of -1 degrees, or an
+// altitude 1.8e308 metres below the ellipsoid -- and on a desktop without a GPS
+// radio (GeoClue backed by Wi-Fi) that is every single fix. Leave the key out
+// instead, so it arrives as the null LocationData documents.
+#define GEOCLUE_ALTITUDE_UNKNOWN (-G_MAXDOUBLE)
+
 struct _LocationPlugin {
   GObject parent_instance;
 
@@ -66,17 +75,38 @@ static FlValue* read_location(LocationPlugin* self, const gchar* location_path) 
       fl_value_set_string_take(map, "longitude",
                                fl_value_new_float(g_variant_get_double(value)));
     } else if (strcmp(key, "Accuracy") == 0) {
-      fl_value_set_string_take(map, "accuracy",
-                               fl_value_new_float(g_variant_get_double(value)));
+      const gdouble accuracy = g_variant_get_double(value);
+      if (accuracy >= 0) {
+        fl_value_set_string_take(map, "accuracy", fl_value_new_float(accuracy));
+      }
     } else if (strcmp(key, "Altitude") == 0) {
-      fl_value_set_string_take(map, "altitude",
-                               fl_value_new_float(g_variant_get_double(value)));
+      // Compared with > rather than != so any other absurd "below the minimum
+      // double" value is rejected too, and to avoid a float-equality warning.
+      const gdouble altitude = g_variant_get_double(value);
+      if (altitude > GEOCLUE_ALTITUDE_UNKNOWN) {
+        fl_value_set_string_take(map, "altitude", fl_value_new_float(altitude));
+      }
     } else if (strcmp(key, "Speed") == 0) {
-      fl_value_set_string_take(map, "speed",
-                               fl_value_new_float(g_variant_get_double(value)));
+      const gdouble speed = g_variant_get_double(value);
+      if (speed >= 0) {
+        fl_value_set_string_take(map, "speed", fl_value_new_float(speed));
+      }
     } else if (strcmp(key, "Heading") == 0) {
-      fl_value_set_string_take(map, "heading",
-                               fl_value_new_float(g_variant_get_double(value)));
+      const gdouble heading = g_variant_get_double(value);
+      if (heading >= 0) {
+        fl_value_set_string_take(map, "heading", fl_value_new_float(heading));
+      }
+    } else if (strcmp(key, "Timestamp") == 0 &&
+               g_variant_is_of_type(value, G_VARIANT_TYPE("(tt)"))) {
+      // (seconds, microseconds) since the Unix epoch. Without this the Linux
+      // implementation was the only one leaving LocationData.time null.
+      guint64 seconds = 0;
+      guint64 microseconds = 0;
+      g_variant_get(value, "(tt)", &seconds, &microseconds);
+      fl_value_set_string_take(
+          map, "time",
+          fl_value_new_float(static_cast<double>(seconds) * 1000.0 +
+                             static_cast<double>(microseconds) / 1000.0));
     }
     g_variant_unref(value);
   }

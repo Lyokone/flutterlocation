@@ -1,3 +1,62 @@
+## Unreleased
+
+### 💥 Behavior changes
+
+- Measurements a fix does not actually carry are now reported as `null` on every
+  platform, instead of a fabricated `0` or a raw platform sentinel. This affects
+  `accuracy`, `verticalAccuracy`, `altitude`, `speed`, `speedAccuracy`, `heading`
+  and `headingAccuracy`. All of them are already declared `double?` and
+  documented as "will be null if not available", so nothing stops compiling — but
+  an app that force-unwraps (`data.speed!`) or that treated the old `0` as a real
+  reading will now see a null where it previously saw a number.
+
+  - **Android:** each field is gated on its `Location.hasX()` companion. The
+    getters return `0.0` for a field the fix does not carry, which is
+    indistinguishable from a genuine bearing of due north, a stationary speed, or
+    a perfectly accurate fix.
+  - **iOS/macOS:** Core Location's negative "invalid" sentinel now maps to `null`
+    for `horizontalAccuracy`, `verticalAccuracy`, `speed`, `speedAccuracy` and
+    `course`, extending the `speed` fix from #741 to every scalar it exposes.
+    `altitude` follows `verticalAccuracy`, which is what Core Location documents
+    as marking the altitude invalid.
+  - **Windows:** `heading` and `speed` are omitted when their
+    `IReference<double>` is null rather than reported as `0.0`, and `altitude` is
+    now gated on `AltitudeAccuracy`. `BasicGeoposition.Altitude` is a plain
+    `double` that cannot express "unknown", so a Wi-Fi/IP fix — every fix on a
+    machine without a GPS radio — previously reported sea level.
+    `verticalAccuracy` is now reported as well.
+  - **Linux:** GeoClue2's documented sentinels are recognised instead of
+    forwarded verbatim: `-1` for `Speed`, `Heading` and `Accuracy`, and
+    `-1.7976931348623157e+308` for `Altitude`, which a Wi-Fi-backed GeoClue
+    reports on every fix.
+  - **Web:** the Geolocation spec specifies `heading` as **NaN**, not null,
+    whenever the device is stationary. NaN reached `LocationData`, where — since
+    `NaN != NaN` — it made two otherwise identical readings compare unequal and
+    their `hashCode`s unstable. Non-finite readings now normalise to `null`.
+
+- `LocationData.isMock` and `LocationData.isProducedByAccessory` are `null` when
+  the platform exposes no such flag, rather than defaulting to `false`; "nothing
+  checked" and "checked, and it was not mocked" are different claims. Android now
+  always reports `isMock`, Apple reports both on iOS 15.0+/macOS 12.0+, and
+  Windows/Linux/web report `null`.
+
+### 🐛 Bug fixes
+
+- **Android:** the NMEA-derived mean-sea-level altitude is no longer applied to a
+  fix that carries no altitude of its own, and it — along with the NMEA satellite
+  count — is cleared when the NMEA listener is detached. It is a correction of
+  the fix's own WGS 84 ellipsoid altitude, not a stand-in for a missing one, so a
+  stale GPS reading could previously be reported as a network-provider fix's
+  current altitude.
+- **iOS/macOS:** a fix whose `horizontalAccuracy` is negative is skipped rather
+  than delivered. Core Location documents that as meaning the latitude and
+  longitude themselves are invalid, and `LocationData.latitude`/`longitude` are
+  non-nullable, so there is no way to pass such a fix on without inventing a
+  coordinate — and nulling only its `accuracy` would have made it read as
+  "position known, accuracy unknown".
+- **Linux:** `LocationData.time` is populated from GeoClue2's `Timestamp`
+  property. Linux was the only platform leaving it null.
+
 ## 10.0.2
 
 ### 🐛 Bug fixes
