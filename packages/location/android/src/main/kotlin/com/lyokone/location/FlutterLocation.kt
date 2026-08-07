@@ -83,6 +83,11 @@ class FlutterLocation(
                     mMessageListener?.let { locationManager.removeNmeaListener(it) }
                     mMessageListener = null
                 }
+                // Both are derived from the NMEA stream that just stopped; keeping
+                // them would let a later fix report a stale altitude/satellite
+                // count as if it were current (see locationToMap).
+                mLastMslAltitude = null
+                mLastSatelliteCount = null
                 unregisterLocationProvidersChangedReceiver()
             }
         }
@@ -449,17 +454,32 @@ class FlutterLocation(
     /**
      * Serializes an Android [Location] into the map shape shared by the
      * location stream, the one-shot `getLocation` and `getLastKnownLocation`.
+     *
+     * Every optional getter on [Location] returns 0.0 when the fix does not
+     * carry that field, which is indistinguishable from a genuine zero
+     * measurement: a bearing of due north, a stationary speed, or a perfectly
+     * accurate fix. Each one is therefore gated on its `hasX()` companion and
+     * left out of the map when absent, so Dart callers see the null that
+     * [LocationData] has always documented rather than a fabricated zero.
      */
     private fun locationToMap(location: Location): HashMap<String, Any?> {
         val loc = HashMap<String, Any?>()
         loc["latitude"] = location.latitude
         loc["longitude"] = location.longitude
-        loc["accuracy"] = location.accuracy.toDouble()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            loc["verticalAccuracy"] = location.verticalAccuracyMeters.toDouble()
-            loc["headingAccuracy"] = location.bearingAccuracyDegrees.toDouble()
+        if (location.hasAccuracy()) {
+            loc["accuracy"] = location.accuracy.toDouble()
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (location.hasVerticalAccuracy()) {
+                loc["verticalAccuracy"] = location.verticalAccuracyMeters.toDouble()
+            }
+            if (location.hasBearingAccuracy()) {
+                loc["headingAccuracy"] = location.bearingAccuracyDegrees.toDouble()
+            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+            location.hasElapsedRealtimeUncertaintyNanos()
+        ) {
             loc["elapsedRealtimeUncertaintyNanos"] = location.elapsedRealtimeUncertaintyNanos
         }
 
@@ -473,23 +493,37 @@ class FlutterLocation(
         satelliteCount?.let { loc["satelliteNumber"] = it }
 
         loc["elapsedRealtimeNanos"] = location.elapsedRealtimeNanos.toDouble()
-        if (isLocationFromMockProvider(location)) {
-            loc["isMock"] = 1.0
+        // Always emitted, including the 0 case: Android genuinely knows a fix is
+        // *not* mocked, and omitting the key would make Dart report that as the
+        // `null` reserved for platforms that cannot tell either way.
+        loc["isMock"] = if (isLocationFromMockProvider(location)) 1.0 else 0.0
+
+        // The NMEA GGA reading is a mean-sea-level *correction* of the fix's own
+        // WGS 84 ellipsoid altitude, not a stand-in for a missing one:
+        // mLastMslAltitude only ever advances while GPS NMEA sentences arrive and
+        // is cleared with the listener, so applying it to a fix that carries no
+        // altitude of its own (the network provider, say) would report a stale
+        // GPS reading as the current altitude. Substitute it only when there is
+        // an altitude to correct.
+        if (location.hasAltitude()) {
+            val lastMslAltitude = mLastMslAltitude
+            loc["altitude"] =
+                if (lastMslAltitude != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    lastMslAltitude
+                } else {
+                    location.altitude
+                }
         }
 
-        // Using NMEA data to get MSL level altitude
-        val lastMslAltitude = mLastMslAltitude
-        if (lastMslAltitude == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            loc["altitude"] = location.altitude
-        } else {
-            loc["altitude"] = lastMslAltitude
+        if (location.hasSpeed()) {
+            loc["speed"] = location.speed.toDouble()
         }
-
-        loc["speed"] = location.speed.toDouble()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && location.hasSpeedAccuracy()) {
             loc["speed_accuracy"] = location.speedAccuracyMetersPerSecond.toDouble()
         }
-        loc["heading"] = location.bearing.toDouble()
+        if (location.hasBearing()) {
+            loc["heading"] = location.bearing.toDouble()
+        }
         loc["time"] = location.time.toDouble()
         return loc
     }
