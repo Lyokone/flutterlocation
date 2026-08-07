@@ -3,11 +3,10 @@
 ### 💥 Behavior changes
 
 - `LocationData.fromMap` reports `isMock` and `isProducedByAccessory` as `null`
-  when the platform map omits the key, instead of defaulting to `false`. Both are
-  declared `bool?`; an absent key means "this platform exposes no such flag",
-  which is a different claim from "checked, and the fix was not mocked". Since
-  `fromJson` already preserved null, this also makes
-  `fromMap` → `toJson` → `fromJson` round-trip for those two fields.
+  when the platform map omits the key, instead of defaulting to `false`. An
+  absent key means the platform exposes no such flag, which is not the same as
+  having checked. Also makes `fromMap` → `toJson` → `fromJson` round-trip for
+  those two fields.
 
 ## 7.0.0
 

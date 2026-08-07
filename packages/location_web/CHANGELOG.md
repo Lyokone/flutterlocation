@@ -3,10 +3,9 @@
 ### 🐛 Bug fixes
 
 - `heading` no longer leaks `NaN` into `LocationData`. The Geolocation spec
-  specifies NaN — not null — whenever the device is stationary (`speed == 0`),
-  and because `NaN != NaN` that made two otherwise identical `LocationData`
-  compare unequal and their `hashCode`s unstable. Every optional coordinate
-  reading is now normalised to `null` when it is not finite.
+  returns NaN — not null — when the device is stationary, and since `NaN != NaN`
+  that made two identical readings compare unequal with unstable `hashCode`s.
+  Non-finite readings now normalise to `null`.
 
 ## 7.0.0
 
