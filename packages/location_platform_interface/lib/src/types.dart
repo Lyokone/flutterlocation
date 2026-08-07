@@ -282,6 +282,41 @@ enum LocationAccuracy {
   reduced,
 }
 
+/// The type of user activity associated with the location updates.
+///
+/// Core Location uses this as a hint for how to acquire and process fixes. Per
+/// Apple it informs when updates may be paused automatically (see
+/// `pausesLocationUpdatesAutomatically` on `changeSettings`), and for
+/// `automotiveNavigation` that reported positions may be adjusted towards
+/// nearby roads. The exact adjustments for each type are not documented.
+///
+/// iOS only. `CLLocationManager.activityType` has no equivalent on Android's
+/// fused location provider, on macOS, or on the web.
+///
+/// https://developer.apple.com/documentation/corelocation/clactivitytype
+enum LocationActivityType {
+  /// The activity type is unknown or unspecified.
+  ///
+  /// Core Location's own default.
+  other,
+
+  /// Location updates for automobile navigation.
+  automotiveNavigation,
+
+  /// Location updates for pedestrian-scale activities such as walking,
+  /// running or cycling.
+  fitness,
+
+  /// Location updates for vehicular navigation that is not automobile-based,
+  /// such as a boat, train or plane.
+  otherNavigation,
+
+  /// Location updates for airborne activities.
+  ///
+  /// Requires iOS 12.0 or later.
+  airborne,
+}
+
 /// Status of a permission request to use location services.
 enum PermissionStatus {
   /// The permission to use location services has been granted for high accuracy.

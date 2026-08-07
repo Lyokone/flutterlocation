@@ -56,6 +56,19 @@ class LocationPlatform extends PlatformInterface {
     throw UnimplementedError();
   }
 
+  /// Sets the [LocationActivityType] Core Location associates with the
+  /// location updates, and returns the type actually in effect afterwards.
+  ///
+  /// iOS only; returns `null` on every other platform, which have no
+  /// equivalent setting. Unlike the other members of this class this has a
+  /// default implementation rather than throwing [UnimplementedError], so that
+  /// platform implementations without the concept do not have to override it.
+  Future<LocationActivityType?> setActivityType(
+    LocationActivityType type,
+  ) async {
+    return null;
+  }
+
   /// Checks if service is enabled in the background mode.
   Future<bool> isBackgroundModeEnabled() {
     throw UnimplementedError();
@@ -160,6 +173,22 @@ class LocationPlatform extends PlatformInterface {
   /// Throws an error if the app has no permission to access location.
   Stream<LocationData> get onLocationChanged {
     throw UnimplementedError();
+  }
+
+  /// Emits `true` when the platform pauses location updates on its own
+  /// judgment, and `false` when it resumes them.
+  ///
+  /// Only Core Location pauses updates by itself, so this is iOS only and emits
+  /// nothing elsewhere. Nothing is emitted while
+  /// `pausesLocationUpdatesAutomatically` is disabled; Apple also describes the
+  /// [LocationActivityType] as informing when a pause is appropriate. Listen to
+  /// it to tell "the user stopped moving and iOS paused updates" apart from
+  /// "the location stream broke".
+  ///
+  /// Like [setActivityType], this has a benign default implementation rather
+  /// than throwing [UnimplementedError].
+  Stream<bool> get onLocationUpdatesPaused {
+    return const Stream.empty();
   }
 
   /// Change options of sticky background notification on Android.

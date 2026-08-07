@@ -38,6 +38,23 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
     private var updateIntervalMilliseconds: Double = 1000
     private var lastStreamUpdateAt: Date?
 
+    #if os(iOS)
+    /// Sink for the pause/resume event channel. Held separately from the
+    /// location stream's own sink so the two cannot interfere.
+    let pauseStreamHandler = PauseStreamHandler()
+
+    /// Maps the Dart `LocationActivityType` index to its `CLActivityType`.
+    /// Spelled out rather than derived from `CLActivityType(rawValue:)`, whose
+    /// cases start at 1: `CLActivityTypeOther` is raw value 1, not 0.
+    private static let activityTypes: [Int: CLActivityType] = [
+        0: .other,
+        1: .automotiveNavigation,
+        2: .fitness,
+        3: .otherNavigation,
+        4: .airborne,
+    ]
+    #endif
+
     public static func register(with registrar: FlutterPluginRegistrar) {
         #if os(iOS)
         let messenger = registrar.messenger()
@@ -51,6 +68,16 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
         let instance = LocationPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
         stream.setStreamHandler(instance)
+
+        #if os(iOS)
+        // Pause/resume gets its own channel rather than sharing the location
+        // stream, so a pause signal can never be mistaken for a fix. iOS only:
+        // only Core Location pauses updates on its own, and only when it has an
+        // activityType to reason about.
+        let pauseStream = FlutterEventChannel(
+            name: "lyokone/locationpaused", binaryMessenger: messenger)
+        pauseStream.setStreamHandler(instance.pauseStreamHandler)
+        #endif
     }
 
     private func initLocation() {
@@ -73,6 +100,8 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
         switch call.method {
         case "changeSettings":
             onChangeSettings(call, result: result)
+        case "setActivityType":
+            onSetActivityType(call, result: result)
         case "isBackgroundModeEnabled":
             onIsBackgroundModeEnabled(result: result)
         case "enableBackgroundMode":
@@ -159,6 +188,38 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
             // so it is an Android-only setting.
             result(1)
         }
+    }
+
+    /// Sets `CLLocationManager.activityType` and answers with the value that is
+    /// in effect afterwards, as a Dart `LocationActivityType` index, so callers
+    /// can confirm what was applied instead of assuming.
+    ///
+    /// Deliberately not gated on `locationServicesEnabled`: this is a plain
+    /// property assignment that stays valid whether or not updates are running,
+    /// and the check is asynchronous, so gating on it would leave the Dart
+    /// Future unresolved whenever location services happen to be off.
+    private func onSetActivityType(_ call: FlutterMethodCall, result: FlutterResult) {
+        #if os(iOS)
+        guard
+            let manager = clLocationManager,
+            let index = (call.arguments as? [String: Any])?["activityType"] as? Int,
+            let activityType = Self.activityTypes[index]
+        else {
+            result(FlutterError(
+                code: "SET_ACTIVITY_TYPE_ERROR",
+                message: "Invalid arguments",
+                details: nil,
+            ))
+            return
+        }
+
+        manager.activityType = activityType
+        let applied = manager.activityType
+        result(Self.activityTypes.first { $0.value == applied }?.key)
+        #else
+        // CLLocationManager.activityType is unavailable outside iOS.
+        result(nil)
+        #endif
     }
 
     private func onIsBackgroundModeEnabled(result: FlutterResult) {
@@ -477,6 +538,21 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
         }
     }
 
+    #if os(iOS)
+    /// Core Location decided the device is unlikely to move and stopped
+    /// delivering updates, which requires `pausesLocationUpdatesAutomatically`
+    /// to be left enabled. Forwarded to Dart because an unannounced pause is
+    /// indistinguishable from a broken location stream from there.
+    public func locationManagerDidPauseLocationUpdates(_: CLLocationManager) {
+        pauseStreamHandler.send(paused: true)
+    }
+
+    /// Core Location resumed updates it had paused by itself.
+    public func locationManagerDidResumeLocationUpdates(_: CLLocationManager) {
+        pauseStreamHandler.send(paused: false)
+    }
+    #endif
+
     @available(iOS 14.0, macOS 11.0, *)
     public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         handleAuthorizationChange(manager.authorizationStatus)
@@ -539,3 +615,27 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
         }
     }
 }
+
+#if os(iOS)
+/// Stream handler for the pause/resume event channel.
+///
+/// A separate object because `LocationPlugin` is already the handler for the
+/// location stream, and one handler can only hold one sink.
+final class PauseStreamHandler: NSObject, FlutterStreamHandler {
+    private var eventSink: FlutterEventSink?
+
+    func onListen(withArguments _: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        eventSink = events
+        return nil
+    }
+
+    func onCancel(withArguments _: Any?) -> FlutterError? {
+        eventSink = nil
+        return nil
+    }
+
+    func send(paused: Bool) {
+        eventSink?(paused)
+    }
+}
+#endif

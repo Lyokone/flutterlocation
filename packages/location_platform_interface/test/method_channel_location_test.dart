@@ -92,6 +92,22 @@ void main() {
     ]);
   });
 
+  // `flutter test` runs on the host VM, never with Platform.isIOS true, so
+  // only the non-iOS branch is reachable here. The iOS path is covered by the
+  // native side.
+  group('setActivityType off iOS', () {
+    test('returns null without touching the method channel', () async {
+      final applied =
+          await location.setActivityType(LocationActivityType.fitness);
+      expect(applied, isNull);
+      expect(log, isEmpty);
+    });
+
+    test('onLocationUpdatesPaused emits nothing', () async {
+      expect(await location.onLocationUpdatesPaused.isEmpty, isTrue);
+    });
+  });
+
   group('Service Status', () {
     test('serviceEnabled should convert results correctly', () async {
       final result = await location.serviceEnabled();

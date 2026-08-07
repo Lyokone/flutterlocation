@@ -52,6 +52,12 @@ class MockLocation extends _i1.Mock implements _i3.Location {
       ) as _i4.Stream<_i2.LocationData>);
 
   @override
+  _i4.Stream<bool> get onLocationUpdatesPaused => (super.noSuchMethod(
+        Invocation.getter(#onLocationUpdatesPaused),
+        returnValue: _i4.Stream<bool>.empty(),
+      ) as _i4.Stream<bool>);
+
+  @override
   _i4.Future<bool> changeSettings({
     _i2.LocationAccuracy? accuracy = _i2.LocationAccuracy.high,
     int? interval = 1000,
@@ -74,6 +80,17 @@ class MockLocation extends _i1.Mock implements _i3.Location {
         ),
         returnValue: _i4.Future<bool>.value(false),
       ) as _i4.Future<bool>);
+
+  @override
+  _i4.Future<_i2.LocationActivityType?> setActivityType(
+          _i2.LocationActivityType? type) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setActivityType,
+          [type],
+        ),
+        returnValue: _i4.Future<_i2.LocationActivityType?>.value(),
+      ) as _i4.Future<_i2.LocationActivityType?>);
 
   @override
   _i4.Future<bool> isBackgroundModeEnabled() => (super.noSuchMethod(

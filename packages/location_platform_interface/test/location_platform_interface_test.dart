@@ -133,6 +133,21 @@ void main() {
         throwsUnimplementedError,
       );
     });
+
+    // setActivityType and onLocationUpdatesPaused deliberately do not throw:
+    // they describe an iOS-only concept, and implementations for platforms
+    // without it should not have to override them to stay usable.
+    test('Default implementation of setActivityType returns null', () async {
+      expect(
+        await locationPlatform.setActivityType(LocationActivityType.fitness),
+        isNull,
+      );
+    });
+
+    test('Default implementation of onLocationUpdatesPaused emits nothing',
+        () async {
+      expect(await locationPlatform.onLocationUpdatesPaused.isEmpty, isTrue);
+    });
   });
 }
 
