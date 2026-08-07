@@ -1,3 +1,26 @@
+## 10.1.0
+
+### 🎯 Dart API
+
+- Added `Location.setActivityType()` and the `LocationActivityType` enum,
+  exposing `CLLocationManager.activityType` on iOS. Core Location uses the
+  activity type as a hint for how to acquire and process fixes: per Apple it
+  informs when updates may be paused automatically, and for
+  `automotiveNavigation` that positions may be adjusted towards nearby roads.
+  The plugin never set the property, so apps were stuck with Core Location's
+  `.other` default and had no way to describe pedestrian-scale movement
+  (walking, running, cycling) (#602). Returns the activity type actually in
+  effect after the call, so callers can confirm what was applied rather than
+  assuming. No-op returning `null` on Android, macOS and web, which have no
+  equivalent setting.
+- Added `Location.onLocationUpdatesPaused`, a stream that emits `true` when Core
+  Location pauses location updates on its own judgment and `false` when it
+  resumes them. A pause is only ever visible as an absence of updates, which is
+  indistinguishable from a location stream that has broken; the plugin never
+  implemented `locationManagerDidPauseLocationUpdates(_:)`, so that signal was
+  dropped entirely. iOS only; emits nothing on platforms that do not pause
+  updates by themselves.
+
 ## 10.0.2
 
 ### 🐛 Bug fixes

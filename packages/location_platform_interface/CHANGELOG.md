@@ -1,3 +1,19 @@
+## 7.1.0
+
+### Added
+
+- `LocationPlatform.setActivityType()` and the `LocationActivityType` enum,
+  exposing `CLLocationManager.activityType` (iOS only). Returns the activity
+  type in effect after the call, so callers can confirm what was applied.
+- `LocationPlatform.onLocationUpdatesPaused`, a stream that emits `true` when
+  Core Location pauses location updates on its own judgment and `false` when it
+  resumes them (iOS only). Previously a self-inflicted pause was
+  indistinguishable from a broken location stream on the Dart side.
+
+Both members have benign default implementations (`null` and an empty stream)
+rather than throwing `UnimplementedError`, so platform implementations without
+the underlying concept do not need to override them.
+
 ## 7.0.0
 
 ### 💥 Breaking changes
