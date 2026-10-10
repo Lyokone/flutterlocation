@@ -1,5 +1,6 @@
 package com.lyokone.location
 
+import android.app.Activity
 import android.graphics.Color
 import android.os.Build
 import android.util.Log
@@ -15,6 +16,13 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
     private var location: FlutterLocation? = null
     private var locationService: FlutterLocationService? = null
     private var channel: MethodChannel? = null
+
+    private var activityProvider: (() -> Activity?)? = null
+
+    /** Re-supplies this engine's activity if the shared service lost its activity. */
+    fun setActivityProvider(provider: (() -> Activity?)?) {
+        activityProvider = provider
+    }
 
     fun setLocation(location: FlutterLocation?) {
         this.location = location
@@ -33,6 +41,7 @@ internal class MethodCallHandlerImpl : MethodCallHandler {
             result.error("NO_ACTIVITY", "Location is not attached to an activity.", null)
             return
         }
+        locationService?.ensureLiveActivity(activityProvider?.invoke())
         when (call.method) {
             "changeSettings" -> onChangeSettings(call, result, location)
             "getLocation" -> onGetLocation(result, location)

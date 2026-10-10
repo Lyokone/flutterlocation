@@ -1,3 +1,11 @@
+## Unreleased
+
+### 🐛 Bug fixes
+
+- **Android:** Preserve the live activity and location stream when Flutter
+  engines overlap during an app relaunch. Release an engine's own stream on
+  detach while keeping updates needed by concurrent one-shot requests.
+
 ## 10.0.2
 
 ### 🐛 Bug fixes

@@ -66,6 +66,10 @@ jobs:
         working-directory: packages/location/example
         run: flutter build apk --debug
 
+      - name: Run Android unit tests
+        working-directory: packages/location/example/android
+        run: ./gradlew :location:testDebugUnitTest
+
       - name: Run ktlint
         working-directory: packages/location/example/android
         run: ./gradlew :location:ktlintCheck
