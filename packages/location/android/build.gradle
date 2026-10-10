@@ -51,6 +51,10 @@ android {
         test.java.srcDirs += "src/test/kotlin"
     }
 
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
     defaultConfig {
         minSdk = 21
         targetSdk = 36
@@ -68,6 +72,8 @@ kotlin {
 }
 
 dependencies {
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:5.18.0")
     compileOnly("androidx.annotation:annotation:1.8.1")
     implementation("androidx.core:core-ktx:1.16.0")
     api("com.google.android.gms:play-services-location:21.3.0")
