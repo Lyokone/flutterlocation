@@ -59,19 +59,30 @@ EncodableValue GeopositionToEncodable(const Geoposition& position) {
   EncodableMap map;
   map[EncodableValue("latitude")] = EncodableValue(point.Latitude);
   map[EncodableValue("longitude")] = EncodableValue(point.Longitude);
-  map[EncodableValue("altitude")] = EncodableValue(point.Altitude);
   map[EncodableValue("accuracy")] = EncodableValue(coordinate.Accuracy());
 
+  // BasicGeoposition::Altitude is a plain double, so an absent altitude is
+  // indistinguishable from sea level. The nullability lives on
+  // Geocoordinate::AltitudeAccuracy, an IReference<double> that is null exactly
+  // when the fix carries no altitude -- which is every fix on a machine without
+  // a GPS radio, where Windows positions by Wi-Fi/IP. Gate both keys on it
+  // rather than reporting a fabricated 0.0 altitude.
+  if (const auto altitude_accuracy = coordinate.AltitudeAccuracy()) {
+    map[EncodableValue("altitude")] = EncodableValue(point.Altitude);
+    map[EncodableValue("verticalAccuracy")] =
+        EncodableValue(altitude_accuracy.Value());
+  }
+
+  // Heading and speed are IReference<double>: a null means this fix does not
+  // carry them. Substituting 0.0 would read to Dart callers as "due north" and
+  // "stationary", so leave the key out and let it arrive as the null that
+  // LocationData documents.
   if (const auto heading = coordinate.Heading()) {
     map[EncodableValue("heading")] = EncodableValue(heading.Value());
-  } else {
-    map[EncodableValue("heading")] = EncodableValue(0.0);
   }
 
   if (const auto speed = coordinate.Speed()) {
     map[EncodableValue("speed")] = EncodableValue(speed.Value());
-  } else {
-    map[EncodableValue("speed")] = EncodableValue(0.0);
   }
 
   // Timestamp -> milliseconds since the Unix epoch.

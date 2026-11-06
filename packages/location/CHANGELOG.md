@@ -1,15 +1,40 @@
 ## Unreleased
 
+### 💥 Behavior changes
+
+- `accuracy`, `verticalAccuracy`, `altitude`, `speed`, `speedAccuracy`, `heading`
+  and `headingAccuracy` are now `null` when the fix does not carry them, instead
+  of a fabricated `0` or a raw platform sentinel. They were already `double?` and
+  documented as nullable, so nothing stops compiling — but an app that
+  force-unwraps (`data.speed!`) or treated `0` as a real reading will now see a
+  null. Per platform: Android gates each field on its `Location.hasX()`;
+  iOS/macOS map Core Location's negative sentinel to `nil` for every scalar, not
+  just `speed` (#741); Windows gates `altitude` on `AltitudeAccuracy` and omits a
+  null `heading`/`speed`; Linux recognises GeoClue2's `-1` and `-G_MAXDOUBLE`
+  sentinels; web normalises the `NaN` heading the Geolocation spec returns when
+  the device is stationary.
+- `isMock` and `isProducedByAccessory` are `null` when the platform exposes no
+  such flag, rather than defaulting to `false`. Android always reports `isMock`,
+  Apple reports both on iOS 15.0+/macOS 12.0+, Windows/Linux/web report `null`.
+
 ### 🐛 Bug fixes
 
 - **Android:** the plugin no longer applies the Kotlin Gradle plugin itself, so
   AGP 9 builds stop warning "Your app uses the following plugins that apply
   Kotlin Gradle Plugin (KGP): location". With Built-in Kotlin, AGP compiles the
   plugin; otherwise Flutter applies KGP to it (#1105).
+- **Android:** the NMEA mean-sea-level altitude is only applied to a fix that has
+  an altitude to correct, and is cleared with the NMEA listener. A stale GPS
+  reading could previously surface as a network-provider fix's current altitude.
 - **iOS:** `requestAlwaysAuthorization` is no longer compiled into iOS builds, so
   App Store Connect stops rejecting apps that only declare
   `NSLocationWhenInUseUsageDescription` (ITMS-90683). The removed branch could
   never prompt anyway: iOS needs both usage keys to request Always (#1106).
+- **iOS/macOS:** fixes with a negative `horizontalAccuracy` are skipped. Core
+  Location documents that as meaning the coordinate itself is invalid, and
+  `latitude`/`longitude` are non-nullable.
+- **Windows:** `verticalAccuracy` is now reported.
+- **Linux:** `time` is now populated from GeoClue2's `Timestamp`.
 
 ### 📝 Docs
 
@@ -25,6 +50,10 @@
 
 - Requires Flutter 3.44 or later (was 3.27), as Flutter's Built-in Kotlin
   migration requires (#1105).
+- **iOS/macOS:** `Package.swift` depends on the `FlutterFramework` package that
+  Flutter 3.44+ generates, as Flutter's Swift Package Manager guide for plugin
+  authors asks. This clears the "missing a dependency on FlutterFramework"
+  warning when building the plugin's example app (#1113).
 
 ## 10.0.2
 
