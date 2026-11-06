@@ -331,31 +331,40 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
 
     private func requestPermission() {
         let hasWhenInUse = Bundle.main.object(forInfoDictionaryKey: "NSLocationWhenInUseUsageDescription") != nil
+
+        #if os(macOS)
         // NSLocationAlwaysUsageDescription is the pre-iOS 11 key; the modern,
         // README-recommended key is NSLocationAlwaysAndWhenInUseUsageDescription.
         // Only checking the old key meant an app declaring solely the current
         // key was treated as having neither description (#962).
         let hasAlways = Bundle.main.object(forInfoDictionaryKey: "NSLocationAlwaysUsageDescription") != nil
             || Bundle.main.object(forInfoDictionaryKey: "NSLocationAlwaysAndWhenInUseUsageDescription") != nil
-
-        #if os(macOS)
         if hasWhenInUse || hasAlways {
             clLocationManager?.requestAlwaysAuthorization()
             return
         }
-        #elseif os(iOS)
-        if hasWhenInUse {
-            clLocationManager?.requestWhenInUseAuthorization()
-            return
-        } else if hasAlways {
-            clLocationManager?.requestAlwaysAuthorization()
-            return
-        }
-        #endif
-
         NSLog(
             "[Location] Missing NSLocationWhenInUseUsageDescription (or NSLocationAlwaysAndWhenInUseUsageDescription) "
                 + "in Info.plist; the location permission cannot be requested.")
+        #elseif os(iOS)
+        // iOS only ever requests When In Use authorization, which is all that
+        // background updates need (together with the location background mode).
+        //
+        // requestAlwaysAuthorization() must not be referenced anywhere in the
+        // iOS build: App Store Connect rejects a binary containing its selector
+        // unless Info.plist also declares NSLocationAlwaysAndWhenInUseUsageDescription
+        // (ITMS-90683), even when the call is unreachable at runtime (#1106).
+        // Calling it would gain nothing anyway: since iOS 11 it fails unless
+        // BOTH the When In Use and the Always keys are present, so an app
+        // declaring only an Always key could never be prompted that way.
+        if hasWhenInUse {
+            clLocationManager?.requestWhenInUseAuthorization()
+            return
+        }
+        NSLog(
+            "[Location] Missing NSLocationWhenInUseUsageDescription in Info.plist; "
+                + "the location permission cannot be requested.")
+        #endif
     }
 
     private var currentAuthorizationStatus: CLAuthorizationStatus {

@@ -19,14 +19,41 @@
 
 ### 🐛 Bug fixes
 
+- **Android:** the plugin no longer applies the Kotlin Gradle plugin itself, so
+  AGP 9 builds stop warning "Your app uses the following plugins that apply
+  Kotlin Gradle Plugin (KGP): location". With Built-in Kotlin, AGP compiles the
+  plugin; otherwise Flutter applies KGP to it (#1105).
 - **Android:** the NMEA mean-sea-level altitude is only applied to a fix that has
   an altitude to correct, and is cleared with the NMEA listener. A stale GPS
   reading could previously surface as a network-provider fix's current altitude.
+- **iOS:** `requestAlwaysAuthorization` is no longer compiled into iOS builds, so
+  App Store Connect stops rejecting apps that only declare
+  `NSLocationWhenInUseUsageDescription` (ITMS-90683). The removed branch could
+  never prompt anyway: iOS needs both usage keys to request Always (#1106).
 - **iOS/macOS:** fixes with a negative `horizontalAccuracy` are skipped. Core
   Location documents that as meaning the coordinate itself is invalid, and
   `latitude`/`longitude` are non-nullable.
 - **Windows:** `verticalAccuracy` is now reported.
 - **Linux:** `time` is now populated from GeoClue2's `Timestamp`.
+
+### 📝 Docs
+
+- **Android:** the setup page lists the permissions the plugin declares,
+  explains the Google Play foreground service declaration that
+  `FOREGROUND_SERVICE_LOCATION` triggers, and shows how apps that never use
+  background mode can remove it with `tools:node="remove"` (#1109).
+- **iOS:** background updates need only When In Use authorization and the
+  "Location updates" background mode, not
+  `NSLocationAlwaysAndWhenInUseUsageDescription` (#1106).
+
+### 🧹 Housekeeping
+
+- Requires Flutter 3.44 or later (was 3.27), as Flutter's Built-in Kotlin
+  migration requires (#1105).
+- **iOS/macOS:** `Package.swift` depends on the `FlutterFramework` package that
+  Flutter 3.44+ generates, as Flutter's Swift Package Manager guide for plugin
+  authors asks. This clears the "missing a dependency on FlutterFramework"
+  warning when building the plugin's example app (#1113).
 
 ## 10.0.2
 
