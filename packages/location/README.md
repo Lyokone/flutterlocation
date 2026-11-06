@@ -36,10 +36,13 @@ dependencies:
 
 ### Android
 
-To use location background mode on Android, you have to use the enableBackgroundMode({bool enable}) API before accessing location in the background and adding necessary permissions. You should place the required permissions in your applications <your-app>/android/app/src/main/AndroidManifest.xml:
+The plugin's manifest already declares `ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LOCATION`, `FOREGROUND_SERVICE` and `FOREGROUND_SERVICE_LOCATION`, and they are merged into your app.
+
+Because of `FOREGROUND_SERVICE_LOCATION`, Google Play asks apps targeting Android 14 or later to complete the foreground service declaration in Play Console. If your app never calls `enableBackgroundMode`, you can remove that permission instead; see [Install on Android](https://docs.page/Lyokone/flutterlocation/installation/android#apps-that-never-use-background-mode).
+
+To use location background mode on Android, you have to use the enableBackgroundMode({bool enable}) API before accessing location in the background. By default it also requires the background location permission, which you must add to <your-app>/android/app/src/main/AndroidManifest.xml:
 
 ```xml
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
 ```
 
