@@ -1,3 +1,31 @@
+## Unreleased
+
+### 🐛 Bug fixes
+
+- **Android:** the plugin no longer applies the Kotlin Gradle plugin itself, so
+  AGP 9 builds stop warning "Your app uses the following plugins that apply
+  Kotlin Gradle Plugin (KGP): location". With Built-in Kotlin, AGP compiles the
+  plugin; otherwise Flutter applies KGP to it (#1105).
+- **iOS:** `requestAlwaysAuthorization` is no longer compiled into iOS builds, so
+  App Store Connect stops rejecting apps that only declare
+  `NSLocationWhenInUseUsageDescription` (ITMS-90683). The removed branch could
+  never prompt anyway: iOS needs both usage keys to request Always (#1106).
+
+### 📝 Docs
+
+- **Android:** the setup page lists the permissions the plugin declares,
+  explains the Google Play foreground service declaration that
+  `FOREGROUND_SERVICE_LOCATION` triggers, and shows how apps that never use
+  background mode can remove it with `tools:node="remove"` (#1109).
+- **iOS:** background updates need only When In Use authorization and the
+  "Location updates" background mode, not
+  `NSLocationAlwaysAndWhenInUseUsageDescription` (#1106).
+
+### 🧹 Housekeeping
+
+- Requires Flutter 3.44 or later (was 3.27), as Flutter's Built-in Kotlin
+  migration requires (#1105).
+
 ## 10.0.2
 
 ### 🐛 Bug fixes
