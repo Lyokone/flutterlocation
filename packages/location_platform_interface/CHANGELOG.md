@@ -1,4 +1,4 @@
-## Unreleased
+## 7.1.0
 
 ### 💥 Behavior changes
 

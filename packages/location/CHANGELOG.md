@@ -1,4 +1,4 @@
-## Unreleased
+## 10.1.0
 
 ### 💥 Behavior changes
 

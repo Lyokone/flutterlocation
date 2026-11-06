@@ -1,4 +1,4 @@
-## Unreleased
+## 7.0.1
 
 ### 🐛 Bug fixes
 
