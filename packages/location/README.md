@@ -40,6 +40,8 @@ The plugin's manifest already declares `ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LO
 
 Because of `FOREGROUND_SERVICE_LOCATION`, Google Play asks apps targeting Android 14 or later to complete the foreground service declaration in Play Console. If your app never calls `enableBackgroundMode`, you can remove that permission instead; see [Install on Android](https://docs.page/Lyokone/flutterlocation/installation/android#apps-that-never-use-background-mode).
 
+To leave Google Play services out of your app, for example to distribute it on F-Droid, add `location.playServices=false` to `android/gradle.properties`; see [Install on Android](https://docs.page/Lyokone/flutterlocation/installation/android#building-without-google-play-services).
+
 To use location background mode on Android, you have to use the enableBackgroundMode({bool enable}) API before accessing location in the background. By default it also requires the background location permission, which you must add to <your-app>/android/app/src/main/AndroidManifest.xml:
 
 ```xml

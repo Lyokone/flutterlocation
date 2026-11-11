@@ -1,3 +1,13 @@
+## Unreleased
+
+### 🤖 Android
+
+- Added a `location.playServices` Gradle property. Setting it to `false` in the
+  app's `android/gradle.properties` leaves Google Play services out of the
+  build entirely, e.g. for F-Droid, and always uses the framework
+  `LocationManager` fallback. Defaults to `true`, which keeps using Play
+  services.
+
 ## 10.1.0
 
 ### 💥 Behavior changes

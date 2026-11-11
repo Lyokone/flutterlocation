@@ -29,6 +29,13 @@ apply plugin: "com.android.library"
 // building, plugins whose build file applies it themselves (#1105).
 apply plugin: "org.jlleitschuh.gradle.ktlint"
 
+// Apps can leave Google Play services out of their build, e.g. to be
+// distributed on F-Droid, by adding `location.playServices=false` to their
+// android/gradle.properties. Location then always comes from the Android
+// framework's LocationManager, as it already does on devices without Play
+// services.
+def usePlayServices = (findProperty("location.playServices") ?: "true").toString().toBoolean()
+
 android {
     namespace = "com.lyokone.location"
     compileSdk = 36
@@ -40,6 +47,7 @@ android {
 
     sourceSets {
         main.java.srcDirs += "src/main/kotlin"
+        main.java.srcDirs += usePlayServices ? "src/gms/kotlin" : "src/nogms/kotlin"
         test.java.srcDirs += "src/test/kotlin"
     }
 
@@ -62,5 +70,7 @@ kotlin {
 dependencies {
     compileOnly("androidx.annotation:annotation:1.8.1")
     implementation("androidx.core:core-ktx:1.16.0")
-    api("com.google.android.gms:play-services-location:21.3.0")
+    if (usePlayServices) {
+        api("com.google.android.gms:play-services-location:21.3.0")
+    }
 }
