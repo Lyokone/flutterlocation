@@ -1,3 +1,13 @@
+## Unreleased
+
+### 🤖 Android
+
+- The plugin's build script supports Gradle 9, which Flutter 3.50 requires.
+  ktlint-gradle, which the script applies in every app's build, moves from
+  12.1.2 to 14.2.0, with the ktlint engine still pinned at 1.0.1. The
+  buildscript AGP and KGP versions (9.3.1 and 2.4.20) and the Java/JVM target
+  (17) now match Flutter 3.50's plugin template (#1115).
+
 ## 10.1.0
 
 ### 💥 Behavior changes
