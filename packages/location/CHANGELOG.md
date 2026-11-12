@@ -8,6 +8,18 @@
   buildscript AGP and KGP versions (9.3.1 and 2.4.20) and the Java/JVM target
   (17) now match Flutter 3.50's plugin template (#1115).
 
+### 🍎 iOS & macOS
+
+- The plugin is now distributed as a Swift package only, and the CocoaPods
+  podspec is gone. Apps using Swift Package Manager (on by default since
+  Flutter 3.44) are unaffected. If your app turned it off, turn it back on
+  (`flutter config --enable-swift-package-manager`), or the build stops with
+  "The following plugin(s) are only compatible with Swift Package Manager".
+  Other plugins can keep using CocoaPods in the same app. Apps that embed
+  Flutter in a native app should build it with `flutter build swift-package`,
+  because `flutter build ios-framework` and `macos-framework` only install
+  plugins through CocoaPods (#1115).
+
 ## 10.1.0
 
 ### 💥 Behavior changes
