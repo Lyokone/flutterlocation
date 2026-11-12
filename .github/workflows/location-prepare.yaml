@@ -93,6 +93,35 @@ jobs:
         working-directory: packages/location/example
         run: flutter build ios --debug --simulator
 
+  prepare-ios-cocoapods:
+    # The example app uses Swift Package Manager only, so this job is what
+    # keeps darwin/location.podspec building for apps that still use
+    # CocoaPods. Drop it once Flutter removes the CocoaPods fallback.
+    name: iOS (CocoaPods)
+    runs-on: macos-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Disable Swift Package Manager
+        run: flutter config --no-enable-swift-package-manager
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      - name: Build example app
+        working-directory: packages/location/example
+        run: flutter build ios --debug --simulator
+
   prepare-macos:
     name: macOS
     runs-on: macos-latest
@@ -115,3 +144,82 @@ jobs:
       - name: Build example app
         working-directory: packages/location/example
         run: flutter build macos --debug
+
+  prepare-web:
+    name: Web
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Set up Melos
+        run: dart pub global activate melos
+
+      - name: melos bootstrap
+        run: melos bootstrap
+
+      # --no-deprecated-js-interop fails the build if anything (including a
+      # transitive dependency) imports dart:html, dart:js, dart:js_util or
+      # package:js. --wasm also checks that location_web compiles to Wasm.
+      - name: Build example app
+        working-directory: packages/location/example
+        run: flutter build web --wasm --no-deprecated-js-interop
+
+  prepare-minimum-flutter:
+    # Keeps the `flutter: ">=3.44.0"` constraint in packages/location honest.
+    # The example app needs a newer Flutter (material_ui), so this checks the
+    # published packages directly and builds them into a fresh 3.44 app.
+    name: Flutter 3.44 (minimum supported)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.x
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Point packages at their local dependencies
+        run: |
+          printf 'dependency_overrides:\n  location_platform_interface:\n    path: ../location_platform_interface\n' \
+            > packages/location_web/pubspec_overrides.yaml
+          printf 'dependency_overrides:\n  location_platform_interface:\n    path: ../location_platform_interface\n  location_web:\n    path: ../location_web\n' \
+            > packages/location/pubspec_overrides.yaml
+
+      - name: Analyze and test packages
+        run: |
+          set -e
+          for package in location_platform_interface location_web location; do
+            echo "::group::$package"
+            cd "$GITHUB_WORKSPACE/packages/$package"
+            flutter pub get
+            dirs=lib
+            if [ -d test ]; then dirs="lib test"; fi
+            flutter analyze --fatal-infos $dirs
+            if [ -d test ]; then flutter test test/; fi
+            echo "::endgroup::"
+          done
+
+      - name: Build a new 3.44 app that uses the plugin
+        working-directory: ${{ runner.temp }}
+        run: |
+          flutter create --platforms=android --project-name minimum_app minimum_app
+          cd minimum_app
+          printf 'dependency_overrides:\n  location_platform_interface:\n    path: %s/packages/location_platform_interface\n  location_web:\n    path: %s/packages/location_web\n' \
+            "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE" > pubspec_overrides.yaml
+          flutter pub add location --path "$GITHUB_WORKSPACE/packages/location"
+          flutter build apk --debug
