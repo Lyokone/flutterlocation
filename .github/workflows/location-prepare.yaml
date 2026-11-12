@@ -94,9 +94,10 @@ jobs:
         run: flutter build ios --debug --simulator
 
   prepare-ios-cocoapods:
-    # The example app uses Swift Package Manager only, so this job is what
-    # keeps darwin/location.podspec building for apps that still use
-    # CocoaPods. Drop it once Flutter removes the CocoaPods fallback.
+    # The example app uses Swift Package Manager only, and its Xcode project
+    # references the plugin as a Swift package, so it can't build with SwiftPM
+    # off. Build a fresh CocoaPods app instead, to keep darwin/location.podspec
+    # working. Drop this job once Flutter removes the CocoaPods fallback.
     name: iOS (CocoaPods)
     runs-on: macos-latest
 
@@ -112,15 +113,16 @@ jobs:
       - name: Disable Swift Package Manager
         run: flutter config --no-enable-swift-package-manager
 
-      - name: Set up Melos
-        run: dart pub global activate melos
-
-      - name: melos bootstrap
-        run: melos bootstrap
-
-      - name: Build example app
-        working-directory: packages/location/example
-        run: flutter build ios --debug --simulator
+      - name: Build a new CocoaPods app that uses the plugin
+        working-directory: ${{ runner.temp }}
+        run: |
+          flutter create --platforms=ios --project-name cocoapods_app cocoapods_app
+          cd cocoapods_app
+          printf 'dependency_overrides:\n  location_platform_interface:\n    path: %s/packages/location_platform_interface\n  location_web:\n    path: %s/packages/location_web\n' \
+            "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE" > pubspec_overrides.yaml
+          flutter pub add location --path "$GITHUB_WORKSPACE/packages/location"
+          flutter build ios --debug --simulator
+          grep -q "location" ios/Podfile.lock
 
   prepare-macos:
     name: macOS
@@ -193,8 +195,11 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      # The example app needs Flutter 3.47+ (material_ui), and `flutter pub get`
+      # in packages/location also resolves it, so take it out of this checkout.
       - name: Point packages at their local dependencies
         run: |
+          rm -rf packages/location/example
           printf 'dependency_overrides:\n  location_platform_interface:\n    path: ../location_platform_interface\n' \
             > packages/location_web/pubspec_overrides.yaml
           printf 'dependency_overrides:\n  location_platform_interface:\n    path: ../location_platform_interface\n  location_web:\n    path: ../location_web\n' \
