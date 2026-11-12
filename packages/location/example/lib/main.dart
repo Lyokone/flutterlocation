@@ -1,7 +1,7 @@
 import 'package:example/change_settings.dart';
 import 'package:example/enable_in_background.dart';
-import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'change_notification.dart';
