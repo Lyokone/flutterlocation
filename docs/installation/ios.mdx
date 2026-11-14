@@ -4,14 +4,31 @@ title: Install on iOS
 
 # Install on iOS
 
-## Minimum deployment target
+## Swift Package Manager
 
-In order to use the `location` plugin, you need to set your minimum deployment
-target to iOS 13.0 or later:
+The `location` plugin is distributed as a Swift package only; it has no
+CocoaPods podspec. Swift Package Manager is on by default since Flutter 3.44,
+so there is nothing to set up. If you turned it off, turn it back on:
 
-```ruby name="ios/Podfile"
-platform :ios, '13.0'
+```bash
+flutter config --enable-swift-package-manager
 ```
+
+and, if your app's `pubspec.yaml` turns it off, remove that setting:
+
+```yaml name="pubspec.yaml"
+flutter:
+  config:
+    enable-swift-package-manager: false # remove this line
+```
+
+Your app can still use CocoaPods for other plugins; Flutter integrates both
+side by side.
+
+If you embed Flutter in an existing native app, build it with
+`flutter build swift-package`. `flutter build ios-framework` and
+`flutter build macos-framework` only install plugins through CocoaPods, so they
+leave `location` out.
 
 ## Info.plist
 
@@ -28,17 +45,24 @@ permissions.
 
 ## Background location
 
-If you want to receive background location, you need to add the following to
-your `ios/Runner/Info.plist`:
+On iOS the plugin only ever requests **When In Use** authorization, and that is
+enough to keep receiving updates in the background once you call
+`enableBackgroundMode(enable: true)`. iOS shows a blue location indicator in the
+status bar while it does.
+
+To allow it, enable the background mode for the **Runner** target. Open Xcode and
+go to "Signing & Capabilities". Add the "Background Modes" section and add
+"Location updates" to the list.
+
+You don't need `NSLocationAlwaysAndWhenInUseUsageDescription` for this. Add it
+only if your app requests **Always** authorization itself, for example through
+another package:
 
 ```
 <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 <string>The app needs the location</string>
 ```
 
-The string will appear in the popup when the user is asked to grant background
-location permissions.
-
-You also need to activate enable background mode for the **Runner** target. Open
-Xcode and go to "Signing & Capabilities". Add the "Background Modes" section and
-add "Location updates" to the list.
+The plugin never references `requestAlwaysAuthorization` on iOS, so App Store
+Connect doesn't ask for this key (ITMS-90683) when your app only declares
+`NSLocationWhenInUseUsageDescription`.

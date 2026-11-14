@@ -223,11 +223,26 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
     /// is available. `CLLocationManager.location` holds the last known location
     /// without starting fresh updates, so this returns immediately.
     private func onGetLastKnownLocation(result: @escaping FlutterResult) {
-        guard isPermissionGranted, let location = clLocationManager?.location else {
+        guard isPermissionGranted, let location = clLocationManager?.location,
+              hasValidCoordinate(location)
+        else {
             result(nil)
             return
         }
         result(coordinates(from: location))
+    }
+
+    /// Whether a [CLLocation]'s `coordinate` is meaningful at all.
+    ///
+    /// Core Location documents a negative `horizontalAccuracy` as meaning the
+    /// latitude and longitude themselves are invalid, not merely unmeasured.
+    /// `LocationData.latitude`/`longitude` are non-nullable, so there is no way
+    /// to pass such a fix to Dart without fabricating a coordinate -- and
+    /// nulling only its `accuracy` would make it read as "position known,
+    /// accuracy unknown", which is more trustworthy than the truth. Report it
+    /// as "no location" instead.
+    private func hasValidCoordinate(_ location: CLLocation) -> Bool {
+        location.horizontalAccuracy >= 0
     }
 
     private func onHasPermission(result: FlutterResult) {
@@ -316,31 +331,40 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
 
     private func requestPermission() {
         let hasWhenInUse = Bundle.main.object(forInfoDictionaryKey: "NSLocationWhenInUseUsageDescription") != nil
+
+        #if os(macOS)
         // NSLocationAlwaysUsageDescription is the pre-iOS 11 key; the modern,
         // README-recommended key is NSLocationAlwaysAndWhenInUseUsageDescription.
         // Only checking the old key meant an app declaring solely the current
         // key was treated as having neither description (#962).
         let hasAlways = Bundle.main.object(forInfoDictionaryKey: "NSLocationAlwaysUsageDescription") != nil
             || Bundle.main.object(forInfoDictionaryKey: "NSLocationAlwaysAndWhenInUseUsageDescription") != nil
-
-        #if os(macOS)
         if hasWhenInUse || hasAlways {
             clLocationManager?.requestAlwaysAuthorization()
             return
         }
-        #elseif os(iOS)
-        if hasWhenInUse {
-            clLocationManager?.requestWhenInUseAuthorization()
-            return
-        } else if hasAlways {
-            clLocationManager?.requestAlwaysAuthorization()
-            return
-        }
-        #endif
-
         NSLog(
             "[Location] Missing NSLocationWhenInUseUsageDescription (or NSLocationAlwaysAndWhenInUseUsageDescription) "
                 + "in Info.plist; the location permission cannot be requested.")
+        #elseif os(iOS)
+        // iOS only ever requests When In Use authorization, which is all that
+        // background updates need (together with the location background mode).
+        //
+        // requestAlwaysAuthorization() must not be referenced anywhere in the
+        // iOS build: App Store Connect rejects a binary containing its selector
+        // unless Info.plist also declares NSLocationAlwaysAndWhenInUseUsageDescription
+        // (ITMS-90683), even when the call is unreachable at runtime (#1106).
+        // Calling it would gain nothing anyway: since iOS 11 it fails unless
+        // BOTH the When In Use and the Always keys are present, so an app
+        // declaring only an Always key could never be prompted that way.
+        if hasWhenInUse {
+            clLocationManager?.requestWhenInUseAuthorization()
+            return
+        }
+        NSLog(
+            "[Location] Missing NSLocationWhenInUseUsageDescription in Info.plist; "
+                + "the location permission cannot be requested.")
+        #endif
     }
 
     private var currentAuthorizationStatus: CLAuthorizationStatus {
@@ -418,23 +442,32 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
         }
 
         // Core Location uses a negative value as a sentinel for "invalid/not
-        // available" on speed and speed accuracy (see the `CLLocation.speed`
-        // and `CLLocation.speedAccuracy` docs). Passed straight through, that
-        // sentinel reads to Dart callers as a real (negative) measurement
-        // rather than "no data", e.g. a stationary or indoor fix reporting a
-        // speed of exactly -1 (#741). Map it to `nil` instead.
+        // available" on every scalar measurement it exposes (see the
+        // `CLLocation` docs). Passed straight through, that sentinel reads to
+        // Dart callers as a real (negative) measurement rather than "no data",
+        // e.g. a stationary or indoor fix reporting a speed of exactly -1
+        // (#741). Map each of them to `nil` instead.
+        let horizontalAccuracy: Double? =
+            location.horizontalAccuracy >= 0 ? location.horizontalAccuracy : nil
+        let verticalAccuracy: Double? =
+            location.verticalAccuracy >= 0 ? location.verticalAccuracy : nil
         let speed: Double? = location.speed >= 0 ? location.speed : nil
         let speedAccuracy: Double? = location.speedAccuracy >= 0 ? location.speedAccuracy : nil
+        let course: Double? = location.course >= 0 ? location.course : nil
+
+        // `altitude` carries no sentinel of its own: Core Location documents a
+        // negative `verticalAccuracy` as what marks the altitude invalid.
+        let altitude: Double? = verticalAccuracy != nil ? location.altitude : nil
 
         return [
             "latitude": location.coordinate.latitude,
             "longitude": location.coordinate.longitude,
-            "accuracy": location.horizontalAccuracy,
-            "verticalAccuracy": location.verticalAccuracy,
-            "altitude": location.altitude,
+            "accuracy": horizontalAccuracy as Any,
+            "verticalAccuracy": verticalAccuracy as Any,
+            "altitude": altitude as Any,
             "speed": speed as Any,
             "speed_accuracy": speedAccuracy as Any,
-            "heading": location.course,
+            "heading": course as Any,
             "time": timeInMilliseconds,
             "isMock": isMock ? 1 : 0,
             "isProducedByAccessory": isProducedByAccessory ? 1 : 0,
@@ -444,7 +477,10 @@ public class LocationPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLo
     // MARK: - CLLocationManagerDelegate
 
     public func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
+        // Core Location can batch several fixes into one callback, so take the
+        // most recent one whose coordinate is actually usable (see
+        // hasValidCoordinate) rather than the last one unconditionally.
+        guard let location = locations.last(where: hasValidCoordinate) else { return }
 
         // CoreLocation delivers a cached "last known" fix immediately when
         // updates start. Skip clearly-stale fixes so callers get a current

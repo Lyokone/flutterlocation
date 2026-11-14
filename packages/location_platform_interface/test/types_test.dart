@@ -14,6 +14,51 @@ void main() {
       );
     });
 
+    test('fromMap leaves every omitted optional field null', () {
+      // Every native implementation now omits a key rather than sending a
+      // fabricated 0.0 when the fix does not carry that measurement, so a
+      // sparse map is the normal shape -- not an edge case.
+      final locationData = LocationData.fromMap(<String, dynamic>{
+        'latitude': 42.0,
+        'longitude': 2.0,
+      });
+
+      expect(locationData.latitude, 42.0);
+      expect(locationData.longitude, 2.0);
+      expect(locationData.accuracy, isNull);
+      expect(locationData.verticalAccuracy, isNull);
+      expect(locationData.altitude, isNull);
+      expect(locationData.speed, isNull);
+      expect(locationData.speedAccuracy, isNull);
+      expect(locationData.heading, isNull);
+      expect(locationData.headingAccuracy, isNull);
+      expect(locationData.time, isNull);
+      expect(locationData.elapsedRealtimeNanos, isNull);
+      expect(locationData.elapsedRealtimeUncertaintyNanos, isNull);
+      expect(locationData.satelliteNumber, isNull);
+      expect(locationData.provider, isNull);
+      // Absent means "this platform cannot tell", not "verified false".
+      expect(locationData.isMock, isNull);
+      expect(locationData.isProducedByAccessory, isNull);
+    });
+
+    test('fromMap distinguishes a reported 0 flag from an absent one', () {
+      LocationData withFlags(Object? isMock) => LocationData.fromMap(
+            <String, dynamic>{
+              'latitude': 42.0,
+              'longitude': 2.0,
+              if (isMock != null) 'isMock': isMock,
+            },
+          );
+
+      // Android sends a double, Apple sends an int; both must read the same.
+      expect(withFlags(1).isMock, isTrue);
+      expect(withFlags(1.0).isMock, isTrue);
+      expect(withFlags(0).isMock, isFalse);
+      expect(withFlags(0.0).isMock, isFalse);
+      expect(withFlags(null).isMock, isNull);
+    });
+
     test('LocationData should be equal if all parameters are equals', () {
       final locationData = LocationData.fromMap(<String, dynamic>{
         'latitude': 42.0,
@@ -177,12 +222,14 @@ void main() {
       });
       expect(deviceLocation.isProducedByAccessory, false);
 
-      // Defaults to false when the platform omits the key (Android/web).
+      // Null -- not false -- when the platform omits the key, because it means
+      // "no such flag is exposed here", which is not the same claim as having
+      // checked and found the fix was device-produced.
       final missingLocation = LocationData.fromMap(<String, dynamic>{
         'latitude': 42.0,
         'longitude': 2.0,
       });
-      expect(missingLocation.isProducedByAccessory, false);
+      expect(missingLocation.isProducedByAccessory, isNull);
     });
 
     test('LocationData differs when isProducedByAccessory differs', () {

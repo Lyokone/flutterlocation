@@ -32,15 +32,82 @@ theme of your app to `Theme.AppCompat.Light.NoActionBar`:
 </style>
 ```
 
+## Permissions declared by the plugin
+
+The plugin's own `AndroidManifest.xml` is merged into your app, so these
+permissions are added without you declaring them:
+
+| Permission | Used for |
+| --- | --- |
+| `ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LOCATION` | Every location request. |
+| `FOREGROUND_SERVICE` | Running the background-mode foreground service (Android 9+). |
+| `FOREGROUND_SERVICE_LOCATION` | Starting that service with the `location` type (Android 14+). |
+
+The manifest also declares the plugin's `FlutterLocationService`. The plugin
+binds to this service for every call, not only in background mode, so keep it.
+
+`ACCESS_BACKGROUND_LOCATION` is **not** added for you. See
+[Background location](#background-location).
+
+### Google Play and foreground service permissions
+
+Because `FOREGROUND_SERVICE_LOCATION` ends up in your app's manifest, Google Play
+asks apps targeting Android 14 (API 34) or later to fill in the foreground
+service declaration in Play Console, even when the app never calls
+`enableBackgroundMode`. Until you do, publishing can fail with:
+
+```text
+You must let us know whether your app uses any Foreground Service permissions.
+```
+
+If your app does use background mode, fill in the declaration for the location
+foreground service type. If it doesn't, remove the permission instead (next
+section).
+
+### Apps that never use background mode
+
+If you only read the location while your app is visible (`getLocation`,
+`onLocationChanged` without `enableBackgroundMode`), remove
+`FOREGROUND_SERVICE_LOCATION` from the merged manifest with the manifest merger's
+`tools:node="remove"`:
+
+```xml name="android/app/src/main/AndroidManifest.xml"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <uses-permission
+    android:name="android.permission.FOREGROUND_SERVICE_LOCATION"
+    tools:node="remove" />
+
+  <application
+    android:label="your awesome app"
+    android:name="${applicationName}">
+    <!-- ... -->
+  </application>
+</manifest>
+```
+
+- Don't change or remove the `FlutterLocationService` `<service>` entry: the
+  plugin still needs it for ordinary location calls.
+- You can remove `FOREGROUND_SERVICE` the same way, but only if nothing else in
+  your app runs a foreground service: `tools:node="remove"` strips it for every
+  library, not just this plugin.
+- With the permission removed, `enableBackgroundMode(enable: true)` can't start
+  the foreground service on Android 14 and later. It throws a
+  `PlatformException` with the code `ENABLE_BACKGROUND_MODE_ERROR` instead of
+  crashing, so only remove it if you never call it.
+
 ## Background location
 
-In order to receive background location, you need to add the following
-permissions to your manifest:
+To receive location in the background, call `enableBackgroundMode(enable: true)`
+(see [Listen to location](/features/listen-location)). `FOREGROUND_SERVICE` and
+`FOREGROUND_SERVICE_LOCATION` are already declared by the plugin. By default
+`enableBackgroundMode` also requires the "Allow all the time" permission, which
+you must add to your manifest:
 
 ```xml name="android/app/src/main/AndroidManifest.xml"
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
   <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
   <application
@@ -50,3 +117,7 @@ permissions to your manifest:
   </application>
 </manifest>
 ```
+
+If you call `enableBackgroundMode(enable: true, requireBackgroundPermission: false)`,
+the foreground service keeps location access on its own and you don't need
+`ACCESS_BACKGROUND_LOCATION`.
