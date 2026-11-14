@@ -121,3 +121,26 @@ you must add to your manifest:
 If you call `enableBackgroundMode(enable: true, requireBackgroundPermission: false)`,
 the foreground service keeps location access on its own and you don't need
 `ACCESS_BACKGROUND_LOCATION`.
+
+## Building without Google Play services
+
+By default, the plugin uses the Google Play services fused location provider
+when it's available, and falls back to Android's own `LocationManager` on
+devices without it. The Play services library is included in your app either
+way.
+
+To leave it out entirely, for example so your app can be distributed on
+F-Droid, add this to your app's Gradle properties:
+
+```properties name="android/gradle.properties"
+location.playServices=false
+```
+
+Location then always comes from `LocationManager`. The differences are the
+same as on devices without Play services:
+
+- `requestService()` can't show the system dialog to turn location on. When
+  location is off, it fails with `SERVICE_STATUS_DISABLED`, so you can direct
+  the user to the device settings instead.
+- `changeSettings(accuracy: ...)` has no effect, since `LocationManager` uses
+  every enabled GPS and network provider.
