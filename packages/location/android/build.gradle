@@ -35,6 +35,7 @@ apply plugin: "org.jlleitschuh.gradle.ktlint"
 // framework's LocationManager, as it already does on devices without Play
 // services.
 def usePlayServices = (findProperty("location.playServices") ?: "true").toString().toBoolean()
+def playServicesSrcDir = usePlayServices ? "src/gms/kotlin" : "src/nogms/kotlin"
 
 android {
     namespace = "com.lyokone.location"
@@ -47,7 +48,10 @@ android {
 
     sourceSets {
         main.java.srcDirs += "src/main/kotlin"
-        main.java.srcDirs += usePlayServices ? "src/gms/kotlin" : "src/nogms/kotlin"
+        // Built-in Kotlin only compiles `kotlin` source dirs, while the Kotlin
+        // Gradle plugin also compiles `java` ones, so register it with both.
+        main.java.srcDirs += playServicesSrcDir
+        main.kotlin.srcDirs += playServicesSrcDir
         test.java.srcDirs += "src/test/kotlin"
     }
 
