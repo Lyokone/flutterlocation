@@ -14,7 +14,12 @@ class MethodChannelLocation extends LocationPlatform {
     if (_instance == null) {
       const methodChannel = MethodChannel('lyokone/location');
       const eventChannel = EventChannel('lyokone/locationstream');
-      _instance = MethodChannelLocation.private(methodChannel, eventChannel);
+      const pauseEventChannel = EventChannel('lyokone/locationpaused');
+      _instance = MethodChannelLocation.private(
+        methodChannel,
+        eventChannel,
+        pauseEventChannel,
+      );
     }
     return _instance!;
   }
@@ -22,14 +27,20 @@ class MethodChannelLocation extends LocationPlatform {
   /// This constructor is only used for testing and shouldn't be accessed by
   /// users of the plugin. It may break or change at any time.
   @visibleForTesting
-  MethodChannelLocation.private(this._methodChannel, this._eventChannel);
+  MethodChannelLocation.private(
+    this._methodChannel,
+    this._eventChannel, [
+    this._pauseEventChannel,
+  ]);
 
   static MethodChannelLocation? _instance;
 
   final MethodChannel? _methodChannel;
   final EventChannel? _eventChannel;
+  final EventChannel? _pauseEventChannel;
 
   Stream<LocationData>? _onLocationChanged;
+  Stream<bool>? _onLocationUpdatesPaused;
 
   /// Change settings of the location request.
   ///
@@ -64,6 +75,34 @@ class MethodChannelLocation extends LocationPlatform {
     );
 
     return result == 1;
+  }
+
+  /// Sets the [LocationActivityType] Core Location associates with the
+  /// location updates, and returns the type actually in effect afterwards.
+  ///
+  /// Returns `null` on platforms without the concept, and if the native side
+  /// reports back a value this version of the plugin does not know.
+  @override
+  Future<LocationActivityType?> setActivityType(
+    LocationActivityType type,
+  ) async {
+    if (!Platform.isIOS) {
+      // CLLocationManager.activityType has no equivalent elsewhere.
+      // Do nothing to prevent user from handling a potential error.
+      return null;
+    }
+
+    final result = await _methodChannel!.invokeMethod<int>(
+      'setActivityType',
+      <String, dynamic>{'activityType': type.index},
+    );
+
+    if (result == null ||
+        result < 0 ||
+        result >= LocationActivityType.values.length) {
+      return null;
+    }
+    return LocationActivityType.values[result];
   }
 
   /// Checks if service is enabled in the background mode.
@@ -187,6 +226,20 @@ class MethodChannelLocation extends LocationPlatform {
         Map<String, dynamic>.of(event.cast<String, dynamic>()),
       );
     });
+  }
+
+  /// Emits `true` when Core Location pauses location updates on its own
+  /// judgment, and `false` when it resumes them.
+  ///
+  /// Emits nothing on platforms that never pause updates by themselves.
+  @override
+  Stream<bool> get onLocationUpdatesPaused {
+    if (!Platform.isIOS) {
+      return const Stream.empty();
+    }
+    return _onLocationUpdatesPaused ??= _pauseEventChannel!
+        .receiveBroadcastStream()
+        .map<bool>((dynamic event) => event == true);
   }
 
   /// Change options of sticky background notification on Android.

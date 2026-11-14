@@ -105,6 +105,20 @@ void main() {
   });
 
   test(
+    'setActivityType should call the correct underlying instance',
+    () async {
+      when(location.setActivityType(LocationActivityType.fitness))
+          .thenAnswer((_) => Future.value(LocationActivityType.fitness));
+
+      final applied =
+          await location.setActivityType(LocationActivityType.fitness);
+      expect(applied, LocationActivityType.fitness);
+      verify(mockLocation.setActivityType(LocationActivityType.fitness))
+          .called(1);
+    },
+  );
+
+  test(
     'changeNotificationOptions should call the correct underlying instance',
     () async {
       when(location.changeNotificationOptions())
@@ -156,6 +170,30 @@ void main() {
             emitsDone,
           ],
         ),
+      );
+    });
+  });
+
+  group('onLocationUpdatesPaused', () {
+    late StreamController<bool> controller;
+
+    setUp(() {
+      controller = StreamController<bool>();
+      when(location.onLocationUpdatesPaused)
+          .thenAnswer((_) => controller.stream);
+    });
+
+    tearDown(() => controller.close());
+
+    test('should receive pause and resume values', () async {
+      controller
+        ..add(true)
+        ..add(false);
+      unawaited(controller.close());
+
+      await expectLater(
+        location.onLocationUpdatesPaused,
+        emitsInOrder(<dynamic>[true, false, emitsDone]),
       );
     });
   });

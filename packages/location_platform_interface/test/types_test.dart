@@ -2,6 +2,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
 
 void main() {
+  // setActivityType sends `LocationActivityType.index` over the method channel
+  // and decodes the answer back through `values[...]`, against a fixed index to
+  // CLActivityType map in the native side. Reordering this enum silently
+  // reinterprets both directions, so the declaration order is a wire contract.
+  test('LocationActivityType declaration order is the method channel contract',
+      () {
+    expect(LocationActivityType.values, [
+      LocationActivityType.other,
+      LocationActivityType.automotiveNavigation,
+      LocationActivityType.fitness,
+      LocationActivityType.otherNavigation,
+      LocationActivityType.airborne,
+    ]);
+  });
+
   group('LocationData', () {
     test('LocationData should be correctly converted to string', () {
       final locationData = LocationData.fromMap(<String, dynamic>{

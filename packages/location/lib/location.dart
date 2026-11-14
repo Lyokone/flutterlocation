@@ -6,7 +6,7 @@ import 'dart:ui';
 import 'package:location_platform_interface/location_platform_interface.dart';
 
 export 'package:location_platform_interface/location_platform_interface.dart'
-    show LocationAccuracy, LocationData, PermissionStatus;
+    show LocationAccuracy, LocationActivityType, LocationData, PermissionStatus;
 
 /// The main access point to the `location` plugin.
 class Location implements LocationPlatform {
@@ -51,6 +51,28 @@ class Location implements LocationPlatform {
       pausesLocationUpdatesAutomatically: pausesLocationUpdatesAutomatically,
       backgroundInterval: backgroundInterval,
     );
+  }
+
+  /// Sets the [LocationActivityType] Core Location associates with the location
+  /// updates, and returns the type actually in effect afterwards — useful to
+  /// confirm what was applied rather than assuming.
+  ///
+  /// This is a hint about the kind of travel being tracked. Per Apple it
+  /// informs when Core Location may pause updates by itself (see
+  /// [changeSettings]'s `pausesLocationUpdatesAutomatically` and
+  /// [onLocationUpdatesPaused]) and how reported positions are processed — for
+  /// [LocationActivityType.automotiveNavigation], that positions may be
+  /// adjusted towards nearby roads. The adjustments each type implies are not
+  /// documented beyond that.
+  ///
+  /// iOS only: `CLLocationManager.activityType` has no equivalent on Android,
+  /// macOS or web, where this does nothing and returns `null`.
+  ///
+  /// Can be called before or while listening to [onLocationChanged]; the new
+  /// value applies to subsequent updates either way.
+  @override
+  Future<LocationActivityType?> setActivityType(LocationActivityType type) {
+    return LocationPlatform.instance.setActivityType(type);
   }
 
   /// Checks if service is enabled in the background mode.
@@ -161,6 +183,23 @@ class Location implements LocationPlatform {
   @override
   Stream<LocationData> get onLocationChanged {
     return LocationPlatform.instance.onLocationChanged;
+  }
+
+  /// Emits `true` when Core Location pauses location updates on its own
+  /// judgment, and `false` when it resumes them.
+  ///
+  /// Useful to distinguish "iOS decided the user stopped moving and paused
+  /// updates" from "the location stream stopped for some other reason", which
+  /// otherwise look identical: both are simply an absence of updates.
+  ///
+  /// Nothing is emitted while `pausesLocationUpdatesAutomatically` is disabled
+  /// (see [changeSettings]); Apple also describes the activity type (see
+  /// [setActivityType]) as informing when Core Location considers a pause
+  /// appropriate. iOS only; emits nothing on other platforms, which never pause
+  /// by themselves.
+  @override
+  Stream<bool> get onLocationUpdatesPaused {
+    return LocationPlatform.instance.onLocationUpdatesPaused;
   }
 
   /// Change options of sticky background notification on Android.

@@ -49,6 +49,49 @@ have stopped moving — as a battery-saving heuristic, which is usually fine but
 can be surprising for an app that expects truly continuous updates (like live
 tracking).
 
+## Activity type (iOS)
+
+`setActivityType` sets the `CLActivityType` Core Location associates with the
+updates. It is a hint about the kind of travel being tracked. Apple describes it
+as informing when Core Location considers it reasonable to pause updates by
+itself, and — for `automotiveNavigation` — that reported positions may be
+adjusted towards nearby roads. The adjustments implied by each type are not
+documented beyond that.
+
+```dart
+// other (Core Location's default), automotiveNavigation, fitness,
+// otherNavigation, airborne.
+final applied = await location.setActivityType(LocationActivityType.fitness);
+```
+
+It returns the activity type in effect after the call — or `null` on Android,
+macOS and web, which have no equivalent setting — so you can confirm what was
+applied instead of assuming.
+
+If you are tracking pedestrian-scale movement (walking, running, cycling) and
+your recorded path looks pulled towards nearby roads, `fitness` or
+`otherNavigation` are worth trying, since neither describes automobile travel.
+Apple does not document what each type changes, so compare recordings of the
+same route rather than assuming an outcome.
+
+Since the activity type also informs Core Location's pausing decisions,
+consider whether you want `pausesLocationUpdatesAutomatically: false` alongside
+it.
+
+## Knowing when updates are paused (iOS)
+
+A pause is only visible as an absence of updates, which looks exactly like a
+location stream that has broken. `onLocationUpdatesPaused` tells the two apart:
+
+```dart
+location.onLocationUpdatesPaused.listen((paused) {
+  debugPrint(paused ? 'Core Location paused updates' : 'updates resumed');
+});
+```
+
+iOS only; on other platforms the stream emits nothing, since nothing else pauses
+updates on its own.
+
 ## Example
 
 ```dart
