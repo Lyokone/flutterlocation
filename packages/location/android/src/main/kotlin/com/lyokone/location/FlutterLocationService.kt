@@ -339,6 +339,23 @@ class FlutterLocationService : Service(), PluginRegistry.RequestPermissionsResul
         location?.activity = activity
     }
 
+    /** True if [activity] is the activity this service currently targets. */
+    fun hasActivity(activity: Activity?): Boolean = activity != null && this.activity === activity
+
+    /**
+     * Self-heal: if the shared activity is missing, finishing or destroyed
+     * (another plugin instance cleared it, or it belongs to an activity that is
+     * on its way out after an overlapping relaunch), re-point this service at
+     * [fresh] when that is a live activity. Used by both the method and stream
+     * handlers before they touch [location].
+     */
+    fun ensureLiveActivity(fresh: Activity?) {
+        val current = activity
+        if (current != null && !current.isFinishing && !current.isDestroyed) return
+        if (fresh == null || fresh.isFinishing || fresh.isDestroyed) return
+        setActivity(fresh)
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,

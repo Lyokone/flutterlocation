@@ -48,6 +48,11 @@ class LocationPlugin : FlutterPlugin, ActivityAware {
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         methodCallHandler?.stopListening()
         methodCallHandler = null
+        // Engine removal need not deliver a stream cancellation. Release only
+        // this handler's sink before dropping the handler.
+        streamHandlerImpl?.setLocation(null)
+        streamHandlerImpl?.setLocationService(null)
+        streamHandlerImpl?.setActivityProvider(null)
         streamHandlerImpl?.stopListening()
         streamHandlerImpl = null
     }
@@ -97,12 +102,16 @@ class LocationPlugin : FlutterPlugin, ActivityAware {
 
         methodCallHandler?.setLocation(service.location)
         methodCallHandler?.setLocationService(service)
+        methodCallHandler?.setActivityProvider { activityBinding?.activity }
 
+        streamHandlerImpl?.setLocationService(service)
+        streamHandlerImpl?.setActivityProvider { activityBinding?.activity }
         streamHandlerImpl?.setLocation(service.location)
     }
 
     private fun dispose() {
         streamHandlerImpl?.setLocation(null)
+        streamHandlerImpl?.setLocationService(null)
 
         methodCallHandler?.setLocationService(null)
         methodCallHandler?.setLocation(null)
@@ -114,7 +123,17 @@ class LocationPlugin : FlutterPlugin, ActivityAware {
             service.locationActivityResultListener?.let(binding::removeActivityResultListener)
         }
 
-        service.setActivity(null)
+        // Only clear the shared service's activity if it is still the one this
+        // plugin instance attached. Android can create a second MainActivity
+        // (with its own FlutterEngine and plugin instance) before this one is
+        // destroyed -- Android 17 relaunches a foreground app with
+        // FLAG_ACTIVITY_CLEAR_TASK after a package update -- and that newer
+        // instance has already pointed the service at its own activity.
+        // Clearing it here would leave the live instance with no activity and
+        // every getLocation() failing with ActivityNotFoundException.
+        if (service.hasActivity(activityBinding?.activity)) {
+            service.setActivity(null)
+        }
         locationService = null
     }
 
