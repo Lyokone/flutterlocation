@@ -3,3 +3,7 @@ include: package:leancode_lint/analysis_options_package.yaml
 analyzer:
   exclude:
     - '**/*.mocks.dart'
+    - build/**
+    - android/**
+    - windows/**
+    - linux/**

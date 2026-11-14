@@ -4,14 +4,31 @@ title: Install on macOS
 
 # Install on macOS
 
-## Minimum deployment target
+## Swift Package Manager
 
-In order to use the `location` plugin, you need to set your minimum deployment
-target to macOS 11.0 or later:
+The `location` plugin is distributed as a Swift package only; it has no
+CocoaPods podspec. Swift Package Manager is on by default since Flutter 3.44,
+so there is nothing to set up. If you turned it off, turn it back on:
 
-```ruby name="macos/Podfile"
-platform :osx, '11.0'
+```bash
+flutter config --enable-swift-package-manager
 ```
+
+and, if your app's `pubspec.yaml` turns it off, remove that setting:
+
+```yaml name="pubspec.yaml"
+flutter:
+  config:
+    enable-swift-package-manager: false # remove this line
+```
+
+Your app can still use CocoaPods for other plugins; Flutter integrates both
+side by side.
+
+If you embed Flutter in an existing native app, build it with
+`flutter build swift-package`. `flutter build ios-framework` and
+`flutter build macos-framework` only install plugins through CocoaPods, so they
+leave `location` out.
 
 ## Info.plist
 
