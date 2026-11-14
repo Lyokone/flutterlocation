@@ -1,5 +1,12 @@
 part of '../location_platform_interface.dart';
 
+/// Reads a native 0/1 flag that a platform may not send at all.
+///
+/// Absent means "this platform cannot tell", which is distinct from a reported
+/// `0`. Collapsing the two would let Windows, Linux and web claim a fix is
+/// verified un-mocked when nothing ever checked.
+bool? _optionalFlag(Object? value) => value == null ? null : value == 1;
+
 /// Represents a geographical location in the real world.
 class LocationData {
   LocationData._(
@@ -32,8 +39,8 @@ class LocationData {
       dataMap['speed_accuracy'] as double?,
       dataMap['heading'] as double?,
       dataMap['time'] as double?,
-      dataMap['isMock'] == 1,
-      dataMap['isProducedByAccessory'] == 1,
+      _optionalFlag(dataMap['isMock']),
+      _optionalFlag(dataMap['isProducedByAccessory']),
       dataMap['verticalAccuracy'] as double?,
       dataMap['headingAccuracy'] as double?,
       dataMap['elapsedRealtimeNanos'] as double?,
@@ -108,16 +115,19 @@ class LocationData {
 
   /// Is the location currently mocked
   ///
-  /// On iOS 15.0+/macOS 12.0+ this reflects `isSimulatedBySoftware`; on older
-  /// Apple systems it is always false, as Core Location exposes no such flag.
+  /// Will be null if the platform cannot tell, which is not the same as false.
+  /// Android always reports it, and so does iOS 15.0+/macOS 12.0+ (via
+  /// `isSimulatedBySoftware`); older Apple systems, Windows, Linux and web
+  /// expose no such flag and therefore report null.
   final bool? isMock;
 
   /// Whether the location was produced by a connected accessory, such as an
   /// external GPS receiver.
   ///
-  /// On iOS 15.0+/macOS 12.0+ this reflects
-  /// `CLLocation.sourceInformation?.isProducedByAccessory`; on older Apple
-  /// systems and on Android/web it is always false, as no such flag is exposed.
+  /// Will be null if the platform cannot tell, which is not the same as false.
+  /// Only iOS 15.0+/macOS 12.0+ report it, via
+  /// `CLLocation.sourceInformation?.isProducedByAccessory`; every other
+  /// platform exposes no such flag and therefore reports null.
   final bool? isProducedByAccessory;
 
   /// Get the estimated bearing accuracy of this location, in degrees.

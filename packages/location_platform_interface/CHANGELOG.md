@@ -1,18 +1,12 @@
 ## 7.1.0
 
-### Added
+### 💥 Behavior changes
 
-- `LocationPlatform.setActivityType()` and the `LocationActivityType` enum,
-  exposing `CLLocationManager.activityType` (iOS only). Returns the activity
-  type in effect after the call, so callers can confirm what was applied.
-- `LocationPlatform.onLocationUpdatesPaused`, a stream that emits `true` when
-  Core Location pauses location updates on its own judgment and `false` when it
-  resumes them (iOS only). Previously a self-inflicted pause was
-  indistinguishable from a broken location stream on the Dart side.
-
-Both members have benign default implementations (`null` and an empty stream)
-rather than throwing `UnimplementedError`, so platform implementations without
-the underlying concept do not need to override them.
+- `LocationData.fromMap` reports `isMock` and `isProducedByAccessory` as `null`
+  when the platform map omits the key, instead of defaulting to `false`. An
+  absent key means the platform exposes no such flag, which is not the same as
+  having checked. Also makes `fromMap` → `toJson` → `fromJson` round-trip for
+  those two fields.
 
 ## 7.0.0
 

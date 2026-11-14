@@ -9,9 +9,9 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:8.11.1")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.20")
-        classpath("org.jlleitschuh.gradle:ktlint-gradle:12.1.2")
+        classpath("com.android.tools.build:gradle:9.3.1")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.20")
+        classpath("org.jlleitschuh.gradle:ktlint-gradle:14.2.0")
     }
 }
 
@@ -21,20 +21,12 @@ repositories {
 }
 
 apply plugin: "com.android.library"
-
-// AGP 9 ships built-in Kotlin support, but it can be turned off with the
-// `android.builtInKotlin` Gradle property. Only skip applying the standalone
-// Kotlin Gradle plugin when built-in Kotlin is actually active; otherwise the
-// `kotlin { }` block below would have no backing extension. Mirrors the logic
-// used by other Flutter plugins (e.g. file_picker).
-def agpMajor = Integer.parseInt(com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.split("\\.")[0])
-def builtInKotlinProperty = providers.gradleProperty("android.builtInKotlin").orNull
-def builtInKotlinEnabled = agpMajor >= 9 &&
-    (builtInKotlinProperty == null || builtInKotlinProperty.toBoolean())
-if (!builtInKotlinEnabled) {
-    apply plugin: "org.jetbrains.kotlin.android"
-}
-
+// The Kotlin Gradle plugin is deliberately not applied here (Built-in Kotlin,
+// see https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors).
+// With AGP 9's Built-in Kotlin enabled, AGP compiles the Kotlin sources itself;
+// otherwise (AGP 8, or `android.builtInKotlin=false`) Flutter 3.44+ applies
+// `kotlin-android` to plugins that don't. Flutter warns about, and will stop
+// building, plugins whose build file applies it themselves (#1105).
 apply plugin: "org.jlleitschuh.gradle.ktlint"
 
 android {
@@ -42,8 +34,8 @@ android {
     compileSdk = 36
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     sourceSets {
@@ -62,9 +54,16 @@ android {
 // Kotlin, where the `kotlinOptions` block is no longer available.
 kotlin {
     compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
         // allWarningsAsErrors = true // TODO(bartekpacia): Re-enable
     }
+}
+
+// ktlint-gradle 13.1+ is needed for Gradle 9, but it also bumps the bundled
+// ktlint engine. Pin the engine to the version ktlint-gradle 12 used so the
+// upgrade doesn't change which style rules apply.
+ktlint {
+    version.set("1.0.1")
 }
 
 dependencies {

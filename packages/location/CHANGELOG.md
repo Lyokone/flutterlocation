@@ -1,25 +1,81 @@
+## 10.2.0
+
+### 🤖 Android
+
+- The plugin's build script supports Gradle 9, which Flutter 3.50 requires.
+  ktlint-gradle, which the script applies in every app's build, moves from
+  12.1.2 to 14.2.0, with the ktlint engine still pinned at 1.0.1. The
+  buildscript AGP and KGP versions (9.3.1 and 2.4.20) and the Java/JVM target
+  (17) now match Flutter 3.50's plugin template (#1115).
+
+### 🍎 iOS & macOS
+
+- The plugin is now distributed as a Swift package only, and the CocoaPods
+  podspec is gone. Apps using Swift Package Manager (on by default since
+  Flutter 3.44) are unaffected. If your app turned it off, turn it back on
+  (`flutter config --enable-swift-package-manager`), or the build stops with
+  "The following plugin(s) are only compatible with Swift Package Manager".
+  Other plugins can keep using CocoaPods in the same app. Apps that embed
+  Flutter in a native app should build it with `flutter build swift-package`,
+  because `flutter build ios-framework` and `macos-framework` only install
+  plugins through CocoaPods (#1115).
+
 ## 10.1.0
 
-### 🎯 Dart API
+### 💥 Behavior changes
 
-- Added `Location.setActivityType()` and the `LocationActivityType` enum,
-  exposing `CLLocationManager.activityType` on iOS. Core Location uses the
-  activity type as a hint for how to acquire and process fixes: per Apple it
-  informs when updates may be paused automatically, and for
-  `automotiveNavigation` that positions may be adjusted towards nearby roads.
-  The plugin never set the property, so apps were stuck with Core Location's
-  `.other` default and had no way to describe pedestrian-scale movement
-  (walking, running, cycling) (#602). Returns the activity type actually in
-  effect after the call, so callers can confirm what was applied rather than
-  assuming. No-op returning `null` on Android, macOS and web, which have no
-  equivalent setting.
-- Added `Location.onLocationUpdatesPaused`, a stream that emits `true` when Core
-  Location pauses location updates on its own judgment and `false` when it
-  resumes them. A pause is only ever visible as an absence of updates, which is
-  indistinguishable from a location stream that has broken; the plugin never
-  implemented `locationManagerDidPauseLocationUpdates(_:)`, so that signal was
-  dropped entirely. iOS only; emits nothing on platforms that do not pause
-  updates by themselves.
+- `accuracy`, `verticalAccuracy`, `altitude`, `speed`, `speedAccuracy`, `heading`
+  and `headingAccuracy` are now `null` when the fix does not carry them, instead
+  of a fabricated `0` or a raw platform sentinel. They were already `double?` and
+  documented as nullable, so nothing stops compiling — but an app that
+  force-unwraps (`data.speed!`) or treated `0` as a real reading will now see a
+  null. Per platform: Android gates each field on its `Location.hasX()`;
+  iOS/macOS map Core Location's negative sentinel to `nil` for every scalar, not
+  just `speed` (#741); Windows gates `altitude` on `AltitudeAccuracy` and omits a
+  null `heading`/`speed`; Linux recognises GeoClue2's `-1` and `-G_MAXDOUBLE`
+  sentinels; web normalises the `NaN` heading the Geolocation spec returns when
+  the device is stationary.
+- `isMock` and `isProducedByAccessory` are `null` when the platform exposes no
+  such flag, rather than defaulting to `false`. Android always reports `isMock`,
+  Apple reports both on iOS 15.0+/macOS 12.0+, Windows/Linux/web report `null`.
+
+### 🐛 Bug fixes
+
+- **Android:** the plugin no longer applies the Kotlin Gradle plugin itself, so
+  AGP 9 builds stop warning "Your app uses the following plugins that apply
+  Kotlin Gradle Plugin (KGP): location". With Built-in Kotlin, AGP compiles the
+  plugin; otherwise Flutter applies KGP to it (#1105).
+- **Android:** the NMEA mean-sea-level altitude is only applied to a fix that has
+  an altitude to correct, and is cleared with the NMEA listener. A stale GPS
+  reading could previously surface as a network-provider fix's current altitude.
+- **iOS:** `requestAlwaysAuthorization` is no longer compiled into iOS builds, so
+  App Store Connect stops rejecting apps that only declare
+  `NSLocationWhenInUseUsageDescription` (ITMS-90683). The removed branch could
+  never prompt anyway: iOS needs both usage keys to request Always (#1106).
+- **iOS/macOS:** fixes with a negative `horizontalAccuracy` are skipped. Core
+  Location documents that as meaning the coordinate itself is invalid, and
+  `latitude`/`longitude` are non-nullable.
+- **Windows:** `verticalAccuracy` is now reported.
+- **Linux:** `time` is now populated from GeoClue2's `Timestamp`.
+
+### 📝 Docs
+
+- **Android:** the setup page lists the permissions the plugin declares,
+  explains the Google Play foreground service declaration that
+  `FOREGROUND_SERVICE_LOCATION` triggers, and shows how apps that never use
+  background mode can remove it with `tools:node="remove"` (#1109).
+- **iOS:** background updates need only When In Use authorization and the
+  "Location updates" background mode, not
+  `NSLocationAlwaysAndWhenInUseUsageDescription` (#1106).
+
+### 🧹 Housekeeping
+
+- Requires Flutter 3.44 or later (was 3.27), as Flutter's Built-in Kotlin
+  migration requires (#1105).
+- **iOS/macOS:** `Package.swift` depends on the `FlutterFramework` package that
+  Flutter 3.44+ generates, as Flutter's Swift Package Manager guide for plugin
+  authors asks. This clears the "missing a dependency on FlutterFramework"
+  warning when building the plugin's example app (#1113).
 
 ## 10.0.2
 

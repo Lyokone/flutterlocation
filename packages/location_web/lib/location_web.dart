@@ -204,15 +204,28 @@ class LocationWebPlugin extends LocationPlatform {
   /// Reference: https://developer.mozilla.org/en-US/docs/Web/API/GeolocationCoordinates
   ///
   LocationData _toLocationData(web.GeolocationPosition result) {
+    final coords = result.coords;
     return LocationData.fromMap(<String, dynamic>{
-      'latitude': result.coords.latitude.toDouble(),
-      'longitude': result.coords.longitude.toDouble(),
-      'altitude': result.coords.altitude?.toDouble(),
-      'accuracy': result.coords.accuracy.toDouble(),
-      'verticalAccuracy': result.coords.altitudeAccuracy?.toDouble(),
-      'heading': result.coords.heading?.toDouble(),
-      'speed': result.coords.speed?.toDouble(),
+      'latitude': coords.latitude.toDouble(),
+      'longitude': coords.longitude.toDouble(),
+      'altitude': _sanitize(coords.altitude?.toDouble()),
+      'accuracy': coords.accuracy.toDouble(),
+      'verticalAccuracy': _sanitize(coords.altitudeAccuracy?.toDouble()),
+      'heading': _sanitize(coords.heading?.toDouble()),
+      'speed': _sanitize(coords.speed?.toDouble()),
       'time': result.timestamp.toDouble(),
     });
   }
+
+  /// Normalizes an optional coordinate reading to `null` when it carries no
+  /// usable value.
+  ///
+  /// The Geolocation spec makes `heading` **NaN** -- not null -- whenever the
+  /// device is stationary (`speed == 0`), and NaN is worse downstream than the
+  /// fabricated zero this whole change is about: it makes two otherwise
+  /// identical [LocationData] compare unequal and their `hashCode`s unstable,
+  /// because `NaN != NaN`. Infinity gets the same treatment for the same
+  /// reason.
+  static double? _sanitize(double? value) =>
+      (value == null || !value.isFinite) ? null : value;
 }
