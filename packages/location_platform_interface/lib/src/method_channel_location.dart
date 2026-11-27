@@ -229,7 +229,7 @@ class MethodChannelLocation extends LocationPlatform {
     Color? color,
     bool? onTapBringToFront,
   }) async {
-    if (!Platform.isAndroid) {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
       // This method only applies to Android.
       // Do nothing to prevent user from handling a potential error.
       return null;
